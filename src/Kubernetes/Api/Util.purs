@@ -1,0 +1,29 @@
+module Kubernetes.Api.Util where
+
+import Prelude
+import Control.Alt ((<|>))
+import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
+import Data.Maybe (Maybe(Just,Nothing))
+import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Kubernetes.Default (class Default)
+import Kubernetes.Json (jsonOptions)
+
+-- | io.k8s.apimachinery.pkg.util.intstr.IntOrString
+data IntOrString = 
+  IntOrStringString String
+  | IntOrStringInt Int
+
+
+derive instance genericIntOrString :: Generic IntOrString _
+instance showIntOrString :: Show IntOrString where show = genericShow
+instance decodeIntOrString :: Decode IntOrString where
+  decode f = (IntOrStringInt <$> decode f) <|> (IntOrStringString <$> decode f)
+instance encodeIntOrString :: Encode IntOrString where
+  encode (IntOrStringString s) = encode s
+  encode (IntOrStringInt i) = encode i

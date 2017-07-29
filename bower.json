@@ -1,0 +1,39 @@
+{
+  "name": "purescript-kubernetes",
+  "homepage": "https://github.com/hoodunit/purescript-kubernetes",
+  "authors": [
+    "Nicholas Kariniemi <nicholas.kariniemi@gmail.com>"
+  ],
+  "description": "PureScript client library for the Kubernetes API",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hoodunit/purescript-kubernetes.git"
+  },
+  "version": "0.1.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output",
+    "test"
+  ],
+  "dependencies": {
+    "purescript-console": "3.0.0",
+    "purescript-debug": "3.0.0",
+    "purescript-foreign-generic": "5.0.0",
+    "purescript-http-methods": "3.0.0",
+    "purescript-newtype": "2.0.0",
+    "purescript-node-fs-aff": "5.0.0",
+    "purescript-node-http": "4.2.0",
+    "purescript-node-process": "5.0.0",
+    "purescript-node-url": "3.0.0",
+    "purescript-prelude": "3.1.0",
+    "purescript-profunctor-lenses": "3.7.0",
+    "purescript-simple-json": "1.0.0",
+    "purescript-test-unit": "13.0.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "3.0.0",
+    "purescript-monad-loops": "0.4.0"
+  }
+}

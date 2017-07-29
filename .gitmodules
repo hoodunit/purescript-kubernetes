@@ -1,0 +1,3 @@
+[submodule "kubernetes-json-schema"]
+	path = kubernetes-json-schema
+	url = git@github.com:garethr/kubernetes-json-schema.git

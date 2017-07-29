@@ -1,0 +1,24 @@
+{
+  "name": "purescript-kubernetes",
+  "devDependencies": {
+    "bower": "1.8.0",
+    "pulp": "11.0.0",
+    "purescript": "0.11.6"
+  },
+  "scripts": {
+    "clean": "rm -rf output .pulp-cache",
+    "clean:all": "npm run clean && rm -rf node_modules bower_components",
+    "build": "npm run clean && pulp build --main Kubernetes.Client --build-path output --to output/app.js",
+    "build:watch": "npm run clean && pulp --watch build --main Kubernetes.Client --build-path output --to output/app.js",
+    "build:generation": "npm run clean && pulp build --src-path src/Kubernetes/Generation --main Kubernetes.Generation.Main --build-path output --to output/generate.js",
+    "build:generation:watch": "npm run clean && pulp --watch build --src-path src/Kubernetes/Generation --main Kubernetes.Generation.Main --build-path output --to output/generate.js",
+    "generate": "rm -rf src/Kubernetes/Api && node output/generate.js",
+    "generate:watch": "npm run clean && pulp --watch --then 'npm run generate' build --src-path src/Kubernetes/Generation --main Kubernetes.Generation.Main --build-path output --to output/generate.js",
+    "repl": "pulp repl",
+    "test": "npm run test:unit",
+    "test:integration": "pulp test --main Kubernetes.Test.Integration.Main",
+    "test:integration:local": "./scripts/start_minikube.sh && CA_CERT=~/.minikube/ca.crt CLIENT_CERT=~/.minikube/client.crt CLIENT_KEY=~/.minikube/client.key K8S_HOST=localhost K8S_PORT=8443 K8S_PROTOCOL=https npm run test:integration",
+    "test:unit": "pulp test --main Kubernetes.Test.Unit.Main",
+    "test:unit:watch": "pulp --watch test --main Kubernetes.Test.Unit.Main"
+  }
+}
