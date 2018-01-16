@@ -1,5 +1,3 @@
-## purescript-kubernetes
-
 PureScript client for the Kubernetes API.
 
 Supports Kubernetes API versions up to `1.10.0`.
