@@ -6,3 +6,4 @@ result
 .browserify-cache.json
 .psci
 .pulp-cache
+minikube
