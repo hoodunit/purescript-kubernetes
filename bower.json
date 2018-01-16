@@ -12,9 +12,14 @@
   "version": "0.1.0",
   "ignore": [
     "**/.*",
+    "*.nix",
+    "nixpkgs.json",
+    "bower",
+    "definitions",
     "node_modules",
     "bower_components",
     "output",
+    "scripts",
     "test"
   ],
   "dependencies": {
