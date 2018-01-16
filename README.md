@@ -49,7 +49,7 @@ npm run test:unit
 
 All the `nix-shell` step does here is install Node.js, so you should also be able to install the version of Node.js in `default.nix` separately and run with that.
 
-The Kubernetes API types and endpoints are generated from the Kubernetes Swagger definitions in the [definitions][./definitions] directory.
+The Kubernetes API types and endpoints are generated from the Kubernetes Swagger definitions in the [definitions](./definitions) directory.
 
 ## Testing
 
