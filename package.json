@@ -19,6 +19,7 @@
     "test:integration": "pulp test --main Kubernetes.Test.Integration.Main",
     "test:integration:local": "./scripts/start_minikube.sh && CA_CERT=~/.minikube/ca.crt CLIENT_CERT=~/.minikube/client.crt CLIENT_KEY=~/.minikube/client.key K8S_HOST=localhost K8S_PORT=8443 K8S_PROTOCOL=https npm run test:integration",
     "test:unit": "pulp test --main Kubernetes.Test.Unit.Main",
-    "test:unit:watch": "pulp --watch test --main Kubernetes.Test.Unit.Main"
+    "test:unit:watch": "pulp --watch test --main Kubernetes.Test.Unit.Main",
+    "version": "pulp version"
   }
 }
