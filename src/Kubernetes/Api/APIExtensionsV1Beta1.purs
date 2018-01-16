@@ -23,82 +23,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a CustomResourceDefinition
-createCustomResourceDefinition :: forall e. Config -> CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status CustomResourceDefinition)
-createCustomResourceDefinition cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionCustomResourceDefinitionOptions
-newtype DeleteCollectionCustomResourceDefinitionOptions = DeleteCollectionCustomResourceDefinitionOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionCustomResourceDefinitionOptions :: Newtype DeleteCollectionCustomResourceDefinitionOptions _
-derive instance genericDeleteCollectionCustomResourceDefinitionOptions :: Generic DeleteCollectionCustomResourceDefinitionOptions _
-instance showDeleteCollectionCustomResourceDefinitionOptions :: Show DeleteCollectionCustomResourceDefinitionOptions where show a = genericShow a
-instance decodeDeleteCollectionCustomResourceDefinitionOptions :: Decode DeleteCollectionCustomResourceDefinitionOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionCustomResourceDefinitionOptions :: Encode DeleteCollectionCustomResourceDefinitionOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionCustomResourceDefinitionOptions :: Default DeleteCollectionCustomResourceDefinitionOptions where
-  default = DeleteCollectionCustomResourceDefinitionOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of CustomResourceDefinition
-deleteCollectionCustomResourceDefinition :: forall e. Config -> DeleteCollectionCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionCustomResourceDefinition cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions" <> formatQueryString options
-
--- | DeleteCustomResourceDefinitionOptions
-newtype DeleteCustomResourceDefinitionOptions = DeleteCustomResourceDefinitionOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteCustomResourceDefinitionOptions :: Newtype DeleteCustomResourceDefinitionOptions _
-derive instance genericDeleteCustomResourceDefinitionOptions :: Generic DeleteCustomResourceDefinitionOptions _
-instance showDeleteCustomResourceDefinitionOptions :: Show DeleteCustomResourceDefinitionOptions where show a = genericShow a
-instance decodeDeleteCustomResourceDefinitionOptions :: Decode DeleteCustomResourceDefinitionOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCustomResourceDefinitionOptions :: Encode DeleteCustomResourceDefinitionOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCustomResourceDefinitionOptions :: Default DeleteCustomResourceDefinitionOptions where
-  default = DeleteCustomResourceDefinitionOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a CustomResourceDefinition
-deleteCustomResourceDefinition :: forall e. Config -> MetaV1.DeleteOptions -> DeleteCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCustomResourceDefinition cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/apiextensions.k8s.io/v1beta1/"
-
 -- | io.k8s.api.extensions.v1beta1.AllowedFlexVolume
 -- | AllowedFlexVolume represents a single Flexvolume that is allowed to be used.
 newtype AllowedFlexVolume = AllowedFlexVolume
@@ -1602,6 +1526,82 @@ instance defaultJSONSchemaPropsOrStringArray :: Default JSONSchemaPropsOrStringA
   default = JSONSchemaPropsOrStringArray
     { _Property: NullOrUndefined Nothing
     , _Schema: NullOrUndefined Nothing }
+
+-- | create a CustomResourceDefinition
+createCustomResourceDefinition :: forall e. Config -> CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status CustomResourceDefinition)
+createCustomResourceDefinition cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionCustomResourceDefinitionOptions
+newtype DeleteCollectionCustomResourceDefinitionOptions = DeleteCollectionCustomResourceDefinitionOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionCustomResourceDefinitionOptions :: Newtype DeleteCollectionCustomResourceDefinitionOptions _
+derive instance genericDeleteCollectionCustomResourceDefinitionOptions :: Generic DeleteCollectionCustomResourceDefinitionOptions _
+instance showDeleteCollectionCustomResourceDefinitionOptions :: Show DeleteCollectionCustomResourceDefinitionOptions where show a = genericShow a
+instance decodeDeleteCollectionCustomResourceDefinitionOptions :: Decode DeleteCollectionCustomResourceDefinitionOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionCustomResourceDefinitionOptions :: Encode DeleteCollectionCustomResourceDefinitionOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionCustomResourceDefinitionOptions :: Default DeleteCollectionCustomResourceDefinitionOptions where
+  default = DeleteCollectionCustomResourceDefinitionOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of CustomResourceDefinition
+deleteCollectionCustomResourceDefinition :: forall e. Config -> DeleteCollectionCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionCustomResourceDefinition cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions" <> formatQueryString options
+
+-- | DeleteCustomResourceDefinitionOptions
+newtype DeleteCustomResourceDefinitionOptions = DeleteCustomResourceDefinitionOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteCustomResourceDefinitionOptions :: Newtype DeleteCustomResourceDefinitionOptions _
+derive instance genericDeleteCustomResourceDefinitionOptions :: Generic DeleteCustomResourceDefinitionOptions _
+instance showDeleteCustomResourceDefinitionOptions :: Show DeleteCustomResourceDefinitionOptions where show a = genericShow a
+instance decodeDeleteCustomResourceDefinitionOptions :: Decode DeleteCustomResourceDefinitionOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCustomResourceDefinitionOptions :: Encode DeleteCustomResourceDefinitionOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCustomResourceDefinitionOptions :: Default DeleteCustomResourceDefinitionOptions where
+  default = DeleteCustomResourceDefinitionOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a CustomResourceDefinition
+deleteCustomResourceDefinition :: forall e. Config -> MetaV1.DeleteOptions -> DeleteCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCustomResourceDefinition cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/apiextensions.k8s.io/v1beta1/"
 
 -- | ListCustomResourceDefinitionOptions
 newtype ListCustomResourceDefinitionOptions = ListCustomResourceDefinitionOptions

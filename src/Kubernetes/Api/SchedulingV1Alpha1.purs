@@ -21,6 +21,56 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
+-- | io.k8s.api.scheduling.v1alpha1.PriorityClass
+-- | PriorityClass defines mapping from a priority class name to the priority integer value. The value can be any valid integer.
+newtype PriorityClass = PriorityClass
+  { apiVersion :: (NullOrUndefined String)
+  , description :: (NullOrUndefined String)
+  , globalDefault :: (NullOrUndefined Boolean)
+  , kind :: (NullOrUndefined String)
+  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
+  , value :: (NullOrUndefined Int) }
+
+derive instance newtypePriorityClass :: Newtype PriorityClass _
+derive instance genericPriorityClass :: Generic PriorityClass _
+instance showPriorityClass :: Show PriorityClass where show a = genericShow a
+instance decodePriorityClass :: Decode PriorityClass where
+  decode a = genericDecode jsonOptions a 
+instance encodePriorityClass :: Encode PriorityClass where
+  encode a = genericEncode jsonOptions a
+
+instance defaultPriorityClass :: Default PriorityClass where
+  default = PriorityClass
+    { apiVersion: NullOrUndefined Nothing
+    , description: NullOrUndefined Nothing
+    , globalDefault: NullOrUndefined Nothing
+    , kind: NullOrUndefined Nothing
+    , metadata: NullOrUndefined Nothing
+    , value: NullOrUndefined Nothing }
+
+-- | io.k8s.api.scheduling.v1alpha1.PriorityClassList
+-- | PriorityClassList is a collection of priority classes.
+newtype PriorityClassList = PriorityClassList
+  { apiVersion :: (NullOrUndefined String)
+  , items :: (NullOrUndefined (Array PriorityClass))
+  , kind :: (NullOrUndefined String)
+  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+
+derive instance newtypePriorityClassList :: Newtype PriorityClassList _
+derive instance genericPriorityClassList :: Generic PriorityClassList _
+instance showPriorityClassList :: Show PriorityClassList where show a = genericShow a
+instance decodePriorityClassList :: Decode PriorityClassList where
+  decode a = genericDecode jsonOptions a 
+instance encodePriorityClassList :: Encode PriorityClassList where
+  encode a = genericEncode jsonOptions a
+
+instance defaultPriorityClassList :: Default PriorityClassList where
+  default = PriorityClassList
+    { apiVersion: NullOrUndefined Nothing
+    , items: NullOrUndefined Nothing
+    , kind: NullOrUndefined Nothing
+    , metadata: NullOrUndefined Nothing }
+
 -- | create a PriorityClass
 createPriorityClass :: forall e. Config -> PriorityClass -> Aff (http :: HTTP | e) (Either MetaV1.Status PriorityClass)
 createPriorityClass cfg body = makeRequest (post cfg url (Just encodedBody))
@@ -96,56 +146,6 @@ getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Sta
 getAPIResources cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/scheduling.k8s.io/v1alpha1/"
-
--- | io.k8s.api.scheduling.v1alpha1.PriorityClass
--- | PriorityClass defines mapping from a priority class name to the priority integer value. The value can be any valid integer.
-newtype PriorityClass = PriorityClass
-  { apiVersion :: (NullOrUndefined String)
-  , description :: (NullOrUndefined String)
-  , globalDefault :: (NullOrUndefined Boolean)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , value :: (NullOrUndefined Int) }
-
-derive instance newtypePriorityClass :: Newtype PriorityClass _
-derive instance genericPriorityClass :: Generic PriorityClass _
-instance showPriorityClass :: Show PriorityClass where show a = genericShow a
-instance decodePriorityClass :: Decode PriorityClass where
-  decode a = genericDecode jsonOptions a 
-instance encodePriorityClass :: Encode PriorityClass where
-  encode a = genericEncode jsonOptions a
-
-instance defaultPriorityClass :: Default PriorityClass where
-  default = PriorityClass
-    { apiVersion: NullOrUndefined Nothing
-    , description: NullOrUndefined Nothing
-    , globalDefault: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , value: NullOrUndefined Nothing }
-
--- | io.k8s.api.scheduling.v1alpha1.PriorityClassList
--- | PriorityClassList is a collection of priority classes.
-newtype PriorityClassList = PriorityClassList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PriorityClass))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
-
-derive instance newtypePriorityClassList :: Newtype PriorityClassList _
-derive instance genericPriorityClassList :: Generic PriorityClassList _
-instance showPriorityClassList :: Show PriorityClassList where show a = genericShow a
-instance decodePriorityClassList :: Decode PriorityClassList where
-  decode a = genericDecode jsonOptions a 
-instance encodePriorityClassList :: Encode PriorityClassList where
-  encode a = genericEncode jsonOptions a
-
-instance defaultPriorityClassList :: Default PriorityClassList where
-  default = PriorityClassList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
 
 -- | ListPriorityClassOptions
 newtype ListPriorityClassOptions = ListPriorityClassOptions

@@ -21,82 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create an APIService
-createAPIService :: forall e. Config -> APIService -> Aff (http :: HTTP | e) (Either MetaV1.Status APIService)
-createAPIService cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/apiregistration.k8s.io/v1beta1/apiservices"
-    encodedBody = encodeJSON body
-
--- | DeleteAPIServiceOptions
-newtype DeleteAPIServiceOptions = DeleteAPIServiceOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteAPIServiceOptions :: Newtype DeleteAPIServiceOptions _
-derive instance genericDeleteAPIServiceOptions :: Generic DeleteAPIServiceOptions _
-instance showDeleteAPIServiceOptions :: Show DeleteAPIServiceOptions where show a = genericShow a
-instance decodeDeleteAPIServiceOptions :: Decode DeleteAPIServiceOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteAPIServiceOptions :: Encode DeleteAPIServiceOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteAPIServiceOptions :: Default DeleteAPIServiceOptions where
-  default = DeleteAPIServiceOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete an APIService
-deleteAPIService :: forall e. Config -> MetaV1.DeleteOptions -> DeleteAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteAPIService cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apiregistration.k8s.io/v1beta1/apiservices/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionAPIServiceOptions
-newtype DeleteCollectionAPIServiceOptions = DeleteCollectionAPIServiceOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionAPIServiceOptions :: Newtype DeleteCollectionAPIServiceOptions _
-derive instance genericDeleteCollectionAPIServiceOptions :: Generic DeleteCollectionAPIServiceOptions _
-instance showDeleteCollectionAPIServiceOptions :: Show DeleteCollectionAPIServiceOptions where show a = genericShow a
-instance decodeDeleteCollectionAPIServiceOptions :: Decode DeleteCollectionAPIServiceOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionAPIServiceOptions :: Encode DeleteCollectionAPIServiceOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionAPIServiceOptions :: Default DeleteCollectionAPIServiceOptions where
-  default = DeleteCollectionAPIServiceOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of APIService
-deleteCollectionAPIService :: forall e. Config -> DeleteCollectionAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionAPIService cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/apiregistration.k8s.io/v1beta1/apiservices" <> formatQueryString options
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/apiregistration.k8s.io/v1beta1/"
-
 -- | io.k8s.kube-aggregator.pkg.apis.apiregistration.v1beta1.APIService
 -- | APIService represents a server for a particular GroupVersion. Name must be "version.group".
 newtype APIService = APIService
@@ -233,6 +157,82 @@ instance defaultServiceReference :: Default ServiceReference where
   default = ServiceReference
     { name: NullOrUndefined Nothing
     , namespace: NullOrUndefined Nothing }
+
+-- | create an APIService
+createAPIService :: forall e. Config -> APIService -> Aff (http :: HTTP | e) (Either MetaV1.Status APIService)
+createAPIService cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/apiregistration.k8s.io/v1beta1/apiservices"
+    encodedBody = encodeJSON body
+
+-- | DeleteAPIServiceOptions
+newtype DeleteAPIServiceOptions = DeleteAPIServiceOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteAPIServiceOptions :: Newtype DeleteAPIServiceOptions _
+derive instance genericDeleteAPIServiceOptions :: Generic DeleteAPIServiceOptions _
+instance showDeleteAPIServiceOptions :: Show DeleteAPIServiceOptions where show a = genericShow a
+instance decodeDeleteAPIServiceOptions :: Decode DeleteAPIServiceOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteAPIServiceOptions :: Encode DeleteAPIServiceOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteAPIServiceOptions :: Default DeleteAPIServiceOptions where
+  default = DeleteAPIServiceOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete an APIService
+deleteAPIService :: forall e. Config -> MetaV1.DeleteOptions -> DeleteAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteAPIService cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apiregistration.k8s.io/v1beta1/apiservices/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionAPIServiceOptions
+newtype DeleteCollectionAPIServiceOptions = DeleteCollectionAPIServiceOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionAPIServiceOptions :: Newtype DeleteCollectionAPIServiceOptions _
+derive instance genericDeleteCollectionAPIServiceOptions :: Generic DeleteCollectionAPIServiceOptions _
+instance showDeleteCollectionAPIServiceOptions :: Show DeleteCollectionAPIServiceOptions where show a = genericShow a
+instance decodeDeleteCollectionAPIServiceOptions :: Decode DeleteCollectionAPIServiceOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionAPIServiceOptions :: Encode DeleteCollectionAPIServiceOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionAPIServiceOptions :: Default DeleteCollectionAPIServiceOptions where
+  default = DeleteCollectionAPIServiceOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of APIService
+deleteCollectionAPIService :: forall e. Config -> DeleteCollectionAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionAPIService cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/apiregistration.k8s.io/v1beta1/apiservices" <> formatQueryString options
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/apiregistration.k8s.io/v1beta1/"
 
 -- | ListAPIServiceOptions
 newtype ListAPIServiceOptions = ListAPIServiceOptions

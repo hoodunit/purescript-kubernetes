@@ -21,82 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a HorizontalPodAutoscaler
-createNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> HorizontalPodAutoscaler -> Aff (http :: HTTP | e) (Either MetaV1.Status HorizontalPodAutoscaler)
-createNamespacedHorizontalPodAutoscaler cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
-newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions _
-derive instance genericDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Generic DeleteCollectionNamespacedHorizontalPodAutoscalerOptions _
-instance showDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Show DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Decode DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Encode DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Default DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
-  default = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of HorizontalPodAutoscaler
-deleteCollectionNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> DeleteCollectionNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedHorizontalPodAutoscaler cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers" <> formatQueryString options
-
--- | DeleteNamespacedHorizontalPodAutoscalerOptions
-newtype DeleteNamespacedHorizontalPodAutoscalerOptions = DeleteNamespacedHorizontalPodAutoscalerOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedHorizontalPodAutoscalerOptions :: Newtype DeleteNamespacedHorizontalPodAutoscalerOptions _
-derive instance genericDeleteNamespacedHorizontalPodAutoscalerOptions :: Generic DeleteNamespacedHorizontalPodAutoscalerOptions _
-instance showDeleteNamespacedHorizontalPodAutoscalerOptions :: Show DeleteNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
-instance decodeDeleteNamespacedHorizontalPodAutoscalerOptions :: Decode DeleteNamespacedHorizontalPodAutoscalerOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedHorizontalPodAutoscalerOptions :: Encode DeleteNamespacedHorizontalPodAutoscalerOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedHorizontalPodAutoscalerOptions :: Default DeleteNamespacedHorizontalPodAutoscalerOptions where
-  default = DeleteNamespacedHorizontalPodAutoscalerOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a HorizontalPodAutoscaler
-deleteNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedHorizontalPodAutoscaler cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/autoscaling/v1/"
-
 -- | io.k8s.api.autoscaling.v1.CrossVersionObjectReference
 -- | CrossVersionObjectReference contains enough information to let you identify the referred resource.
 newtype CrossVersionObjectReference = CrossVersionObjectReference
@@ -274,6 +198,82 @@ instance defaultScaleStatus :: Default ScaleStatus where
   default = ScaleStatus
     { replicas: NullOrUndefined Nothing
     , selector: NullOrUndefined Nothing }
+
+-- | create a HorizontalPodAutoscaler
+createNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> HorizontalPodAutoscaler -> Aff (http :: HTTP | e) (Either MetaV1.Status HorizontalPodAutoscaler)
+createNamespacedHorizontalPodAutoscaler cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
+newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions _
+derive instance genericDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Generic DeleteCollectionNamespacedHorizontalPodAutoscalerOptions _
+instance showDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Show DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Decode DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Encode DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Default DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
+  default = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of HorizontalPodAutoscaler
+deleteCollectionNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> DeleteCollectionNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedHorizontalPodAutoscaler cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers" <> formatQueryString options
+
+-- | DeleteNamespacedHorizontalPodAutoscalerOptions
+newtype DeleteNamespacedHorizontalPodAutoscalerOptions = DeleteNamespacedHorizontalPodAutoscalerOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedHorizontalPodAutoscalerOptions :: Newtype DeleteNamespacedHorizontalPodAutoscalerOptions _
+derive instance genericDeleteNamespacedHorizontalPodAutoscalerOptions :: Generic DeleteNamespacedHorizontalPodAutoscalerOptions _
+instance showDeleteNamespacedHorizontalPodAutoscalerOptions :: Show DeleteNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
+instance decodeDeleteNamespacedHorizontalPodAutoscalerOptions :: Decode DeleteNamespacedHorizontalPodAutoscalerOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedHorizontalPodAutoscalerOptions :: Encode DeleteNamespacedHorizontalPodAutoscalerOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedHorizontalPodAutoscalerOptions :: Default DeleteNamespacedHorizontalPodAutoscalerOptions where
+  default = DeleteNamespacedHorizontalPodAutoscalerOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a HorizontalPodAutoscaler
+deleteNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedHorizontalPodAutoscaler cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/autoscaling/v1/"
 
 -- | list or watch objects of kind HorizontalPodAutoscaler
 listHorizontalPodAutoscalerForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status HorizontalPodAutoscalerList)

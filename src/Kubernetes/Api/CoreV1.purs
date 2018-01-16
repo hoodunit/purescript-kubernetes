@@ -23,1235 +23,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | connect DELETE requests to proxy of Pod
-connectDeleteNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedPodProxy cfg namespace name = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
-
--- | connect DELETE requests to proxy of Pod
-connectDeleteNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedPodProxyWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
-
--- | connect DELETE requests to proxy of Service
-connectDeleteNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedServiceProxy cfg namespace name = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
-
--- | connect DELETE requests to proxy of Service
-connectDeleteNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
-
--- | connect DELETE requests to proxy of Node
-connectDeleteNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNodeProxy cfg name = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy"
-
--- | connect DELETE requests to proxy of Node
-connectDeleteNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNodeProxyWithPath cfg name path = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
-
--- | connect GET requests to attach of Pod
-connectGetNamespacedPodAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodAttach cfg namespace name = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/attach"
-
--- | connect GET requests to exec of Pod
-connectGetNamespacedPodExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodExec cfg namespace name = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/exec"
-
--- | connect GET requests to portforward of Pod
-connectGetNamespacedPodPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodPortforward cfg namespace name = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/portforward"
-
--- | connect GET requests to proxy of Pod
-connectGetNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodProxy cfg namespace name = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
-
--- | connect GET requests to proxy of Pod
-connectGetNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodProxyWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
-
--- | connect GET requests to proxy of Service
-connectGetNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedServiceProxy cfg namespace name = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
-
--- | connect GET requests to proxy of Service
-connectGetNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
-
--- | connect GET requests to proxy of Node
-connectGetNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNodeProxy cfg name = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy"
-
--- | connect GET requests to proxy of Node
-connectGetNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNodeProxyWithPath cfg name path = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
-
--- | connect HEAD requests to proxy of Pod
-connectHeadNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedPodProxy cfg namespace name = makeRequest (head cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
-
--- | connect HEAD requests to proxy of Pod
-connectHeadNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedPodProxyWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
-
--- | connect HEAD requests to proxy of Service
-connectHeadNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedServiceProxy cfg namespace name = makeRequest (head cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
-
--- | connect HEAD requests to proxy of Service
-connectHeadNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
-
--- | connect HEAD requests to proxy of Node
-connectHeadNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNodeProxy cfg name = makeRequest (head cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy"
-
--- | connect HEAD requests to proxy of Node
-connectHeadNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNodeProxyWithPath cfg name path = makeRequest (head cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
-
--- | connect OPTIONS requests to proxy of Pod
-connectOptionsNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedPodProxy cfg namespace name = makeRequest (options cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
-
--- | connect OPTIONS requests to proxy of Pod
-connectOptionsNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedPodProxyWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
-
--- | connect OPTIONS requests to proxy of Service
-connectOptionsNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedServiceProxy cfg namespace name = makeRequest (options cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
-
--- | connect OPTIONS requests to proxy of Service
-connectOptionsNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
-
--- | connect OPTIONS requests to proxy of Node
-connectOptionsNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNodeProxy cfg name = makeRequest (options cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy"
-
--- | connect OPTIONS requests to proxy of Node
-connectOptionsNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNodeProxyWithPath cfg name path = makeRequest (options cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
-
--- | connect POST requests to attach of Pod
-connectPostNamespacedPodAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodAttach cfg namespace name = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/attach"
-
--- | connect POST requests to exec of Pod
-connectPostNamespacedPodExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodExec cfg namespace name = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/exec"
-
--- | connect POST requests to portforward of Pod
-connectPostNamespacedPodPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodPortforward cfg namespace name = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/portforward"
-
--- | connect POST requests to proxy of Pod
-connectPostNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodProxy cfg namespace name = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
-
--- | connect POST requests to proxy of Pod
-connectPostNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodProxyWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
-
--- | connect POST requests to proxy of Service
-connectPostNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedServiceProxy cfg namespace name = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
-
--- | connect POST requests to proxy of Service
-connectPostNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
-
--- | connect POST requests to proxy of Node
-connectPostNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNodeProxy cfg name = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy"
-
--- | connect POST requests to proxy of Node
-connectPostNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNodeProxyWithPath cfg name path = makeRequest (post cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
-
--- | connect PUT requests to proxy of Pod
-connectPutNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedPodProxy cfg namespace name = makeRequest (put cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
-
--- | connect PUT requests to proxy of Pod
-connectPutNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedPodProxyWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
-
--- | connect PUT requests to proxy of Service
-connectPutNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedServiceProxy cfg namespace name = makeRequest (put cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
-
--- | connect PUT requests to proxy of Service
-connectPutNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
-
--- | connect PUT requests to proxy of Node
-connectPutNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNodeProxy cfg name = makeRequest (put cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy"
-
--- | connect PUT requests to proxy of Node
-connectPutNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNodeProxyWithPath cfg name path = makeRequest (put cfg url Nothing)
-  where
-    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
-
--- | create a Namespace
-createNamespace :: forall e. Config -> Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status Namespace)
-createNamespace cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces"
-    encodedBody = encodeJSON body
-
--- | create a Binding
-createNamespacedBinding :: forall e. Config -> String -> Binding -> Aff (http :: HTTP | e) (Either MetaV1.Status Binding)
-createNamespacedBinding cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/bindings"
-    encodedBody = encodeJSON body
-
--- | create a ConfigMap
-createNamespacedConfigMap :: forall e. Config -> String -> ConfigMap -> Aff (http :: HTTP | e) (Either MetaV1.Status ConfigMap)
-createNamespacedConfigMap cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/configmaps"
-    encodedBody = encodeJSON body
-
--- | create Endpoints
-createNamespacedEndpoints :: forall e. Config -> String -> Endpoints -> Aff (http :: HTTP | e) (Either MetaV1.Status Endpoints)
-createNamespacedEndpoints cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/endpoints"
-    encodedBody = encodeJSON body
-
--- | create an Event
-createNamespacedEvent :: forall e. Config -> String -> Event -> Aff (http :: HTTP | e) (Either MetaV1.Status Event)
-createNamespacedEvent cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/events"
-    encodedBody = encodeJSON body
-
--- | create a LimitRange
-createNamespacedLimitRange :: forall e. Config -> String -> LimitRange -> Aff (http :: HTTP | e) (Either MetaV1.Status LimitRange)
-createNamespacedLimitRange cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/limitranges"
-    encodedBody = encodeJSON body
-
--- | create a PersistentVolumeClaim
-createNamespacedPersistentVolumeClaim :: forall e. Config -> String -> PersistentVolumeClaim -> Aff (http :: HTTP | e) (Either MetaV1.Status PersistentVolumeClaim)
-createNamespacedPersistentVolumeClaim cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims"
-    encodedBody = encodeJSON body
-
--- | create a Pod
-createNamespacedPod :: forall e. Config -> String -> Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status Pod)
-createNamespacedPod cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods"
-    encodedBody = encodeJSON body
-
--- | create binding of a Pod
-createNamespacedPodBinding :: forall e. Config -> String -> String -> Binding -> Aff (http :: HTTP | e) (Either MetaV1.Status Binding)
-createNamespacedPodBinding cfg namespace name body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/binding"
-    encodedBody = encodeJSON body
-
--- | create a PodTemplate
-createNamespacedPodTemplate :: forall e. Config -> String -> PodTemplate -> Aff (http :: HTTP | e) (Either MetaV1.Status PodTemplate)
-createNamespacedPodTemplate cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/podtemplates"
-    encodedBody = encodeJSON body
-
--- | create a ReplicationController
-createNamespacedReplicationController :: forall e. Config -> String -> ReplicationController -> Aff (http :: HTTP | e) (Either MetaV1.Status ReplicationController)
-createNamespacedReplicationController cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers"
-    encodedBody = encodeJSON body
-
--- | create a ResourceQuota
-createNamespacedResourceQuota :: forall e. Config -> String -> ResourceQuota -> Aff (http :: HTTP | e) (Either MetaV1.Status ResourceQuota)
-createNamespacedResourceQuota cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas"
-    encodedBody = encodeJSON body
-
--- | create a Secret
-createNamespacedSecret :: forall e. Config -> String -> Secret -> Aff (http :: HTTP | e) (Either MetaV1.Status Secret)
-createNamespacedSecret cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/secrets"
-    encodedBody = encodeJSON body
-
--- | create a Service
-createNamespacedService :: forall e. Config -> String -> Service -> Aff (http :: HTTP | e) (Either MetaV1.Status Service)
-createNamespacedService cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services"
-    encodedBody = encodeJSON body
-
--- | create a ServiceAccount
-createNamespacedServiceAccount :: forall e. Config -> String -> ServiceAccount -> Aff (http :: HTTP | e) (Either MetaV1.Status ServiceAccount)
-createNamespacedServiceAccount cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts"
-    encodedBody = encodeJSON body
-
--- | create a Node
-createNode :: forall e. Config -> Node -> Aff (http :: HTTP | e) (Either MetaV1.Status Node)
-createNode cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/nodes"
-    encodedBody = encodeJSON body
-
--- | create a PersistentVolume
-createPersistentVolume :: forall e. Config -> PersistentVolume -> Aff (http :: HTTP | e) (Either MetaV1.Status PersistentVolume)
-createPersistentVolume cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/persistentvolumes"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionNamespacedConfigMapOptions
-newtype DeleteCollectionNamespacedConfigMapOptions = DeleteCollectionNamespacedConfigMapOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedConfigMapOptions :: Newtype DeleteCollectionNamespacedConfigMapOptions _
-derive instance genericDeleteCollectionNamespacedConfigMapOptions :: Generic DeleteCollectionNamespacedConfigMapOptions _
-instance showDeleteCollectionNamespacedConfigMapOptions :: Show DeleteCollectionNamespacedConfigMapOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedConfigMapOptions :: Decode DeleteCollectionNamespacedConfigMapOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedConfigMapOptions :: Encode DeleteCollectionNamespacedConfigMapOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedConfigMapOptions :: Default DeleteCollectionNamespacedConfigMapOptions where
-  default = DeleteCollectionNamespacedConfigMapOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of ConfigMap
-deleteCollectionNamespacedConfigMap :: forall e. Config -> String -> DeleteCollectionNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedConfigMap cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> formatQueryString options
-
--- | DeleteCollectionNamespacedEndpointsOptions
-newtype DeleteCollectionNamespacedEndpointsOptions = DeleteCollectionNamespacedEndpointsOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedEndpointsOptions :: Newtype DeleteCollectionNamespacedEndpointsOptions _
-derive instance genericDeleteCollectionNamespacedEndpointsOptions :: Generic DeleteCollectionNamespacedEndpointsOptions _
-instance showDeleteCollectionNamespacedEndpointsOptions :: Show DeleteCollectionNamespacedEndpointsOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedEndpointsOptions :: Decode DeleteCollectionNamespacedEndpointsOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedEndpointsOptions :: Encode DeleteCollectionNamespacedEndpointsOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedEndpointsOptions :: Default DeleteCollectionNamespacedEndpointsOptions where
-  default = DeleteCollectionNamespacedEndpointsOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Endpoints
-deleteCollectionNamespacedEndpoints :: forall e. Config -> String -> DeleteCollectionNamespacedEndpointsOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedEndpoints cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/endpoints" <> formatQueryString options
-
--- | DeleteCollectionNamespacedEventOptions
-newtype DeleteCollectionNamespacedEventOptions = DeleteCollectionNamespacedEventOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedEventOptions :: Newtype DeleteCollectionNamespacedEventOptions _
-derive instance genericDeleteCollectionNamespacedEventOptions :: Generic DeleteCollectionNamespacedEventOptions _
-instance showDeleteCollectionNamespacedEventOptions :: Show DeleteCollectionNamespacedEventOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedEventOptions :: Decode DeleteCollectionNamespacedEventOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedEventOptions :: Encode DeleteCollectionNamespacedEventOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedEventOptions :: Default DeleteCollectionNamespacedEventOptions where
-  default = DeleteCollectionNamespacedEventOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Event
-deleteCollectionNamespacedEvent :: forall e. Config -> String -> DeleteCollectionNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedEvent cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/events" <> formatQueryString options
-
--- | DeleteCollectionNamespacedLimitRangeOptions
-newtype DeleteCollectionNamespacedLimitRangeOptions = DeleteCollectionNamespacedLimitRangeOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedLimitRangeOptions :: Newtype DeleteCollectionNamespacedLimitRangeOptions _
-derive instance genericDeleteCollectionNamespacedLimitRangeOptions :: Generic DeleteCollectionNamespacedLimitRangeOptions _
-instance showDeleteCollectionNamespacedLimitRangeOptions :: Show DeleteCollectionNamespacedLimitRangeOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedLimitRangeOptions :: Decode DeleteCollectionNamespacedLimitRangeOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedLimitRangeOptions :: Encode DeleteCollectionNamespacedLimitRangeOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedLimitRangeOptions :: Default DeleteCollectionNamespacedLimitRangeOptions where
-  default = DeleteCollectionNamespacedLimitRangeOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of LimitRange
-deleteCollectionNamespacedLimitRange :: forall e. Config -> String -> DeleteCollectionNamespacedLimitRangeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedLimitRange cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/limitranges" <> formatQueryString options
-
--- | DeleteCollectionNamespacedPersistentVolumeClaimOptions
-newtype DeleteCollectionNamespacedPersistentVolumeClaimOptions = DeleteCollectionNamespacedPersistentVolumeClaimOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Newtype DeleteCollectionNamespacedPersistentVolumeClaimOptions _
-derive instance genericDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Generic DeleteCollectionNamespacedPersistentVolumeClaimOptions _
-instance showDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Show DeleteCollectionNamespacedPersistentVolumeClaimOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Decode DeleteCollectionNamespacedPersistentVolumeClaimOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Encode DeleteCollectionNamespacedPersistentVolumeClaimOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Default DeleteCollectionNamespacedPersistentVolumeClaimOptions where
-  default = DeleteCollectionNamespacedPersistentVolumeClaimOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of PersistentVolumeClaim
-deleteCollectionNamespacedPersistentVolumeClaim :: forall e. Config -> String -> DeleteCollectionNamespacedPersistentVolumeClaimOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedPersistentVolumeClaim cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims" <> formatQueryString options
-
--- | DeleteCollectionNamespacedPodOptions
-newtype DeleteCollectionNamespacedPodOptions = DeleteCollectionNamespacedPodOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedPodOptions :: Newtype DeleteCollectionNamespacedPodOptions _
-derive instance genericDeleteCollectionNamespacedPodOptions :: Generic DeleteCollectionNamespacedPodOptions _
-instance showDeleteCollectionNamespacedPodOptions :: Show DeleteCollectionNamespacedPodOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedPodOptions :: Decode DeleteCollectionNamespacedPodOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedPodOptions :: Encode DeleteCollectionNamespacedPodOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedPodOptions :: Default DeleteCollectionNamespacedPodOptions where
-  default = DeleteCollectionNamespacedPodOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Pod
-deleteCollectionNamespacedPod :: forall e. Config -> String -> DeleteCollectionNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedPod cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods" <> formatQueryString options
-
--- | DeleteCollectionNamespacedPodTemplateOptions
-newtype DeleteCollectionNamespacedPodTemplateOptions = DeleteCollectionNamespacedPodTemplateOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedPodTemplateOptions :: Newtype DeleteCollectionNamespacedPodTemplateOptions _
-derive instance genericDeleteCollectionNamespacedPodTemplateOptions :: Generic DeleteCollectionNamespacedPodTemplateOptions _
-instance showDeleteCollectionNamespacedPodTemplateOptions :: Show DeleteCollectionNamespacedPodTemplateOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedPodTemplateOptions :: Decode DeleteCollectionNamespacedPodTemplateOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedPodTemplateOptions :: Encode DeleteCollectionNamespacedPodTemplateOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedPodTemplateOptions :: Default DeleteCollectionNamespacedPodTemplateOptions where
-  default = DeleteCollectionNamespacedPodTemplateOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of PodTemplate
-deleteCollectionNamespacedPodTemplate :: forall e. Config -> String -> DeleteCollectionNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedPodTemplate cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/podtemplates" <> formatQueryString options
-
--- | DeleteCollectionNamespacedReplicationControllerOptions
-newtype DeleteCollectionNamespacedReplicationControllerOptions = DeleteCollectionNamespacedReplicationControllerOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedReplicationControllerOptions :: Newtype DeleteCollectionNamespacedReplicationControllerOptions _
-derive instance genericDeleteCollectionNamespacedReplicationControllerOptions :: Generic DeleteCollectionNamespacedReplicationControllerOptions _
-instance showDeleteCollectionNamespacedReplicationControllerOptions :: Show DeleteCollectionNamespacedReplicationControllerOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedReplicationControllerOptions :: Decode DeleteCollectionNamespacedReplicationControllerOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedReplicationControllerOptions :: Encode DeleteCollectionNamespacedReplicationControllerOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedReplicationControllerOptions :: Default DeleteCollectionNamespacedReplicationControllerOptions where
-  default = DeleteCollectionNamespacedReplicationControllerOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of ReplicationController
-deleteCollectionNamespacedReplicationController :: forall e. Config -> String -> DeleteCollectionNamespacedReplicationControllerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedReplicationController cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers" <> formatQueryString options
-
--- | DeleteCollectionNamespacedResourceQuotaOptions
-newtype DeleteCollectionNamespacedResourceQuotaOptions = DeleteCollectionNamespacedResourceQuotaOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedResourceQuotaOptions :: Newtype DeleteCollectionNamespacedResourceQuotaOptions _
-derive instance genericDeleteCollectionNamespacedResourceQuotaOptions :: Generic DeleteCollectionNamespacedResourceQuotaOptions _
-instance showDeleteCollectionNamespacedResourceQuotaOptions :: Show DeleteCollectionNamespacedResourceQuotaOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedResourceQuotaOptions :: Decode DeleteCollectionNamespacedResourceQuotaOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedResourceQuotaOptions :: Encode DeleteCollectionNamespacedResourceQuotaOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedResourceQuotaOptions :: Default DeleteCollectionNamespacedResourceQuotaOptions where
-  default = DeleteCollectionNamespacedResourceQuotaOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of ResourceQuota
-deleteCollectionNamespacedResourceQuota :: forall e. Config -> String -> DeleteCollectionNamespacedResourceQuotaOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedResourceQuota cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas" <> formatQueryString options
-
--- | DeleteCollectionNamespacedSecretOptions
-newtype DeleteCollectionNamespacedSecretOptions = DeleteCollectionNamespacedSecretOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedSecretOptions :: Newtype DeleteCollectionNamespacedSecretOptions _
-derive instance genericDeleteCollectionNamespacedSecretOptions :: Generic DeleteCollectionNamespacedSecretOptions _
-instance showDeleteCollectionNamespacedSecretOptions :: Show DeleteCollectionNamespacedSecretOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedSecretOptions :: Decode DeleteCollectionNamespacedSecretOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedSecretOptions :: Encode DeleteCollectionNamespacedSecretOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedSecretOptions :: Default DeleteCollectionNamespacedSecretOptions where
-  default = DeleteCollectionNamespacedSecretOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Secret
-deleteCollectionNamespacedSecret :: forall e. Config -> String -> DeleteCollectionNamespacedSecretOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedSecret cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/secrets" <> formatQueryString options
-
--- | DeleteCollectionNamespacedServiceAccountOptions
-newtype DeleteCollectionNamespacedServiceAccountOptions = DeleteCollectionNamespacedServiceAccountOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedServiceAccountOptions :: Newtype DeleteCollectionNamespacedServiceAccountOptions _
-derive instance genericDeleteCollectionNamespacedServiceAccountOptions :: Generic DeleteCollectionNamespacedServiceAccountOptions _
-instance showDeleteCollectionNamespacedServiceAccountOptions :: Show DeleteCollectionNamespacedServiceAccountOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedServiceAccountOptions :: Decode DeleteCollectionNamespacedServiceAccountOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedServiceAccountOptions :: Encode DeleteCollectionNamespacedServiceAccountOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedServiceAccountOptions :: Default DeleteCollectionNamespacedServiceAccountOptions where
-  default = DeleteCollectionNamespacedServiceAccountOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of ServiceAccount
-deleteCollectionNamespacedServiceAccount :: forall e. Config -> String -> DeleteCollectionNamespacedServiceAccountOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedServiceAccount cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts" <> formatQueryString options
-
--- | DeleteCollectionNodeOptions
-newtype DeleteCollectionNodeOptions = DeleteCollectionNodeOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNodeOptions :: Newtype DeleteCollectionNodeOptions _
-derive instance genericDeleteCollectionNodeOptions :: Generic DeleteCollectionNodeOptions _
-instance showDeleteCollectionNodeOptions :: Show DeleteCollectionNodeOptions where show a = genericShow a
-instance decodeDeleteCollectionNodeOptions :: Decode DeleteCollectionNodeOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNodeOptions :: Encode DeleteCollectionNodeOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNodeOptions :: Default DeleteCollectionNodeOptions where
-  default = DeleteCollectionNodeOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Node
-deleteCollectionNode :: forall e. Config -> DeleteCollectionNodeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNode cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/nodes" <> formatQueryString options
-
--- | DeleteCollectionPersistentVolumeOptions
-newtype DeleteCollectionPersistentVolumeOptions = DeleteCollectionPersistentVolumeOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionPersistentVolumeOptions :: Newtype DeleteCollectionPersistentVolumeOptions _
-derive instance genericDeleteCollectionPersistentVolumeOptions :: Generic DeleteCollectionPersistentVolumeOptions _
-instance showDeleteCollectionPersistentVolumeOptions :: Show DeleteCollectionPersistentVolumeOptions where show a = genericShow a
-instance decodeDeleteCollectionPersistentVolumeOptions :: Decode DeleteCollectionPersistentVolumeOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionPersistentVolumeOptions :: Encode DeleteCollectionPersistentVolumeOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionPersistentVolumeOptions :: Default DeleteCollectionPersistentVolumeOptions where
-  default = DeleteCollectionPersistentVolumeOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of PersistentVolume
-deleteCollectionPersistentVolume :: forall e. Config -> DeleteCollectionPersistentVolumeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionPersistentVolume cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/persistentvolumes" <> formatQueryString options
-
--- | DeleteNamespaceOptions
-newtype DeleteNamespaceOptions = DeleteNamespaceOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespaceOptions :: Newtype DeleteNamespaceOptions _
-derive instance genericDeleteNamespaceOptions :: Generic DeleteNamespaceOptions _
-instance showDeleteNamespaceOptions :: Show DeleteNamespaceOptions where show a = genericShow a
-instance decodeDeleteNamespaceOptions :: Decode DeleteNamespaceOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespaceOptions :: Encode DeleteNamespaceOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespaceOptions :: Default DeleteNamespaceOptions where
-  default = DeleteNamespaceOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a Namespace
-deleteNamespace :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteNamespaceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status Namespace)
-deleteNamespace cfg name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedConfigMapOptions
-newtype DeleteNamespacedConfigMapOptions = DeleteNamespacedConfigMapOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedConfigMapOptions :: Newtype DeleteNamespacedConfigMapOptions _
-derive instance genericDeleteNamespacedConfigMapOptions :: Generic DeleteNamespacedConfigMapOptions _
-instance showDeleteNamespacedConfigMapOptions :: Show DeleteNamespacedConfigMapOptions where show a = genericShow a
-instance decodeDeleteNamespacedConfigMapOptions :: Decode DeleteNamespacedConfigMapOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedConfigMapOptions :: Encode DeleteNamespacedConfigMapOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedConfigMapOptions :: Default DeleteNamespacedConfigMapOptions where
-  default = DeleteNamespacedConfigMapOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a ConfigMap
-deleteNamespacedConfigMap :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedConfigMap cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedEndpointsOptions
-newtype DeleteNamespacedEndpointsOptions = DeleteNamespacedEndpointsOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedEndpointsOptions :: Newtype DeleteNamespacedEndpointsOptions _
-derive instance genericDeleteNamespacedEndpointsOptions :: Generic DeleteNamespacedEndpointsOptions _
-instance showDeleteNamespacedEndpointsOptions :: Show DeleteNamespacedEndpointsOptions where show a = genericShow a
-instance decodeDeleteNamespacedEndpointsOptions :: Decode DeleteNamespacedEndpointsOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedEndpointsOptions :: Encode DeleteNamespacedEndpointsOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedEndpointsOptions :: Default DeleteNamespacedEndpointsOptions where
-  default = DeleteNamespacedEndpointsOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete Endpoints
-deleteNamespacedEndpoints :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedEndpointsOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedEndpoints cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/endpoints/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedEventOptions
-newtype DeleteNamespacedEventOptions = DeleteNamespacedEventOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedEventOptions :: Newtype DeleteNamespacedEventOptions _
-derive instance genericDeleteNamespacedEventOptions :: Generic DeleteNamespacedEventOptions _
-instance showDeleteNamespacedEventOptions :: Show DeleteNamespacedEventOptions where show a = genericShow a
-instance decodeDeleteNamespacedEventOptions :: Decode DeleteNamespacedEventOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedEventOptions :: Encode DeleteNamespacedEventOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedEventOptions :: Default DeleteNamespacedEventOptions where
-  default = DeleteNamespacedEventOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete an Event
-deleteNamespacedEvent :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedEvent cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/events/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedLimitRangeOptions
-newtype DeleteNamespacedLimitRangeOptions = DeleteNamespacedLimitRangeOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedLimitRangeOptions :: Newtype DeleteNamespacedLimitRangeOptions _
-derive instance genericDeleteNamespacedLimitRangeOptions :: Generic DeleteNamespacedLimitRangeOptions _
-instance showDeleteNamespacedLimitRangeOptions :: Show DeleteNamespacedLimitRangeOptions where show a = genericShow a
-instance decodeDeleteNamespacedLimitRangeOptions :: Decode DeleteNamespacedLimitRangeOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedLimitRangeOptions :: Encode DeleteNamespacedLimitRangeOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedLimitRangeOptions :: Default DeleteNamespacedLimitRangeOptions where
-  default = DeleteNamespacedLimitRangeOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a LimitRange
-deleteNamespacedLimitRange :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedLimitRangeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedLimitRange cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/limitranges/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedPersistentVolumeClaimOptions
-newtype DeleteNamespacedPersistentVolumeClaimOptions = DeleteNamespacedPersistentVolumeClaimOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedPersistentVolumeClaimOptions :: Newtype DeleteNamespacedPersistentVolumeClaimOptions _
-derive instance genericDeleteNamespacedPersistentVolumeClaimOptions :: Generic DeleteNamespacedPersistentVolumeClaimOptions _
-instance showDeleteNamespacedPersistentVolumeClaimOptions :: Show DeleteNamespacedPersistentVolumeClaimOptions where show a = genericShow a
-instance decodeDeleteNamespacedPersistentVolumeClaimOptions :: Decode DeleteNamespacedPersistentVolumeClaimOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedPersistentVolumeClaimOptions :: Encode DeleteNamespacedPersistentVolumeClaimOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedPersistentVolumeClaimOptions :: Default DeleteNamespacedPersistentVolumeClaimOptions where
-  default = DeleteNamespacedPersistentVolumeClaimOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a PersistentVolumeClaim
-deleteNamespacedPersistentVolumeClaim :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPersistentVolumeClaimOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedPersistentVolumeClaim cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedPodOptions
-newtype DeleteNamespacedPodOptions = DeleteNamespacedPodOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedPodOptions :: Newtype DeleteNamespacedPodOptions _
-derive instance genericDeleteNamespacedPodOptions :: Generic DeleteNamespacedPodOptions _
-instance showDeleteNamespacedPodOptions :: Show DeleteNamespacedPodOptions where show a = genericShow a
-instance decodeDeleteNamespacedPodOptions :: Decode DeleteNamespacedPodOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedPodOptions :: Encode DeleteNamespacedPodOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedPodOptions :: Default DeleteNamespacedPodOptions where
-  default = DeleteNamespacedPodOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a Pod
-deleteNamespacedPod :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedPod cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedPodTemplateOptions
-newtype DeleteNamespacedPodTemplateOptions = DeleteNamespacedPodTemplateOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedPodTemplateOptions :: Newtype DeleteNamespacedPodTemplateOptions _
-derive instance genericDeleteNamespacedPodTemplateOptions :: Generic DeleteNamespacedPodTemplateOptions _
-instance showDeleteNamespacedPodTemplateOptions :: Show DeleteNamespacedPodTemplateOptions where show a = genericShow a
-instance decodeDeleteNamespacedPodTemplateOptions :: Decode DeleteNamespacedPodTemplateOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedPodTemplateOptions :: Encode DeleteNamespacedPodTemplateOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedPodTemplateOptions :: Default DeleteNamespacedPodTemplateOptions where
-  default = DeleteNamespacedPodTemplateOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a PodTemplate
-deleteNamespacedPodTemplate :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedPodTemplate cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/podtemplates/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedReplicationControllerOptions
-newtype DeleteNamespacedReplicationControllerOptions = DeleteNamespacedReplicationControllerOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedReplicationControllerOptions :: Newtype DeleteNamespacedReplicationControllerOptions _
-derive instance genericDeleteNamespacedReplicationControllerOptions :: Generic DeleteNamespacedReplicationControllerOptions _
-instance showDeleteNamespacedReplicationControllerOptions :: Show DeleteNamespacedReplicationControllerOptions where show a = genericShow a
-instance decodeDeleteNamespacedReplicationControllerOptions :: Decode DeleteNamespacedReplicationControllerOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedReplicationControllerOptions :: Encode DeleteNamespacedReplicationControllerOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedReplicationControllerOptions :: Default DeleteNamespacedReplicationControllerOptions where
-  default = DeleteNamespacedReplicationControllerOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a ReplicationController
-deleteNamespacedReplicationController :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedReplicationControllerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedReplicationController cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedResourceQuotaOptions
-newtype DeleteNamespacedResourceQuotaOptions = DeleteNamespacedResourceQuotaOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedResourceQuotaOptions :: Newtype DeleteNamespacedResourceQuotaOptions _
-derive instance genericDeleteNamespacedResourceQuotaOptions :: Generic DeleteNamespacedResourceQuotaOptions _
-instance showDeleteNamespacedResourceQuotaOptions :: Show DeleteNamespacedResourceQuotaOptions where show a = genericShow a
-instance decodeDeleteNamespacedResourceQuotaOptions :: Decode DeleteNamespacedResourceQuotaOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedResourceQuotaOptions :: Encode DeleteNamespacedResourceQuotaOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedResourceQuotaOptions :: Default DeleteNamespacedResourceQuotaOptions where
-  default = DeleteNamespacedResourceQuotaOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a ResourceQuota
-deleteNamespacedResourceQuota :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedResourceQuotaOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedResourceQuota cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedSecretOptions
-newtype DeleteNamespacedSecretOptions = DeleteNamespacedSecretOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedSecretOptions :: Newtype DeleteNamespacedSecretOptions _
-derive instance genericDeleteNamespacedSecretOptions :: Generic DeleteNamespacedSecretOptions _
-instance showDeleteNamespacedSecretOptions :: Show DeleteNamespacedSecretOptions where show a = genericShow a
-instance decodeDeleteNamespacedSecretOptions :: Decode DeleteNamespacedSecretOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedSecretOptions :: Encode DeleteNamespacedSecretOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedSecretOptions :: Default DeleteNamespacedSecretOptions where
-  default = DeleteNamespacedSecretOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a Secret
-deleteNamespacedSecret :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedSecretOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedSecret cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/secrets/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | delete a Service
-deleteNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedService cfg namespace name = makeRequest (delete cfg url Nothing)
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> ""
-
--- | DeleteNamespacedServiceAccountOptions
-newtype DeleteNamespacedServiceAccountOptions = DeleteNamespacedServiceAccountOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedServiceAccountOptions :: Newtype DeleteNamespacedServiceAccountOptions _
-derive instance genericDeleteNamespacedServiceAccountOptions :: Generic DeleteNamespacedServiceAccountOptions _
-instance showDeleteNamespacedServiceAccountOptions :: Show DeleteNamespacedServiceAccountOptions where show a = genericShow a
-instance decodeDeleteNamespacedServiceAccountOptions :: Decode DeleteNamespacedServiceAccountOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedServiceAccountOptions :: Encode DeleteNamespacedServiceAccountOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedServiceAccountOptions :: Default DeleteNamespacedServiceAccountOptions where
-  default = DeleteNamespacedServiceAccountOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a ServiceAccount
-deleteNamespacedServiceAccount :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedServiceAccountOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedServiceAccount cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNodeOptions
-newtype DeleteNodeOptions = DeleteNodeOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNodeOptions :: Newtype DeleteNodeOptions _
-derive instance genericDeleteNodeOptions :: Generic DeleteNodeOptions _
-instance showDeleteNodeOptions :: Show DeleteNodeOptions where show a = genericShow a
-instance decodeDeleteNodeOptions :: Decode DeleteNodeOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNodeOptions :: Encode DeleteNodeOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNodeOptions :: Default DeleteNodeOptions where
-  default = DeleteNodeOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a Node
-deleteNode :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteNodeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNode cfg name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/nodes/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeletePersistentVolumeOptions
-newtype DeletePersistentVolumeOptions = DeletePersistentVolumeOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeletePersistentVolumeOptions :: Newtype DeletePersistentVolumeOptions _
-derive instance genericDeletePersistentVolumeOptions :: Generic DeletePersistentVolumeOptions _
-instance showDeletePersistentVolumeOptions :: Show DeletePersistentVolumeOptions where show a = genericShow a
-instance decodeDeletePersistentVolumeOptions :: Decode DeletePersistentVolumeOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeletePersistentVolumeOptions :: Encode DeletePersistentVolumeOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeletePersistentVolumeOptions :: Default DeletePersistentVolumeOptions where
-  default = DeletePersistentVolumeOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a PersistentVolume
-deletePersistentVolume :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeletePersistentVolumeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deletePersistentVolume cfg name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/api/v1/persistentvolumes/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/"
-
 -- | io.k8s.api.core.v1.AWSElasticBlockStoreVolumeSource
 -- | Represents a Persistent Disk resource in AWS.
 -- | 
@@ -5246,6 +4017,1235 @@ instance defaultWeightedPodAffinityTerm :: Default WeightedPodAffinityTerm where
   default = WeightedPodAffinityTerm
     { podAffinityTerm: NullOrUndefined Nothing
     , weight: NullOrUndefined Nothing }
+
+-- | connect DELETE requests to proxy of Pod
+connectDeleteNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedPodProxy cfg namespace name = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
+
+-- | connect DELETE requests to proxy of Pod
+connectDeleteNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedPodProxyWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect DELETE requests to proxy of Service
+connectDeleteNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedServiceProxy cfg namespace name = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
+
+-- | connect DELETE requests to proxy of Service
+connectDeleteNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect DELETE requests to proxy of Node
+connectDeleteNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNodeProxy cfg name = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy"
+
+-- | connect DELETE requests to proxy of Node
+connectDeleteNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNodeProxyWithPath cfg name path = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect GET requests to attach of Pod
+connectGetNamespacedPodAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedPodAttach cfg namespace name = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/attach"
+
+-- | connect GET requests to exec of Pod
+connectGetNamespacedPodExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedPodExec cfg namespace name = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/exec"
+
+-- | connect GET requests to portforward of Pod
+connectGetNamespacedPodPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedPodPortforward cfg namespace name = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/portforward"
+
+-- | connect GET requests to proxy of Pod
+connectGetNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedPodProxy cfg namespace name = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
+
+-- | connect GET requests to proxy of Pod
+connectGetNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedPodProxyWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect GET requests to proxy of Service
+connectGetNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedServiceProxy cfg namespace name = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
+
+-- | connect GET requests to proxy of Service
+connectGetNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect GET requests to proxy of Node
+connectGetNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNodeProxy cfg name = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy"
+
+-- | connect GET requests to proxy of Node
+connectGetNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNodeProxyWithPath cfg name path = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect HEAD requests to proxy of Pod
+connectHeadNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedPodProxy cfg namespace name = makeRequest (head cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
+
+-- | connect HEAD requests to proxy of Pod
+connectHeadNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedPodProxyWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect HEAD requests to proxy of Service
+connectHeadNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedServiceProxy cfg namespace name = makeRequest (head cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
+
+-- | connect HEAD requests to proxy of Service
+connectHeadNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect HEAD requests to proxy of Node
+connectHeadNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNodeProxy cfg name = makeRequest (head cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy"
+
+-- | connect HEAD requests to proxy of Node
+connectHeadNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNodeProxyWithPath cfg name path = makeRequest (head cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect OPTIONS requests to proxy of Pod
+connectOptionsNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedPodProxy cfg namespace name = makeRequest (options cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
+
+-- | connect OPTIONS requests to proxy of Pod
+connectOptionsNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedPodProxyWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect OPTIONS requests to proxy of Service
+connectOptionsNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedServiceProxy cfg namespace name = makeRequest (options cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
+
+-- | connect OPTIONS requests to proxy of Service
+connectOptionsNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect OPTIONS requests to proxy of Node
+connectOptionsNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNodeProxy cfg name = makeRequest (options cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy"
+
+-- | connect OPTIONS requests to proxy of Node
+connectOptionsNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNodeProxyWithPath cfg name path = makeRequest (options cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect POST requests to attach of Pod
+connectPostNamespacedPodAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedPodAttach cfg namespace name = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/attach"
+
+-- | connect POST requests to exec of Pod
+connectPostNamespacedPodExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedPodExec cfg namespace name = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/exec"
+
+-- | connect POST requests to portforward of Pod
+connectPostNamespacedPodPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedPodPortforward cfg namespace name = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/portforward"
+
+-- | connect POST requests to proxy of Pod
+connectPostNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedPodProxy cfg namespace name = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
+
+-- | connect POST requests to proxy of Pod
+connectPostNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedPodProxyWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect POST requests to proxy of Service
+connectPostNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedServiceProxy cfg namespace name = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
+
+-- | connect POST requests to proxy of Service
+connectPostNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect POST requests to proxy of Node
+connectPostNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNodeProxy cfg name = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy"
+
+-- | connect POST requests to proxy of Node
+connectPostNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNodeProxyWithPath cfg name path = makeRequest (post cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect PUT requests to proxy of Pod
+connectPutNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedPodProxy cfg namespace name = makeRequest (put cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
+
+-- | connect PUT requests to proxy of Pod
+connectPutNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedPodProxyWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect PUT requests to proxy of Service
+connectPutNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedServiceProxy cfg namespace name = makeRequest (put cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
+
+-- | connect PUT requests to proxy of Service
+connectPutNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
+
+-- | connect PUT requests to proxy of Node
+connectPutNodeProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNodeProxy cfg name = makeRequest (put cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy"
+
+-- | connect PUT requests to proxy of Node
+connectPutNodeProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNodeProxyWithPath cfg name path = makeRequest (put cfg url Nothing)
+  where
+    url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
+
+-- | create a Namespace
+createNamespace :: forall e. Config -> Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status Namespace)
+createNamespace cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces"
+    encodedBody = encodeJSON body
+
+-- | create a Binding
+createNamespacedBinding :: forall e. Config -> String -> Binding -> Aff (http :: HTTP | e) (Either MetaV1.Status Binding)
+createNamespacedBinding cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/bindings"
+    encodedBody = encodeJSON body
+
+-- | create a ConfigMap
+createNamespacedConfigMap :: forall e. Config -> String -> ConfigMap -> Aff (http :: HTTP | e) (Either MetaV1.Status ConfigMap)
+createNamespacedConfigMap cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/configmaps"
+    encodedBody = encodeJSON body
+
+-- | create Endpoints
+createNamespacedEndpoints :: forall e. Config -> String -> Endpoints -> Aff (http :: HTTP | e) (Either MetaV1.Status Endpoints)
+createNamespacedEndpoints cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/endpoints"
+    encodedBody = encodeJSON body
+
+-- | create an Event
+createNamespacedEvent :: forall e. Config -> String -> Event -> Aff (http :: HTTP | e) (Either MetaV1.Status Event)
+createNamespacedEvent cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/events"
+    encodedBody = encodeJSON body
+
+-- | create a LimitRange
+createNamespacedLimitRange :: forall e. Config -> String -> LimitRange -> Aff (http :: HTTP | e) (Either MetaV1.Status LimitRange)
+createNamespacedLimitRange cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/limitranges"
+    encodedBody = encodeJSON body
+
+-- | create a PersistentVolumeClaim
+createNamespacedPersistentVolumeClaim :: forall e. Config -> String -> PersistentVolumeClaim -> Aff (http :: HTTP | e) (Either MetaV1.Status PersistentVolumeClaim)
+createNamespacedPersistentVolumeClaim cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims"
+    encodedBody = encodeJSON body
+
+-- | create a Pod
+createNamespacedPod :: forall e. Config -> String -> Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status Pod)
+createNamespacedPod cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods"
+    encodedBody = encodeJSON body
+
+-- | create binding of a Pod
+createNamespacedPodBinding :: forall e. Config -> String -> String -> Binding -> Aff (http :: HTTP | e) (Either MetaV1.Status Binding)
+createNamespacedPodBinding cfg namespace name body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/binding"
+    encodedBody = encodeJSON body
+
+-- | create a PodTemplate
+createNamespacedPodTemplate :: forall e. Config -> String -> PodTemplate -> Aff (http :: HTTP | e) (Either MetaV1.Status PodTemplate)
+createNamespacedPodTemplate cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/podtemplates"
+    encodedBody = encodeJSON body
+
+-- | create a ReplicationController
+createNamespacedReplicationController :: forall e. Config -> String -> ReplicationController -> Aff (http :: HTTP | e) (Either MetaV1.Status ReplicationController)
+createNamespacedReplicationController cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers"
+    encodedBody = encodeJSON body
+
+-- | create a ResourceQuota
+createNamespacedResourceQuota :: forall e. Config -> String -> ResourceQuota -> Aff (http :: HTTP | e) (Either MetaV1.Status ResourceQuota)
+createNamespacedResourceQuota cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas"
+    encodedBody = encodeJSON body
+
+-- | create a Secret
+createNamespacedSecret :: forall e. Config -> String -> Secret -> Aff (http :: HTTP | e) (Either MetaV1.Status Secret)
+createNamespacedSecret cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/secrets"
+    encodedBody = encodeJSON body
+
+-- | create a Service
+createNamespacedService :: forall e. Config -> String -> Service -> Aff (http :: HTTP | e) (Either MetaV1.Status Service)
+createNamespacedService cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services"
+    encodedBody = encodeJSON body
+
+-- | create a ServiceAccount
+createNamespacedServiceAccount :: forall e. Config -> String -> ServiceAccount -> Aff (http :: HTTP | e) (Either MetaV1.Status ServiceAccount)
+createNamespacedServiceAccount cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts"
+    encodedBody = encodeJSON body
+
+-- | create a Node
+createNode :: forall e. Config -> Node -> Aff (http :: HTTP | e) (Either MetaV1.Status Node)
+createNode cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/nodes"
+    encodedBody = encodeJSON body
+
+-- | create a PersistentVolume
+createPersistentVolume :: forall e. Config -> PersistentVolume -> Aff (http :: HTTP | e) (Either MetaV1.Status PersistentVolume)
+createPersistentVolume cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/persistentvolumes"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionNamespacedConfigMapOptions
+newtype DeleteCollectionNamespacedConfigMapOptions = DeleteCollectionNamespacedConfigMapOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedConfigMapOptions :: Newtype DeleteCollectionNamespacedConfigMapOptions _
+derive instance genericDeleteCollectionNamespacedConfigMapOptions :: Generic DeleteCollectionNamespacedConfigMapOptions _
+instance showDeleteCollectionNamespacedConfigMapOptions :: Show DeleteCollectionNamespacedConfigMapOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedConfigMapOptions :: Decode DeleteCollectionNamespacedConfigMapOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedConfigMapOptions :: Encode DeleteCollectionNamespacedConfigMapOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedConfigMapOptions :: Default DeleteCollectionNamespacedConfigMapOptions where
+  default = DeleteCollectionNamespacedConfigMapOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of ConfigMap
+deleteCollectionNamespacedConfigMap :: forall e. Config -> String -> DeleteCollectionNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedConfigMap cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedEndpointsOptions
+newtype DeleteCollectionNamespacedEndpointsOptions = DeleteCollectionNamespacedEndpointsOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedEndpointsOptions :: Newtype DeleteCollectionNamespacedEndpointsOptions _
+derive instance genericDeleteCollectionNamespacedEndpointsOptions :: Generic DeleteCollectionNamespacedEndpointsOptions _
+instance showDeleteCollectionNamespacedEndpointsOptions :: Show DeleteCollectionNamespacedEndpointsOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedEndpointsOptions :: Decode DeleteCollectionNamespacedEndpointsOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedEndpointsOptions :: Encode DeleteCollectionNamespacedEndpointsOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedEndpointsOptions :: Default DeleteCollectionNamespacedEndpointsOptions where
+  default = DeleteCollectionNamespacedEndpointsOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Endpoints
+deleteCollectionNamespacedEndpoints :: forall e. Config -> String -> DeleteCollectionNamespacedEndpointsOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedEndpoints cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/endpoints" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedEventOptions
+newtype DeleteCollectionNamespacedEventOptions = DeleteCollectionNamespacedEventOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedEventOptions :: Newtype DeleteCollectionNamespacedEventOptions _
+derive instance genericDeleteCollectionNamespacedEventOptions :: Generic DeleteCollectionNamespacedEventOptions _
+instance showDeleteCollectionNamespacedEventOptions :: Show DeleteCollectionNamespacedEventOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedEventOptions :: Decode DeleteCollectionNamespacedEventOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedEventOptions :: Encode DeleteCollectionNamespacedEventOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedEventOptions :: Default DeleteCollectionNamespacedEventOptions where
+  default = DeleteCollectionNamespacedEventOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Event
+deleteCollectionNamespacedEvent :: forall e. Config -> String -> DeleteCollectionNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedEvent cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/events" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedLimitRangeOptions
+newtype DeleteCollectionNamespacedLimitRangeOptions = DeleteCollectionNamespacedLimitRangeOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedLimitRangeOptions :: Newtype DeleteCollectionNamespacedLimitRangeOptions _
+derive instance genericDeleteCollectionNamespacedLimitRangeOptions :: Generic DeleteCollectionNamespacedLimitRangeOptions _
+instance showDeleteCollectionNamespacedLimitRangeOptions :: Show DeleteCollectionNamespacedLimitRangeOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedLimitRangeOptions :: Decode DeleteCollectionNamespacedLimitRangeOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedLimitRangeOptions :: Encode DeleteCollectionNamespacedLimitRangeOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedLimitRangeOptions :: Default DeleteCollectionNamespacedLimitRangeOptions where
+  default = DeleteCollectionNamespacedLimitRangeOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of LimitRange
+deleteCollectionNamespacedLimitRange :: forall e. Config -> String -> DeleteCollectionNamespacedLimitRangeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedLimitRange cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/limitranges" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedPersistentVolumeClaimOptions
+newtype DeleteCollectionNamespacedPersistentVolumeClaimOptions = DeleteCollectionNamespacedPersistentVolumeClaimOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Newtype DeleteCollectionNamespacedPersistentVolumeClaimOptions _
+derive instance genericDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Generic DeleteCollectionNamespacedPersistentVolumeClaimOptions _
+instance showDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Show DeleteCollectionNamespacedPersistentVolumeClaimOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Decode DeleteCollectionNamespacedPersistentVolumeClaimOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Encode DeleteCollectionNamespacedPersistentVolumeClaimOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Default DeleteCollectionNamespacedPersistentVolumeClaimOptions where
+  default = DeleteCollectionNamespacedPersistentVolumeClaimOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of PersistentVolumeClaim
+deleteCollectionNamespacedPersistentVolumeClaim :: forall e. Config -> String -> DeleteCollectionNamespacedPersistentVolumeClaimOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedPersistentVolumeClaim cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedPodOptions
+newtype DeleteCollectionNamespacedPodOptions = DeleteCollectionNamespacedPodOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedPodOptions :: Newtype DeleteCollectionNamespacedPodOptions _
+derive instance genericDeleteCollectionNamespacedPodOptions :: Generic DeleteCollectionNamespacedPodOptions _
+instance showDeleteCollectionNamespacedPodOptions :: Show DeleteCollectionNamespacedPodOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedPodOptions :: Decode DeleteCollectionNamespacedPodOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedPodOptions :: Encode DeleteCollectionNamespacedPodOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedPodOptions :: Default DeleteCollectionNamespacedPodOptions where
+  default = DeleteCollectionNamespacedPodOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Pod
+deleteCollectionNamespacedPod :: forall e. Config -> String -> DeleteCollectionNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedPod cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedPodTemplateOptions
+newtype DeleteCollectionNamespacedPodTemplateOptions = DeleteCollectionNamespacedPodTemplateOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedPodTemplateOptions :: Newtype DeleteCollectionNamespacedPodTemplateOptions _
+derive instance genericDeleteCollectionNamespacedPodTemplateOptions :: Generic DeleteCollectionNamespacedPodTemplateOptions _
+instance showDeleteCollectionNamespacedPodTemplateOptions :: Show DeleteCollectionNamespacedPodTemplateOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedPodTemplateOptions :: Decode DeleteCollectionNamespacedPodTemplateOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedPodTemplateOptions :: Encode DeleteCollectionNamespacedPodTemplateOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedPodTemplateOptions :: Default DeleteCollectionNamespacedPodTemplateOptions where
+  default = DeleteCollectionNamespacedPodTemplateOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of PodTemplate
+deleteCollectionNamespacedPodTemplate :: forall e. Config -> String -> DeleteCollectionNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedPodTemplate cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/podtemplates" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedReplicationControllerOptions
+newtype DeleteCollectionNamespacedReplicationControllerOptions = DeleteCollectionNamespacedReplicationControllerOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedReplicationControllerOptions :: Newtype DeleteCollectionNamespacedReplicationControllerOptions _
+derive instance genericDeleteCollectionNamespacedReplicationControllerOptions :: Generic DeleteCollectionNamespacedReplicationControllerOptions _
+instance showDeleteCollectionNamespacedReplicationControllerOptions :: Show DeleteCollectionNamespacedReplicationControllerOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedReplicationControllerOptions :: Decode DeleteCollectionNamespacedReplicationControllerOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedReplicationControllerOptions :: Encode DeleteCollectionNamespacedReplicationControllerOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedReplicationControllerOptions :: Default DeleteCollectionNamespacedReplicationControllerOptions where
+  default = DeleteCollectionNamespacedReplicationControllerOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of ReplicationController
+deleteCollectionNamespacedReplicationController :: forall e. Config -> String -> DeleteCollectionNamespacedReplicationControllerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedReplicationController cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedResourceQuotaOptions
+newtype DeleteCollectionNamespacedResourceQuotaOptions = DeleteCollectionNamespacedResourceQuotaOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedResourceQuotaOptions :: Newtype DeleteCollectionNamespacedResourceQuotaOptions _
+derive instance genericDeleteCollectionNamespacedResourceQuotaOptions :: Generic DeleteCollectionNamespacedResourceQuotaOptions _
+instance showDeleteCollectionNamespacedResourceQuotaOptions :: Show DeleteCollectionNamespacedResourceQuotaOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedResourceQuotaOptions :: Decode DeleteCollectionNamespacedResourceQuotaOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedResourceQuotaOptions :: Encode DeleteCollectionNamespacedResourceQuotaOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedResourceQuotaOptions :: Default DeleteCollectionNamespacedResourceQuotaOptions where
+  default = DeleteCollectionNamespacedResourceQuotaOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of ResourceQuota
+deleteCollectionNamespacedResourceQuota :: forall e. Config -> String -> DeleteCollectionNamespacedResourceQuotaOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedResourceQuota cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedSecretOptions
+newtype DeleteCollectionNamespacedSecretOptions = DeleteCollectionNamespacedSecretOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedSecretOptions :: Newtype DeleteCollectionNamespacedSecretOptions _
+derive instance genericDeleteCollectionNamespacedSecretOptions :: Generic DeleteCollectionNamespacedSecretOptions _
+instance showDeleteCollectionNamespacedSecretOptions :: Show DeleteCollectionNamespacedSecretOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedSecretOptions :: Decode DeleteCollectionNamespacedSecretOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedSecretOptions :: Encode DeleteCollectionNamespacedSecretOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedSecretOptions :: Default DeleteCollectionNamespacedSecretOptions where
+  default = DeleteCollectionNamespacedSecretOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Secret
+deleteCollectionNamespacedSecret :: forall e. Config -> String -> DeleteCollectionNamespacedSecretOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedSecret cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/secrets" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedServiceAccountOptions
+newtype DeleteCollectionNamespacedServiceAccountOptions = DeleteCollectionNamespacedServiceAccountOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedServiceAccountOptions :: Newtype DeleteCollectionNamespacedServiceAccountOptions _
+derive instance genericDeleteCollectionNamespacedServiceAccountOptions :: Generic DeleteCollectionNamespacedServiceAccountOptions _
+instance showDeleteCollectionNamespacedServiceAccountOptions :: Show DeleteCollectionNamespacedServiceAccountOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedServiceAccountOptions :: Decode DeleteCollectionNamespacedServiceAccountOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedServiceAccountOptions :: Encode DeleteCollectionNamespacedServiceAccountOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedServiceAccountOptions :: Default DeleteCollectionNamespacedServiceAccountOptions where
+  default = DeleteCollectionNamespacedServiceAccountOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of ServiceAccount
+deleteCollectionNamespacedServiceAccount :: forall e. Config -> String -> DeleteCollectionNamespacedServiceAccountOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedServiceAccount cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts" <> formatQueryString options
+
+-- | DeleteCollectionNodeOptions
+newtype DeleteCollectionNodeOptions = DeleteCollectionNodeOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNodeOptions :: Newtype DeleteCollectionNodeOptions _
+derive instance genericDeleteCollectionNodeOptions :: Generic DeleteCollectionNodeOptions _
+instance showDeleteCollectionNodeOptions :: Show DeleteCollectionNodeOptions where show a = genericShow a
+instance decodeDeleteCollectionNodeOptions :: Decode DeleteCollectionNodeOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNodeOptions :: Encode DeleteCollectionNodeOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNodeOptions :: Default DeleteCollectionNodeOptions where
+  default = DeleteCollectionNodeOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Node
+deleteCollectionNode :: forall e. Config -> DeleteCollectionNodeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNode cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/nodes" <> formatQueryString options
+
+-- | DeleteCollectionPersistentVolumeOptions
+newtype DeleteCollectionPersistentVolumeOptions = DeleteCollectionPersistentVolumeOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionPersistentVolumeOptions :: Newtype DeleteCollectionPersistentVolumeOptions _
+derive instance genericDeleteCollectionPersistentVolumeOptions :: Generic DeleteCollectionPersistentVolumeOptions _
+instance showDeleteCollectionPersistentVolumeOptions :: Show DeleteCollectionPersistentVolumeOptions where show a = genericShow a
+instance decodeDeleteCollectionPersistentVolumeOptions :: Decode DeleteCollectionPersistentVolumeOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionPersistentVolumeOptions :: Encode DeleteCollectionPersistentVolumeOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionPersistentVolumeOptions :: Default DeleteCollectionPersistentVolumeOptions where
+  default = DeleteCollectionPersistentVolumeOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of PersistentVolume
+deleteCollectionPersistentVolume :: forall e. Config -> DeleteCollectionPersistentVolumeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionPersistentVolume cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/persistentvolumes" <> formatQueryString options
+
+-- | DeleteNamespaceOptions
+newtype DeleteNamespaceOptions = DeleteNamespaceOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespaceOptions :: Newtype DeleteNamespaceOptions _
+derive instance genericDeleteNamespaceOptions :: Generic DeleteNamespaceOptions _
+instance showDeleteNamespaceOptions :: Show DeleteNamespaceOptions where show a = genericShow a
+instance decodeDeleteNamespaceOptions :: Decode DeleteNamespaceOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespaceOptions :: Encode DeleteNamespaceOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespaceOptions :: Default DeleteNamespaceOptions where
+  default = DeleteNamespaceOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a Namespace
+deleteNamespace :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteNamespaceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status Namespace)
+deleteNamespace cfg name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedConfigMapOptions
+newtype DeleteNamespacedConfigMapOptions = DeleteNamespacedConfigMapOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedConfigMapOptions :: Newtype DeleteNamespacedConfigMapOptions _
+derive instance genericDeleteNamespacedConfigMapOptions :: Generic DeleteNamespacedConfigMapOptions _
+instance showDeleteNamespacedConfigMapOptions :: Show DeleteNamespacedConfigMapOptions where show a = genericShow a
+instance decodeDeleteNamespacedConfigMapOptions :: Decode DeleteNamespacedConfigMapOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedConfigMapOptions :: Encode DeleteNamespacedConfigMapOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedConfigMapOptions :: Default DeleteNamespacedConfigMapOptions where
+  default = DeleteNamespacedConfigMapOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a ConfigMap
+deleteNamespacedConfigMap :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedConfigMap cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedEndpointsOptions
+newtype DeleteNamespacedEndpointsOptions = DeleteNamespacedEndpointsOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedEndpointsOptions :: Newtype DeleteNamespacedEndpointsOptions _
+derive instance genericDeleteNamespacedEndpointsOptions :: Generic DeleteNamespacedEndpointsOptions _
+instance showDeleteNamespacedEndpointsOptions :: Show DeleteNamespacedEndpointsOptions where show a = genericShow a
+instance decodeDeleteNamespacedEndpointsOptions :: Decode DeleteNamespacedEndpointsOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedEndpointsOptions :: Encode DeleteNamespacedEndpointsOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedEndpointsOptions :: Default DeleteNamespacedEndpointsOptions where
+  default = DeleteNamespacedEndpointsOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete Endpoints
+deleteNamespacedEndpoints :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedEndpointsOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedEndpoints cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/endpoints/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedEventOptions
+newtype DeleteNamespacedEventOptions = DeleteNamespacedEventOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedEventOptions :: Newtype DeleteNamespacedEventOptions _
+derive instance genericDeleteNamespacedEventOptions :: Generic DeleteNamespacedEventOptions _
+instance showDeleteNamespacedEventOptions :: Show DeleteNamespacedEventOptions where show a = genericShow a
+instance decodeDeleteNamespacedEventOptions :: Decode DeleteNamespacedEventOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedEventOptions :: Encode DeleteNamespacedEventOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedEventOptions :: Default DeleteNamespacedEventOptions where
+  default = DeleteNamespacedEventOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete an Event
+deleteNamespacedEvent :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedEvent cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/events/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedLimitRangeOptions
+newtype DeleteNamespacedLimitRangeOptions = DeleteNamespacedLimitRangeOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedLimitRangeOptions :: Newtype DeleteNamespacedLimitRangeOptions _
+derive instance genericDeleteNamespacedLimitRangeOptions :: Generic DeleteNamespacedLimitRangeOptions _
+instance showDeleteNamespacedLimitRangeOptions :: Show DeleteNamespacedLimitRangeOptions where show a = genericShow a
+instance decodeDeleteNamespacedLimitRangeOptions :: Decode DeleteNamespacedLimitRangeOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedLimitRangeOptions :: Encode DeleteNamespacedLimitRangeOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedLimitRangeOptions :: Default DeleteNamespacedLimitRangeOptions where
+  default = DeleteNamespacedLimitRangeOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a LimitRange
+deleteNamespacedLimitRange :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedLimitRangeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedLimitRange cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/limitranges/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedPersistentVolumeClaimOptions
+newtype DeleteNamespacedPersistentVolumeClaimOptions = DeleteNamespacedPersistentVolumeClaimOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedPersistentVolumeClaimOptions :: Newtype DeleteNamespacedPersistentVolumeClaimOptions _
+derive instance genericDeleteNamespacedPersistentVolumeClaimOptions :: Generic DeleteNamespacedPersistentVolumeClaimOptions _
+instance showDeleteNamespacedPersistentVolumeClaimOptions :: Show DeleteNamespacedPersistentVolumeClaimOptions where show a = genericShow a
+instance decodeDeleteNamespacedPersistentVolumeClaimOptions :: Decode DeleteNamespacedPersistentVolumeClaimOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedPersistentVolumeClaimOptions :: Encode DeleteNamespacedPersistentVolumeClaimOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedPersistentVolumeClaimOptions :: Default DeleteNamespacedPersistentVolumeClaimOptions where
+  default = DeleteNamespacedPersistentVolumeClaimOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a PersistentVolumeClaim
+deleteNamespacedPersistentVolumeClaim :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPersistentVolumeClaimOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedPersistentVolumeClaim cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedPodOptions
+newtype DeleteNamespacedPodOptions = DeleteNamespacedPodOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedPodOptions :: Newtype DeleteNamespacedPodOptions _
+derive instance genericDeleteNamespacedPodOptions :: Generic DeleteNamespacedPodOptions _
+instance showDeleteNamespacedPodOptions :: Show DeleteNamespacedPodOptions where show a = genericShow a
+instance decodeDeleteNamespacedPodOptions :: Decode DeleteNamespacedPodOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedPodOptions :: Encode DeleteNamespacedPodOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedPodOptions :: Default DeleteNamespacedPodOptions where
+  default = DeleteNamespacedPodOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a Pod
+deleteNamespacedPod :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedPod cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedPodTemplateOptions
+newtype DeleteNamespacedPodTemplateOptions = DeleteNamespacedPodTemplateOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedPodTemplateOptions :: Newtype DeleteNamespacedPodTemplateOptions _
+derive instance genericDeleteNamespacedPodTemplateOptions :: Generic DeleteNamespacedPodTemplateOptions _
+instance showDeleteNamespacedPodTemplateOptions :: Show DeleteNamespacedPodTemplateOptions where show a = genericShow a
+instance decodeDeleteNamespacedPodTemplateOptions :: Decode DeleteNamespacedPodTemplateOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedPodTemplateOptions :: Encode DeleteNamespacedPodTemplateOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedPodTemplateOptions :: Default DeleteNamespacedPodTemplateOptions where
+  default = DeleteNamespacedPodTemplateOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a PodTemplate
+deleteNamespacedPodTemplate :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedPodTemplate cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/podtemplates/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedReplicationControllerOptions
+newtype DeleteNamespacedReplicationControllerOptions = DeleteNamespacedReplicationControllerOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedReplicationControllerOptions :: Newtype DeleteNamespacedReplicationControllerOptions _
+derive instance genericDeleteNamespacedReplicationControllerOptions :: Generic DeleteNamespacedReplicationControllerOptions _
+instance showDeleteNamespacedReplicationControllerOptions :: Show DeleteNamespacedReplicationControllerOptions where show a = genericShow a
+instance decodeDeleteNamespacedReplicationControllerOptions :: Decode DeleteNamespacedReplicationControllerOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedReplicationControllerOptions :: Encode DeleteNamespacedReplicationControllerOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedReplicationControllerOptions :: Default DeleteNamespacedReplicationControllerOptions where
+  default = DeleteNamespacedReplicationControllerOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a ReplicationController
+deleteNamespacedReplicationController :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedReplicationControllerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedReplicationController cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedResourceQuotaOptions
+newtype DeleteNamespacedResourceQuotaOptions = DeleteNamespacedResourceQuotaOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedResourceQuotaOptions :: Newtype DeleteNamespacedResourceQuotaOptions _
+derive instance genericDeleteNamespacedResourceQuotaOptions :: Generic DeleteNamespacedResourceQuotaOptions _
+instance showDeleteNamespacedResourceQuotaOptions :: Show DeleteNamespacedResourceQuotaOptions where show a = genericShow a
+instance decodeDeleteNamespacedResourceQuotaOptions :: Decode DeleteNamespacedResourceQuotaOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedResourceQuotaOptions :: Encode DeleteNamespacedResourceQuotaOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedResourceQuotaOptions :: Default DeleteNamespacedResourceQuotaOptions where
+  default = DeleteNamespacedResourceQuotaOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a ResourceQuota
+deleteNamespacedResourceQuota :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedResourceQuotaOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedResourceQuota cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedSecretOptions
+newtype DeleteNamespacedSecretOptions = DeleteNamespacedSecretOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedSecretOptions :: Newtype DeleteNamespacedSecretOptions _
+derive instance genericDeleteNamespacedSecretOptions :: Generic DeleteNamespacedSecretOptions _
+instance showDeleteNamespacedSecretOptions :: Show DeleteNamespacedSecretOptions where show a = genericShow a
+instance decodeDeleteNamespacedSecretOptions :: Decode DeleteNamespacedSecretOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedSecretOptions :: Encode DeleteNamespacedSecretOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedSecretOptions :: Default DeleteNamespacedSecretOptions where
+  default = DeleteNamespacedSecretOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a Secret
+deleteNamespacedSecret :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedSecretOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedSecret cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/secrets/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | delete a Service
+deleteNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedService cfg namespace name = makeRequest (delete cfg url Nothing)
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> ""
+
+-- | DeleteNamespacedServiceAccountOptions
+newtype DeleteNamespacedServiceAccountOptions = DeleteNamespacedServiceAccountOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedServiceAccountOptions :: Newtype DeleteNamespacedServiceAccountOptions _
+derive instance genericDeleteNamespacedServiceAccountOptions :: Generic DeleteNamespacedServiceAccountOptions _
+instance showDeleteNamespacedServiceAccountOptions :: Show DeleteNamespacedServiceAccountOptions where show a = genericShow a
+instance decodeDeleteNamespacedServiceAccountOptions :: Decode DeleteNamespacedServiceAccountOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedServiceAccountOptions :: Encode DeleteNamespacedServiceAccountOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedServiceAccountOptions :: Default DeleteNamespacedServiceAccountOptions where
+  default = DeleteNamespacedServiceAccountOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a ServiceAccount
+deleteNamespacedServiceAccount :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedServiceAccountOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedServiceAccount cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNodeOptions
+newtype DeleteNodeOptions = DeleteNodeOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNodeOptions :: Newtype DeleteNodeOptions _
+derive instance genericDeleteNodeOptions :: Generic DeleteNodeOptions _
+instance showDeleteNodeOptions :: Show DeleteNodeOptions where show a = genericShow a
+instance decodeDeleteNodeOptions :: Decode DeleteNodeOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNodeOptions :: Encode DeleteNodeOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNodeOptions :: Default DeleteNodeOptions where
+  default = DeleteNodeOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a Node
+deleteNode :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteNodeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNode cfg name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/nodes/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeletePersistentVolumeOptions
+newtype DeletePersistentVolumeOptions = DeletePersistentVolumeOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeletePersistentVolumeOptions :: Newtype DeletePersistentVolumeOptions _
+derive instance genericDeletePersistentVolumeOptions :: Generic DeletePersistentVolumeOptions _
+instance showDeletePersistentVolumeOptions :: Show DeletePersistentVolumeOptions where show a = genericShow a
+instance decodeDeletePersistentVolumeOptions :: Decode DeletePersistentVolumeOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeletePersistentVolumeOptions :: Encode DeletePersistentVolumeOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeletePersistentVolumeOptions :: Default DeletePersistentVolumeOptions where
+  default = DeletePersistentVolumeOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a PersistentVolume
+deletePersistentVolume :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeletePersistentVolumeOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deletePersistentVolume cfg name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/api/v1/persistentvolumes/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/api/v1/"
 
 -- | list objects of kind ComponentStatus
 listComponentStatus :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status ComponentStatusList)

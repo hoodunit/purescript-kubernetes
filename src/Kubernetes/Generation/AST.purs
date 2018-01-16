@@ -38,8 +38,18 @@ data Declaration
 instance eqDeclaration :: Eq Declaration where
   eq a b = declarationName a == declarationName b
 instance ordDeclaration :: Ord Declaration where
-  compare a b = declarationName a `compare` declarationName b
-
+  compare a b = case a of
+    _ | priority a == priority b -> (declarationName a `compare` declarationName b)
+    _ | priority a > priority b -> GT
+    _ -> LT
+    where
+      priority (NewtypeDecl _) = 1
+      priority (RecordDecl _) = 1
+      priority (AdtType _) = 1
+      priority (AliasType _) = 1
+      priority (Endpoint _) = 2
+      priority (LensHelper _) = 3
+      
 declarationName :: Declaration -> String
 declarationName (NewtypeDecl (ObjectType {qualifiedName})) = qualifiedName
 declarationName (RecordDecl (ObjectType {qualifiedName})) = qualifiedName

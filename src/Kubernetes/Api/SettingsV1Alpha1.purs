@@ -22,6 +22,77 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
+-- | io.k8s.api.settings.v1alpha1.PodPreset
+-- | PodPreset is a policy resource that defines additional runtime requirements for a Pod.
+newtype PodPreset = PodPreset
+  { apiVersion :: (NullOrUndefined String)
+  , kind :: (NullOrUndefined String)
+  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
+  , spec :: (NullOrUndefined PodPresetSpec) }
+
+derive instance newtypePodPreset :: Newtype PodPreset _
+derive instance genericPodPreset :: Generic PodPreset _
+instance showPodPreset :: Show PodPreset where show a = genericShow a
+instance decodePodPreset :: Decode PodPreset where
+  decode a = genericDecode jsonOptions a 
+instance encodePodPreset :: Encode PodPreset where
+  encode a = genericEncode jsonOptions a
+
+instance defaultPodPreset :: Default PodPreset where
+  default = PodPreset
+    { apiVersion: NullOrUndefined Nothing
+    , kind: NullOrUndefined Nothing
+    , metadata: NullOrUndefined Nothing
+    , spec: NullOrUndefined Nothing }
+
+-- | io.k8s.api.settings.v1alpha1.PodPresetList
+-- | PodPresetList is a list of PodPreset objects.
+newtype PodPresetList = PodPresetList
+  { apiVersion :: (NullOrUndefined String)
+  , items :: (NullOrUndefined (Array PodPreset))
+  , kind :: (NullOrUndefined String)
+  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+
+derive instance newtypePodPresetList :: Newtype PodPresetList _
+derive instance genericPodPresetList :: Generic PodPresetList _
+instance showPodPresetList :: Show PodPresetList where show a = genericShow a
+instance decodePodPresetList :: Decode PodPresetList where
+  decode a = genericDecode jsonOptions a 
+instance encodePodPresetList :: Encode PodPresetList where
+  encode a = genericEncode jsonOptions a
+
+instance defaultPodPresetList :: Default PodPresetList where
+  default = PodPresetList
+    { apiVersion: NullOrUndefined Nothing
+    , items: NullOrUndefined Nothing
+    , kind: NullOrUndefined Nothing
+    , metadata: NullOrUndefined Nothing }
+
+-- | io.k8s.api.settings.v1alpha1.PodPresetSpec
+-- | PodPresetSpec is a description of a pod preset.
+newtype PodPresetSpec = PodPresetSpec
+  { env :: (NullOrUndefined (Array CoreV1.EnvVar))
+  , envFrom :: (NullOrUndefined (Array CoreV1.EnvFromSource))
+  , selector :: (NullOrUndefined MetaV1.LabelSelector)
+  , volumeMounts :: (NullOrUndefined (Array CoreV1.VolumeMount))
+  , volumes :: (NullOrUndefined (Array CoreV1.Volume)) }
+
+derive instance newtypePodPresetSpec :: Newtype PodPresetSpec _
+derive instance genericPodPresetSpec :: Generic PodPresetSpec _
+instance showPodPresetSpec :: Show PodPresetSpec where show a = genericShow a
+instance decodePodPresetSpec :: Decode PodPresetSpec where
+  decode a = genericDecode jsonOptions a 
+instance encodePodPresetSpec :: Encode PodPresetSpec where
+  encode a = genericEncode jsonOptions a
+
+instance defaultPodPresetSpec :: Default PodPresetSpec where
+  default = PodPresetSpec
+    { env: NullOrUndefined Nothing
+    , envFrom: NullOrUndefined Nothing
+    , selector: NullOrUndefined Nothing
+    , volumeMounts: NullOrUndefined Nothing
+    , volumes: NullOrUndefined Nothing }
+
 -- | create a PodPreset
 createNamespacedPodPreset :: forall e. Config -> PodPreset -> Aff (http :: HTTP | e) (Either MetaV1.Status PodPreset)
 createNamespacedPodPreset cfg body = makeRequest (post cfg url (Just encodedBody))
@@ -97,77 +168,6 @@ getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Sta
 getAPIResources cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/"
-
--- | io.k8s.api.settings.v1alpha1.PodPreset
--- | PodPreset is a policy resource that defines additional runtime requirements for a Pod.
-newtype PodPreset = PodPreset
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined PodPresetSpec) }
-
-derive instance newtypePodPreset :: Newtype PodPreset _
-derive instance genericPodPreset :: Generic PodPreset _
-instance showPodPreset :: Show PodPreset where show a = genericShow a
-instance decodePodPreset :: Decode PodPreset where
-  decode a = genericDecode jsonOptions a 
-instance encodePodPreset :: Encode PodPreset where
-  encode a = genericEncode jsonOptions a
-
-instance defaultPodPreset :: Default PodPreset where
-  default = PodPreset
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing }
-
--- | io.k8s.api.settings.v1alpha1.PodPresetList
--- | PodPresetList is a list of PodPreset objects.
-newtype PodPresetList = PodPresetList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PodPreset))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
-
-derive instance newtypePodPresetList :: Newtype PodPresetList _
-derive instance genericPodPresetList :: Generic PodPresetList _
-instance showPodPresetList :: Show PodPresetList where show a = genericShow a
-instance decodePodPresetList :: Decode PodPresetList where
-  decode a = genericDecode jsonOptions a 
-instance encodePodPresetList :: Encode PodPresetList where
-  encode a = genericEncode jsonOptions a
-
-instance defaultPodPresetList :: Default PodPresetList where
-  default = PodPresetList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
-
--- | io.k8s.api.settings.v1alpha1.PodPresetSpec
--- | PodPresetSpec is a description of a pod preset.
-newtype PodPresetSpec = PodPresetSpec
-  { env :: (NullOrUndefined (Array CoreV1.EnvVar))
-  , envFrom :: (NullOrUndefined (Array CoreV1.EnvFromSource))
-  , selector :: (NullOrUndefined MetaV1.LabelSelector)
-  , volumeMounts :: (NullOrUndefined (Array CoreV1.VolumeMount))
-  , volumes :: (NullOrUndefined (Array CoreV1.Volume)) }
-
-derive instance newtypePodPresetSpec :: Newtype PodPresetSpec _
-derive instance genericPodPresetSpec :: Generic PodPresetSpec _
-instance showPodPresetSpec :: Show PodPresetSpec where show a = genericShow a
-instance decodePodPresetSpec :: Decode PodPresetSpec where
-  decode a = genericDecode jsonOptions a 
-instance encodePodPresetSpec :: Encode PodPresetSpec where
-  encode a = genericEncode jsonOptions a
-
-instance defaultPodPresetSpec :: Default PodPresetSpec where
-  default = PodPresetSpec
-    { env: NullOrUndefined Nothing
-    , envFrom: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , volumeMounts: NullOrUndefined Nothing
-    , volumes: NullOrUndefined Nothing }
 
 -- | ListNamespacedPodPresetOptions
 newtype ListNamespacedPodPresetOptions = ListNamespacedPodPresetOptions

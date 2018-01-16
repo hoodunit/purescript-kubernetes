@@ -24,362 +24,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a ControllerRevision
-createNamespacedControllerRevision :: forall e. Config -> String -> ControllerRevision -> Aff (http :: HTTP | e) (Either MetaV1.Status ControllerRevision)
-createNamespacedControllerRevision cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions"
-    encodedBody = encodeJSON body
-
--- | create a DaemonSet
-createNamespacedDaemonSet :: forall e. Config -> String -> DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status DaemonSet)
-createNamespacedDaemonSet cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/daemonsets"
-    encodedBody = encodeJSON body
-
--- | create a Deployment
-createNamespacedDeployment :: forall e. Config -> String -> Deployment -> Aff (http :: HTTP | e) (Either MetaV1.Status Deployment)
-createNamespacedDeployment cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/deployments"
-    encodedBody = encodeJSON body
-
--- | create a ReplicaSet
-createNamespacedReplicaSet :: forall e. Config -> String -> ReplicaSet -> Aff (http :: HTTP | e) (Either MetaV1.Status ReplicaSet)
-createNamespacedReplicaSet cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/replicasets"
-    encodedBody = encodeJSON body
-
--- | create a StatefulSet
-createNamespacedStatefulSet :: forall e. Config -> String -> StatefulSet -> Aff (http :: HTTP | e) (Either MetaV1.Status StatefulSet)
-createNamespacedStatefulSet cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/statefulsets"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionNamespacedControllerRevisionOptions
-newtype DeleteCollectionNamespacedControllerRevisionOptions = DeleteCollectionNamespacedControllerRevisionOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedControllerRevisionOptions :: Newtype DeleteCollectionNamespacedControllerRevisionOptions _
-derive instance genericDeleteCollectionNamespacedControllerRevisionOptions :: Generic DeleteCollectionNamespacedControllerRevisionOptions _
-instance showDeleteCollectionNamespacedControllerRevisionOptions :: Show DeleteCollectionNamespacedControllerRevisionOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedControllerRevisionOptions :: Decode DeleteCollectionNamespacedControllerRevisionOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedControllerRevisionOptions :: Encode DeleteCollectionNamespacedControllerRevisionOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedControllerRevisionOptions :: Default DeleteCollectionNamespacedControllerRevisionOptions where
-  default = DeleteCollectionNamespacedControllerRevisionOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of ControllerRevision
-deleteCollectionNamespacedControllerRevision :: forall e. Config -> String -> DeleteCollectionNamespacedControllerRevisionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedControllerRevision cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions" <> formatQueryString options
-
--- | DeleteCollectionNamespacedDaemonSetOptions
-newtype DeleteCollectionNamespacedDaemonSetOptions = DeleteCollectionNamespacedDaemonSetOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedDaemonSetOptions :: Newtype DeleteCollectionNamespacedDaemonSetOptions _
-derive instance genericDeleteCollectionNamespacedDaemonSetOptions :: Generic DeleteCollectionNamespacedDaemonSetOptions _
-instance showDeleteCollectionNamespacedDaemonSetOptions :: Show DeleteCollectionNamespacedDaemonSetOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedDaemonSetOptions :: Decode DeleteCollectionNamespacedDaemonSetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedDaemonSetOptions :: Encode DeleteCollectionNamespacedDaemonSetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedDaemonSetOptions :: Default DeleteCollectionNamespacedDaemonSetOptions where
-  default = DeleteCollectionNamespacedDaemonSetOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of DaemonSet
-deleteCollectionNamespacedDaemonSet :: forall e. Config -> String -> DeleteCollectionNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedDaemonSet cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/daemonsets" <> formatQueryString options
-
--- | DeleteCollectionNamespacedDeploymentOptions
-newtype DeleteCollectionNamespacedDeploymentOptions = DeleteCollectionNamespacedDeploymentOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedDeploymentOptions :: Newtype DeleteCollectionNamespacedDeploymentOptions _
-derive instance genericDeleteCollectionNamespacedDeploymentOptions :: Generic DeleteCollectionNamespacedDeploymentOptions _
-instance showDeleteCollectionNamespacedDeploymentOptions :: Show DeleteCollectionNamespacedDeploymentOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedDeploymentOptions :: Decode DeleteCollectionNamespacedDeploymentOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedDeploymentOptions :: Encode DeleteCollectionNamespacedDeploymentOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedDeploymentOptions :: Default DeleteCollectionNamespacedDeploymentOptions where
-  default = DeleteCollectionNamespacedDeploymentOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Deployment
-deleteCollectionNamespacedDeployment :: forall e. Config -> String -> DeleteCollectionNamespacedDeploymentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedDeployment cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/deployments" <> formatQueryString options
-
--- | DeleteCollectionNamespacedReplicaSetOptions
-newtype DeleteCollectionNamespacedReplicaSetOptions = DeleteCollectionNamespacedReplicaSetOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedReplicaSetOptions :: Newtype DeleteCollectionNamespacedReplicaSetOptions _
-derive instance genericDeleteCollectionNamespacedReplicaSetOptions :: Generic DeleteCollectionNamespacedReplicaSetOptions _
-instance showDeleteCollectionNamespacedReplicaSetOptions :: Show DeleteCollectionNamespacedReplicaSetOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedReplicaSetOptions :: Decode DeleteCollectionNamespacedReplicaSetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedReplicaSetOptions :: Encode DeleteCollectionNamespacedReplicaSetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedReplicaSetOptions :: Default DeleteCollectionNamespacedReplicaSetOptions where
-  default = DeleteCollectionNamespacedReplicaSetOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of ReplicaSet
-deleteCollectionNamespacedReplicaSet :: forall e. Config -> String -> DeleteCollectionNamespacedReplicaSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedReplicaSet cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/replicasets" <> formatQueryString options
-
--- | DeleteCollectionNamespacedStatefulSetOptions
-newtype DeleteCollectionNamespacedStatefulSetOptions = DeleteCollectionNamespacedStatefulSetOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedStatefulSetOptions :: Newtype DeleteCollectionNamespacedStatefulSetOptions _
-derive instance genericDeleteCollectionNamespacedStatefulSetOptions :: Generic DeleteCollectionNamespacedStatefulSetOptions _
-instance showDeleteCollectionNamespacedStatefulSetOptions :: Show DeleteCollectionNamespacedStatefulSetOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedStatefulSetOptions :: Decode DeleteCollectionNamespacedStatefulSetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedStatefulSetOptions :: Encode DeleteCollectionNamespacedStatefulSetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedStatefulSetOptions :: Default DeleteCollectionNamespacedStatefulSetOptions where
-  default = DeleteCollectionNamespacedStatefulSetOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of StatefulSet
-deleteCollectionNamespacedStatefulSet :: forall e. Config -> String -> DeleteCollectionNamespacedStatefulSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedStatefulSet cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/statefulsets" <> formatQueryString options
-
--- | DeleteNamespacedControllerRevisionOptions
-newtype DeleteNamespacedControllerRevisionOptions = DeleteNamespacedControllerRevisionOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedControllerRevisionOptions :: Newtype DeleteNamespacedControllerRevisionOptions _
-derive instance genericDeleteNamespacedControllerRevisionOptions :: Generic DeleteNamespacedControllerRevisionOptions _
-instance showDeleteNamespacedControllerRevisionOptions :: Show DeleteNamespacedControllerRevisionOptions where show a = genericShow a
-instance decodeDeleteNamespacedControllerRevisionOptions :: Decode DeleteNamespacedControllerRevisionOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedControllerRevisionOptions :: Encode DeleteNamespacedControllerRevisionOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedControllerRevisionOptions :: Default DeleteNamespacedControllerRevisionOptions where
-  default = DeleteNamespacedControllerRevisionOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a ControllerRevision
-deleteNamespacedControllerRevision :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedControllerRevisionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedControllerRevision cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedDaemonSetOptions
-newtype DeleteNamespacedDaemonSetOptions = DeleteNamespacedDaemonSetOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedDaemonSetOptions :: Newtype DeleteNamespacedDaemonSetOptions _
-derive instance genericDeleteNamespacedDaemonSetOptions :: Generic DeleteNamespacedDaemonSetOptions _
-instance showDeleteNamespacedDaemonSetOptions :: Show DeleteNamespacedDaemonSetOptions where show a = genericShow a
-instance decodeDeleteNamespacedDaemonSetOptions :: Decode DeleteNamespacedDaemonSetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedDaemonSetOptions :: Encode DeleteNamespacedDaemonSetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedDaemonSetOptions :: Default DeleteNamespacedDaemonSetOptions where
-  default = DeleteNamespacedDaemonSetOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a DaemonSet
-deleteNamespacedDaemonSet :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedDaemonSet cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/daemonsets/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedDeploymentOptions
-newtype DeleteNamespacedDeploymentOptions = DeleteNamespacedDeploymentOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedDeploymentOptions :: Newtype DeleteNamespacedDeploymentOptions _
-derive instance genericDeleteNamespacedDeploymentOptions :: Generic DeleteNamespacedDeploymentOptions _
-instance showDeleteNamespacedDeploymentOptions :: Show DeleteNamespacedDeploymentOptions where show a = genericShow a
-instance decodeDeleteNamespacedDeploymentOptions :: Decode DeleteNamespacedDeploymentOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedDeploymentOptions :: Encode DeleteNamespacedDeploymentOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedDeploymentOptions :: Default DeleteNamespacedDeploymentOptions where
-  default = DeleteNamespacedDeploymentOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a Deployment
-deleteNamespacedDeployment :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedDeploymentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedDeployment cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/deployments/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedReplicaSetOptions
-newtype DeleteNamespacedReplicaSetOptions = DeleteNamespacedReplicaSetOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedReplicaSetOptions :: Newtype DeleteNamespacedReplicaSetOptions _
-derive instance genericDeleteNamespacedReplicaSetOptions :: Generic DeleteNamespacedReplicaSetOptions _
-instance showDeleteNamespacedReplicaSetOptions :: Show DeleteNamespacedReplicaSetOptions where show a = genericShow a
-instance decodeDeleteNamespacedReplicaSetOptions :: Decode DeleteNamespacedReplicaSetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedReplicaSetOptions :: Encode DeleteNamespacedReplicaSetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedReplicaSetOptions :: Default DeleteNamespacedReplicaSetOptions where
-  default = DeleteNamespacedReplicaSetOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a ReplicaSet
-deleteNamespacedReplicaSet :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedReplicaSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedReplicaSet cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/replicasets/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteNamespacedStatefulSetOptions
-newtype DeleteNamespacedStatefulSetOptions = DeleteNamespacedStatefulSetOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedStatefulSetOptions :: Newtype DeleteNamespacedStatefulSetOptions _
-derive instance genericDeleteNamespacedStatefulSetOptions :: Generic DeleteNamespacedStatefulSetOptions _
-instance showDeleteNamespacedStatefulSetOptions :: Show DeleteNamespacedStatefulSetOptions where show a = genericShow a
-instance decodeDeleteNamespacedStatefulSetOptions :: Decode DeleteNamespacedStatefulSetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedStatefulSetOptions :: Encode DeleteNamespacedStatefulSetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedStatefulSetOptions :: Default DeleteNamespacedStatefulSetOptions where
-  default = DeleteNamespacedStatefulSetOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a StatefulSet
-deleteNamespacedStatefulSet :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedStatefulSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedStatefulSet cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/statefulsets/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/apps/v1beta2/"
-
 -- | io.k8s.api.apps.v1beta2.ControllerRevision
 -- | DEPRECATED - This group version of ControllerRevision is deprecated by apps/v1/ControllerRevision. See the release notes for more information. ControllerRevision implements an immutable snapshot of state data. Clients are responsible for serializing and deserializing the objects that contain their internal state. Once a ControllerRevision has been successfully created, it can not be updated. The API Server will fail validation of all requests that attempt to mutate the Data field. ControllerRevisions may, however, be deleted. Note that, due to its use by both the DaemonSet and StatefulSet controllers for update and rollback, this object is beta. However, it may be subject to name and representation changes in future releases, and clients should not depend on its stability. It is primarily for internal use by controllers.
 newtype ControllerRevision = ControllerRevision
@@ -1133,6 +777,362 @@ instance defaultStatefulSetUpdateStrategy :: Default StatefulSetUpdateStrategy w
   default = StatefulSetUpdateStrategy
     { _type: NullOrUndefined Nothing
     , rollingUpdate: NullOrUndefined Nothing }
+
+-- | create a ControllerRevision
+createNamespacedControllerRevision :: forall e. Config -> String -> ControllerRevision -> Aff (http :: HTTP | e) (Either MetaV1.Status ControllerRevision)
+createNamespacedControllerRevision cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions"
+    encodedBody = encodeJSON body
+
+-- | create a DaemonSet
+createNamespacedDaemonSet :: forall e. Config -> String -> DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status DaemonSet)
+createNamespacedDaemonSet cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/daemonsets"
+    encodedBody = encodeJSON body
+
+-- | create a Deployment
+createNamespacedDeployment :: forall e. Config -> String -> Deployment -> Aff (http :: HTTP | e) (Either MetaV1.Status Deployment)
+createNamespacedDeployment cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/deployments"
+    encodedBody = encodeJSON body
+
+-- | create a ReplicaSet
+createNamespacedReplicaSet :: forall e. Config -> String -> ReplicaSet -> Aff (http :: HTTP | e) (Either MetaV1.Status ReplicaSet)
+createNamespacedReplicaSet cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/replicasets"
+    encodedBody = encodeJSON body
+
+-- | create a StatefulSet
+createNamespacedStatefulSet :: forall e. Config -> String -> StatefulSet -> Aff (http :: HTTP | e) (Either MetaV1.Status StatefulSet)
+createNamespacedStatefulSet cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/statefulsets"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionNamespacedControllerRevisionOptions
+newtype DeleteCollectionNamespacedControllerRevisionOptions = DeleteCollectionNamespacedControllerRevisionOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedControllerRevisionOptions :: Newtype DeleteCollectionNamespacedControllerRevisionOptions _
+derive instance genericDeleteCollectionNamespacedControllerRevisionOptions :: Generic DeleteCollectionNamespacedControllerRevisionOptions _
+instance showDeleteCollectionNamespacedControllerRevisionOptions :: Show DeleteCollectionNamespacedControllerRevisionOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedControllerRevisionOptions :: Decode DeleteCollectionNamespacedControllerRevisionOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedControllerRevisionOptions :: Encode DeleteCollectionNamespacedControllerRevisionOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedControllerRevisionOptions :: Default DeleteCollectionNamespacedControllerRevisionOptions where
+  default = DeleteCollectionNamespacedControllerRevisionOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of ControllerRevision
+deleteCollectionNamespacedControllerRevision :: forall e. Config -> String -> DeleteCollectionNamespacedControllerRevisionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedControllerRevision cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedDaemonSetOptions
+newtype DeleteCollectionNamespacedDaemonSetOptions = DeleteCollectionNamespacedDaemonSetOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedDaemonSetOptions :: Newtype DeleteCollectionNamespacedDaemonSetOptions _
+derive instance genericDeleteCollectionNamespacedDaemonSetOptions :: Generic DeleteCollectionNamespacedDaemonSetOptions _
+instance showDeleteCollectionNamespacedDaemonSetOptions :: Show DeleteCollectionNamespacedDaemonSetOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedDaemonSetOptions :: Decode DeleteCollectionNamespacedDaemonSetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedDaemonSetOptions :: Encode DeleteCollectionNamespacedDaemonSetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedDaemonSetOptions :: Default DeleteCollectionNamespacedDaemonSetOptions where
+  default = DeleteCollectionNamespacedDaemonSetOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of DaemonSet
+deleteCollectionNamespacedDaemonSet :: forall e. Config -> String -> DeleteCollectionNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedDaemonSet cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/daemonsets" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedDeploymentOptions
+newtype DeleteCollectionNamespacedDeploymentOptions = DeleteCollectionNamespacedDeploymentOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedDeploymentOptions :: Newtype DeleteCollectionNamespacedDeploymentOptions _
+derive instance genericDeleteCollectionNamespacedDeploymentOptions :: Generic DeleteCollectionNamespacedDeploymentOptions _
+instance showDeleteCollectionNamespacedDeploymentOptions :: Show DeleteCollectionNamespacedDeploymentOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedDeploymentOptions :: Decode DeleteCollectionNamespacedDeploymentOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedDeploymentOptions :: Encode DeleteCollectionNamespacedDeploymentOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedDeploymentOptions :: Default DeleteCollectionNamespacedDeploymentOptions where
+  default = DeleteCollectionNamespacedDeploymentOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Deployment
+deleteCollectionNamespacedDeployment :: forall e. Config -> String -> DeleteCollectionNamespacedDeploymentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedDeployment cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/deployments" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedReplicaSetOptions
+newtype DeleteCollectionNamespacedReplicaSetOptions = DeleteCollectionNamespacedReplicaSetOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedReplicaSetOptions :: Newtype DeleteCollectionNamespacedReplicaSetOptions _
+derive instance genericDeleteCollectionNamespacedReplicaSetOptions :: Generic DeleteCollectionNamespacedReplicaSetOptions _
+instance showDeleteCollectionNamespacedReplicaSetOptions :: Show DeleteCollectionNamespacedReplicaSetOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedReplicaSetOptions :: Decode DeleteCollectionNamespacedReplicaSetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedReplicaSetOptions :: Encode DeleteCollectionNamespacedReplicaSetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedReplicaSetOptions :: Default DeleteCollectionNamespacedReplicaSetOptions where
+  default = DeleteCollectionNamespacedReplicaSetOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of ReplicaSet
+deleteCollectionNamespacedReplicaSet :: forall e. Config -> String -> DeleteCollectionNamespacedReplicaSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedReplicaSet cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/replicasets" <> formatQueryString options
+
+-- | DeleteCollectionNamespacedStatefulSetOptions
+newtype DeleteCollectionNamespacedStatefulSetOptions = DeleteCollectionNamespacedStatefulSetOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedStatefulSetOptions :: Newtype DeleteCollectionNamespacedStatefulSetOptions _
+derive instance genericDeleteCollectionNamespacedStatefulSetOptions :: Generic DeleteCollectionNamespacedStatefulSetOptions _
+instance showDeleteCollectionNamespacedStatefulSetOptions :: Show DeleteCollectionNamespacedStatefulSetOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedStatefulSetOptions :: Decode DeleteCollectionNamespacedStatefulSetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedStatefulSetOptions :: Encode DeleteCollectionNamespacedStatefulSetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedStatefulSetOptions :: Default DeleteCollectionNamespacedStatefulSetOptions where
+  default = DeleteCollectionNamespacedStatefulSetOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of StatefulSet
+deleteCollectionNamespacedStatefulSet :: forall e. Config -> String -> DeleteCollectionNamespacedStatefulSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedStatefulSet cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/statefulsets" <> formatQueryString options
+
+-- | DeleteNamespacedControllerRevisionOptions
+newtype DeleteNamespacedControllerRevisionOptions = DeleteNamespacedControllerRevisionOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedControllerRevisionOptions :: Newtype DeleteNamespacedControllerRevisionOptions _
+derive instance genericDeleteNamespacedControllerRevisionOptions :: Generic DeleteNamespacedControllerRevisionOptions _
+instance showDeleteNamespacedControllerRevisionOptions :: Show DeleteNamespacedControllerRevisionOptions where show a = genericShow a
+instance decodeDeleteNamespacedControllerRevisionOptions :: Decode DeleteNamespacedControllerRevisionOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedControllerRevisionOptions :: Encode DeleteNamespacedControllerRevisionOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedControllerRevisionOptions :: Default DeleteNamespacedControllerRevisionOptions where
+  default = DeleteNamespacedControllerRevisionOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a ControllerRevision
+deleteNamespacedControllerRevision :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedControllerRevisionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedControllerRevision cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedDaemonSetOptions
+newtype DeleteNamespacedDaemonSetOptions = DeleteNamespacedDaemonSetOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedDaemonSetOptions :: Newtype DeleteNamespacedDaemonSetOptions _
+derive instance genericDeleteNamespacedDaemonSetOptions :: Generic DeleteNamespacedDaemonSetOptions _
+instance showDeleteNamespacedDaemonSetOptions :: Show DeleteNamespacedDaemonSetOptions where show a = genericShow a
+instance decodeDeleteNamespacedDaemonSetOptions :: Decode DeleteNamespacedDaemonSetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedDaemonSetOptions :: Encode DeleteNamespacedDaemonSetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedDaemonSetOptions :: Default DeleteNamespacedDaemonSetOptions where
+  default = DeleteNamespacedDaemonSetOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a DaemonSet
+deleteNamespacedDaemonSet :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedDaemonSet cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/daemonsets/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedDeploymentOptions
+newtype DeleteNamespacedDeploymentOptions = DeleteNamespacedDeploymentOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedDeploymentOptions :: Newtype DeleteNamespacedDeploymentOptions _
+derive instance genericDeleteNamespacedDeploymentOptions :: Generic DeleteNamespacedDeploymentOptions _
+instance showDeleteNamespacedDeploymentOptions :: Show DeleteNamespacedDeploymentOptions where show a = genericShow a
+instance decodeDeleteNamespacedDeploymentOptions :: Decode DeleteNamespacedDeploymentOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedDeploymentOptions :: Encode DeleteNamespacedDeploymentOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedDeploymentOptions :: Default DeleteNamespacedDeploymentOptions where
+  default = DeleteNamespacedDeploymentOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a Deployment
+deleteNamespacedDeployment :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedDeploymentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedDeployment cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/deployments/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedReplicaSetOptions
+newtype DeleteNamespacedReplicaSetOptions = DeleteNamespacedReplicaSetOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedReplicaSetOptions :: Newtype DeleteNamespacedReplicaSetOptions _
+derive instance genericDeleteNamespacedReplicaSetOptions :: Generic DeleteNamespacedReplicaSetOptions _
+instance showDeleteNamespacedReplicaSetOptions :: Show DeleteNamespacedReplicaSetOptions where show a = genericShow a
+instance decodeDeleteNamespacedReplicaSetOptions :: Decode DeleteNamespacedReplicaSetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedReplicaSetOptions :: Encode DeleteNamespacedReplicaSetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedReplicaSetOptions :: Default DeleteNamespacedReplicaSetOptions where
+  default = DeleteNamespacedReplicaSetOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a ReplicaSet
+deleteNamespacedReplicaSet :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedReplicaSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedReplicaSet cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/replicasets/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteNamespacedStatefulSetOptions
+newtype DeleteNamespacedStatefulSetOptions = DeleteNamespacedStatefulSetOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedStatefulSetOptions :: Newtype DeleteNamespacedStatefulSetOptions _
+derive instance genericDeleteNamespacedStatefulSetOptions :: Generic DeleteNamespacedStatefulSetOptions _
+instance showDeleteNamespacedStatefulSetOptions :: Show DeleteNamespacedStatefulSetOptions where show a = genericShow a
+instance decodeDeleteNamespacedStatefulSetOptions :: Decode DeleteNamespacedStatefulSetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedStatefulSetOptions :: Encode DeleteNamespacedStatefulSetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedStatefulSetOptions :: Default DeleteNamespacedStatefulSetOptions where
+  default = DeleteNamespacedStatefulSetOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a StatefulSet
+deleteNamespacedStatefulSet :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedStatefulSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedStatefulSet cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/statefulsets/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/apps/v1beta2/"
 
 -- | list or watch objects of kind ControllerRevision
 listControllerRevisionForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status ControllerRevisionList)

@@ -21,82 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a CertificateSigningRequest
-createCertificateSigningRequest :: forall e. Config -> CertificateSigningRequest -> Aff (http :: HTTP | e) (Either MetaV1.Status CertificateSigningRequest)
-createCertificateSigningRequest cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests"
-    encodedBody = encodeJSON body
-
--- | DeleteCertificateSigningRequestOptions
-newtype DeleteCertificateSigningRequestOptions = DeleteCertificateSigningRequestOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteCertificateSigningRequestOptions :: Newtype DeleteCertificateSigningRequestOptions _
-derive instance genericDeleteCertificateSigningRequestOptions :: Generic DeleteCertificateSigningRequestOptions _
-instance showDeleteCertificateSigningRequestOptions :: Show DeleteCertificateSigningRequestOptions where show a = genericShow a
-instance decodeDeleteCertificateSigningRequestOptions :: Decode DeleteCertificateSigningRequestOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCertificateSigningRequestOptions :: Encode DeleteCertificateSigningRequestOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCertificateSigningRequestOptions :: Default DeleteCertificateSigningRequestOptions where
-  default = DeleteCertificateSigningRequestOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a CertificateSigningRequest
-deleteCertificateSigningRequest :: forall e. Config -> MetaV1.DeleteOptions -> DeleteCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCertificateSigningRequest cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionCertificateSigningRequestOptions
-newtype DeleteCollectionCertificateSigningRequestOptions = DeleteCollectionCertificateSigningRequestOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionCertificateSigningRequestOptions :: Newtype DeleteCollectionCertificateSigningRequestOptions _
-derive instance genericDeleteCollectionCertificateSigningRequestOptions :: Generic DeleteCollectionCertificateSigningRequestOptions _
-instance showDeleteCollectionCertificateSigningRequestOptions :: Show DeleteCollectionCertificateSigningRequestOptions where show a = genericShow a
-instance decodeDeleteCollectionCertificateSigningRequestOptions :: Decode DeleteCollectionCertificateSigningRequestOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionCertificateSigningRequestOptions :: Encode DeleteCollectionCertificateSigningRequestOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionCertificateSigningRequestOptions :: Default DeleteCollectionCertificateSigningRequestOptions where
-  default = DeleteCollectionCertificateSigningRequestOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of CertificateSigningRequest
-deleteCollectionCertificateSigningRequest :: forall e. Config -> DeleteCollectionCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionCertificateSigningRequest cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests" <> formatQueryString options
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/certificates.k8s.io/v1beta1/"
-
 -- | io.k8s.api.certificates.v1beta1.CertificateSigningRequest
 -- | Describes a certificate signing request
 newtype CertificateSigningRequest = CertificateSigningRequest
@@ -210,6 +134,82 @@ instance defaultCertificateSigningRequestStatus :: Default CertificateSigningReq
   default = CertificateSigningRequestStatus
     { certificate: NullOrUndefined Nothing
     , conditions: NullOrUndefined Nothing }
+
+-- | create a CertificateSigningRequest
+createCertificateSigningRequest :: forall e. Config -> CertificateSigningRequest -> Aff (http :: HTTP | e) (Either MetaV1.Status CertificateSigningRequest)
+createCertificateSigningRequest cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests"
+    encodedBody = encodeJSON body
+
+-- | DeleteCertificateSigningRequestOptions
+newtype DeleteCertificateSigningRequestOptions = DeleteCertificateSigningRequestOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteCertificateSigningRequestOptions :: Newtype DeleteCertificateSigningRequestOptions _
+derive instance genericDeleteCertificateSigningRequestOptions :: Generic DeleteCertificateSigningRequestOptions _
+instance showDeleteCertificateSigningRequestOptions :: Show DeleteCertificateSigningRequestOptions where show a = genericShow a
+instance decodeDeleteCertificateSigningRequestOptions :: Decode DeleteCertificateSigningRequestOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCertificateSigningRequestOptions :: Encode DeleteCertificateSigningRequestOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCertificateSigningRequestOptions :: Default DeleteCertificateSigningRequestOptions where
+  default = DeleteCertificateSigningRequestOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a CertificateSigningRequest
+deleteCertificateSigningRequest :: forall e. Config -> MetaV1.DeleteOptions -> DeleteCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCertificateSigningRequest cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionCertificateSigningRequestOptions
+newtype DeleteCollectionCertificateSigningRequestOptions = DeleteCollectionCertificateSigningRequestOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionCertificateSigningRequestOptions :: Newtype DeleteCollectionCertificateSigningRequestOptions _
+derive instance genericDeleteCollectionCertificateSigningRequestOptions :: Generic DeleteCollectionCertificateSigningRequestOptions _
+instance showDeleteCollectionCertificateSigningRequestOptions :: Show DeleteCollectionCertificateSigningRequestOptions where show a = genericShow a
+instance decodeDeleteCollectionCertificateSigningRequestOptions :: Decode DeleteCollectionCertificateSigningRequestOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionCertificateSigningRequestOptions :: Encode DeleteCollectionCertificateSigningRequestOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionCertificateSigningRequestOptions :: Default DeleteCollectionCertificateSigningRequestOptions where
+  default = DeleteCollectionCertificateSigningRequestOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of CertificateSigningRequest
+deleteCollectionCertificateSigningRequest :: forall e. Config -> DeleteCollectionCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionCertificateSigningRequest cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests" <> formatQueryString options
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/certificates.k8s.io/v1beta1/"
 
 -- | ListCertificateSigningRequestOptions
 newtype ListCertificateSigningRequestOptions = ListCertificateSigningRequestOptions

@@ -22,89 +22,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a PodDisruptionBudget
-createNamespacedPodDisruptionBudget :: forall e. Config -> String -> PodDisruptionBudget -> Aff (http :: HTTP | e) (Either MetaV1.Status PodDisruptionBudget)
-createNamespacedPodDisruptionBudget cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/policy/v1beta1/namespaces/" <> namespace <> "/poddisruptionbudgets"
-    encodedBody = encodeJSON body
-
--- | create eviction of a Pod
-createNamespacedPodEviction :: forall e. Config -> String -> String -> Eviction -> Aff (http :: HTTP | e) (Either MetaV1.Status Eviction)
-createNamespacedPodEviction cfg namespace name body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/eviction"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionNamespacedPodDisruptionBudgetOptions
-newtype DeleteCollectionNamespacedPodDisruptionBudgetOptions = DeleteCollectionNamespacedPodDisruptionBudgetOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Newtype DeleteCollectionNamespacedPodDisruptionBudgetOptions _
-derive instance genericDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Generic DeleteCollectionNamespacedPodDisruptionBudgetOptions _
-instance showDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Show DeleteCollectionNamespacedPodDisruptionBudgetOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Decode DeleteCollectionNamespacedPodDisruptionBudgetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Encode DeleteCollectionNamespacedPodDisruptionBudgetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Default DeleteCollectionNamespacedPodDisruptionBudgetOptions where
-  default = DeleteCollectionNamespacedPodDisruptionBudgetOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of PodDisruptionBudget
-deleteCollectionNamespacedPodDisruptionBudget :: forall e. Config -> String -> DeleteCollectionNamespacedPodDisruptionBudgetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedPodDisruptionBudget cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/policy/v1beta1/namespaces/" <> namespace <> "/poddisruptionbudgets" <> formatQueryString options
-
--- | DeleteNamespacedPodDisruptionBudgetOptions
-newtype DeleteNamespacedPodDisruptionBudgetOptions = DeleteNamespacedPodDisruptionBudgetOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedPodDisruptionBudgetOptions :: Newtype DeleteNamespacedPodDisruptionBudgetOptions _
-derive instance genericDeleteNamespacedPodDisruptionBudgetOptions :: Generic DeleteNamespacedPodDisruptionBudgetOptions _
-instance showDeleteNamespacedPodDisruptionBudgetOptions :: Show DeleteNamespacedPodDisruptionBudgetOptions where show a = genericShow a
-instance decodeDeleteNamespacedPodDisruptionBudgetOptions :: Decode DeleteNamespacedPodDisruptionBudgetOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedPodDisruptionBudgetOptions :: Encode DeleteNamespacedPodDisruptionBudgetOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedPodDisruptionBudgetOptions :: Default DeleteNamespacedPodDisruptionBudgetOptions where
-  default = DeleteNamespacedPodDisruptionBudgetOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a PodDisruptionBudget
-deleteNamespacedPodDisruptionBudget :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodDisruptionBudgetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedPodDisruptionBudget cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/policy/v1beta1/namespaces/" <> namespace <> "/poddisruptionbudgets/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/policy/v1beta1/"
-
 -- | io.k8s.api.policy.v1beta1.Eviction
 -- | Eviction evicts a pod from its node subject to certain policies and safety constraints. This is a subresource of Pod.  A request to cause such an eviction is created by POSTing to .../pods/<pod name>/evictions.
 newtype Eviction = Eviction
@@ -223,6 +140,89 @@ instance defaultPodDisruptionBudgetStatus :: Default PodDisruptionBudgetStatus w
     , disruptionsAllowed: NullOrUndefined Nothing
     , expectedPods: NullOrUndefined Nothing
     , observedGeneration: NullOrUndefined Nothing }
+
+-- | create a PodDisruptionBudget
+createNamespacedPodDisruptionBudget :: forall e. Config -> String -> PodDisruptionBudget -> Aff (http :: HTTP | e) (Either MetaV1.Status PodDisruptionBudget)
+createNamespacedPodDisruptionBudget cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/policy/v1beta1/namespaces/" <> namespace <> "/poddisruptionbudgets"
+    encodedBody = encodeJSON body
+
+-- | create eviction of a Pod
+createNamespacedPodEviction :: forall e. Config -> String -> String -> Eviction -> Aff (http :: HTTP | e) (Either MetaV1.Status Eviction)
+createNamespacedPodEviction cfg namespace name body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/eviction"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionNamespacedPodDisruptionBudgetOptions
+newtype DeleteCollectionNamespacedPodDisruptionBudgetOptions = DeleteCollectionNamespacedPodDisruptionBudgetOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Newtype DeleteCollectionNamespacedPodDisruptionBudgetOptions _
+derive instance genericDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Generic DeleteCollectionNamespacedPodDisruptionBudgetOptions _
+instance showDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Show DeleteCollectionNamespacedPodDisruptionBudgetOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Decode DeleteCollectionNamespacedPodDisruptionBudgetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Encode DeleteCollectionNamespacedPodDisruptionBudgetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedPodDisruptionBudgetOptions :: Default DeleteCollectionNamespacedPodDisruptionBudgetOptions where
+  default = DeleteCollectionNamespacedPodDisruptionBudgetOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of PodDisruptionBudget
+deleteCollectionNamespacedPodDisruptionBudget :: forall e. Config -> String -> DeleteCollectionNamespacedPodDisruptionBudgetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedPodDisruptionBudget cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/policy/v1beta1/namespaces/" <> namespace <> "/poddisruptionbudgets" <> formatQueryString options
+
+-- | DeleteNamespacedPodDisruptionBudgetOptions
+newtype DeleteNamespacedPodDisruptionBudgetOptions = DeleteNamespacedPodDisruptionBudgetOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedPodDisruptionBudgetOptions :: Newtype DeleteNamespacedPodDisruptionBudgetOptions _
+derive instance genericDeleteNamespacedPodDisruptionBudgetOptions :: Generic DeleteNamespacedPodDisruptionBudgetOptions _
+instance showDeleteNamespacedPodDisruptionBudgetOptions :: Show DeleteNamespacedPodDisruptionBudgetOptions where show a = genericShow a
+instance decodeDeleteNamespacedPodDisruptionBudgetOptions :: Decode DeleteNamespacedPodDisruptionBudgetOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedPodDisruptionBudgetOptions :: Encode DeleteNamespacedPodDisruptionBudgetOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedPodDisruptionBudgetOptions :: Default DeleteNamespacedPodDisruptionBudgetOptions where
+  default = DeleteNamespacedPodDisruptionBudgetOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a PodDisruptionBudget
+deleteNamespacedPodDisruptionBudget :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodDisruptionBudgetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedPodDisruptionBudget cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/policy/v1beta1/namespaces/" <> namespace <> "/poddisruptionbudgets/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/policy/v1beta1/"
 
 -- | ListNamespacedPodDisruptionBudgetOptions
 newtype ListNamespacedPodDisruptionBudgetOptions = ListNamespacedPodDisruptionBudgetOptions

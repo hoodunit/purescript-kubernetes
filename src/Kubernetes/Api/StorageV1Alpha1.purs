@@ -21,82 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a VolumeAttachment
-createVolumeAttachment :: forall e. Config -> VolumeAttachment -> Aff (http :: HTTP | e) (Either MetaV1.Status VolumeAttachment)
-createVolumeAttachment cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/storage.k8s.io/v1alpha1/volumeattachments"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionVolumeAttachmentOptions
-newtype DeleteCollectionVolumeAttachmentOptions = DeleteCollectionVolumeAttachmentOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionVolumeAttachmentOptions :: Newtype DeleteCollectionVolumeAttachmentOptions _
-derive instance genericDeleteCollectionVolumeAttachmentOptions :: Generic DeleteCollectionVolumeAttachmentOptions _
-instance showDeleteCollectionVolumeAttachmentOptions :: Show DeleteCollectionVolumeAttachmentOptions where show a = genericShow a
-instance decodeDeleteCollectionVolumeAttachmentOptions :: Decode DeleteCollectionVolumeAttachmentOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionVolumeAttachmentOptions :: Encode DeleteCollectionVolumeAttachmentOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionVolumeAttachmentOptions :: Default DeleteCollectionVolumeAttachmentOptions where
-  default = DeleteCollectionVolumeAttachmentOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of VolumeAttachment
-deleteCollectionVolumeAttachment :: forall e. Config -> DeleteCollectionVolumeAttachmentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionVolumeAttachment cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/storage.k8s.io/v1alpha1/volumeattachments" <> formatQueryString options
-
--- | DeleteVolumeAttachmentOptions
-newtype DeleteVolumeAttachmentOptions = DeleteVolumeAttachmentOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteVolumeAttachmentOptions :: Newtype DeleteVolumeAttachmentOptions _
-derive instance genericDeleteVolumeAttachmentOptions :: Generic DeleteVolumeAttachmentOptions _
-instance showDeleteVolumeAttachmentOptions :: Show DeleteVolumeAttachmentOptions where show a = genericShow a
-instance decodeDeleteVolumeAttachmentOptions :: Decode DeleteVolumeAttachmentOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteVolumeAttachmentOptions :: Encode DeleteVolumeAttachmentOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteVolumeAttachmentOptions :: Default DeleteVolumeAttachmentOptions where
-  default = DeleteVolumeAttachmentOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a VolumeAttachment
-deleteVolumeAttachment :: forall e. Config -> MetaV1.DeleteOptions -> DeleteVolumeAttachmentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteVolumeAttachment cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/storage.k8s.io/v1alpha1/volumeattachments/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/storage.k8s.io/v1alpha1/"
-
 -- | io.k8s.api.storage.v1alpha1.VolumeAttachment
 -- | VolumeAttachment captures the intent to attach or detach the specified volume to/from the specified node.
 -- | 
@@ -226,6 +150,82 @@ instance defaultVolumeError :: Default VolumeError where
   default = VolumeError
     { message: NullOrUndefined Nothing
     , time: NullOrUndefined Nothing }
+
+-- | create a VolumeAttachment
+createVolumeAttachment :: forall e. Config -> VolumeAttachment -> Aff (http :: HTTP | e) (Either MetaV1.Status VolumeAttachment)
+createVolumeAttachment cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/storage.k8s.io/v1alpha1/volumeattachments"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionVolumeAttachmentOptions
+newtype DeleteCollectionVolumeAttachmentOptions = DeleteCollectionVolumeAttachmentOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionVolumeAttachmentOptions :: Newtype DeleteCollectionVolumeAttachmentOptions _
+derive instance genericDeleteCollectionVolumeAttachmentOptions :: Generic DeleteCollectionVolumeAttachmentOptions _
+instance showDeleteCollectionVolumeAttachmentOptions :: Show DeleteCollectionVolumeAttachmentOptions where show a = genericShow a
+instance decodeDeleteCollectionVolumeAttachmentOptions :: Decode DeleteCollectionVolumeAttachmentOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionVolumeAttachmentOptions :: Encode DeleteCollectionVolumeAttachmentOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionVolumeAttachmentOptions :: Default DeleteCollectionVolumeAttachmentOptions where
+  default = DeleteCollectionVolumeAttachmentOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of VolumeAttachment
+deleteCollectionVolumeAttachment :: forall e. Config -> DeleteCollectionVolumeAttachmentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionVolumeAttachment cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/storage.k8s.io/v1alpha1/volumeattachments" <> formatQueryString options
+
+-- | DeleteVolumeAttachmentOptions
+newtype DeleteVolumeAttachmentOptions = DeleteVolumeAttachmentOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteVolumeAttachmentOptions :: Newtype DeleteVolumeAttachmentOptions _
+derive instance genericDeleteVolumeAttachmentOptions :: Generic DeleteVolumeAttachmentOptions _
+instance showDeleteVolumeAttachmentOptions :: Show DeleteVolumeAttachmentOptions where show a = genericShow a
+instance decodeDeleteVolumeAttachmentOptions :: Decode DeleteVolumeAttachmentOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteVolumeAttachmentOptions :: Encode DeleteVolumeAttachmentOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteVolumeAttachmentOptions :: Default DeleteVolumeAttachmentOptions where
+  default = DeleteVolumeAttachmentOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a VolumeAttachment
+deleteVolumeAttachment :: forall e. Config -> MetaV1.DeleteOptions -> DeleteVolumeAttachmentOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteVolumeAttachment cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/storage.k8s.io/v1alpha1/volumeattachments/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/storage.k8s.io/v1alpha1/"
 
 -- | ListVolumeAttachmentOptions
 newtype ListVolumeAttachmentOptions = ListVolumeAttachmentOptions

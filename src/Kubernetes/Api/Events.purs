@@ -22,88 +22,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create an Event
-createNamespacedEvent :: forall e. Config -> Event -> Aff (http :: HTTP | e) (Either MetaV1.Status Event)
-createNamespacedEvent cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionNamespacedEventOptions
-newtype DeleteCollectionNamespacedEventOptions = DeleteCollectionNamespacedEventOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedEventOptions :: Newtype DeleteCollectionNamespacedEventOptions _
-derive instance genericDeleteCollectionNamespacedEventOptions :: Generic DeleteCollectionNamespacedEventOptions _
-instance showDeleteCollectionNamespacedEventOptions :: Show DeleteCollectionNamespacedEventOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedEventOptions :: Decode DeleteCollectionNamespacedEventOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedEventOptions :: Encode DeleteCollectionNamespacedEventOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedEventOptions :: Default DeleteCollectionNamespacedEventOptions where
-  default = DeleteCollectionNamespacedEventOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Event
-deleteCollectionNamespacedEvent :: forall e. Config -> DeleteCollectionNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedEvent cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events" <> formatQueryString options
-
--- | DeleteNamespacedEventOptions
-newtype DeleteNamespacedEventOptions = DeleteNamespacedEventOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedEventOptions :: Newtype DeleteNamespacedEventOptions _
-derive instance genericDeleteNamespacedEventOptions :: Generic DeleteNamespacedEventOptions _
-instance showDeleteNamespacedEventOptions :: Show DeleteNamespacedEventOptions where show a = genericShow a
-instance decodeDeleteNamespacedEventOptions :: Decode DeleteNamespacedEventOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedEventOptions :: Encode DeleteNamespacedEventOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedEventOptions :: Default DeleteNamespacedEventOptions where
-  default = DeleteNamespacedEventOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete an Event
-deleteNamespacedEvent :: forall e. Config -> MetaV1.DeleteOptions -> DeleteNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedEvent cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get information of a group
-getAPIGroup :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIGroup)
-getAPIGroup cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/events.k8s.io/"
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/events.k8s.io/v1beta1/"
-
 -- | io.k8s.api.events.v1beta1.Event
 -- | Event is a report of an event somewhere in the cluster. It generally denotes some state change in the system.
 newtype Event = Event
@@ -196,6 +114,88 @@ instance defaultEventSeries :: Default EventSeries where
     { count: NullOrUndefined Nothing
     , lastObservedTime: NullOrUndefined Nothing
     , state: NullOrUndefined Nothing }
+
+-- | create an Event
+createNamespacedEvent :: forall e. Config -> Event -> Aff (http :: HTTP | e) (Either MetaV1.Status Event)
+createNamespacedEvent cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionNamespacedEventOptions
+newtype DeleteCollectionNamespacedEventOptions = DeleteCollectionNamespacedEventOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedEventOptions :: Newtype DeleteCollectionNamespacedEventOptions _
+derive instance genericDeleteCollectionNamespacedEventOptions :: Generic DeleteCollectionNamespacedEventOptions _
+instance showDeleteCollectionNamespacedEventOptions :: Show DeleteCollectionNamespacedEventOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedEventOptions :: Decode DeleteCollectionNamespacedEventOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedEventOptions :: Encode DeleteCollectionNamespacedEventOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedEventOptions :: Default DeleteCollectionNamespacedEventOptions where
+  default = DeleteCollectionNamespacedEventOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Event
+deleteCollectionNamespacedEvent :: forall e. Config -> DeleteCollectionNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedEvent cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events" <> formatQueryString options
+
+-- | DeleteNamespacedEventOptions
+newtype DeleteNamespacedEventOptions = DeleteNamespacedEventOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedEventOptions :: Newtype DeleteNamespacedEventOptions _
+derive instance genericDeleteNamespacedEventOptions :: Generic DeleteNamespacedEventOptions _
+instance showDeleteNamespacedEventOptions :: Show DeleteNamespacedEventOptions where show a = genericShow a
+instance decodeDeleteNamespacedEventOptions :: Decode DeleteNamespacedEventOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedEventOptions :: Encode DeleteNamespacedEventOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedEventOptions :: Default DeleteNamespacedEventOptions where
+  default = DeleteNamespacedEventOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete an Event
+deleteNamespacedEvent :: forall e. Config -> MetaV1.DeleteOptions -> DeleteNamespacedEventOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedEvent cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get information of a group
+getAPIGroup :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIGroup)
+getAPIGroup cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/events.k8s.io/"
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/events.k8s.io/v1beta1/"
 
 -- | list or watch objects of kind Event
 listEventForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status EventList)

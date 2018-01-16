@@ -7,5 +7,4 @@ import Kubernetes.Generation.Names (psFieldToJsonField)
 jsonOptions :: Options
 jsonOptions = defaultOptions
   { unwrapSingleConstructors = true
-  , fieldTransform = psFieldToJsonField
-  }
+  , fieldTransform = psFieldToJsonField }

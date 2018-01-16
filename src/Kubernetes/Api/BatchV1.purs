@@ -22,82 +22,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a Job
-createNamespacedJob :: forall e. Config -> String -> Job -> Aff (http :: HTTP | e) (Either MetaV1.Status Job)
-createNamespacedJob cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionNamespacedJobOptions
-newtype DeleteCollectionNamespacedJobOptions = DeleteCollectionNamespacedJobOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedJobOptions :: Newtype DeleteCollectionNamespacedJobOptions _
-derive instance genericDeleteCollectionNamespacedJobOptions :: Generic DeleteCollectionNamespacedJobOptions _
-instance showDeleteCollectionNamespacedJobOptions :: Show DeleteCollectionNamespacedJobOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedJobOptions :: Decode DeleteCollectionNamespacedJobOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedJobOptions :: Encode DeleteCollectionNamespacedJobOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedJobOptions :: Default DeleteCollectionNamespacedJobOptions where
-  default = DeleteCollectionNamespacedJobOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of Job
-deleteCollectionNamespacedJob :: forall e. Config -> String -> DeleteCollectionNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedJob cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> formatQueryString options
-
--- | DeleteNamespacedJobOptions
-newtype DeleteNamespacedJobOptions = DeleteNamespacedJobOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedJobOptions :: Newtype DeleteNamespacedJobOptions _
-derive instance genericDeleteNamespacedJobOptions :: Generic DeleteNamespacedJobOptions _
-instance showDeleteNamespacedJobOptions :: Show DeleteNamespacedJobOptions where show a = genericShow a
-instance decodeDeleteNamespacedJobOptions :: Decode DeleteNamespacedJobOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedJobOptions :: Encode DeleteNamespacedJobOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedJobOptions :: Default DeleteNamespacedJobOptions where
-  default = DeleteNamespacedJobOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a Job
-deleteNamespacedJob :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedJob cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/batch/v1/"
-
 -- | io.k8s.api.batch.v1.Job
 -- | Job represents the configuration of a single job.
 newtype Job = Job
@@ -228,6 +152,82 @@ instance defaultJobStatus :: Default JobStatus where
     , failed: NullOrUndefined Nothing
     , startTime: NullOrUndefined Nothing
     , succeeded: NullOrUndefined Nothing }
+
+-- | create a Job
+createNamespacedJob :: forall e. Config -> String -> Job -> Aff (http :: HTTP | e) (Either MetaV1.Status Job)
+createNamespacedJob cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionNamespacedJobOptions
+newtype DeleteCollectionNamespacedJobOptions = DeleteCollectionNamespacedJobOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedJobOptions :: Newtype DeleteCollectionNamespacedJobOptions _
+derive instance genericDeleteCollectionNamespacedJobOptions :: Generic DeleteCollectionNamespacedJobOptions _
+instance showDeleteCollectionNamespacedJobOptions :: Show DeleteCollectionNamespacedJobOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedJobOptions :: Decode DeleteCollectionNamespacedJobOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedJobOptions :: Encode DeleteCollectionNamespacedJobOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedJobOptions :: Default DeleteCollectionNamespacedJobOptions where
+  default = DeleteCollectionNamespacedJobOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of Job
+deleteCollectionNamespacedJob :: forall e. Config -> String -> DeleteCollectionNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedJob cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> formatQueryString options
+
+-- | DeleteNamespacedJobOptions
+newtype DeleteNamespacedJobOptions = DeleteNamespacedJobOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedJobOptions :: Newtype DeleteNamespacedJobOptions _
+derive instance genericDeleteNamespacedJobOptions :: Generic DeleteNamespacedJobOptions _
+instance showDeleteNamespacedJobOptions :: Show DeleteNamespacedJobOptions where show a = genericShow a
+instance decodeDeleteNamespacedJobOptions :: Decode DeleteNamespacedJobOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedJobOptions :: Encode DeleteNamespacedJobOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedJobOptions :: Default DeleteNamespacedJobOptions where
+  default = DeleteNamespacedJobOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a Job
+deleteNamespacedJob :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedJob cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/batch/v1/"
 
 -- | list or watch objects of kind Job
 listJobForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status JobList)

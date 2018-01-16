@@ -21,6 +21,64 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
+-- | io.k8s.api.storage.v1.StorageClass
+-- | StorageClass describes the parameters for a class of storage for which PersistentVolumes can be dynamically provisioned.
+-- | 
+-- | StorageClasses are non-namespaced; the name of the storage class according to etcd is in ObjectMeta.Name.
+newtype StorageClass = StorageClass
+  { allowVolumeExpansion :: (NullOrUndefined Boolean)
+  , apiVersion :: (NullOrUndefined String)
+  , kind :: (NullOrUndefined String)
+  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
+  , mountOptions :: (NullOrUndefined (Array String))
+  , parameters :: (NullOrUndefined (StrMap String))
+  , provisioner :: (NullOrUndefined String)
+  , reclaimPolicy :: (NullOrUndefined String)
+  , volumeBindingMode :: (NullOrUndefined String) }
+
+derive instance newtypeStorageClass :: Newtype StorageClass _
+derive instance genericStorageClass :: Generic StorageClass _
+instance showStorageClass :: Show StorageClass where show a = genericShow a
+instance decodeStorageClass :: Decode StorageClass where
+  decode a = genericDecode jsonOptions a 
+instance encodeStorageClass :: Encode StorageClass where
+  encode a = genericEncode jsonOptions a
+
+instance defaultStorageClass :: Default StorageClass where
+  default = StorageClass
+    { allowVolumeExpansion: NullOrUndefined Nothing
+    , apiVersion: NullOrUndefined Nothing
+    , kind: NullOrUndefined Nothing
+    , metadata: NullOrUndefined Nothing
+    , mountOptions: NullOrUndefined Nothing
+    , parameters: NullOrUndefined Nothing
+    , provisioner: NullOrUndefined Nothing
+    , reclaimPolicy: NullOrUndefined Nothing
+    , volumeBindingMode: NullOrUndefined Nothing }
+
+-- | io.k8s.api.storage.v1.StorageClassList
+-- | StorageClassList is a collection of storage classes.
+newtype StorageClassList = StorageClassList
+  { apiVersion :: (NullOrUndefined String)
+  , items :: (NullOrUndefined (Array StorageClass))
+  , kind :: (NullOrUndefined String)
+  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+
+derive instance newtypeStorageClassList :: Newtype StorageClassList _
+derive instance genericStorageClassList :: Generic StorageClassList _
+instance showStorageClassList :: Show StorageClassList where show a = genericShow a
+instance decodeStorageClassList :: Decode StorageClassList where
+  decode a = genericDecode jsonOptions a 
+instance encodeStorageClassList :: Encode StorageClassList where
+  encode a = genericEncode jsonOptions a
+
+instance defaultStorageClassList :: Default StorageClassList where
+  default = StorageClassList
+    { apiVersion: NullOrUndefined Nothing
+    , items: NullOrUndefined Nothing
+    , kind: NullOrUndefined Nothing
+    , metadata: NullOrUndefined Nothing }
+
 -- | create a StorageClass
 createStorageClass :: forall e. Config -> StorageClass -> Aff (http :: HTTP | e) (Either MetaV1.Status StorageClass)
 createStorageClass cfg body = makeRequest (post cfg url (Just encodedBody))
@@ -96,64 +154,6 @@ getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Sta
 getAPIResources cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/storage.k8s.io/v1/"
-
--- | io.k8s.api.storage.v1.StorageClass
--- | StorageClass describes the parameters for a class of storage for which PersistentVolumes can be dynamically provisioned.
--- | 
--- | StorageClasses are non-namespaced; the name of the storage class according to etcd is in ObjectMeta.Name.
-newtype StorageClass = StorageClass
-  { allowVolumeExpansion :: (NullOrUndefined Boolean)
-  , apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , mountOptions :: (NullOrUndefined (Array String))
-  , parameters :: (NullOrUndefined (StrMap String))
-  , provisioner :: (NullOrUndefined String)
-  , reclaimPolicy :: (NullOrUndefined String)
-  , volumeBindingMode :: (NullOrUndefined String) }
-
-derive instance newtypeStorageClass :: Newtype StorageClass _
-derive instance genericStorageClass :: Generic StorageClass _
-instance showStorageClass :: Show StorageClass where show a = genericShow a
-instance decodeStorageClass :: Decode StorageClass where
-  decode a = genericDecode jsonOptions a 
-instance encodeStorageClass :: Encode StorageClass where
-  encode a = genericEncode jsonOptions a
-
-instance defaultStorageClass :: Default StorageClass where
-  default = StorageClass
-    { allowVolumeExpansion: NullOrUndefined Nothing
-    , apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , mountOptions: NullOrUndefined Nothing
-    , parameters: NullOrUndefined Nothing
-    , provisioner: NullOrUndefined Nothing
-    , reclaimPolicy: NullOrUndefined Nothing
-    , volumeBindingMode: NullOrUndefined Nothing }
-
--- | io.k8s.api.storage.v1.StorageClassList
--- | StorageClassList is a collection of storage classes.
-newtype StorageClassList = StorageClassList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array StorageClass))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
-
-derive instance newtypeStorageClassList :: Newtype StorageClassList _
-derive instance genericStorageClassList :: Generic StorageClassList _
-instance showStorageClassList :: Show StorageClassList where show a = genericShow a
-instance decodeStorageClassList :: Decode StorageClassList where
-  decode a = genericDecode jsonOptions a 
-instance encodeStorageClassList :: Encode StorageClassList where
-  encode a = genericEncode jsonOptions a
-
-instance defaultStorageClassList :: Default StorageClassList where
-  default = StorageClassList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
 
 -- | ListStorageClassOptions
 newtype ListStorageClassOptions = ListStorageClassOptions

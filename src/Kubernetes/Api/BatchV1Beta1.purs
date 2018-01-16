@@ -23,82 +23,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a CronJob
-createNamespacedCronJob :: forall e. Config -> String -> CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status CronJob)
-createNamespacedCronJob cfg namespace body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionNamespacedCronJobOptions
-newtype DeleteCollectionNamespacedCronJobOptions = DeleteCollectionNamespacedCronJobOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionNamespacedCronJobOptions :: Newtype DeleteCollectionNamespacedCronJobOptions _
-derive instance genericDeleteCollectionNamespacedCronJobOptions :: Generic DeleteCollectionNamespacedCronJobOptions _
-instance showDeleteCollectionNamespacedCronJobOptions :: Show DeleteCollectionNamespacedCronJobOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedCronJobOptions :: Decode DeleteCollectionNamespacedCronJobOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionNamespacedCronJobOptions :: Encode DeleteCollectionNamespacedCronJobOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionNamespacedCronJobOptions :: Default DeleteCollectionNamespacedCronJobOptions where
-  default = DeleteCollectionNamespacedCronJobOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of CronJob
-deleteCollectionNamespacedCronJob :: forall e. Config -> String -> DeleteCollectionNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedCronJob cfg namespace options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs" <> formatQueryString options
-
--- | DeleteNamespacedCronJobOptions
-newtype DeleteNamespacedCronJobOptions = DeleteNamespacedCronJobOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteNamespacedCronJobOptions :: Newtype DeleteNamespacedCronJobOptions _
-derive instance genericDeleteNamespacedCronJobOptions :: Generic DeleteNamespacedCronJobOptions _
-instance showDeleteNamespacedCronJobOptions :: Show DeleteNamespacedCronJobOptions where show a = genericShow a
-instance decodeDeleteNamespacedCronJobOptions :: Decode DeleteNamespacedCronJobOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteNamespacedCronJobOptions :: Encode DeleteNamespacedCronJobOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteNamespacedCronJobOptions :: Default DeleteNamespacedCronJobOptions where
-  default = DeleteNamespacedCronJobOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a CronJob
-deleteNamespacedCronJob :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedCronJob cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/batch/v1beta1/"
-
 -- | io.k8s.api.batch.v1beta1.CronJob
 -- | CronJob represents the configuration of a single cron job.
 newtype CronJob = CronJob
@@ -213,6 +137,82 @@ instance defaultJobTemplateSpec :: Default JobTemplateSpec where
   default = JobTemplateSpec
     { metadata: NullOrUndefined Nothing
     , spec: NullOrUndefined Nothing }
+
+-- | create a CronJob
+createNamespacedCronJob :: forall e. Config -> String -> CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status CronJob)
+createNamespacedCronJob cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionNamespacedCronJobOptions
+newtype DeleteCollectionNamespacedCronJobOptions = DeleteCollectionNamespacedCronJobOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionNamespacedCronJobOptions :: Newtype DeleteCollectionNamespacedCronJobOptions _
+derive instance genericDeleteCollectionNamespacedCronJobOptions :: Generic DeleteCollectionNamespacedCronJobOptions _
+instance showDeleteCollectionNamespacedCronJobOptions :: Show DeleteCollectionNamespacedCronJobOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedCronJobOptions :: Decode DeleteCollectionNamespacedCronJobOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionNamespacedCronJobOptions :: Encode DeleteCollectionNamespacedCronJobOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionNamespacedCronJobOptions :: Default DeleteCollectionNamespacedCronJobOptions where
+  default = DeleteCollectionNamespacedCronJobOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of CronJob
+deleteCollectionNamespacedCronJob :: forall e. Config -> String -> DeleteCollectionNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespacedCronJob cfg namespace options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs" <> formatQueryString options
+
+-- | DeleteNamespacedCronJobOptions
+newtype DeleteNamespacedCronJobOptions = DeleteNamespacedCronJobOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteNamespacedCronJobOptions :: Newtype DeleteNamespacedCronJobOptions _
+derive instance genericDeleteNamespacedCronJobOptions :: Generic DeleteNamespacedCronJobOptions _
+instance showDeleteNamespacedCronJobOptions :: Show DeleteNamespacedCronJobOptions where show a = genericShow a
+instance decodeDeleteNamespacedCronJobOptions :: Decode DeleteNamespacedCronJobOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteNamespacedCronJobOptions :: Encode DeleteNamespacedCronJobOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteNamespacedCronJobOptions :: Default DeleteNamespacedCronJobOptions where
+  default = DeleteNamespacedCronJobOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a CronJob
+deleteNamespacedCronJob :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespacedCronJob cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/batch/v1beta1/"
 
 -- | list or watch objects of kind CronJob
 listCronJobForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CronJobList)

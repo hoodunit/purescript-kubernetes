@@ -21,82 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create an InitializerConfiguration
-createInitializerConfiguration :: forall e. Config -> InitializerConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status InitializerConfiguration)
-createInitializerConfiguration cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionInitializerConfigurationOptions
-newtype DeleteCollectionInitializerConfigurationOptions = DeleteCollectionInitializerConfigurationOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionInitializerConfigurationOptions :: Newtype DeleteCollectionInitializerConfigurationOptions _
-derive instance genericDeleteCollectionInitializerConfigurationOptions :: Generic DeleteCollectionInitializerConfigurationOptions _
-instance showDeleteCollectionInitializerConfigurationOptions :: Show DeleteCollectionInitializerConfigurationOptions where show a = genericShow a
-instance decodeDeleteCollectionInitializerConfigurationOptions :: Decode DeleteCollectionInitializerConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionInitializerConfigurationOptions :: Encode DeleteCollectionInitializerConfigurationOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionInitializerConfigurationOptions :: Default DeleteCollectionInitializerConfigurationOptions where
-  default = DeleteCollectionInitializerConfigurationOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of InitializerConfiguration
-deleteCollectionInitializerConfiguration :: forall e. Config -> DeleteCollectionInitializerConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionInitializerConfiguration cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations" <> formatQueryString options
-
--- | DeleteInitializerConfigurationOptions
-newtype DeleteInitializerConfigurationOptions = DeleteInitializerConfigurationOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteInitializerConfigurationOptions :: Newtype DeleteInitializerConfigurationOptions _
-derive instance genericDeleteInitializerConfigurationOptions :: Generic DeleteInitializerConfigurationOptions _
-instance showDeleteInitializerConfigurationOptions :: Show DeleteInitializerConfigurationOptions where show a = genericShow a
-instance decodeDeleteInitializerConfigurationOptions :: Decode DeleteInitializerConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteInitializerConfigurationOptions :: Encode DeleteInitializerConfigurationOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteInitializerConfigurationOptions :: Default DeleteInitializerConfigurationOptions where
-  default = DeleteInitializerConfigurationOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete an InitializerConfiguration
-deleteInitializerConfiguration :: forall e. Config -> MetaV1.DeleteOptions -> DeleteInitializerConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteInitializerConfiguration cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/admissionregistration.k8s.io/v1alpha1/"
-
 -- | io.k8s.api.admissionregistration.v1alpha1.Initializer
 -- | Initializer describes the name and the failure policy of an initializer, and what resources it applies to.
 newtype Initializer = Initializer
@@ -182,6 +106,82 @@ instance defaultRule :: Default Rule where
     { apiGroups: NullOrUndefined Nothing
     , apiVersions: NullOrUndefined Nothing
     , resources: NullOrUndefined Nothing }
+
+-- | create an InitializerConfiguration
+createInitializerConfiguration :: forall e. Config -> InitializerConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status InitializerConfiguration)
+createInitializerConfiguration cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionInitializerConfigurationOptions
+newtype DeleteCollectionInitializerConfigurationOptions = DeleteCollectionInitializerConfigurationOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionInitializerConfigurationOptions :: Newtype DeleteCollectionInitializerConfigurationOptions _
+derive instance genericDeleteCollectionInitializerConfigurationOptions :: Generic DeleteCollectionInitializerConfigurationOptions _
+instance showDeleteCollectionInitializerConfigurationOptions :: Show DeleteCollectionInitializerConfigurationOptions where show a = genericShow a
+instance decodeDeleteCollectionInitializerConfigurationOptions :: Decode DeleteCollectionInitializerConfigurationOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionInitializerConfigurationOptions :: Encode DeleteCollectionInitializerConfigurationOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionInitializerConfigurationOptions :: Default DeleteCollectionInitializerConfigurationOptions where
+  default = DeleteCollectionInitializerConfigurationOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of InitializerConfiguration
+deleteCollectionInitializerConfiguration :: forall e. Config -> DeleteCollectionInitializerConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionInitializerConfiguration cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations" <> formatQueryString options
+
+-- | DeleteInitializerConfigurationOptions
+newtype DeleteInitializerConfigurationOptions = DeleteInitializerConfigurationOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteInitializerConfigurationOptions :: Newtype DeleteInitializerConfigurationOptions _
+derive instance genericDeleteInitializerConfigurationOptions :: Generic DeleteInitializerConfigurationOptions _
+instance showDeleteInitializerConfigurationOptions :: Show DeleteInitializerConfigurationOptions where show a = genericShow a
+instance decodeDeleteInitializerConfigurationOptions :: Decode DeleteInitializerConfigurationOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteInitializerConfigurationOptions :: Encode DeleteInitializerConfigurationOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteInitializerConfigurationOptions :: Default DeleteInitializerConfigurationOptions where
+  default = DeleteInitializerConfigurationOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete an InitializerConfiguration
+deleteInitializerConfiguration :: forall e. Config -> MetaV1.DeleteOptions -> DeleteInitializerConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteInitializerConfiguration cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/admissionregistration.k8s.io/v1alpha1/"
 
 -- | ListInitializerConfigurationOptions
 newtype ListInitializerConfigurationOptions = ListInitializerConfigurationOptions

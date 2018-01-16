@@ -21,152 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a MutatingWebhookConfiguration
-createMutatingWebhookConfiguration :: forall e. Config -> MutatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status MutatingWebhookConfiguration)
-createMutatingWebhookConfiguration cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations"
-    encodedBody = encodeJSON body
-
--- | create a ValidatingWebhookConfiguration
-createValidatingWebhookConfiguration :: forall e. Config -> ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status ValidatingWebhookConfiguration)
-createValidatingWebhookConfiguration cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations"
-    encodedBody = encodeJSON body
-
--- | DeleteCollectionMutatingWebhookConfigurationOptions
-newtype DeleteCollectionMutatingWebhookConfigurationOptions = DeleteCollectionMutatingWebhookConfigurationOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionMutatingWebhookConfigurationOptions :: Newtype DeleteCollectionMutatingWebhookConfigurationOptions _
-derive instance genericDeleteCollectionMutatingWebhookConfigurationOptions :: Generic DeleteCollectionMutatingWebhookConfigurationOptions _
-instance showDeleteCollectionMutatingWebhookConfigurationOptions :: Show DeleteCollectionMutatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeDeleteCollectionMutatingWebhookConfigurationOptions :: Decode DeleteCollectionMutatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionMutatingWebhookConfigurationOptions :: Encode DeleteCollectionMutatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionMutatingWebhookConfigurationOptions :: Default DeleteCollectionMutatingWebhookConfigurationOptions where
-  default = DeleteCollectionMutatingWebhookConfigurationOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of MutatingWebhookConfiguration
-deleteCollectionMutatingWebhookConfiguration :: forall e. Config -> DeleteCollectionMutatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionMutatingWebhookConfiguration cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations" <> formatQueryString options
-
--- | DeleteCollectionValidatingWebhookConfigurationOptions
-newtype DeleteCollectionValidatingWebhookConfigurationOptions = DeleteCollectionValidatingWebhookConfigurationOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
-
-derive instance newtypeDeleteCollectionValidatingWebhookConfigurationOptions :: Newtype DeleteCollectionValidatingWebhookConfigurationOptions _
-derive instance genericDeleteCollectionValidatingWebhookConfigurationOptions :: Generic DeleteCollectionValidatingWebhookConfigurationOptions _
-instance showDeleteCollectionValidatingWebhookConfigurationOptions :: Show DeleteCollectionValidatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeDeleteCollectionValidatingWebhookConfigurationOptions :: Decode DeleteCollectionValidatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteCollectionValidatingWebhookConfigurationOptions :: Encode DeleteCollectionValidatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteCollectionValidatingWebhookConfigurationOptions :: Default DeleteCollectionValidatingWebhookConfigurationOptions where
-  default = DeleteCollectionValidatingWebhookConfigurationOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
-
--- | delete collection of ValidatingWebhookConfiguration
-deleteCollectionValidatingWebhookConfiguration :: forall e. Config -> DeleteCollectionValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionValidatingWebhookConfiguration cfg options = makeRequest (delete cfg url Nothing)
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> formatQueryString options
-
--- | DeleteMutatingWebhookConfigurationOptions
-newtype DeleteMutatingWebhookConfigurationOptions = DeleteMutatingWebhookConfigurationOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteMutatingWebhookConfigurationOptions :: Newtype DeleteMutatingWebhookConfigurationOptions _
-derive instance genericDeleteMutatingWebhookConfigurationOptions :: Generic DeleteMutatingWebhookConfigurationOptions _
-instance showDeleteMutatingWebhookConfigurationOptions :: Show DeleteMutatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeDeleteMutatingWebhookConfigurationOptions :: Decode DeleteMutatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteMutatingWebhookConfigurationOptions :: Encode DeleteMutatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteMutatingWebhookConfigurationOptions :: Default DeleteMutatingWebhookConfigurationOptions where
-  default = DeleteMutatingWebhookConfigurationOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a MutatingWebhookConfiguration
-deleteMutatingWebhookConfiguration :: forall e. Config -> MetaV1.DeleteOptions -> DeleteMutatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteMutatingWebhookConfiguration cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | DeleteValidatingWebhookConfigurationOptions
-newtype DeleteValidatingWebhookConfigurationOptions = DeleteValidatingWebhookConfigurationOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
-
-derive instance newtypeDeleteValidatingWebhookConfigurationOptions :: Newtype DeleteValidatingWebhookConfigurationOptions _
-derive instance genericDeleteValidatingWebhookConfigurationOptions :: Generic DeleteValidatingWebhookConfigurationOptions _
-instance showDeleteValidatingWebhookConfigurationOptions :: Show DeleteValidatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeDeleteValidatingWebhookConfigurationOptions :: Decode DeleteValidatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
-instance encodeDeleteValidatingWebhookConfigurationOptions :: Encode DeleteValidatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
-
-instance defaultDeleteValidatingWebhookConfigurationOptions :: Default DeleteValidatingWebhookConfigurationOptions where
-  default = DeleteValidatingWebhookConfigurationOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
-
--- | delete a ValidatingWebhookConfiguration
-deleteValidatingWebhookConfiguration :: forall e. Config -> MetaV1.DeleteOptions -> DeleteValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteValidatingWebhookConfiguration cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/"
-
 -- | io.k8s.api.admissionregistration.v1beta1.MutatingWebhookConfiguration
 -- | MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.
 newtype MutatingWebhookConfiguration = MutatingWebhookConfiguration
@@ -348,6 +202,152 @@ instance defaultWebhookClientConfig :: Default WebhookClientConfig where
     { caBundle: NullOrUndefined Nothing
     , service: NullOrUndefined Nothing
     , url: NullOrUndefined Nothing }
+
+-- | create a MutatingWebhookConfiguration
+createMutatingWebhookConfiguration :: forall e. Config -> MutatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status MutatingWebhookConfiguration)
+createMutatingWebhookConfiguration cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations"
+    encodedBody = encodeJSON body
+
+-- | create a ValidatingWebhookConfiguration
+createValidatingWebhookConfiguration :: forall e. Config -> ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status ValidatingWebhookConfiguration)
+createValidatingWebhookConfiguration cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations"
+    encodedBody = encodeJSON body
+
+-- | DeleteCollectionMutatingWebhookConfigurationOptions
+newtype DeleteCollectionMutatingWebhookConfigurationOptions = DeleteCollectionMutatingWebhookConfigurationOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionMutatingWebhookConfigurationOptions :: Newtype DeleteCollectionMutatingWebhookConfigurationOptions _
+derive instance genericDeleteCollectionMutatingWebhookConfigurationOptions :: Generic DeleteCollectionMutatingWebhookConfigurationOptions _
+instance showDeleteCollectionMutatingWebhookConfigurationOptions :: Show DeleteCollectionMutatingWebhookConfigurationOptions where show a = genericShow a
+instance decodeDeleteCollectionMutatingWebhookConfigurationOptions :: Decode DeleteCollectionMutatingWebhookConfigurationOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionMutatingWebhookConfigurationOptions :: Encode DeleteCollectionMutatingWebhookConfigurationOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionMutatingWebhookConfigurationOptions :: Default DeleteCollectionMutatingWebhookConfigurationOptions where
+  default = DeleteCollectionMutatingWebhookConfigurationOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of MutatingWebhookConfiguration
+deleteCollectionMutatingWebhookConfiguration :: forall e. Config -> DeleteCollectionMutatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionMutatingWebhookConfiguration cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations" <> formatQueryString options
+
+-- | DeleteCollectionValidatingWebhookConfigurationOptions
+newtype DeleteCollectionValidatingWebhookConfigurationOptions = DeleteCollectionValidatingWebhookConfigurationOptions
+  { continue :: (NullOrUndefined String)
+  , fieldSelector :: (NullOrUndefined String)
+  , includeUninitialized :: (NullOrUndefined Boolean)
+  , labelSelector :: (NullOrUndefined String)
+  , limit :: (NullOrUndefined Int)
+  , resourceVersion :: (NullOrUndefined String)
+  , timeoutSeconds :: (NullOrUndefined Int)
+  , watch :: (NullOrUndefined Boolean) }
+
+derive instance newtypeDeleteCollectionValidatingWebhookConfigurationOptions :: Newtype DeleteCollectionValidatingWebhookConfigurationOptions _
+derive instance genericDeleteCollectionValidatingWebhookConfigurationOptions :: Generic DeleteCollectionValidatingWebhookConfigurationOptions _
+instance showDeleteCollectionValidatingWebhookConfigurationOptions :: Show DeleteCollectionValidatingWebhookConfigurationOptions where show a = genericShow a
+instance decodeDeleteCollectionValidatingWebhookConfigurationOptions :: Decode DeleteCollectionValidatingWebhookConfigurationOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteCollectionValidatingWebhookConfigurationOptions :: Encode DeleteCollectionValidatingWebhookConfigurationOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteCollectionValidatingWebhookConfigurationOptions :: Default DeleteCollectionValidatingWebhookConfigurationOptions where
+  default = DeleteCollectionValidatingWebhookConfigurationOptions
+    { continue: NullOrUndefined Nothing
+    , fieldSelector: NullOrUndefined Nothing
+    , includeUninitialized: NullOrUndefined Nothing
+    , labelSelector: NullOrUndefined Nothing
+    , limit: NullOrUndefined Nothing
+    , resourceVersion: NullOrUndefined Nothing
+    , timeoutSeconds: NullOrUndefined Nothing
+    , watch: NullOrUndefined Nothing }
+
+-- | delete collection of ValidatingWebhookConfiguration
+deleteCollectionValidatingWebhookConfiguration :: forall e. Config -> DeleteCollectionValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionValidatingWebhookConfiguration cfg options = makeRequest (delete cfg url Nothing)
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> formatQueryString options
+
+-- | DeleteMutatingWebhookConfigurationOptions
+newtype DeleteMutatingWebhookConfigurationOptions = DeleteMutatingWebhookConfigurationOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteMutatingWebhookConfigurationOptions :: Newtype DeleteMutatingWebhookConfigurationOptions _
+derive instance genericDeleteMutatingWebhookConfigurationOptions :: Generic DeleteMutatingWebhookConfigurationOptions _
+instance showDeleteMutatingWebhookConfigurationOptions :: Show DeleteMutatingWebhookConfigurationOptions where show a = genericShow a
+instance decodeDeleteMutatingWebhookConfigurationOptions :: Decode DeleteMutatingWebhookConfigurationOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteMutatingWebhookConfigurationOptions :: Encode DeleteMutatingWebhookConfigurationOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteMutatingWebhookConfigurationOptions :: Default DeleteMutatingWebhookConfigurationOptions where
+  default = DeleteMutatingWebhookConfigurationOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a MutatingWebhookConfiguration
+deleteMutatingWebhookConfiguration :: forall e. Config -> MetaV1.DeleteOptions -> DeleteMutatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteMutatingWebhookConfiguration cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | DeleteValidatingWebhookConfigurationOptions
+newtype DeleteValidatingWebhookConfigurationOptions = DeleteValidatingWebhookConfigurationOptions
+  { gracePeriodSeconds :: (NullOrUndefined Int)
+  , orphanDependents :: (NullOrUndefined Boolean)
+  , propagationPolicy :: (NullOrUndefined String) }
+
+derive instance newtypeDeleteValidatingWebhookConfigurationOptions :: Newtype DeleteValidatingWebhookConfigurationOptions _
+derive instance genericDeleteValidatingWebhookConfigurationOptions :: Generic DeleteValidatingWebhookConfigurationOptions _
+instance showDeleteValidatingWebhookConfigurationOptions :: Show DeleteValidatingWebhookConfigurationOptions where show a = genericShow a
+instance decodeDeleteValidatingWebhookConfigurationOptions :: Decode DeleteValidatingWebhookConfigurationOptions where
+  decode a = genericDecode jsonOptions a 
+instance encodeDeleteValidatingWebhookConfigurationOptions :: Encode DeleteValidatingWebhookConfigurationOptions where
+  encode a = genericEncode jsonOptions a
+
+instance defaultDeleteValidatingWebhookConfigurationOptions :: Default DeleteValidatingWebhookConfigurationOptions where
+  default = DeleteValidatingWebhookConfigurationOptions
+    { gracePeriodSeconds: NullOrUndefined Nothing
+    , orphanDependents: NullOrUndefined Nothing
+    , propagationPolicy: NullOrUndefined Nothing }
+
+-- | delete a ValidatingWebhookConfiguration
+deleteValidatingWebhookConfiguration :: forall e. Config -> MetaV1.DeleteOptions -> DeleteValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteValidatingWebhookConfiguration cfg body options = makeRequest (delete cfg url (Just encodedBody))
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> formatQueryString options
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/"
 
 -- | ListMutatingWebhookConfigurationOptions
 newtype ListMutatingWebhookConfigurationOptions = ListMutatingWebhookConfigurationOptions

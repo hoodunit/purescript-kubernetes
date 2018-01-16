@@ -21,19 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a TokenReview
-createTokenReview :: forall e. Config -> TokenReview -> Aff (http :: HTTP | e) (Either MetaV1.Status TokenReview)
-createTokenReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authentication.k8s.io/v1/tokenreviews"
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/authentication.k8s.io/v1/"
-
 -- | io.k8s.api.authentication.v1.TokenReview
 -- | TokenReview attempts to authenticate a token to a known user. Note: TokenReview requests may be cached by the webhook token authenticator plugin in the kube-apiserver.
 newtype TokenReview = TokenReview
@@ -119,3 +106,16 @@ instance defaultUserInfo :: Default UserInfo where
     , groups: NullOrUndefined Nothing
     , uid: NullOrUndefined Nothing
     , username: NullOrUndefined Nothing }
+
+-- | create a TokenReview
+createTokenReview :: forall e. Config -> TokenReview -> Aff (http :: HTTP | e) (Either MetaV1.Status TokenReview)
+createTokenReview cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/authentication.k8s.io/v1/tokenreviews"
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/authentication.k8s.io/v1/"

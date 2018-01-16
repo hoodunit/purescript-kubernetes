@@ -21,40 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | create a LocalSubjectAccessReview
-createNamespacedLocalSubjectAccessReview :: forall e. Config -> LocalSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status LocalSubjectAccessReview)
-createNamespacedLocalSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1/namespaces/{namespace}/localsubjectaccessreviews"
-    encodedBody = encodeJSON body
-
--- | create a SelfSubjectAccessReview
-createSelfSubjectAccessReview :: forall e. Config -> SelfSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SelfSubjectAccessReview)
-createSelfSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1/selfsubjectaccessreviews"
-    encodedBody = encodeJSON body
-
--- | create a SelfSubjectRulesReview
-createSelfSubjectRulesReview :: forall e. Config -> SelfSubjectRulesReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SelfSubjectRulesReview)
-createSelfSubjectRulesReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1/selfsubjectrulesreviews"
-    encodedBody = encodeJSON body
-
--- | create a SubjectAccessReview
-createSubjectAccessReview :: forall e. Config -> SubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SubjectAccessReview)
-createSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1/subjectaccessreviews"
-    encodedBody = encodeJSON body
-
--- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/apis/authorization.k8s.io/v1/"
-
 -- | io.k8s.api.authorization.v1.LocalSubjectAccessReview
 -- | LocalSubjectAccessReview checks whether or not a user or group can perform an action in a given namespace. Having a namespace scoped resource makes it much easier to grant namespace scoped policy that includes permissions checking.
 newtype LocalSubjectAccessReview = LocalSubjectAccessReview
@@ -352,3 +318,37 @@ instance defaultSubjectRulesReviewStatus :: Default SubjectRulesReviewStatus whe
     , incomplete: NullOrUndefined Nothing
     , nonResourceRules: NullOrUndefined Nothing
     , resourceRules: NullOrUndefined Nothing }
+
+-- | create a LocalSubjectAccessReview
+createNamespacedLocalSubjectAccessReview :: forall e. Config -> LocalSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status LocalSubjectAccessReview)
+createNamespacedLocalSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/authorization.k8s.io/v1/namespaces/{namespace}/localsubjectaccessreviews"
+    encodedBody = encodeJSON body
+
+-- | create a SelfSubjectAccessReview
+createSelfSubjectAccessReview :: forall e. Config -> SelfSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SelfSubjectAccessReview)
+createSelfSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/authorization.k8s.io/v1/selfsubjectaccessreviews"
+    encodedBody = encodeJSON body
+
+-- | create a SelfSubjectRulesReview
+createSelfSubjectRulesReview :: forall e. Config -> SelfSubjectRulesReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SelfSubjectRulesReview)
+createSelfSubjectRulesReview cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/authorization.k8s.io/v1/selfsubjectrulesreviews"
+    encodedBody = encodeJSON body
+
+-- | create a SubjectAccessReview
+createSubjectAccessReview :: forall e. Config -> SubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SubjectAccessReview)
+createSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
+  where
+    url = "/apis/authorization.k8s.io/v1/subjectaccessreviews"
+    encodedBody = encodeJSON body
+
+-- | get available resources
+getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/apis/authorization.k8s.io/v1/"

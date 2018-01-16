@@ -21,12 +21,6 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | get the code version
-getCodeVersion :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status Info)
-getCodeVersion cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/version/"
-
 -- | io.k8s.apimachinery.pkg.version.Info
 -- | Info contains versioning information. how we'll want to distribute that information.
 newtype Info = Info
@@ -59,3 +53,9 @@ instance defaultInfo :: Default Info where
     , major: NullOrUndefined Nothing
     , minor: NullOrUndefined Nothing
     , platform: NullOrUndefined Nothing }
+
+-- | get the code version
+getCodeVersion :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status Info)
+getCodeVersion cfg = makeRequest (get cfg url Nothing)
+  where
+    url = "/version/"
