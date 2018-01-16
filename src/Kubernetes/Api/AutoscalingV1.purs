@@ -21,8 +21,12 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.autoscaling.v1.CrossVersionObjectReference
 -- | CrossVersionObjectReference contains enough information to let you identify the referred resource.
+-- |
+-- | Fields:
+-- | - `apiVersion`: API version of the referent
+-- | - `kind`: Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds"
+-- | - `name`: Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names
 newtype CrossVersionObjectReference = CrossVersionObjectReference
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -42,8 +46,14 @@ instance defaultCrossVersionObjectReference :: Default CrossVersionObjectReferen
     , kind: NullOrUndefined Nothing
     , name: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v1.HorizontalPodAutoscaler
 -- | configuration of a horizontal pod autoscaler.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status.
+-- | - `status`: current information about the autoscaler.
 newtype HorizontalPodAutoscaler = HorizontalPodAutoscaler
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -67,8 +77,13 @@ instance defaultHorizontalPodAutoscaler :: Default HorizontalPodAutoscaler where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v1.HorizontalPodAutoscalerList
 -- | list of horizontal pod autoscaler objects.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: list of horizontal pod autoscaler objects.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata.
 newtype HorizontalPodAutoscalerList = HorizontalPodAutoscalerList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array HorizontalPodAutoscaler))
@@ -90,8 +105,13 @@ instance defaultHorizontalPodAutoscalerList :: Default HorizontalPodAutoscalerLi
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v1.HorizontalPodAutoscalerSpec
 -- | specification of a horizontal pod autoscaler.
+-- |
+-- | Fields:
+-- | - `maxReplicas`: upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
+-- | - `minReplicas`: lower limit for the number of pods that can be set by the autoscaler, default 1.
+-- | - `scaleTargetRef`: reference to scaled resource; horizontal pod autoscaler will learn the current resource consumption and will set the desired number of pods by using its Scale subresource.
+-- | - `targetCPUUtilizationPercentage`: target average CPU utilization (represented as a percentage of requested CPU) over all the pods; if not specified the default autoscaling policy will be used.
 newtype HorizontalPodAutoscalerSpec = HorizontalPodAutoscalerSpec
   { maxReplicas :: (NullOrUndefined Int)
   , minReplicas :: (NullOrUndefined Int)
@@ -113,8 +133,14 @@ instance defaultHorizontalPodAutoscalerSpec :: Default HorizontalPodAutoscalerSp
     , scaleTargetRef: NullOrUndefined Nothing
     , targetCPUUtilizationPercentage: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v1.HorizontalPodAutoscalerStatus
 -- | current status of a horizontal pod autoscaler
+-- |
+-- | Fields:
+-- | - `currentCPUUtilizationPercentage`: current average CPU utilization over all pods, represented as a percentage of requested CPU, e.g. 70 means that an average pod is using now 70% of its requested CPU.
+-- | - `currentReplicas`: current number of replicas of pods managed by this autoscaler.
+-- | - `desiredReplicas`: desired number of replicas of pods managed by this autoscaler.
+-- | - `lastScaleTime`: last time the HorizontalPodAutoscaler scaled the number of pods; used by the autoscaler to control how often the number of pods is changed.
+-- | - `observedGeneration`: most recent generation observed by this autoscaler.
 newtype HorizontalPodAutoscalerStatus = HorizontalPodAutoscalerStatus
   { currentCPUUtilizationPercentage :: (NullOrUndefined Int)
   , currentReplicas :: (NullOrUndefined Int)
@@ -138,8 +164,14 @@ instance defaultHorizontalPodAutoscalerStatus :: Default HorizontalPodAutoscaler
     , lastScaleTime: NullOrUndefined Nothing
     , observedGeneration: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v1.Scale
 -- | Scale represents a scaling request for a resource.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
+-- | - `spec`: defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status.
+-- | - `status`: current status of the scale. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status. Read-only.
 newtype Scale = Scale
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -163,8 +195,10 @@ instance defaultScale :: Default Scale where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v1.ScaleSpec
 -- | ScaleSpec describes the attributes of a scale subresource.
+-- |
+-- | Fields:
+-- | - `replicas`: desired number of instances for the scaled object.
 newtype ScaleSpec = ScaleSpec
   { replicas :: (NullOrUndefined Int) }
 
@@ -180,8 +214,11 @@ instance defaultScaleSpec :: Default ScaleSpec where
   default = ScaleSpec
     { replicas: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v1.ScaleStatus
 -- | ScaleStatus represents the current status of a scale subresource.
+-- |
+-- | Fields:
+-- | - `replicas`: actual number of observed instances of the scaled object.
+-- | - `selector`: label query over pods that should match the replicas count. This is same as the label selector but in the string format to avoid introspection by clients. The string will be in the same format as the query-param syntax. More info about label selectors: http://kubernetes.io/docs/user-guide/labels#label-selectors
 newtype ScaleStatus = ScaleStatus
   { replicas :: (NullOrUndefined Int)
   , selector :: (NullOrUndefined String) }
@@ -206,7 +243,17 @@ createNamespacedHorizontalPodAutoscaler cfg namespace body = makeRequest (post c
     url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -242,7 +289,10 @@ deleteCollectionNamespacedHorizontalPodAutoscaler cfg namespace options = makeRe
   where
     url = "/apis/autoscaling/v1/namespaces/" <> namespace <> "/horizontalpodautoscalers" <> formatQueryString options
 
--- | DeleteNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedHorizontalPodAutoscalerOptions = DeleteNamespacedHorizontalPodAutoscalerOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -281,7 +331,17 @@ listHorizontalPodAutoscalerForAllNamespaces cfg = makeRequest (get cfg url Nothi
   where
     url = "/apis/autoscaling/v1/horizontalpodautoscalers"
 
--- | ListNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedHorizontalPodAutoscalerOptions = ListNamespacedHorizontalPodAutoscalerOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -323,7 +383,9 @@ readNamespacedDeploymentScale cfg namespace name = makeRequest (get cfg url Noth
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/deployments/" <> name <> "/scale"
 
--- | ReadNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedHorizontalPodAutoscalerOptions = ReadNamespacedHorizontalPodAutoscalerOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }

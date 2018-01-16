@@ -22,8 +22,13 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.policy.v1beta1.Eviction
 -- | Eviction evicts a pod from its node subject to certain policies and safety constraints. This is a subresource of Pod.  A request to cause such an eviction is created by POSTing to .../pods/<pod name>/evictions.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `deleteOptions`: DeleteOptions may be provided
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: ObjectMeta describes the pod that is being evicted.
 newtype Eviction = Eviction
   { apiVersion :: (NullOrUndefined String)
   , deleteOptions :: (NullOrUndefined MetaV1.DeleteOptions)
@@ -45,8 +50,14 @@ instance defaultEviction :: Default Eviction where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.policy.v1beta1.PodDisruptionBudget
 -- | PodDisruptionBudget is an object to define the max disruption that can be caused to a collection of pods
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`
+-- | - `spec`: Specification of the desired behavior of the PodDisruptionBudget.
+-- | - `status`: Most recently observed status of the PodDisruptionBudget.
 newtype PodDisruptionBudget = PodDisruptionBudget
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -70,8 +81,13 @@ instance defaultPodDisruptionBudget :: Default PodDisruptionBudget where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.policy.v1beta1.PodDisruptionBudgetList
 -- | PodDisruptionBudgetList is a collection of PodDisruptionBudgets.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`
 newtype PodDisruptionBudgetList = PodDisruptionBudgetList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array PodDisruptionBudget))
@@ -93,8 +109,12 @@ instance defaultPodDisruptionBudgetList :: Default PodDisruptionBudgetList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.policy.v1beta1.PodDisruptionBudgetSpec
 -- | PodDisruptionBudgetSpec is a description of a PodDisruptionBudget.
+-- |
+-- | Fields:
+-- | - `maxUnavailable`: An eviction is allowed if at most "maxUnavailable" pods selected by "selector" are unavailable after the eviction, i.e. even in absence of the evicted pod. For example, one can prevent all voluntary evictions by specifying 0. This is a mutually exclusive setting with "minAvailable".
+-- | - `minAvailable`: An eviction is allowed if at least "minAvailable" pods selected by "selector" will still be available after the eviction, i.e. even in the absence of the evicted pod.  So for example you can prevent all voluntary evictions by specifying "100%".
+-- | - `selector`: Label query over pods whose evictions are managed by the disruption budget.
 newtype PodDisruptionBudgetSpec = PodDisruptionBudgetSpec
   { maxUnavailable :: (NullOrUndefined Util.IntOrString)
   , minAvailable :: (NullOrUndefined Util.IntOrString)
@@ -114,8 +134,15 @@ instance defaultPodDisruptionBudgetSpec :: Default PodDisruptionBudgetSpec where
     , minAvailable: NullOrUndefined Nothing
     , selector: NullOrUndefined Nothing }
 
--- | io.k8s.api.policy.v1beta1.PodDisruptionBudgetStatus
 -- | PodDisruptionBudgetStatus represents information about the status of a PodDisruptionBudget. Status may trail the actual state of a system.
+-- |
+-- | Fields:
+-- | - `currentHealthy`: current number of healthy pods
+-- | - `desiredHealthy`: minimum desired number of healthy pods
+-- | - `disruptedPods`: DisruptedPods contains information about pods whose eviction was processed by the API server eviction subresource handler but has not yet been observed by the PodDisruptionBudget controller. A pod will be in this map from the time when the API server processed the eviction request to the time when the pod is seen by PDB controller as having been marked for deletion (or after a timeout). The key in the map is the name of the pod and the value is the time when the API server processed the eviction request. If the deletion didn't occur and a pod is still there it will be removed from the list automatically by PodDisruptionBudget controller after some time. If everything goes smooth this map should be empty for the most of the time. Large number of entries in the map may indicate problems with pod deletions.
+-- | - `disruptionsAllowed`: Number of pod disruptions that are currently allowed.
+-- | - `expectedPods`: total number of pods counted by this disruption budget
+-- | - `observedGeneration`: Most recent generation observed when updating this PDB status. PodDisruptionsAllowed and other status informatio is valid only if observedGeneration equals to PDB's object generation.
 newtype PodDisruptionBudgetStatus = PodDisruptionBudgetStatus
   { currentHealthy :: (NullOrUndefined Int)
   , desiredHealthy :: (NullOrUndefined Int)
@@ -155,7 +182,17 @@ createNamespacedPodEviction cfg namespace name body = makeRequest (post cfg url 
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/eviction"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionNamespacedPodDisruptionBudgetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedPodDisruptionBudgetOptions = DeleteCollectionNamespacedPodDisruptionBudgetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -191,7 +228,10 @@ deleteCollectionNamespacedPodDisruptionBudget cfg namespace options = makeReques
   where
     url = "/apis/policy/v1beta1/namespaces/" <> namespace <> "/poddisruptionbudgets" <> formatQueryString options
 
--- | DeleteNamespacedPodDisruptionBudgetOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedPodDisruptionBudgetOptions = DeleteNamespacedPodDisruptionBudgetOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -224,7 +264,17 @@ getAPIResources cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/policy/v1beta1/"
 
--- | ListNamespacedPodDisruptionBudgetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedPodDisruptionBudgetOptions = ListNamespacedPodDisruptionBudgetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -266,7 +316,9 @@ listPodDisruptionBudgetForAllNamespaces cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/policy/v1beta1/poddisruptionbudgets"
 
--- | ReadNamespacedPodDisruptionBudgetOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedPodDisruptionBudgetOptions = ReadNamespacedPodDisruptionBudgetOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }

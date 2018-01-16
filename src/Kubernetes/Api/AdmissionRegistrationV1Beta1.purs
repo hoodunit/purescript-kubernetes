@@ -21,8 +21,13 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.admissionregistration.v1beta1.MutatingWebhookConfiguration
 -- | MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
+-- | - `webhooks`: Webhooks is a list of webhooks and the affected resources and operations.
 newtype MutatingWebhookConfiguration = MutatingWebhookConfiguration
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -44,8 +49,13 @@ instance defaultMutatingWebhookConfiguration :: Default MutatingWebhookConfigura
     , metadata: NullOrUndefined Nothing
     , webhooks: NullOrUndefined Nothing }
 
--- | io.k8s.api.admissionregistration.v1beta1.MutatingWebhookConfigurationList
 -- | MutatingWebhookConfigurationList is a list of MutatingWebhookConfiguration.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of MutatingWebhookConfiguration.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype MutatingWebhookConfigurationList = MutatingWebhookConfigurationList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array MutatingWebhookConfiguration))
@@ -67,8 +77,19 @@ instance defaultMutatingWebhookConfigurationList :: Default MutatingWebhookConfi
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.admissionregistration.v1beta1.RuleWithOperations
 -- | RuleWithOperations is a tuple of Operations and Resources. It is recommended to make sure that all the tuple expansions are valid.
+-- |
+-- | Fields:
+-- | - `apiGroups`: APIGroups is the API groups the resources belong to. '*' is all groups. If '*' is present, the length of the slice must be one. Required.
+-- | - `apiVersions`: APIVersions is the API versions the resources belong to. '*' is all versions. If '*' is present, the length of the slice must be one. Required.
+-- | - `operations`: Operations is the operations the admission hook cares about - CREATE, UPDATE, or * for all operations. If '*' is present, the length of the slice must be one. Required.
+-- | - `resources`: Resources is a list of resources this rule applies to.
+-- |    
+-- |    For example: 'pods' means pods. 'pods/log' means the log subresource of pods. '*' means all resources, but not subresources. 'pods/*' means all subresources of pods. '*/scale' means all scale subresources. '*/*' means all resources and their subresources.
+-- |    
+-- |    If wildcard is present, the validation rule will ensure resources do not overlap with each other.
+-- |    
+-- |    Depending on the enclosing object, subresources might not be allowed. Required.
 newtype RuleWithOperations = RuleWithOperations
   { apiGroups :: (NullOrUndefined (Array String))
   , apiVersions :: (NullOrUndefined (Array String))
@@ -90,8 +111,12 @@ instance defaultRuleWithOperations :: Default RuleWithOperations where
     , operations: NullOrUndefined Nothing
     , resources: NullOrUndefined Nothing }
 
--- | io.k8s.api.admissionregistration.v1beta1.ServiceReference
 -- | ServiceReference holds a reference to Service.legacy.k8s.io
+-- |
+-- | Fields:
+-- | - `name`: `name` is the name of the service. Required
+-- | - `namespace`: `namespace` is the namespace of the service. Required
+-- | - `path`: `path` is an optional URL path which will be sent in any request to this service.
 newtype ServiceReference = ServiceReference
   { name :: (NullOrUndefined String)
   , namespace :: (NullOrUndefined String)
@@ -111,8 +136,13 @@ instance defaultServiceReference :: Default ServiceReference where
     , namespace: NullOrUndefined Nothing
     , path: NullOrUndefined Nothing }
 
--- | io.k8s.api.admissionregistration.v1beta1.ValidatingWebhookConfiguration
 -- | ValidatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and object without changing it.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
+-- | - `webhooks`: Webhooks is a list of webhooks and the affected resources and operations.
 newtype ValidatingWebhookConfiguration = ValidatingWebhookConfiguration
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -134,8 +164,13 @@ instance defaultValidatingWebhookConfiguration :: Default ValidatingWebhookConfi
     , metadata: NullOrUndefined Nothing
     , webhooks: NullOrUndefined Nothing }
 
--- | io.k8s.api.admissionregistration.v1beta1.ValidatingWebhookConfigurationList
 -- | ValidatingWebhookConfigurationList is a list of ValidatingWebhookConfiguration.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of ValidatingWebhookConfiguration.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ValidatingWebhookConfigurationList = ValidatingWebhookConfigurationList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ValidatingWebhookConfiguration))
@@ -157,8 +192,44 @@ instance defaultValidatingWebhookConfigurationList :: Default ValidatingWebhookC
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.admissionregistration.v1beta1.Webhook
 -- | Webhook describes an admission webhook and the resources and operations it applies to.
+-- |
+-- | Fields:
+-- | - `clientConfig`: ClientConfig defines how to communicate with the hook. Required
+-- | - `failurePolicy`: FailurePolicy defines how unrecognized errors from the admission endpoint are handled - allowed values are Ignore or Fail. Defaults to Ignore.
+-- | - `name`: The name of the admission webhook. Name should be fully qualified, e.g., imagepolicy.kubernetes.io, where "imagepolicy" is the name of the webhook, and kubernetes.io is the name of the organization. Required.
+-- | - `namespaceSelector`: NamespaceSelector decides whether to run the webhook on an object based on whether the namespace for that object matches the selector. If the object itself is a namespace, the matching is performed on object.metadata.labels. If the object is other cluster scoped resource, it is not subjected to the webhook.
+-- |    
+-- |    For example, to run the webhook on any objects whose namespace is not associated with "runlevel" of "0" or "1";  you will set the selector as follows: "namespaceSelector": {
+-- |      "matchExpressions": [
+-- |        {
+-- |          "key": "runlevel",
+-- |          "operator": "NotIn",
+-- |          "values": [
+-- |            "0",
+-- |            "1"
+-- |          ]
+-- |        }
+-- |      ]
+-- |    }
+-- |    
+-- |    If instead you want to only run the webhook on any objects whose namespace is associated with the "environment" of "prod" or "staging"; you will set the selector as follows: "namespaceSelector": {
+-- |      "matchExpressions": [
+-- |        {
+-- |          "key": "environment",
+-- |          "operator": "In",
+-- |          "values": [
+-- |            "prod",
+-- |            "staging"
+-- |          ]
+-- |        }
+-- |      ]
+-- |    }
+-- |    
+-- |    See https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ for more examples of label selectors.
+-- |    
+-- |    Default to the empty LabelSelector, which matches everything.
+-- | - `rules`: Rules describes what operations on what resources/subresources the webhook cares about. The webhook cares about an operation if it matches _any_ Rule.
 newtype Webhook = Webhook
   { clientConfig :: (NullOrUndefined WebhookClientConfig)
   , failurePolicy :: (NullOrUndefined String)
@@ -182,8 +253,26 @@ instance defaultWebhook :: Default Webhook where
     , namespaceSelector: NullOrUndefined Nothing
     , rules: NullOrUndefined Nothing }
 
--- | io.k8s.api.admissionregistration.v1beta1.WebhookClientConfig
 -- | WebhookClientConfig contains the information to make a TLS connection with the webhook
+-- |
+-- | Fields:
+-- | - `caBundle`: `caBundle` is a PEM encoded CA bundle which will be used to validate the webhook's server certificate. Required.
+-- | - `service`: `service` is a reference to the service for this webhook. Either `service` or `url` must be specified.
+-- |    
+-- |    If the webhook is running within the cluster, then you should use `service`.
+-- |    
+-- |    If there is only one port open for the service, that port will be used. If there are multiple ports open, port 443 will be used if it is open, otherwise it is an error.
+-- | - `url`: `url` gives the location of the webhook, in standard URL form (`[scheme://]host:port/path`). Exactly one of `url` or `service` must be specified.
+-- |    
+-- |    The `host` should not refer to a service running in the cluster; use the `service` field instead. The host might be resolved via external DNS in some apiservers (e.g., `kube-apiserver` cannot resolve in-cluster DNS as that would be a layering violation). `host` may also be an IP address.
+-- |    
+-- |    Please note that using `localhost` or `127.0.0.1` as a `host` is risky unless you take great care to run this webhook on all hosts which run an apiserver which might need to make calls to this webhook. Such installs are likely to be non-portable, i.e., not easy to turn up in a new cluster.
+-- |    
+-- |    The scheme must be "https"; the URL must begin with "https://".
+-- |    
+-- |    A path is optional, and if present may be any string permissible in a URL. You may use the path to pass an arbitrary string to the webhook, for example, a cluster identifier.
+-- |    
+-- |    Attempting to use a user or basic auth e.g. "user:password@" is not allowed. Fragments ("#...") and query parameters ("?...") are not allowed, either.
 newtype WebhookClientConfig = WebhookClientConfig
   { caBundle :: (NullOrUndefined String)
   , service :: (NullOrUndefined ServiceReference)
@@ -217,7 +306,17 @@ createValidatingWebhookConfiguration cfg body = makeRequest (post cfg url (Just 
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionMutatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionMutatingWebhookConfigurationOptions = DeleteCollectionMutatingWebhookConfigurationOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -253,7 +352,17 @@ deleteCollectionMutatingWebhookConfiguration cfg options = makeRequest (delete c
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations" <> formatQueryString options
 
--- | DeleteCollectionValidatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionValidatingWebhookConfigurationOptions = DeleteCollectionValidatingWebhookConfigurationOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -289,7 +398,10 @@ deleteCollectionValidatingWebhookConfiguration cfg options = makeRequest (delete
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> formatQueryString options
 
--- | DeleteMutatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteMutatingWebhookConfigurationOptions = DeleteMutatingWebhookConfigurationOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -316,7 +428,10 @@ deleteMutatingWebhookConfiguration cfg body options = makeRequest (delete cfg ur
     url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations/{name}" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteValidatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteValidatingWebhookConfigurationOptions = DeleteValidatingWebhookConfigurationOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -349,7 +464,17 @@ getAPIResources cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/"
 
--- | ListMutatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListMutatingWebhookConfigurationOptions = ListMutatingWebhookConfigurationOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -385,7 +510,17 @@ listMutatingWebhookConfiguration cfg options = makeRequest (get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations" <> formatQueryString options
 
--- | ListValidatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListValidatingWebhookConfigurationOptions = ListValidatingWebhookConfigurationOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -421,7 +556,9 @@ listValidatingWebhookConfiguration cfg options = makeRequest (get cfg url Nothin
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> formatQueryString options
 
--- | ReadMutatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadMutatingWebhookConfigurationOptions = ReadMutatingWebhookConfigurationOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -445,7 +582,9 @@ readMutatingWebhookConfiguration cfg options = makeRequest (get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations/{name}" <> formatQueryString options
 
--- | ReadValidatingWebhookConfigurationOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadValidatingWebhookConfigurationOptions = ReadValidatingWebhookConfigurationOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }

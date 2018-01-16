@@ -14,7 +14,6 @@ import Data.StrMap (StrMap)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (jsonOptions)
 
--- | io.k8s.apimachinery.pkg.api.resource.Quantity
 newtype Quantity = Quantity String
 
 derive instance newtypeQuantity :: Newtype Quantity _

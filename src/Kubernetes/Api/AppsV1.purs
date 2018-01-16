@@ -24,8 +24,14 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.apps.v1.ControllerRevision
 -- | ControllerRevision implements an immutable snapshot of state data. Clients are responsible for serializing and deserializing the objects that contain their internal state. Once a ControllerRevision has been successfully created, it can not be updated. The API Server will fail validation of all requests that attempt to mutate the Data field. ControllerRevisions may, however, be deleted. Note that, due to its use by both the DaemonSet and StatefulSet controllers for update and rollback, this object is beta. However, it may be subject to name and representation changes in future releases, and clients should not depend on its stability. It is primarily for internal use by controllers.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `_data`: Data is the serialized representation of the state.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `revision`: Revision indicates the revision of the state represented by Data.
 newtype ControllerRevision = ControllerRevision
   { _data :: (NullOrUndefined Runtime.RawExtension)
   , apiVersion :: (NullOrUndefined String)
@@ -49,8 +55,13 @@ instance defaultControllerRevision :: Default ControllerRevision where
     , metadata: NullOrUndefined Nothing
     , revision: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.ControllerRevisionList
 -- | ControllerRevisionList is a resource containing a list of ControllerRevision objects.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is the list of ControllerRevisions
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ControllerRevisionList = ControllerRevisionList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ControllerRevision))
@@ -72,8 +83,14 @@ instance defaultControllerRevisionList :: Default ControllerRevisionList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DaemonSet
 -- | DaemonSet represents the configuration of a daemon set.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: The desired behavior of this daemon set. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: The current status of this daemon set. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype DaemonSet = DaemonSet
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -97,8 +114,14 @@ instance defaultDaemonSet :: Default DaemonSet where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DaemonSetCondition
 -- | DaemonSetCondition describes the state of a DaemonSet at a certain point.
+-- |
+-- | Fields:
+-- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
+-- | - `message`: A human readable message indicating details about the transition.
+-- | - `reason`: The reason for the condition's last transition.
+-- | - `status`: Status of the condition, one of True, False, Unknown.
+-- | - `_type`: Type of DaemonSet condition.
 newtype DaemonSetCondition = DaemonSetCondition
   { _type :: (NullOrUndefined String)
   , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
@@ -122,8 +145,13 @@ instance defaultDaemonSetCondition :: Default DaemonSetCondition where
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DaemonSetList
 -- | DaemonSetList is a collection of daemon sets.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: A list of daemon sets.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype DaemonSetList = DaemonSetList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array DaemonSet))
@@ -145,8 +173,14 @@ instance defaultDaemonSetList :: Default DaemonSetList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DaemonSetSpec
 -- | DaemonSetSpec is the specification of a daemon set.
+-- |
+-- | Fields:
+-- | - `minReadySeconds`: The minimum number of seconds for which a newly created DaemonSet pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready).
+-- | - `revisionHistoryLimit`: The number of old history to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
+-- | - `selector`: A label query over pods that are managed by the daemon set. Must match in order to be controlled. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+-- | - `template`: An object that describes the pod that will be created. The DaemonSet will create exactly one copy of this pod on every node that matches the template's node selector (or on every node if no node selector is specified). More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+-- | - `updateStrategy`: An update strategy to replace existing DaemonSet pods with new pods.
 newtype DaemonSetSpec = DaemonSetSpec
   { minReadySeconds :: (NullOrUndefined Int)
   , revisionHistoryLimit :: (NullOrUndefined Int)
@@ -170,8 +204,19 @@ instance defaultDaemonSetSpec :: Default DaemonSetSpec where
     , template: NullOrUndefined Nothing
     , updateStrategy: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DaemonSetStatus
 -- | DaemonSetStatus represents the current status of a daemon set.
+-- |
+-- | Fields:
+-- | - `collisionCount`: Count of hash collisions for the DaemonSet. The DaemonSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
+-- | - `conditions`: Represents the latest available observations of a DaemonSet's current state.
+-- | - `currentNumberScheduled`: The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+-- | - `desiredNumberScheduled`: The total number of nodes that should be running the daemon pod (including nodes correctly running the daemon pod). More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+-- | - `numberAvailable`: The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and available (ready for at least spec.minReadySeconds)
+-- | - `numberMisscheduled`: The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod. More info: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
+-- | - `numberReady`: The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready.
+-- | - `numberUnavailable`: The number of nodes that should be running the daemon pod and have none of the daemon pod running and available (ready for at least spec.minReadySeconds)
+-- | - `observedGeneration`: The most recent generation observed by the daemon set controller.
+-- | - `updatedNumberScheduled`: The total number of nodes that are running updated daemon pod
 newtype DaemonSetStatus = DaemonSetStatus
   { collisionCount :: (NullOrUndefined Int)
   , conditions :: (NullOrUndefined (Array DaemonSetCondition))
@@ -205,8 +250,11 @@ instance defaultDaemonSetStatus :: Default DaemonSetStatus where
     , observedGeneration: NullOrUndefined Nothing
     , updatedNumberScheduled: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DaemonSetUpdateStrategy
 -- | DaemonSetUpdateStrategy is a struct used to control the update strategy for a DaemonSet.
+-- |
+-- | Fields:
+-- | - `rollingUpdate`: Rolling update config params. Present only if type = "RollingUpdate".
+-- | - `_type`: Type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
 newtype DaemonSetUpdateStrategy = DaemonSetUpdateStrategy
   { _type :: (NullOrUndefined String)
   , rollingUpdate :: (NullOrUndefined RollingUpdateDaemonSet) }
@@ -224,8 +272,14 @@ instance defaultDaemonSetUpdateStrategy :: Default DaemonSetUpdateStrategy where
     { _type: NullOrUndefined Nothing
     , rollingUpdate: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.Deployment
 -- | Deployment enables declarative updates for Pods and ReplicaSets.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object metadata.
+-- | - `spec`: Specification of the desired behavior of the Deployment.
+-- | - `status`: Most recently observed status of the Deployment.
 newtype Deployment = Deployment
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -249,8 +303,15 @@ instance defaultDeployment :: Default Deployment where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DeploymentCondition
 -- | DeploymentCondition describes the state of a deployment at a certain point.
+-- |
+-- | Fields:
+-- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
+-- | - `lastUpdateTime`: The last time this condition was updated.
+-- | - `message`: A human readable message indicating details about the transition.
+-- | - `reason`: The reason for the condition's last transition.
+-- | - `status`: Status of the condition, one of True, False, Unknown.
+-- | - `_type`: Type of deployment condition.
 newtype DeploymentCondition = DeploymentCondition
   { _type :: (NullOrUndefined String)
   , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
@@ -276,8 +337,13 @@ instance defaultDeploymentCondition :: Default DeploymentCondition where
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DeploymentList
 -- | DeploymentList is a list of Deployments.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is the list of Deployments.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata.
 newtype DeploymentList = DeploymentList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Deployment))
@@ -299,8 +365,17 @@ instance defaultDeploymentList :: Default DeploymentList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DeploymentSpec
 -- | DeploymentSpec is the specification of the desired behavior of the Deployment.
+-- |
+-- | Fields:
+-- | - `minReadySeconds`: Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
+-- | - `paused`: Indicates that the deployment is paused.
+-- | - `progressDeadlineSeconds`: The maximum time in seconds for a deployment to make progress before it is considered to be failed. The deployment controller will continue to process failed deployments and a condition with a ProgressDeadlineExceeded reason will be surfaced in the deployment status. Note that progress will not be estimated during the time a deployment is paused. Defaults to 600s.
+-- | - `replicas`: Number of desired pods. This is a pointer to distinguish between explicit zero and not specified. Defaults to 1.
+-- | - `revisionHistoryLimit`: The number of old ReplicaSets to retain to allow rollback. This is a pointer to distinguish between explicit zero and not specified. Defaults to 10.
+-- | - `selector`: Label selector for pods. Existing ReplicaSets whose pods are selected by this will be the ones affected by this deployment. It must match the pod template's labels.
+-- | - `strategy`: The deployment strategy to use to replace existing pods with new ones.
+-- | - `template`: Template describes the pods that will be created.
 newtype DeploymentSpec = DeploymentSpec
   { minReadySeconds :: (NullOrUndefined Int)
   , paused :: (NullOrUndefined Boolean)
@@ -330,8 +405,17 @@ instance defaultDeploymentSpec :: Default DeploymentSpec where
     , strategy: NullOrUndefined Nothing
     , template: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DeploymentStatus
 -- | DeploymentStatus is the most recently observed status of the Deployment.
+-- |
+-- | Fields:
+-- | - `availableReplicas`: Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
+-- | - `collisionCount`: Count of hash collisions for the Deployment. The Deployment controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ReplicaSet.
+-- | - `conditions`: Represents the latest available observations of a deployment's current state.
+-- | - `observedGeneration`: The generation observed by the deployment controller.
+-- | - `readyReplicas`: Total number of ready pods targeted by this deployment.
+-- | - `replicas`: Total number of non-terminated pods targeted by this deployment (their labels match the selector).
+-- | - `unavailableReplicas`: Total number of unavailable pods targeted by this deployment. This is the total number of pods that are still required for the deployment to have 100% available capacity. They may either be pods that are running but not yet available or pods that still have not been created.
+-- | - `updatedReplicas`: Total number of non-terminated pods targeted by this deployment that have the desired template spec.
 newtype DeploymentStatus = DeploymentStatus
   { availableReplicas :: (NullOrUndefined Int)
   , collisionCount :: (NullOrUndefined Int)
@@ -361,8 +445,11 @@ instance defaultDeploymentStatus :: Default DeploymentStatus where
     , unavailableReplicas: NullOrUndefined Nothing
     , updatedReplicas: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.DeploymentStrategy
 -- | DeploymentStrategy describes how to replace existing pods with new ones.
+-- |
+-- | Fields:
+-- | - `rollingUpdate`: Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate.
+-- | - `_type`: Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 newtype DeploymentStrategy = DeploymentStrategy
   { _type :: (NullOrUndefined String)
   , rollingUpdate :: (NullOrUndefined RollingUpdateDeployment) }
@@ -380,8 +467,14 @@ instance defaultDeploymentStrategy :: Default DeploymentStrategy where
     { _type: NullOrUndefined Nothing
     , rollingUpdate: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.ReplicaSet
 -- | ReplicaSet ensures that a specified number of pod replicas are running at any given time.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: If the Labels of a ReplicaSet are empty, they are defaulted to be the same as the Pod(s) that the ReplicaSet manages. Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the specification of the desired behavior of the ReplicaSet. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Status is the most recently observed status of the ReplicaSet. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ReplicaSet = ReplicaSet
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -405,8 +498,14 @@ instance defaultReplicaSet :: Default ReplicaSet where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.ReplicaSetCondition
 -- | ReplicaSetCondition describes the state of a replica set at a certain point.
+-- |
+-- | Fields:
+-- | - `lastTransitionTime`: The last time the condition transitioned from one status to another.
+-- | - `message`: A human readable message indicating details about the transition.
+-- | - `reason`: The reason for the condition's last transition.
+-- | - `status`: Status of the condition, one of True, False, Unknown.
+-- | - `_type`: Type of replica set condition.
 newtype ReplicaSetCondition = ReplicaSetCondition
   { _type :: (NullOrUndefined String)
   , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
@@ -430,8 +529,13 @@ instance defaultReplicaSetCondition :: Default ReplicaSetCondition where
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.ReplicaSetList
 -- | ReplicaSetList is a collection of ReplicaSets.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of ReplicaSets. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ReplicaSetList = ReplicaSetList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ReplicaSet))
@@ -453,8 +557,13 @@ instance defaultReplicaSetList :: Default ReplicaSetList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.ReplicaSetSpec
 -- | ReplicaSetSpec is the specification of a ReplicaSet.
+-- |
+-- | Fields:
+-- | - `minReadySeconds`: Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
+-- | - `replicas`: Replicas is the number of desired replicas. This is a pointer to distinguish between explicit zero and unspecified. Defaults to 1. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+-- | - `selector`: Selector is a label query over pods that should match the replica count. Label keys and values that must match in order to be controlled by this replica set. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+-- | - `template`: Template is the object that describes the pod that will be created if insufficient replicas are detected. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 newtype ReplicaSetSpec = ReplicaSetSpec
   { minReadySeconds :: (NullOrUndefined Int)
   , replicas :: (NullOrUndefined Int)
@@ -476,8 +585,15 @@ instance defaultReplicaSetSpec :: Default ReplicaSetSpec where
     , selector: NullOrUndefined Nothing
     , template: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.ReplicaSetStatus
 -- | ReplicaSetStatus represents the current status of a ReplicaSet.
+-- |
+-- | Fields:
+-- | - `availableReplicas`: The number of available replicas (ready for at least minReadySeconds) for this replica set.
+-- | - `conditions`: Represents the latest available observations of a replica set's current state.
+-- | - `fullyLabeledReplicas`: The number of pods that have labels matching the labels of the pod template of the replicaset.
+-- | - `observedGeneration`: ObservedGeneration reflects the generation of the most recently observed ReplicaSet.
+-- | - `readyReplicas`: The number of ready replicas for this replica set.
+-- | - `replicas`: Replicas is the most recently oberved number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
 newtype ReplicaSetStatus = ReplicaSetStatus
   { availableReplicas :: (NullOrUndefined Int)
   , conditions :: (NullOrUndefined (Array ReplicaSetCondition))
@@ -503,8 +619,10 @@ instance defaultReplicaSetStatus :: Default ReplicaSetStatus where
     , readyReplicas: NullOrUndefined Nothing
     , replicas: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.RollingUpdateDaemonSet
 -- | Spec to control the desired behavior of daemon set rolling update.
+-- |
+-- | Fields:
+-- | - `maxUnavailable`: The maximum number of DaemonSet pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of total number of DaemonSet pods at the start of the update (ex: 10%). Absolute number is calculated from percentage by rounding up. This cannot be 0. Default value is 1. Example: when this is set to 30%, at most 30% of the total number of nodes that should be running the daemon pod (i.e. status.desiredNumberScheduled) can have their pods stopped for an update at any given time. The update starts by stopping at most 30% of those DaemonSet pods and then brings up new DaemonSet pods in their place. Once the new pods are available, it then proceeds onto other DaemonSet pods, thus ensuring that at least 70% of original number of DaemonSet pods are available at all times during the update.
 newtype RollingUpdateDaemonSet = RollingUpdateDaemonSet
   { maxUnavailable :: (NullOrUndefined Util.IntOrString) }
 
@@ -520,8 +638,11 @@ instance defaultRollingUpdateDaemonSet :: Default RollingUpdateDaemonSet where
   default = RollingUpdateDaemonSet
     { maxUnavailable: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.RollingUpdateDeployment
 -- | Spec to control the desired behavior of rolling update.
+-- |
+-- | Fields:
+-- | - `maxSurge`: The maximum number of pods that can be scheduled above the desired number of pods. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up. Defaults to 25%. Example: when this is set to 30%, the new RC can be scaled up immediately when the rolling update starts, such that the total number of old and new pods do not exceed 130% of desired pods. Once old pods have been killed, new RC can be scaled up further, ensuring that total number of pods running at any time during the update is at most 130% of desired pods.
+-- | - `maxUnavailable`: The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). Absolute number is calculated from percentage by rounding down. This can not be 0 if MaxSurge is 0. Defaults to 25%. Example: when this is set to 30%, the old RC can be scaled down to 70% of desired pods immediately when the rolling update starts. Once new pods are ready, old RC can be scaled down further, followed by scaling up the new RC, ensuring that the total number of pods available at all times during the update is at least 70% of desired pods.
 newtype RollingUpdateDeployment = RollingUpdateDeployment
   { maxSurge :: (NullOrUndefined Util.IntOrString)
   , maxUnavailable :: (NullOrUndefined Util.IntOrString) }
@@ -539,8 +660,10 @@ instance defaultRollingUpdateDeployment :: Default RollingUpdateDeployment where
     { maxSurge: NullOrUndefined Nothing
     , maxUnavailable: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.RollingUpdateStatefulSetStrategy
 -- | RollingUpdateStatefulSetStrategy is used to communicate parameter for RollingUpdateStatefulSetStrategyType.
+-- |
+-- | Fields:
+-- | - `partition`: Partition indicates the ordinal at which the StatefulSet should be partitioned. Default value is 0.
 newtype RollingUpdateStatefulSetStrategy = RollingUpdateStatefulSetStrategy
   { partition :: (NullOrUndefined Int) }
 
@@ -556,11 +679,17 @@ instance defaultRollingUpdateStatefulSetStrategy :: Default RollingUpdateStatefu
   default = RollingUpdateStatefulSetStrategy
     { partition: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.StatefulSet
 -- | StatefulSet represents a set of pods with consistent identities. Identities are defined as:
 -- |  - Network: A single stable DNS and hostname.
 -- |  - Storage: As many VolumeClaims as requested.
 -- | The StatefulSet guarantees that a given network identity will always map to the same storage identity.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`
+-- | - `spec`: Spec defines the desired identities of pods in this set.
+-- | - `status`: Status is the current status of Pods in this StatefulSet. This data may be out of date by some window of time.
 newtype StatefulSet = StatefulSet
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -584,8 +713,14 @@ instance defaultStatefulSet :: Default StatefulSet where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.StatefulSetCondition
 -- | StatefulSetCondition describes the state of a statefulset at a certain point.
+-- |
+-- | Fields:
+-- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
+-- | - `message`: A human readable message indicating details about the transition.
+-- | - `reason`: The reason for the condition's last transition.
+-- | - `status`: Status of the condition, one of True, False, Unknown.
+-- | - `_type`: Type of statefulset condition.
 newtype StatefulSetCondition = StatefulSetCondition
   { _type :: (NullOrUndefined String)
   , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
@@ -609,8 +744,13 @@ instance defaultStatefulSetCondition :: Default StatefulSetCondition where
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.StatefulSetList
 -- | StatefulSetList is a collection of StatefulSets.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`
 newtype StatefulSetList = StatefulSetList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array StatefulSet))
@@ -632,8 +772,17 @@ instance defaultStatefulSetList :: Default StatefulSetList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.StatefulSetSpec
 -- | A StatefulSetSpec is the specification of a StatefulSet.
+-- |
+-- | Fields:
+-- | - `podManagementPolicy`: podManagementPolicy controls how pods are created during initial scale up, when replacing pods on nodes, or when scaling down. The default policy is `OrderedReady`, where pods are created in increasing order (pod-0, then pod-1, etc) and the controller will wait until each pod is ready before continuing. When scaling down, the pods are removed in the opposite order. The alternative policy is `Parallel` which will create pods in parallel to match the desired scale without waiting, and on scale down will delete all pods at once.
+-- | - `replicas`: replicas is the desired number of replicas of the given Template. These are replicas in the sense that they are instantiations of the same Template, but individual replicas also have a consistent identity. If unspecified, defaults to 1.
+-- | - `revisionHistoryLimit`: revisionHistoryLimit is the maximum number of revisions that will be maintained in the StatefulSet's revision history. The revision history consists of all revisions not represented by a currently applied StatefulSetSpec version. The default value is 10.
+-- | - `selector`: selector is a label query over pods that should match the replica count. It must match the pod template's labels. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+-- | - `serviceName`: serviceName is the name of the service that governs this StatefulSet. This service must exist before the StatefulSet, and is responsible for the network identity of the set. Pods get DNS/hostnames that follow the pattern: pod-specific-string.serviceName.default.svc.cluster.local where "pod-specific-string" is managed by the StatefulSet controller.
+-- | - `template`: template is the object that describes the pod that will be created if insufficient replicas are detected. Each pod stamped out by the StatefulSet will fulfill this Template, but have a unique identity from the rest of the StatefulSet.
+-- | - `updateStrategy`: updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.
+-- | - `volumeClaimTemplates`: volumeClaimTemplates is a list of claims that pods are allowed to reference. The StatefulSet controller is responsible for mapping network identities to claims in a way that maintains the identity of a pod. Every claim in this list must have at least one matching (by name) volumeMount in one container in the template. A claim in this list takes precedence over any volumes in the template, with the same name.
 newtype StatefulSetSpec = StatefulSetSpec
   { podManagementPolicy :: (NullOrUndefined String)
   , replicas :: (NullOrUndefined Int)
@@ -663,8 +812,18 @@ instance defaultStatefulSetSpec :: Default StatefulSetSpec where
     , updateStrategy: NullOrUndefined Nothing
     , volumeClaimTemplates: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.StatefulSetStatus
 -- | StatefulSetStatus represents the current state of a StatefulSet.
+-- |
+-- | Fields:
+-- | - `collisionCount`: collisionCount is the count of hash collisions for the StatefulSet. The StatefulSet controller uses this field as a collision avoidance mechanism when it needs to create the name for the newest ControllerRevision.
+-- | - `conditions`: Represents the latest available observations of a statefulset's current state.
+-- | - `currentReplicas`: currentReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by currentRevision.
+-- | - `currentRevision`: currentRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [0,currentReplicas).
+-- | - `observedGeneration`: observedGeneration is the most recent generation observed for this StatefulSet. It corresponds to the StatefulSet's generation, which is updated on mutation by the API Server.
+-- | - `readyReplicas`: readyReplicas is the number of Pods created by the StatefulSet controller that have a Ready Condition.
+-- | - `replicas`: replicas is the number of Pods created by the StatefulSet controller.
+-- | - `updateRevision`: updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [replicas-updatedReplicas,replicas)
+-- | - `updatedReplicas`: updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by updateRevision.
 newtype StatefulSetStatus = StatefulSetStatus
   { collisionCount :: (NullOrUndefined Int)
   , conditions :: (NullOrUndefined (Array StatefulSetCondition))
@@ -696,8 +855,11 @@ instance defaultStatefulSetStatus :: Default StatefulSetStatus where
     , updateRevision: NullOrUndefined Nothing
     , updatedReplicas: NullOrUndefined Nothing }
 
--- | io.k8s.api.apps.v1.StatefulSetUpdateStrategy
 -- | StatefulSetUpdateStrategy indicates the strategy that the StatefulSet controller will use to perform updates. It includes any additional parameters necessary to perform the update for the indicated strategy.
+-- |
+-- | Fields:
+-- | - `rollingUpdate`: RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
+-- | - `_type`: Type indicates the type of the StatefulSetUpdateStrategy. Default is RollingUpdate.
 newtype StatefulSetUpdateStrategy = StatefulSetUpdateStrategy
   { _type :: (NullOrUndefined String)
   , rollingUpdate :: (NullOrUndefined RollingUpdateStatefulSetStrategy) }
@@ -750,7 +912,17 @@ createNamespacedStatefulSet cfg namespace body = makeRequest (post cfg url (Just
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/statefulsets"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionNamespacedControllerRevisionOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedControllerRevisionOptions = DeleteCollectionNamespacedControllerRevisionOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -786,7 +958,17 @@ deleteCollectionNamespacedControllerRevision cfg namespace options = makeRequest
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/controllerrevisions" <> formatQueryString options
 
--- | DeleteCollectionNamespacedDaemonSetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedDaemonSetOptions = DeleteCollectionNamespacedDaemonSetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -822,7 +1004,17 @@ deleteCollectionNamespacedDaemonSet cfg namespace options = makeRequest (delete 
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets" <> formatQueryString options
 
--- | DeleteCollectionNamespacedDeploymentOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedDeploymentOptions = DeleteCollectionNamespacedDeploymentOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -858,7 +1050,17 @@ deleteCollectionNamespacedDeployment cfg namespace options = makeRequest (delete
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/deployments" <> formatQueryString options
 
--- | DeleteCollectionNamespacedReplicaSetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedReplicaSetOptions = DeleteCollectionNamespacedReplicaSetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -894,7 +1096,17 @@ deleteCollectionNamespacedReplicaSet cfg namespace options = makeRequest (delete
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/replicasets" <> formatQueryString options
 
--- | DeleteCollectionNamespacedStatefulSetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedStatefulSetOptions = DeleteCollectionNamespacedStatefulSetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -930,7 +1142,10 @@ deleteCollectionNamespacedStatefulSet cfg namespace options = makeRequest (delet
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/statefulsets" <> formatQueryString options
 
--- | DeleteNamespacedControllerRevisionOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedControllerRevisionOptions = DeleteNamespacedControllerRevisionOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -957,7 +1172,10 @@ deleteNamespacedControllerRevision cfg namespace name body options = makeRequest
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedDaemonSetOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedDaemonSetOptions = DeleteNamespacedDaemonSetOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -984,7 +1202,10 @@ deleteNamespacedDaemonSet cfg namespace name body options = makeRequest (delete 
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedDeploymentOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedDeploymentOptions = DeleteNamespacedDeploymentOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -1011,7 +1232,10 @@ deleteNamespacedDeployment cfg namespace name body options = makeRequest (delete
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/deployments/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedReplicaSetOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedReplicaSetOptions = DeleteNamespacedReplicaSetOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -1038,7 +1262,10 @@ deleteNamespacedReplicaSet cfg namespace name body options = makeRequest (delete
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/replicasets/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedStatefulSetOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedStatefulSetOptions = DeleteNamespacedStatefulSetOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -1089,7 +1316,17 @@ listDeploymentForAllNamespaces cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/apps/v1/deployments"
 
--- | ListNamespacedControllerRevisionOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedControllerRevisionOptions = ListNamespacedControllerRevisionOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -1125,7 +1362,17 @@ listNamespacedControllerRevision cfg namespace options = makeRequest (get cfg ur
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/controllerrevisions" <> formatQueryString options
 
--- | ListNamespacedDaemonSetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedDaemonSetOptions = ListNamespacedDaemonSetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -1161,7 +1408,17 @@ listNamespacedDaemonSet cfg namespace options = makeRequest (get cfg url Nothing
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets" <> formatQueryString options
 
--- | ListNamespacedDeploymentOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedDeploymentOptions = ListNamespacedDeploymentOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -1197,7 +1454,17 @@ listNamespacedDeployment cfg namespace options = makeRequest (get cfg url Nothin
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/deployments" <> formatQueryString options
 
--- | ListNamespacedReplicaSetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedReplicaSetOptions = ListNamespacedReplicaSetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -1233,7 +1500,17 @@ listNamespacedReplicaSet cfg namespace options = makeRequest (get cfg url Nothin
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/replicasets" <> formatQueryString options
 
--- | ListNamespacedStatefulSetOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedStatefulSetOptions = ListNamespacedStatefulSetOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -1281,7 +1558,9 @@ listStatefulSetForAllNamespaces cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/apps/v1/statefulsets"
 
--- | ReadNamespacedControllerRevisionOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedControllerRevisionOptions = ReadNamespacedControllerRevisionOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -1305,7 +1584,9 @@ readNamespacedControllerRevision cfg namespace name options = makeRequest (get c
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedDaemonSetOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedDaemonSetOptions = ReadNamespacedDaemonSetOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -1335,7 +1616,9 @@ readNamespacedDaemonSetStatus cfg namespace name = makeRequest (get cfg url Noth
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "/status"
 
--- | ReadNamespacedDeploymentOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedDeploymentOptions = ReadNamespacedDeploymentOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -1365,7 +1648,9 @@ readNamespacedDeploymentStatus cfg namespace name = makeRequest (get cfg url Not
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/deployments/" <> name <> "/status"
 
--- | ReadNamespacedReplicaSetOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedReplicaSetOptions = ReadNamespacedReplicaSetOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -1395,7 +1680,9 @@ readNamespacedReplicaSetStatus cfg namespace name = makeRequest (get cfg url Not
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/replicasets/" <> name <> "/status"
 
--- | ReadNamespacedStatefulSetOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedStatefulSetOptions = ReadNamespacedStatefulSetOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }

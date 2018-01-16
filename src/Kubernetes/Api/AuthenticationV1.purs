@@ -21,8 +21,14 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.authentication.v1.TokenReview
 -- | TokenReview attempts to authenticate a token to a known user. Note: TokenReview requests may be cached by the webhook token authenticator plugin in the kube-apiserver.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`
+-- | - `spec`: Spec holds information about the request being evaluated
+-- | - `status`: Status is filled in by the server and indicates whether the request can be authenticated.
 newtype TokenReview = TokenReview
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -46,8 +52,10 @@ instance defaultTokenReview :: Default TokenReview where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.authentication.v1.TokenReviewSpec
 -- | TokenReviewSpec is a description of the token authentication request.
+-- |
+-- | Fields:
+-- | - `token`: Token is the opaque bearer token.
 newtype TokenReviewSpec = TokenReviewSpec
   { token :: (NullOrUndefined String) }
 
@@ -63,8 +71,12 @@ instance defaultTokenReviewSpec :: Default TokenReviewSpec where
   default = TokenReviewSpec
     { token: NullOrUndefined Nothing }
 
--- | io.k8s.api.authentication.v1.TokenReviewStatus
 -- | TokenReviewStatus is the result of the token authentication request.
+-- |
+-- | Fields:
+-- | - `authenticated`: Authenticated indicates that the token was associated with a known user.
+-- | - `error`: Error indicates that the token couldn't be checked
+-- | - `user`: User is the UserInfo associated with the provided token.
 newtype TokenReviewStatus = TokenReviewStatus
   { authenticated :: (NullOrUndefined Boolean)
   , error :: (NullOrUndefined String)
@@ -84,8 +96,13 @@ instance defaultTokenReviewStatus :: Default TokenReviewStatus where
     , error: NullOrUndefined Nothing
     , user: NullOrUndefined Nothing }
 
--- | io.k8s.api.authentication.v1.UserInfo
 -- | UserInfo holds the information about the user needed to implement the user.Info interface.
+-- |
+-- | Fields:
+-- | - `extra`: Any additional information provided by the authenticator.
+-- | - `groups`: The names of groups this user is a part of.
+-- | - `uid`: A unique value that identifies this user across time. If this user is deleted and another user by the same name is added, they will have different UIDs.
+-- | - `username`: The name that uniquely identifies this user among all active users.
 newtype UserInfo = UserInfo
   { extra :: (NullOrUndefined (StrMap (Array String)))
   , groups :: (NullOrUndefined (Array String))

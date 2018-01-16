@@ -81,7 +81,7 @@ generateTypeForSchema _ name schema =
     "\n  Missing fields needed for generation\n" <> (unsafeCoerce $ Debug.spy schema)
 
 generateField :: Partial => String -> Tuple String Schema -> AST.OptionalField
-generateField mod (Tuple name schema) = {description: Nothing, name, innerType}
+generateField mod (Tuple name schema@(Schema {description: d})) = {description: unwrap d, name, innerType}
   where
     innerType = generateType mod schema
 

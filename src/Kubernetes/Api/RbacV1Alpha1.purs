@@ -21,8 +21,10 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.rbac.v1alpha1.AggregationRule
 -- | AggregationRule describes how to locate ClusterRoles to aggregate into the ClusterRole
+-- |
+-- | Fields:
+-- | - `clusterRoleSelectors`: ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules. If any of the selectors match, then the ClusterRole's permissions will be added
 newtype AggregationRule = AggregationRule
   { clusterRoleSelectors :: (NullOrUndefined (Array MetaV1.LabelSelector)) }
 
@@ -38,8 +40,14 @@ instance defaultAggregationRule :: Default AggregationRule where
   default = AggregationRule
     { clusterRoleSelectors: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.ClusterRole
 -- | ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.
+-- |
+-- | Fields:
+-- | - `aggregationRule`: AggregationRule is an optional field that describes how to build the Rules for this ClusterRole. If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be stomped by the controller.
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
+-- | - `rules`: Rules holds all the PolicyRules for this ClusterRole
 newtype ClusterRole = ClusterRole
   { aggregationRule :: (NullOrUndefined AggregationRule)
   , apiVersion :: (NullOrUndefined String)
@@ -63,8 +71,14 @@ instance defaultClusterRole :: Default ClusterRole where
     , metadata: NullOrUndefined Nothing
     , rules: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.ClusterRoleBinding
 -- | ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace, and adds who information via Subject.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
+-- | - `roleRef`: RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
+-- | - `subjects`: Subjects holds references to the objects the role applies to.
 newtype ClusterRoleBinding = ClusterRoleBinding
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -88,8 +102,13 @@ instance defaultClusterRoleBinding :: Default ClusterRoleBinding where
     , roleRef: NullOrUndefined Nothing
     , subjects: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.ClusterRoleBindingList
 -- | ClusterRoleBindingList is a collection of ClusterRoleBindings
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is a list of ClusterRoleBindings
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
 newtype ClusterRoleBindingList = ClusterRoleBindingList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ClusterRoleBinding))
@@ -111,8 +130,13 @@ instance defaultClusterRoleBindingList :: Default ClusterRoleBindingList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.ClusterRoleList
 -- | ClusterRoleList is a collection of ClusterRoles
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is a list of ClusterRoles
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
 newtype ClusterRoleList = ClusterRoleList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ClusterRole))
@@ -134,8 +158,14 @@ instance defaultClusterRoleList :: Default ClusterRoleList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.PolicyRule
 -- | PolicyRule holds information that describes a policy rule, but does not contain information about who the rule applies to or which namespace the rule applies to.
+-- |
+-- | Fields:
+-- | - `apiGroups`: APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.
+-- | - `nonResourceURLs`: NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path This name is intentionally different than the internal type so that the DefaultConvert works nicely and because the ordering may be different. Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding. Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+-- | - `resourceNames`: ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
+-- | - `resources`: Resources is a list of resources this rule applies to.  ResourceAll represents all resources.
+-- | - `verbs`: Verbs is a list of Verbs that apply to ALL the ResourceKinds and AttributeRestrictions contained in this rule.  VerbAll represents all kinds.
 newtype PolicyRule = PolicyRule
   { apiGroups :: (NullOrUndefined (Array String))
   , nonResourceURLs :: (NullOrUndefined (Array String))
@@ -159,8 +189,13 @@ instance defaultPolicyRule :: Default PolicyRule where
     , resources: NullOrUndefined Nothing
     , verbs: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.Role
 -- | Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
+-- | - `rules`: Rules holds all the PolicyRules for this Role
 newtype Role = Role
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -182,8 +217,14 @@ instance defaultRole :: Default Role where
     , metadata: NullOrUndefined Nothing
     , rules: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.RoleBinding
 -- | RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace. It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given namespace only have effect in that namespace.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
+-- | - `roleRef`: RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
+-- | - `subjects`: Subjects holds references to the objects the role applies to.
 newtype RoleBinding = RoleBinding
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -207,8 +248,13 @@ instance defaultRoleBinding :: Default RoleBinding where
     , roleRef: NullOrUndefined Nothing
     , subjects: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.RoleBindingList
 -- | RoleBindingList is a collection of RoleBindings
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is a list of RoleBindings
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
 newtype RoleBindingList = RoleBindingList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array RoleBinding))
@@ -230,8 +276,13 @@ instance defaultRoleBindingList :: Default RoleBindingList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.RoleList
 -- | RoleList is a collection of Roles
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is a list of Roles
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata.
 newtype RoleList = RoleList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Role))
@@ -253,8 +304,12 @@ instance defaultRoleList :: Default RoleList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.RoleRef
 -- | RoleRef contains information that points to the role being used
+-- |
+-- | Fields:
+-- | - `apiGroup`: APIGroup is the group for the resource being referenced
+-- | - `kind`: Kind is the type of resource being referenced
+-- | - `name`: Name is the name of resource being referenced
 newtype RoleRef = RoleRef
   { apiGroup :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -274,8 +329,13 @@ instance defaultRoleRef :: Default RoleRef where
     , kind: NullOrUndefined Nothing
     , name: NullOrUndefined Nothing }
 
--- | io.k8s.api.rbac.v1alpha1.Subject
 -- | Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference, or a value for non-objects such as user and group names.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion holds the API group and version of the referenced subject. Defaults to "v1" for ServiceAccount subjects. Defaults to "rbac.authorization.k8s.io/v1alpha1" for User and Group subjects.
+-- | - `kind`: Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount". If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+-- | - `name`: Name of the object being referenced.
+-- | - `namespace`: Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty the Authorizer should report an error.
 newtype Subject = Subject
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -325,7 +385,10 @@ createNamespacedRoleBinding cfg body = makeRequest (post cfg url (Just encodedBo
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/namespaces/{namespace}/rolebindings"
     encodedBody = encodeJSON body
 
--- | DeleteClusterRoleOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteClusterRoleOptions = DeleteClusterRoleOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -352,7 +415,10 @@ deleteClusterRole cfg body options = makeRequest (delete cfg url (Just encodedBo
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/clusterroles/{name}" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteClusterRoleBindingOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteClusterRoleBindingOptions = DeleteClusterRoleBindingOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -379,7 +445,17 @@ deleteClusterRoleBinding cfg body options = makeRequest (delete cfg url (Just en
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/clusterrolebindings/{name}" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteCollectionClusterRoleOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionClusterRoleOptions = DeleteCollectionClusterRoleOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -415,7 +491,17 @@ deleteCollectionClusterRole cfg options = makeRequest (delete cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/clusterroles" <> formatQueryString options
 
--- | DeleteCollectionClusterRoleBindingOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionClusterRoleBindingOptions = DeleteCollectionClusterRoleBindingOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -451,7 +537,17 @@ deleteCollectionClusterRoleBinding cfg options = makeRequest (delete cfg url Not
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/clusterrolebindings" <> formatQueryString options
 
--- | DeleteCollectionNamespacedRoleOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedRoleOptions = DeleteCollectionNamespacedRoleOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -487,7 +583,17 @@ deleteCollectionNamespacedRole cfg options = makeRequest (delete cfg url Nothing
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/namespaces/{namespace}/roles" <> formatQueryString options
 
--- | DeleteCollectionNamespacedRoleBindingOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedRoleBindingOptions = DeleteCollectionNamespacedRoleBindingOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -523,7 +629,10 @@ deleteCollectionNamespacedRoleBinding cfg options = makeRequest (delete cfg url 
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/namespaces/{namespace}/rolebindings" <> formatQueryString options
 
--- | DeleteNamespacedRoleOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedRoleOptions = DeleteNamespacedRoleOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -550,7 +659,10 @@ deleteNamespacedRole cfg body options = makeRequest (delete cfg url (Just encode
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/namespaces/{namespace}/roles/{name}" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedRoleBindingOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedRoleBindingOptions = DeleteNamespacedRoleBindingOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -583,7 +695,17 @@ getAPIResources cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/"
 
--- | ListClusterRoleOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListClusterRoleOptions = ListClusterRoleOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -619,7 +741,17 @@ listClusterRole cfg options = makeRequest (get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/clusterroles" <> formatQueryString options
 
--- | ListClusterRoleBindingOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListClusterRoleBindingOptions = ListClusterRoleBindingOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -655,7 +787,17 @@ listClusterRoleBinding cfg options = makeRequest (get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/clusterrolebindings" <> formatQueryString options
 
--- | ListNamespacedRoleOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedRoleOptions = ListNamespacedRoleOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -691,7 +833,17 @@ listNamespacedRole cfg options = makeRequest (get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/namespaces/{namespace}/roles" <> formatQueryString options
 
--- | ListNamespacedRoleBindingOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedRoleBindingOptions = ListNamespacedRoleBindingOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)

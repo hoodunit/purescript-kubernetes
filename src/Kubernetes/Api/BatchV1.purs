@@ -22,8 +22,14 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.batch.v1.Job
 -- | Job represents the configuration of a single job.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Specification of the desired behavior of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Current status of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Job = Job
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -47,8 +53,15 @@ instance defaultJob :: Default Job where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v1.JobCondition
 -- | JobCondition describes current state of a job.
+-- |
+-- | Fields:
+-- | - `lastProbeTime`: Last time the condition was checked.
+-- | - `lastTransitionTime`: Last time the condition transit from one status to another.
+-- | - `message`: Human readable message indicating details about last transition.
+-- | - `reason`: (brief) reason for the condition's last transition.
+-- | - `status`: Status of the condition, one of True, False, Unknown.
+-- | - `_type`: Type of job condition, Complete or Failed.
 newtype JobCondition = JobCondition
   { _type :: (NullOrUndefined String)
   , lastProbeTime :: (NullOrUndefined MetaV1.Time)
@@ -74,8 +87,13 @@ instance defaultJobCondition :: Default JobCondition where
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v1.JobList
 -- | JobList is a collection of jobs.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: items is the list of Jobs.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype JobList = JobList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Job))
@@ -97,8 +115,16 @@ instance defaultJobList :: Default JobList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v1.JobSpec
 -- | JobSpec describes how the job execution will look like.
+-- |
+-- | Fields:
+-- | - `activeDeadlineSeconds`: Specifies the duration in seconds relative to the startTime that the job may be active before the system tries to terminate it; value must be positive integer
+-- | - `backoffLimit`: Specifies the number of retries before marking this job failed. Defaults to 6
+-- | - `completions`: Specifies the desired number of successfully finished pods the job should be run with.  Setting to nil means that the success of any pod signals the success of all pods, and allows parallelism to have any positive value.  Setting to 1 means that parallelism is limited to 1 and the success of that pod signals the success of the job. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+-- | - `manualSelector`: manualSelector controls generation of pod labels and pod selectors. Leave `manualSelector` unset unless you are certain what you are doing. When false or unset, the system pick labels unique to this job and appends those labels to the pod template.  When true, the user is responsible for picking unique labels and specifying the selector.  Failure to pick a unique label may cause this and other jobs to not function correctly.  However, You may see `manualSelector=true` in jobs that were created with the old `extensions/v1beta1` API. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/#specifying-your-own-pod-selector
+-- | - `parallelism`: Specifies the maximum desired number of pods the job should run at any given time. The actual number of pods running in steady state will be less than this number when ((.spec.completions - .status.successful) < .spec.parallelism), i.e. when the work left to do is less than max parallelism. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+-- | - `selector`: A label query over pods that should match the pod count. Normally, the system sets this field for you. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+-- | - `template`: Describes the pod that will be created when executing a job. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
 newtype JobSpec = JobSpec
   { activeDeadlineSeconds :: (NullOrUndefined Int)
   , backoffLimit :: (NullOrUndefined Int)
@@ -126,8 +152,15 @@ instance defaultJobSpec :: Default JobSpec where
     , selector: NullOrUndefined Nothing
     , template: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v1.JobStatus
 -- | JobStatus represents the current state of a Job.
+-- |
+-- | Fields:
+-- | - `active`: The number of actively running pods.
+-- | - `completionTime`: Represents time when the job was completed. It is not guaranteed to be set in happens-before order across separate operations. It is represented in RFC3339 form and is in UTC.
+-- | - `conditions`: The latest available observations of an object's current state. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+-- | - `failed`: The number of pods which reached phase Failed.
+-- | - `startTime`: Represents time when the job was acknowledged by the job controller. It is not guaranteed to be set in happens-before order across separate operations. It is represented in RFC3339 form and is in UTC.
+-- | - `succeeded`: The number of pods which reached phase Succeeded.
 newtype JobStatus = JobStatus
   { active :: (NullOrUndefined Int)
   , completionTime :: (NullOrUndefined MetaV1.Time)
@@ -160,7 +193,17 @@ createNamespacedJob cfg namespace body = makeRequest (post cfg url (Just encoded
     url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionNamespacedJobOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedJobOptions = DeleteCollectionNamespacedJobOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -196,7 +239,10 @@ deleteCollectionNamespacedJob cfg namespace options = makeRequest (delete cfg ur
   where
     url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> formatQueryString options
 
--- | DeleteNamespacedJobOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedJobOptions = DeleteNamespacedJobOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -235,7 +281,17 @@ listJobForAllNamespaces cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/batch/v1/jobs"
 
--- | ListNamespacedJobOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedJobOptions = ListNamespacedJobOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -271,7 +327,9 @@ listNamespacedJob cfg namespace options = makeRequest (get cfg url Nothing)
   where
     url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> formatQueryString options
 
--- | ReadNamespacedJobOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedJobOptions = ReadNamespacedJobOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }

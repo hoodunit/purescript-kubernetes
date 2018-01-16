@@ -29,7 +29,7 @@ emitOptionalField {name, innerType} =
 
 emitDeclaration :: Partial => Declaration -> String
 emitDeclaration (NewtypeDecl (ObjectType {qualifiedName, description, fields})) =
-  documentation <>
+  docs <>
     "newtype " <> name <> " = " <> name <> "\n" <>
     "  { " <> fieldDecls <>
     " }" <>
@@ -37,39 +37,39 @@ emitDeclaration (NewtypeDecl (ObjectType {qualifiedName, description, fields})) 
     "\n" <> typeClassBoilerplate name <>
     "\n\n" <> defaultInstance name fieldNames
   where
-    documentation = generateDocs qualifiedName description
+    docs = objectDocs description fields
     sortedFields = Array.sortWith (_.name) fields
     fieldDecls = String.joinWith "\n  , " (emitOptionalField <$> sortedFields)
     fieldNames = _.name <$> sortedFields
     name = typeUnqualifiedName qualifiedName
 emitDeclaration (RecordDecl (ObjectType {qualifiedName, description, fields})) =
-  documentation <>
+  docs <>
     "type " <> name <> " =\n" <>
     "  { " <> fieldDecls <>
     " }" <>
     "\n\n" <> defaultRecordNameAndValue name fieldNames
   where
-    documentation = generateDocs qualifiedName description
+    docs = objectDocs description fields
     sortedFields = Array.sortWith (_.name) fields
     fieldDecls = String.joinWith "\n  , " (emitOptionalField <$> sortedFields)
     fieldNames = _.name <$> sortedFields
     name = typeUnqualifiedName qualifiedName
 emitDeclaration (AdtType {qualifiedName, description, constructors}) =
-  documentation <>
+  docs <>
     "data " <> name <> " = \n  " <> constructorDecls <>
     "\n\n" <> adtTypeClassBoilerplate name
   where
-    documentation = generateDocs qualifiedName description
+    docs = formatDescription description
     constructorDecls = String.joinWith "\n  | " (mkConstructor <$> constructors)
     mkConstructor t = name <> adtCtrSuffix t <> " " <> emitTypeDecl t
     name = typeUnqualifiedName qualifiedName
 emitDeclaration (AliasType {qualifiedName, description, innerType}) =
-  documentation <>
+  docs <>
     "newtype " <> name <> " = " <> name <> " " <> emitTypeDecl innerType <>
     "\n\n" <> deriveNewtype name <>
     "\n" <> typeClassBoilerplate name
   where
-    documentation = generateDocs qualifiedName description
+    docs = formatDescription description
     name = typeUnqualifiedName qualifiedName
 emitDeclaration (LensHelper {name}) =
   underscoreName <> " :: forall s a r r'. Newtype s { " <> name <> " :: r | r' } => Newtype r a => Lens' s a\n" <>
@@ -142,15 +142,29 @@ adtCtrSuffix (TypeObject _) = "Object"
 adtCtrSuffix (TypeNullable _) = "Nullable"
 adtCtrSuffix (TypeRef t) = t
 
-generateDocs :: String -> Maybe String -> String
-generateDocs qualifiedName description =
-  "-- | " <> qualifiedName <> "\n" <>
-  (formatDescription description)
+objectDocs :: Maybe String -> Array OptionalField -> String
+objectDocs desc fields =
+  formatDescription desc <>
+  maybe "" (const "-- |\n") desc <>
+  fieldDocs fields <> "\n"
+
+fieldDocs :: Array OptionalField -> String
+fieldDocs [] = ""
+fieldDocs fields =
+  "-- | Fields:\n" <>
+  prefix <> (String.joinWith ("\n" <> prefix) $ formatField <$> fields)
+  where
+    prefix = "-- | - "
+    formatField {name, description} = "`" <> name <> "`" <> formatFieldDesc description
+    formatFieldDesc (Just d) = ": " <> fixNewlines d
+    formatFieldDesc Nothing = ""
+    fixNewlines = String.joinWith "\n-- |    " <<< String.split (String.Pattern "\n")
 
 formatDescription :: Maybe String -> String
 formatDescription Nothing = ""
-formatDescription (Just d) = "-- | " <> formatted <> "\n"
-  where formatted = String.joinWith "\n-- | " $ String.split (String.Pattern "\n") d
+formatDescription (Just d) = "-- | " <> fixNewlines d <> "\n"
+  where
+    fixNewlines = String.joinWith "\n-- | " <<< String.split (String.Pattern "\n")
 
 deriveNewtype :: String -> String
 deriveNewtype name = "derive instance newtype" <> name <> " :: Newtype " <> name <> " _"

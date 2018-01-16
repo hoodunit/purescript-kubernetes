@@ -21,8 +21,18 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.apimachinery.pkg.version.Info
 -- | Info contains versioning information. how we'll want to distribute that information.
+-- |
+-- | Fields:
+-- | - `buildDate`
+-- | - `compiler`
+-- | - `gitCommit`
+-- | - `gitTreeState`
+-- | - `gitVersion`
+-- | - `goVersion`
+-- | - `major`
+-- | - `minor`
+-- | - `platform`
 newtype Info = Info
   { buildDate :: (NullOrUndefined String)
   , compiler :: (NullOrUndefined String)

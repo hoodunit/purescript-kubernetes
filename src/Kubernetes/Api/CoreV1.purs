@@ -23,10 +23,15 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.core.v1.AWSElasticBlockStoreVolumeSource
 -- | Represents a Persistent Disk resource in AWS.
 -- | 
 -- | An AWS EBS disk must exist before mounting to a container. The disk must also be in the same AWS zone as the kubelet. An AWS EBS disk can only be mounted as read/write once. AWS EBS volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+-- | - `partition`: The partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty).
+-- | - `readOnly`: Specify "true" to force and set the ReadOnly property in VolumeMounts to "true". If omitted, the default is "false". More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+-- | - `volumeID`: Unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
 newtype AWSElasticBlockStoreVolumeSource = AWSElasticBlockStoreVolumeSource
   { fsType :: (NullOrUndefined String)
   , partition :: (NullOrUndefined Int)
@@ -48,8 +53,12 @@ instance defaultAWSElasticBlockStoreVolumeSource :: Default AWSElasticBlockStore
     , readOnly: NullOrUndefined Nothing
     , volumeID: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Affinity
 -- | Affinity is a group of affinity scheduling rules.
+-- |
+-- | Fields:
+-- | - `nodeAffinity`: Describes node affinity scheduling rules for the pod.
+-- | - `podAffinity`: Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).
+-- | - `podAntiAffinity`: Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
 newtype Affinity = Affinity
   { nodeAffinity :: (NullOrUndefined NodeAffinity)
   , podAffinity :: (NullOrUndefined PodAffinity)
@@ -69,8 +78,11 @@ instance defaultAffinity :: Default Affinity where
     , podAffinity: NullOrUndefined Nothing
     , podAntiAffinity: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.AttachedVolume
 -- | AttachedVolume describes a volume attached to a node
+-- |
+-- | Fields:
+-- | - `devicePath`: DevicePath represents the device path where the volume should be available
+-- | - `name`: Name of the attached volume
 newtype AttachedVolume = AttachedVolume
   { devicePath :: (NullOrUndefined String)
   , name :: (NullOrUndefined String) }
@@ -88,8 +100,15 @@ instance defaultAttachedVolume :: Default AttachedVolume where
     { devicePath: NullOrUndefined Nothing
     , name: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.AzureDiskVolumeSource
 -- | AzureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
+-- |
+-- | Fields:
+-- | - `cachingMode`: Host Caching mode: None, Read Only, Read Write.
+-- | - `diskName`: The Name of the data disk in the blob storage
+-- | - `diskURI`: The URI the data disk in the blob storage
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `kind`: Expected values Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
 newtype AzureDiskVolumeSource = AzureDiskVolumeSource
   { cachingMode :: (NullOrUndefined String)
   , diskName :: (NullOrUndefined String)
@@ -115,8 +134,13 @@ instance defaultAzureDiskVolumeSource :: Default AzureDiskVolumeSource where
     , kind: NullOrUndefined Nothing
     , readOnly: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.AzureFilePersistentVolumeSource
 -- | AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
+-- |
+-- | Fields:
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretName`: the name of secret that contains Azure Storage Account Name and Key
+-- | - `secretNamespace`: the namespace of the secret that contains Azure Storage Account Name and Key default is the same as the Pod
+-- | - `shareName`: Share Name
 newtype AzureFilePersistentVolumeSource = AzureFilePersistentVolumeSource
   { readOnly :: (NullOrUndefined Boolean)
   , secretName :: (NullOrUndefined String)
@@ -138,8 +162,12 @@ instance defaultAzureFilePersistentVolumeSource :: Default AzureFilePersistentVo
     , secretNamespace: NullOrUndefined Nothing
     , shareName: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.AzureFileVolumeSource
 -- | AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
+-- |
+-- | Fields:
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretName`: the name of secret that contains Azure Storage Account Name and Key
+-- | - `shareName`: Share Name
 newtype AzureFileVolumeSource = AzureFileVolumeSource
   { readOnly :: (NullOrUndefined Boolean)
   , secretName :: (NullOrUndefined String)
@@ -159,8 +187,13 @@ instance defaultAzureFileVolumeSource :: Default AzureFileVolumeSource where
     , secretName: NullOrUndefined Nothing
     , shareName: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Binding
 -- | Binding ties one object to another; for example, a pod is bound to a node by a scheduler. Deprecated in 1.7, please use the bindings subresource of pods instead.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `target`: The target object that you want to bind to the standard object.
 newtype Binding = Binding
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -182,8 +215,12 @@ instance defaultBinding :: Default Binding where
     , metadata: NullOrUndefined Nothing
     , target: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.CSIPersistentVolumeSource
 -- | Represents storage that is managed by an external CSI volume driver
+-- |
+-- | Fields:
+-- | - `driver`: Driver is the name of the driver to use for this volume. Required.
+-- | - `readOnly`: Optional: The value to pass to ControllerPublishVolumeRequest. Defaults to false (read/write).
+-- | - `volumeHandle`: VolumeHandle is the unique volume name returned by the CSI volume plugin’s CreateVolume to refer to the volume on all subsequent calls. Required.
 newtype CSIPersistentVolumeSource = CSIPersistentVolumeSource
   { driver :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean)
@@ -203,8 +240,11 @@ instance defaultCSIPersistentVolumeSource :: Default CSIPersistentVolumeSource w
     , readOnly: NullOrUndefined Nothing
     , volumeHandle: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Capabilities
 -- | Adds and removes POSIX capabilities from running containers.
+-- |
+-- | Fields:
+-- | - `add`: Added capabilities
+-- | - `drop`: Removed capabilities
 newtype Capabilities = Capabilities
   { add :: (NullOrUndefined (Array String))
   , drop :: (NullOrUndefined (Array String)) }
@@ -222,8 +262,15 @@ instance defaultCapabilities :: Default Capabilities where
     { add: NullOrUndefined Nothing
     , drop: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.CephFSPersistentVolumeSource
 -- | Represents a Ceph Filesystem mount that lasts the lifetime of a pod Cephfs volumes do not support ownership management or SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `monitors`: Required: Monitors is a collection of Ceph monitors More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `path`: Optional: Used as the mounted root, rather than the full Ceph tree, default is /
+-- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `secretFile`: Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `secretRef`: Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `user`: Optional: User is the rados user name, default is admin More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
 newtype CephFSPersistentVolumeSource = CephFSPersistentVolumeSource
   { monitors :: (NullOrUndefined (Array String))
   , path :: (NullOrUndefined String)
@@ -249,8 +296,15 @@ instance defaultCephFSPersistentVolumeSource :: Default CephFSPersistentVolumeSo
     , secretRef: NullOrUndefined Nothing
     , user: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.CephFSVolumeSource
 -- | Represents a Ceph Filesystem mount that lasts the lifetime of a pod Cephfs volumes do not support ownership management or SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `monitors`: Required: Monitors is a collection of Ceph monitors More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `path`: Optional: Used as the mounted root, rather than the full Ceph tree, default is /
+-- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `secretFile`: Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `secretRef`: Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
+-- | - `user`: Optional: User is the rados user name, default is admin More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
 newtype CephFSVolumeSource = CephFSVolumeSource
   { monitors :: (NullOrUndefined (Array String))
   , path :: (NullOrUndefined String)
@@ -276,8 +330,12 @@ instance defaultCephFSVolumeSource :: Default CephFSVolumeSource where
     , secretRef: NullOrUndefined Nothing
     , user: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.CinderVolumeSource
 -- | Represents a cinder volume resource in Openstack. A Cinder volume must exist before mounting to a container. The volume must also be in the same region as the kubelet. Cinder volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://releases.k8s.io/HEAD/examples/mysql-cinder-pd/README.md
+-- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://releases.k8s.io/HEAD/examples/mysql-cinder-pd/README.md
+-- | - `volumeID`: volume id used to identify the volume in cinder More info: https://releases.k8s.io/HEAD/examples/mysql-cinder-pd/README.md
 newtype CinderVolumeSource = CinderVolumeSource
   { fsType :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean)
@@ -297,8 +355,10 @@ instance defaultCinderVolumeSource :: Default CinderVolumeSource where
     , readOnly: NullOrUndefined Nothing
     , volumeID: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ClientIPConfig
 -- | ClientIPConfig represents the configurations of Client IP based session affinity.
+-- |
+-- | Fields:
+-- | - `timeoutSeconds`: timeoutSeconds specifies the seconds of ClientIP type session sticky time. The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP". Default value is 10800(for 3 hours).
 newtype ClientIPConfig = ClientIPConfig
   { timeoutSeconds :: (NullOrUndefined Int) }
 
@@ -314,8 +374,13 @@ instance defaultClientIPConfig :: Default ClientIPConfig where
   default = ClientIPConfig
     { timeoutSeconds: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ComponentCondition
 -- | Information about the condition of a component.
+-- |
+-- | Fields:
+-- | - `error`: Condition error code for a component. For example, a health check error code.
+-- | - `message`: Message about the condition for a component. For example, information about a health check.
+-- | - `status`: Status of the condition for a component. Valid values for "Healthy": "True", "False", or "Unknown".
+-- | - `_type`: Type of condition for a component. Valid value: "Healthy"
 newtype ComponentCondition = ComponentCondition
   { _type :: (NullOrUndefined String)
   , error :: (NullOrUndefined String)
@@ -337,8 +402,13 @@ instance defaultComponentCondition :: Default ComponentCondition where
     , message: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ComponentStatus
 -- | ComponentStatus (and ComponentStatusList) holds the cluster validation info.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `conditions`: List of component conditions observed
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ComponentStatus = ComponentStatus
   { apiVersion :: (NullOrUndefined String)
   , conditions :: (NullOrUndefined (Array ComponentCondition))
@@ -360,8 +430,13 @@ instance defaultComponentStatus :: Default ComponentStatus where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ComponentStatusList
 -- | Status of all the conditions for the component as a list of ComponentStatus objects.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of ComponentStatus objects.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ComponentStatusList = ComponentStatusList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ComponentStatus))
@@ -383,8 +458,13 @@ instance defaultComponentStatusList :: Default ComponentStatusList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ConfigMap
 -- | ConfigMap holds configuration data for pods to consume.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `_data`: Data contains the configuration data. Each key must consist of alphanumeric characters, '-', '_' or '.'.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ConfigMap = ConfigMap
   { _data :: (NullOrUndefined (StrMap String))
   , apiVersion :: (NullOrUndefined String)
@@ -406,10 +486,13 @@ instance defaultConfigMap :: Default ConfigMap where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ConfigMapEnvSource
 -- | ConfigMapEnvSource selects a ConfigMap to populate the environment variables with.
 -- | 
 -- | The contents of the target ConfigMap's Data field will represent the key-value pairs as environment variables.
+-- |
+-- | Fields:
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `optional`: Specify whether the ConfigMap must be defined
 newtype ConfigMapEnvSource = ConfigMapEnvSource
   { name :: (NullOrUndefined String)
   , optional :: (NullOrUndefined Boolean) }
@@ -427,8 +510,12 @@ instance defaultConfigMapEnvSource :: Default ConfigMapEnvSource where
     { name: NullOrUndefined Nothing
     , optional: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ConfigMapKeySelector
 -- | Selects a key from a ConfigMap.
+-- |
+-- | Fields:
+-- | - `key`: The key to select.
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `optional`: Specify whether the ConfigMap or it's key must be defined
 newtype ConfigMapKeySelector = ConfigMapKeySelector
   { key :: (NullOrUndefined String)
   , name :: (NullOrUndefined String)
@@ -448,8 +535,13 @@ instance defaultConfigMapKeySelector :: Default ConfigMapKeySelector where
     , name: NullOrUndefined Nothing
     , optional: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ConfigMapList
 -- | ConfigMapList is a resource containing a list of ConfigMap objects.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is the list of ConfigMaps.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ConfigMapList = ConfigMapList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ConfigMap))
@@ -471,10 +563,14 @@ instance defaultConfigMapList :: Default ConfigMapList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ConfigMapProjection
 -- | Adapts a ConfigMap into a projected volume.
 -- | 
 -- | The contents of the target ConfigMap's Data field will be presented in a projected volume as files using the keys in the Data field as the file names, unless the items element is populated with specific mappings of keys to paths. Note that this is identical to a configmap volume source without the default mode.
+-- |
+-- | Fields:
+-- | - `items`: If unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `optional`: Specify whether the ConfigMap or it's keys must be defined
 newtype ConfigMapProjection = ConfigMapProjection
   { items :: (NullOrUndefined (Array KeyToPath))
   , name :: (NullOrUndefined String)
@@ -494,10 +590,15 @@ instance defaultConfigMapProjection :: Default ConfigMapProjection where
     , name: NullOrUndefined Nothing
     , optional: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ConfigMapVolumeSource
 -- | Adapts a ConfigMap into a volume.
 -- | 
 -- | The contents of the target ConfigMap's Data field will be presented in a volume as files using the keys in the Data field as the file names, unless the items element is populated with specific mappings of keys to paths. ConfigMap volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `defaultMode`: Optional: mode bits to use on created files by default. Must be a value between 0 and 0777. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+-- | - `items`: If unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `optional`: Specify whether the ConfigMap or it's keys must be defined
 newtype ConfigMapVolumeSource = ConfigMapVolumeSource
   { defaultMode :: (NullOrUndefined Int)
   , items :: (NullOrUndefined (Array KeyToPath))
@@ -519,8 +620,30 @@ instance defaultConfigMapVolumeSource :: Default ConfigMapVolumeSource where
     , name: NullOrUndefined Nothing
     , optional: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Container
 -- | A single application container that you want to run within a pod.
+-- |
+-- | Fields:
+-- | - `args`: Arguments to the entrypoint. The docker image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
+-- | - `command`: Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell
+-- | - `env`: List of environment variables to set in the container. Cannot be updated.
+-- | - `envFrom`: List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated.
+-- | - `image`: Docker image name. More info: https://kubernetes.io/docs/concepts/containers/images This field is optional to allow higher level config management to default or override container images in workload controllers like Deployments and StatefulSets.
+-- | - `imagePullPolicy`: Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images
+-- | - `lifecycle`: Actions that the management system should take in response to container lifecycle events. Cannot be updated.
+-- | - `livenessProbe`: Periodic probe of container liveness. Container will be restarted if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+-- | - `name`: Name of the container specified as a DNS_LABEL. Each container in a pod must have a unique name (DNS_LABEL). Cannot be updated.
+-- | - `ports`: List of ports to expose from the container. Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default "0.0.0.0" address inside a container will be accessible from the network. Cannot be updated.
+-- | - `readinessProbe`: Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+-- | - `resources`: Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+-- | - `securityContext`: Security options the pod should run with. More info: https://kubernetes.io/docs/concepts/policy/security-context/ More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+-- | - `stdin`: Whether this container should allocate a buffer for stdin in the container runtime. If this is not set, reads from stdin in the container will always result in EOF. Default is false.
+-- | - `stdinOnce`: Whether the container runtime should close the stdin channel after it has been opened by a single attach. When stdin is true the stdin stream will remain open across multiple attach sessions. If stdinOnce is set to true, stdin is opened on container start, is empty until the first client attaches to stdin, and then remains open and accepts data until the client disconnects, at which time stdin is closed and remains closed until the container is restarted. If this flag is false, a container processes that reads from stdin will never receive an EOF. Default is false
+-- | - `terminationMessagePath`: Optional: Path at which the file to which the container's termination message will be written is mounted into the container's filesystem. Message written is intended to be brief final status, such as an assertion failure message. Will be truncated by the node if greater than 4096 bytes. The total message length across all containers will be limited to 12kb. Defaults to /dev/termination-log. Cannot be updated.
+-- | - `terminationMessagePolicy`: Indicate how the termination message should be populated. File will use the contents of terminationMessagePath to populate the container status message on both success and failure. FallbackToLogsOnError will use the last chunk of container log output if the termination message file is empty and the container exited with an error. The log output is limited to 2048 bytes or 80 lines, whichever is smaller. Defaults to File. Cannot be updated.
+-- | - `tty`: Whether this container should allocate a TTY for itself, also requires 'stdin' to be true. Default is false.
+-- | - `volumeDevices`: volumeDevices is the list of block devices to be used by the container. This is an alpha feature and may change in the future.
+-- | - `volumeMounts`: Pod volumes to mount into the container's filesystem. Cannot be updated.
+-- | - `workingDir`: Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated.
 newtype Container = Container
   { args :: (NullOrUndefined (Array String))
   , command :: (NullOrUndefined (Array String))
@@ -576,8 +699,11 @@ instance defaultContainer :: Default Container where
     , volumeMounts: NullOrUndefined Nothing
     , workingDir: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ContainerImage
 -- | Describe a container image
+-- |
+-- | Fields:
+-- | - `names`: Names by which this image is known. e.g. ["gcr.io/google_containers/hyperkube:v1.0.7", "dockerhub.io/google_containers/hyperkube:v1.0.7"]
+-- | - `sizeBytes`: The size of the image in bytes.
 newtype ContainerImage = ContainerImage
   { names :: (NullOrUndefined (Array String))
   , sizeBytes :: (NullOrUndefined Int) }
@@ -595,8 +721,14 @@ instance defaultContainerImage :: Default ContainerImage where
     { names: NullOrUndefined Nothing
     , sizeBytes: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ContainerPort
 -- | ContainerPort represents a network port in a single container.
+-- |
+-- | Fields:
+-- | - `containerPort`: Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536.
+-- | - `hostIP`: What host IP to bind the external port to.
+-- | - `hostPort`: Number of port to expose on the host. If specified, this must be a valid port number, 0 < x < 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this.
+-- | - `name`: If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.
+-- | - `protocol`: Protocol for port. Must be UDP or TCP. Defaults to "TCP".
 newtype ContainerPort = ContainerPort
   { containerPort :: (NullOrUndefined Int)
   , hostIP :: (NullOrUndefined String)
@@ -620,8 +752,12 @@ instance defaultContainerPort :: Default ContainerPort where
     , name: NullOrUndefined Nothing
     , protocol: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ContainerState
 -- | ContainerState holds a possible state of container. Only one of its members may be specified. If none of them is specified, the default one is ContainerStateWaiting.
+-- |
+-- | Fields:
+-- | - `running`: Details about a running container
+-- | - `terminated`: Details about a terminated container
+-- | - `waiting`: Details about a waiting container
 newtype ContainerState = ContainerState
   { running :: (NullOrUndefined ContainerStateRunning)
   , terminated :: (NullOrUndefined ContainerStateTerminated)
@@ -641,8 +777,10 @@ instance defaultContainerState :: Default ContainerState where
     , terminated: NullOrUndefined Nothing
     , waiting: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ContainerStateRunning
 -- | ContainerStateRunning is a running state of a container.
+-- |
+-- | Fields:
+-- | - `startedAt`: Time at which the container was last (re-)started
 newtype ContainerStateRunning = ContainerStateRunning
   { startedAt :: (NullOrUndefined MetaV1.Time) }
 
@@ -658,8 +796,16 @@ instance defaultContainerStateRunning :: Default ContainerStateRunning where
   default = ContainerStateRunning
     { startedAt: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ContainerStateTerminated
 -- | ContainerStateTerminated is a terminated state of a container.
+-- |
+-- | Fields:
+-- | - `containerID`: Container's ID in the format 'docker://<container_id>'
+-- | - `exitCode`: Exit status from the last termination of the container
+-- | - `finishedAt`: Time at which the container last terminated
+-- | - `message`: Message regarding the last termination of the container
+-- | - `reason`: (brief) reason from the last termination of the container
+-- | - `signal`: Signal from the last termination of the container
+-- | - `startedAt`: Time at which previous execution of the container started
 newtype ContainerStateTerminated = ContainerStateTerminated
   { containerID :: (NullOrUndefined String)
   , exitCode :: (NullOrUndefined Int)
@@ -687,8 +833,11 @@ instance defaultContainerStateTerminated :: Default ContainerStateTerminated whe
     , signal: NullOrUndefined Nothing
     , startedAt: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ContainerStateWaiting
 -- | ContainerStateWaiting is a waiting state of a container.
+-- |
+-- | Fields:
+-- | - `message`: Message regarding why the container is not yet running.
+-- | - `reason`: (brief) reason the container is not yet running.
 newtype ContainerStateWaiting = ContainerStateWaiting
   { message :: (NullOrUndefined String)
   , reason :: (NullOrUndefined String) }
@@ -706,8 +855,17 @@ instance defaultContainerStateWaiting :: Default ContainerStateWaiting where
     { message: NullOrUndefined Nothing
     , reason: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ContainerStatus
 -- | ContainerStatus contains details for the current status of this container.
+-- |
+-- | Fields:
+-- | - `containerID`: Container's ID in the format 'docker://<container_id>'.
+-- | - `image`: The image the container is running. More info: https://kubernetes.io/docs/concepts/containers/images
+-- | - `imageID`: ImageID of the container's image.
+-- | - `lastState`: Details about the container's last termination condition.
+-- | - `name`: This must be a DNS_LABEL. Each container in a pod must have a unique name. Cannot be updated.
+-- | - `ready`: Specifies whether the container has passed its readiness probe.
+-- | - `restartCount`: The number of times the container has been restarted, currently based on the number of dead containers that have not yet been removed. Note that this is calculated from dead containers. But those containers are subject to garbage collection. This value will get capped at 5 by GC.
+-- | - `state`: Details about the container's current condition.
 newtype ContainerStatus = ContainerStatus
   { containerID :: (NullOrUndefined String)
   , image :: (NullOrUndefined String)
@@ -737,8 +895,10 @@ instance defaultContainerStatus :: Default ContainerStatus where
     , restartCount: NullOrUndefined Nothing
     , state: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.DaemonEndpoint
 -- | DaemonEndpoint contains information about a single Daemon endpoint.
+-- |
+-- | Fields:
+-- | - `_Port`: Port number of the given endpoint.
 newtype DaemonEndpoint = DaemonEndpoint
   { _Port :: (NullOrUndefined Int) }
 
@@ -754,8 +914,10 @@ instance defaultDaemonEndpoint :: Default DaemonEndpoint where
   default = DaemonEndpoint
     { _Port: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.DownwardAPIProjection
 -- | Represents downward API info for projecting into a projected volume. Note that this is identical to a downwardAPI volume source without the default mode.
+-- |
+-- | Fields:
+-- | - `items`: Items is a list of DownwardAPIVolume file
 newtype DownwardAPIProjection = DownwardAPIProjection
   { items :: (NullOrUndefined (Array DownwardAPIVolumeFile)) }
 
@@ -771,8 +933,13 @@ instance defaultDownwardAPIProjection :: Default DownwardAPIProjection where
   default = DownwardAPIProjection
     { items: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.DownwardAPIVolumeFile
 -- | DownwardAPIVolumeFile represents information to create the file containing the pod field
+-- |
+-- | Fields:
+-- | - `fieldRef`: Required: Selects a field of the pod: only annotations, labels, name and namespace are supported.
+-- | - `mode`: Optional: mode bits to use on this file, must be a value between 0 and 0777. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+-- | - `path`: Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
+-- | - `resourceFieldRef`: Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
 newtype DownwardAPIVolumeFile = DownwardAPIVolumeFile
   { fieldRef :: (NullOrUndefined ObjectFieldSelector)
   , mode :: (NullOrUndefined Int)
@@ -794,8 +961,11 @@ instance defaultDownwardAPIVolumeFile :: Default DownwardAPIVolumeFile where
     , path: NullOrUndefined Nothing
     , resourceFieldRef: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.DownwardAPIVolumeSource
 -- | DownwardAPIVolumeSource represents a volume containing downward API info. Downward API volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `defaultMode`: Optional: mode bits to use on created files by default. Must be a value between 0 and 0777. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+-- | - `items`: Items is a list of downward API volume file
 newtype DownwardAPIVolumeSource = DownwardAPIVolumeSource
   { defaultMode :: (NullOrUndefined Int)
   , items :: (NullOrUndefined (Array DownwardAPIVolumeFile)) }
@@ -813,8 +983,11 @@ instance defaultDownwardAPIVolumeSource :: Default DownwardAPIVolumeSource where
     { defaultMode: NullOrUndefined Nothing
     , items: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EmptyDirVolumeSource
 -- | Represents an empty directory for a pod. Empty directory volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `medium`: What type of storage medium should back this directory. The default is "" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+-- | - `sizeLimit`: Total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir
 newtype EmptyDirVolumeSource = EmptyDirVolumeSource
   { medium :: (NullOrUndefined String)
   , sizeLimit :: (NullOrUndefined Resource.Quantity) }
@@ -832,8 +1005,13 @@ instance defaultEmptyDirVolumeSource :: Default EmptyDirVolumeSource where
     { medium: NullOrUndefined Nothing
     , sizeLimit: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EndpointAddress
 -- | EndpointAddress is a tuple that describes single IP address.
+-- |
+-- | Fields:
+-- | - `hostname`: The Hostname of this endpoint
+-- | - `ip`: The IP of this endpoint. May not be loopback (127.0.0.0/8), link-local (169.254.0.0/16), or link-local multicast ((224.0.0.0/24). IPv6 is also accepted but not fully supported on all platforms. Also, certain kubernetes components, like kube-proxy, are not IPv6 ready.
+-- | - `nodeName`: Optional: Node hosting this endpoint. This can be used to determine endpoints local to a node.
+-- | - `targetRef`: Reference to object providing the endpoint.
 newtype EndpointAddress = EndpointAddress
   { hostname :: (NullOrUndefined String)
   , ip :: (NullOrUndefined String)
@@ -855,8 +1033,12 @@ instance defaultEndpointAddress :: Default EndpointAddress where
     , nodeName: NullOrUndefined Nothing
     , targetRef: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EndpointPort
 -- | EndpointPort is a tuple that describes a single port.
+-- |
+-- | Fields:
+-- | - `name`: The name of this port (corresponds to ServicePort.Name). Must be a DNS_LABEL. Optional only if one port is defined.
+-- | - `port`: The port number of the endpoint.
+-- | - `protocol`: The IP protocol for this port. Must be UDP or TCP. Default is TCP.
 newtype EndpointPort = EndpointPort
   { name :: (NullOrUndefined String)
   , port :: (NullOrUndefined Int)
@@ -876,7 +1058,6 @@ instance defaultEndpointPort :: Default EndpointPort where
     , port: NullOrUndefined Nothing
     , protocol: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EndpointSubset
 -- | EndpointSubset is a group of addresses with a common set of ports. The expanded set of endpoints is the Cartesian product of Addresses x Ports. For example, given:
 -- |   {
 -- |     Addresses: [{"ip": "10.10.1.1"}, {"ip": "10.10.2.2"}],
@@ -885,6 +1066,11 @@ instance defaultEndpointPort :: Default EndpointPort where
 -- | The resulting set of endpoints can be viewed as:
 -- |     a: [ 10.10.1.1:8675, 10.10.2.2:8675 ],
 -- |     b: [ 10.10.1.1:309, 10.10.2.2:309 ]
+-- |
+-- | Fields:
+-- | - `addresses`: IP addresses which offer the related ports that are marked as ready. These endpoints should be considered safe for load balancers and clients to utilize.
+-- | - `notReadyAddresses`: IP addresses which offer the related ports but are not currently marked as ready because they have not yet finished starting, have recently failed a readiness check, or have recently failed a liveness check.
+-- | - `ports`: Port numbers available on the related IP addresses.
 newtype EndpointSubset = EndpointSubset
   { addresses :: (NullOrUndefined (Array EndpointAddress))
   , notReadyAddresses :: (NullOrUndefined (Array EndpointAddress))
@@ -904,7 +1090,6 @@ instance defaultEndpointSubset :: Default EndpointSubset where
     , notReadyAddresses: NullOrUndefined Nothing
     , ports: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Endpoints
 -- | Endpoints is a collection of endpoints that implement the actual service. Example:
 -- |   Name: "mysvc",
 -- |   Subsets: [
@@ -917,6 +1102,12 @@ instance defaultEndpointSubset :: Default EndpointSubset where
 -- |       Ports: [{"name": "a", "port": 93}, {"name": "b", "port": 76}]
 -- |     },
 -- |  ]
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `subsets`: The set of all endpoints is the union of all subsets. Addresses are placed into subsets according to the IPs they share. A single address with multiple ports, some of which are ready and some of which are not (because they come from different containers) will result in the address being displayed in different subsets for the different ports. No address will appear in both Addresses and NotReadyAddresses in the same subset. Sets of addresses and ports that comprise a service.
 newtype Endpoints = Endpoints
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -938,8 +1129,13 @@ instance defaultEndpoints :: Default Endpoints where
     , metadata: NullOrUndefined Nothing
     , subsets: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EndpointsList
 -- | EndpointsList is a list of endpoints.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of endpoints.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype EndpointsList = EndpointsList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Endpoints))
@@ -961,8 +1157,12 @@ instance defaultEndpointsList :: Default EndpointsList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EnvFromSource
 -- | EnvFromSource represents the source of a set of ConfigMaps
+-- |
+-- | Fields:
+-- | - `configMapRef`: The ConfigMap to select from
+-- | - `prefix`: An optional identifer to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
+-- | - `secretRef`: The Secret to select from
 newtype EnvFromSource = EnvFromSource
   { configMapRef :: (NullOrUndefined ConfigMapEnvSource)
   , prefix :: (NullOrUndefined String)
@@ -982,8 +1182,12 @@ instance defaultEnvFromSource :: Default EnvFromSource where
     , prefix: NullOrUndefined Nothing
     , secretRef: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EnvVar
 -- | EnvVar represents an environment variable present in a Container.
+-- |
+-- | Fields:
+-- | - `name`: Name of the environment variable. Must be a C_IDENTIFIER.
+-- | - `value`: Variable references $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "".
+-- | - `valueFrom`: Source for the environment variable's value. Cannot be used if value is not empty.
 newtype EnvVar = EnvVar
   { name :: (NullOrUndefined String)
   , value :: (NullOrUndefined String)
@@ -1003,8 +1207,13 @@ instance defaultEnvVar :: Default EnvVar where
     , value: NullOrUndefined Nothing
     , valueFrom: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EnvVarSource
 -- | EnvVarSource represents a source for the value of an EnvVar.
+-- |
+-- | Fields:
+-- | - `configMapKeyRef`: Selects a key of a ConfigMap.
+-- | - `fieldRef`: Selects a field of the pod: supports metadata.name, metadata.namespace, metadata.labels, metadata.annotations, spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP.
+-- | - `resourceFieldRef`: Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
+-- | - `secretKeyRef`: Selects a key of a secret in the pod's namespace
 newtype EnvVarSource = EnvVarSource
   { configMapKeyRef :: (NullOrUndefined ConfigMapKeySelector)
   , fieldRef :: (NullOrUndefined ObjectFieldSelector)
@@ -1026,8 +1235,26 @@ instance defaultEnvVarSource :: Default EnvVarSource where
     , resourceFieldRef: NullOrUndefined Nothing
     , secretKeyRef: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Event
 -- | Event is a report of an event somewhere in the cluster.
+-- |
+-- | Fields:
+-- | - `action`: What action was taken/failed regarding to the Regarding object.
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `count`: The number of times this event has occurred.
+-- | - `eventTime`: Time when this Event was first observed.
+-- | - `firstTimestamp`: The time at which the event was first recorded. (Time of server receipt is in TypeMeta.)
+-- | - `involvedObject`: The object that this event is about.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `lastTimestamp`: The time at which the most recent occurrence of this event was recorded.
+-- | - `message`: A human-readable description of the status of this operation.
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `reason`: This should be a short, machine understandable string that gives the reason for the transition into the object's current status.
+-- | - `related`: Optional secondary object for more complex actions.
+-- | - `reportingComponent`: Name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.
+-- | - `reportingInstance`: ID of the controller instance, e.g. `kubelet-xyzf`.
+-- | - `series`: Data about the Event series this event represents or nil if it's a singleton Event.
+-- | - `source`: The component reporting this event. Should be a short machine understandable string.
+-- | - `_type`: Type of this event (Normal, Warning), new types could be added in the future
 newtype Event = Event
   { _type :: (NullOrUndefined String)
   , action :: (NullOrUndefined String)
@@ -1075,8 +1302,13 @@ instance defaultEvent :: Default Event where
     , series: NullOrUndefined Nothing
     , source: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EventList
 -- | EventList is a list of events.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of events
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype EventList = EventList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Event))
@@ -1098,8 +1330,12 @@ instance defaultEventList :: Default EventList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EventSeries
 -- | EventSeries contain information on series of events, i.e. thing that was/is happening continously for some time.
+-- |
+-- | Fields:
+-- | - `count`: Number of occurrences in this series up to the last heartbeat time
+-- | - `lastObservedTime`: Time of the last occurence observed
+-- | - `state`: State of this Series: Ongoing or Finished
 newtype EventSeries = EventSeries
   { count :: (NullOrUndefined Int)
   , lastObservedTime :: (NullOrUndefined MetaV1.MicroTime)
@@ -1119,8 +1355,11 @@ instance defaultEventSeries :: Default EventSeries where
     , lastObservedTime: NullOrUndefined Nothing
     , state: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.EventSource
 -- | EventSource contains information for an event.
+-- |
+-- | Fields:
+-- | - `component`: Component from which the event is generated.
+-- | - `host`: Node name on which the event is generated.
 newtype EventSource = EventSource
   { component :: (NullOrUndefined String)
   , host :: (NullOrUndefined String) }
@@ -1138,8 +1377,10 @@ instance defaultEventSource :: Default EventSource where
     { component: NullOrUndefined Nothing
     , host: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ExecAction
 -- | ExecAction describes a "run in container" action.
+-- |
+-- | Fields:
+-- | - `command`: Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
 newtype ExecAction = ExecAction
   { command :: (NullOrUndefined (Array String)) }
 
@@ -1155,8 +1396,14 @@ instance defaultExecAction :: Default ExecAction where
   default = ExecAction
     { command: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.FCVolumeSource
 -- | Represents a Fibre Channel volume. Fibre Channel volumes can only be mounted as read/write once. Fibre Channel volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `lun`: Optional: FC target lun number
+-- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `targetWWNs`: Optional: FC target worldwide names (WWNs)
+-- | - `wwids`: Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
 newtype FCVolumeSource = FCVolumeSource
   { fsType :: (NullOrUndefined String)
   , lun :: (NullOrUndefined Int)
@@ -1180,8 +1427,14 @@ instance defaultFCVolumeSource :: Default FCVolumeSource where
     , targetWWNs: NullOrUndefined Nothing
     , wwids: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.FlexPersistentVolumeSource
 -- | FlexPersistentVolumeSource represents a generic persistent volume resource that is provisioned/attached using an exec based plugin.
+-- |
+-- | Fields:
+-- | - `driver`: Driver is the name of the driver to use for this volume.
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
+-- | - `options`: Optional: Extra command options if any.
+-- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretRef`: Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
 newtype FlexPersistentVolumeSource = FlexPersistentVolumeSource
   { driver :: (NullOrUndefined String)
   , fsType :: (NullOrUndefined String)
@@ -1205,8 +1458,14 @@ instance defaultFlexPersistentVolumeSource :: Default FlexPersistentVolumeSource
     , readOnly: NullOrUndefined Nothing
     , secretRef: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.FlexVolumeSource
 -- | FlexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin.
+-- |
+-- | Fields:
+-- | - `driver`: Driver is the name of the driver to use for this volume.
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". The default filesystem depends on FlexVolume script.
+-- | - `options`: Optional: Extra command options if any.
+-- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretRef`: Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
 newtype FlexVolumeSource = FlexVolumeSource
   { driver :: (NullOrUndefined String)
   , fsType :: (NullOrUndefined String)
@@ -1230,8 +1489,11 @@ instance defaultFlexVolumeSource :: Default FlexVolumeSource where
     , readOnly: NullOrUndefined Nothing
     , secretRef: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.FlockerVolumeSource
 -- | Represents a Flocker volume mounted by the Flocker agent. One and only one of datasetName and datasetUUID should be set. Flocker volumes do not support ownership management or SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `datasetName`: Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated
+-- | - `datasetUUID`: UUID of the dataset. This is unique identifier of a Flocker dataset
 newtype FlockerVolumeSource = FlockerVolumeSource
   { datasetName :: (NullOrUndefined String)
   , datasetUUID :: (NullOrUndefined String) }
@@ -1249,10 +1511,15 @@ instance defaultFlockerVolumeSource :: Default FlockerVolumeSource where
     { datasetName: NullOrUndefined Nothing
     , datasetUUID: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.GCEPersistentDiskVolumeSource
 -- | Represents a Persistent Disk resource in Google Compute Engine.
 -- | 
 -- | A GCE PD must exist before mounting to a container. The disk must also be in the same GCE project and zone as the kubelet. A GCE PD can only be mounted as read/write once or read-only many times. GCE PDs support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+-- | - `partition`: The partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as "1". Similarly, the volume partition for /dev/sda is "0" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+-- | - `pdName`: Unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+-- | - `readOnly`: ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
 newtype GCEPersistentDiskVolumeSource = GCEPersistentDiskVolumeSource
   { fsType :: (NullOrUndefined String)
   , partition :: (NullOrUndefined Int)
@@ -1274,8 +1541,12 @@ instance defaultGCEPersistentDiskVolumeSource :: Default GCEPersistentDiskVolume
     , pdName: NullOrUndefined Nothing
     , readOnly: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.GitRepoVolumeSource
 -- | Represents a volume that is populated with the contents of a git repository. Git repo volumes do not support ownership management. Git repo volumes support SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `directory`: Target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name.
+-- | - `repository`: Repository URL
+-- | - `revision`: Commit hash for the specified revision.
 newtype GitRepoVolumeSource = GitRepoVolumeSource
   { directory :: (NullOrUndefined String)
   , repository :: (NullOrUndefined String)
@@ -1295,8 +1566,12 @@ instance defaultGitRepoVolumeSource :: Default GitRepoVolumeSource where
     , repository: NullOrUndefined Nothing
     , revision: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.GlusterfsVolumeSource
 -- | Represents a Glusterfs mount that lasts the lifetime of a pod. Glusterfs volumes do not support ownership management or SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `endpoints`: EndpointsName is the endpoint name that details Glusterfs topology. More info: https://releases.k8s.io/HEAD/examples/volumes/glusterfs/README.md#create-a-pod
+-- | - `path`: Path is the Glusterfs volume path. More info: https://releases.k8s.io/HEAD/examples/volumes/glusterfs/README.md#create-a-pod
+-- | - `readOnly`: ReadOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://releases.k8s.io/HEAD/examples/volumes/glusterfs/README.md#create-a-pod
 newtype GlusterfsVolumeSource = GlusterfsVolumeSource
   { endpoints :: (NullOrUndefined String)
   , path :: (NullOrUndefined String)
@@ -1316,8 +1591,14 @@ instance defaultGlusterfsVolumeSource :: Default GlusterfsVolumeSource where
     , path: NullOrUndefined Nothing
     , readOnly: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.HTTPGetAction
 -- | HTTPGetAction describes an action based on HTTP Get requests.
+-- |
+-- | Fields:
+-- | - `host`: Host name to connect to, defaults to the pod IP. You probably want to set "Host" in httpHeaders instead.
+-- | - `httpHeaders`: Custom headers to set in the request. HTTP allows repeated headers.
+-- | - `path`: Path to access on the HTTP server.
+-- | - `port`: Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+-- | - `scheme`: Scheme to use for connecting to the host. Defaults to HTTP.
 newtype HTTPGetAction = HTTPGetAction
   { host :: (NullOrUndefined String)
   , httpHeaders :: (NullOrUndefined (Array HTTPHeader))
@@ -1341,8 +1622,11 @@ instance defaultHTTPGetAction :: Default HTTPGetAction where
     , port: NullOrUndefined Nothing
     , scheme: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.HTTPHeader
 -- | HTTPHeader describes a custom header to be used in HTTP probes
+-- |
+-- | Fields:
+-- | - `name`: The header field name
+-- | - `value`: The header field value
 newtype HTTPHeader = HTTPHeader
   { name :: (NullOrUndefined String)
   , value :: (NullOrUndefined String) }
@@ -1360,8 +1644,12 @@ instance defaultHTTPHeader :: Default HTTPHeader where
     { name: NullOrUndefined Nothing
     , value: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Handler
 -- | Handler defines a specific action that should be taken
+-- |
+-- | Fields:
+-- | - `exec`: One and only one of the following should be specified. Exec specifies the action to take.
+-- | - `httpGet`: HTTPGet specifies the http request to perform.
+-- | - `tcpSocket`: TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported
 newtype Handler = Handler
   { exec :: (NullOrUndefined ExecAction)
   , httpGet :: (NullOrUndefined HTTPGetAction)
@@ -1381,8 +1669,11 @@ instance defaultHandler :: Default Handler where
     , httpGet: NullOrUndefined Nothing
     , tcpSocket: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.HostAlias
 -- | HostAlias holds the mapping between IP and hostnames that will be injected as an entry in the pod's hosts file.
+-- |
+-- | Fields:
+-- | - `hostnames`: Hostnames for the above IP address.
+-- | - `ip`: IP address of the host file entry.
 newtype HostAlias = HostAlias
   { hostnames :: (NullOrUndefined (Array String))
   , ip :: (NullOrUndefined String) }
@@ -1400,8 +1691,11 @@ instance defaultHostAlias :: Default HostAlias where
     { hostnames: NullOrUndefined Nothing
     , ip: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.HostPathVolumeSource
 -- | Represents a host path mapped into a pod. Host path volumes do not support ownership management or SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `path`: Path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+-- | - `_type`: Type for HostPath Volume Defaults to "" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
 newtype HostPathVolumeSource = HostPathVolumeSource
   { _type :: (NullOrUndefined String)
   , path :: (NullOrUndefined String) }
@@ -1419,8 +1713,20 @@ instance defaultHostPathVolumeSource :: Default HostPathVolumeSource where
     { _type: NullOrUndefined Nothing
     , path: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ISCSIPersistentVolumeSource
 -- | ISCSIPersistentVolumeSource represents an ISCSI disk. ISCSI volumes can only be mounted as read/write once. ISCSI volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `chapAuthDiscovery`: whether support iSCSI Discovery CHAP authentication
+-- | - `chapAuthSession`: whether support iSCSI Session CHAP authentication
+-- | - `fsType`: Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi
+-- | - `initiatorName`: Custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection.
+-- | - `iqn`: Target iSCSI Qualified Name.
+-- | - `iscsiInterface`: iSCSI Interface Name that uses an iSCSI transport. Defaults to 'default' (tcp).
+-- | - `lun`: iSCSI Target Lun number.
+-- | - `portals`: iSCSI Target Portal List. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+-- | - `readOnly`: ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false.
+-- | - `secretRef`: CHAP Secret for iSCSI target and initiator authentication
+-- | - `targetPortal`: iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
 newtype ISCSIPersistentVolumeSource = ISCSIPersistentVolumeSource
   { chapAuthDiscovery :: (NullOrUndefined Boolean)
   , chapAuthSession :: (NullOrUndefined Boolean)
@@ -1456,8 +1762,20 @@ instance defaultISCSIPersistentVolumeSource :: Default ISCSIPersistentVolumeSour
     , secretRef: NullOrUndefined Nothing
     , targetPortal: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ISCSIVolumeSource
 -- | Represents an ISCSI disk. ISCSI volumes can only be mounted as read/write once. ISCSI volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `chapAuthDiscovery`: whether support iSCSI Discovery CHAP authentication
+-- | - `chapAuthSession`: whether support iSCSI Session CHAP authentication
+-- | - `fsType`: Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi
+-- | - `initiatorName`: Custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection.
+-- | - `iqn`: Target iSCSI Qualified Name.
+-- | - `iscsiInterface`: iSCSI Interface Name that uses an iSCSI transport. Defaults to 'default' (tcp).
+-- | - `lun`: iSCSI Target Lun number.
+-- | - `portals`: iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
+-- | - `readOnly`: ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false.
+-- | - `secretRef`: CHAP Secret for iSCSI target and initiator authentication
+-- | - `targetPortal`: iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
 newtype ISCSIVolumeSource = ISCSIVolumeSource
   { chapAuthDiscovery :: (NullOrUndefined Boolean)
   , chapAuthSession :: (NullOrUndefined Boolean)
@@ -1493,8 +1811,12 @@ instance defaultISCSIVolumeSource :: Default ISCSIVolumeSource where
     , secretRef: NullOrUndefined Nothing
     , targetPortal: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.KeyToPath
 -- | Maps a string key to a path within a volume.
+-- |
+-- | Fields:
+-- | - `key`: The key to project.
+-- | - `mode`: Optional: mode bits to use on this file, must be a value between 0 and 0777. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+-- | - `path`: The relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'.
 newtype KeyToPath = KeyToPath
   { key :: (NullOrUndefined String)
   , mode :: (NullOrUndefined Int)
@@ -1514,8 +1836,11 @@ instance defaultKeyToPath :: Default KeyToPath where
     , mode: NullOrUndefined Nothing
     , path: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Lifecycle
 -- | Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.
+-- |
+-- | Fields:
+-- | - `postStart`: PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+-- | - `preStop`: PreStop is called immediately before a container is terminated. The container is terminated after the handler completes. The reason for termination is passed to the handler. Regardless of the outcome of the handler, the container is eventually terminated. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
 newtype Lifecycle = Lifecycle
   { postStart :: (NullOrUndefined Handler)
   , preStop :: (NullOrUndefined Handler) }
@@ -1533,8 +1858,13 @@ instance defaultLifecycle :: Default Lifecycle where
     { postStart: NullOrUndefined Nothing
     , preStop: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LimitRange
 -- | LimitRange sets resource usage limits for each kind of resource in a Namespace.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the limits enforced. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype LimitRange = LimitRange
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -1556,8 +1886,15 @@ instance defaultLimitRange :: Default LimitRange where
     , metadata: NullOrUndefined Nothing
     , spec: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LimitRangeItem
 -- | LimitRangeItem defines a min/max usage limit for any resource that matches on kind.
+-- |
+-- | Fields:
+-- | - `_default`: Default resource requirement limit value by resource name if resource limit is omitted.
+-- | - `defaultRequest`: DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
+-- | - `max`: Max usage constraints on this kind by resource name.
+-- | - `maxLimitRequestRatio`: MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
+-- | - `min`: Min usage constraints on this kind by resource name.
+-- | - `_type`: Type of resource that this limit applies to.
 newtype LimitRangeItem = LimitRangeItem
   { _default :: (NullOrUndefined (StrMap Resource.Quantity))
   , _type :: (NullOrUndefined String)
@@ -1583,8 +1920,13 @@ instance defaultLimitRangeItem :: Default LimitRangeItem where
     , maxLimitRequestRatio: NullOrUndefined Nothing
     , min: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LimitRangeList
 -- | LimitRangeList is a list of LimitRange items.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is a list of LimitRange objects. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype LimitRangeList = LimitRangeList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array LimitRange))
@@ -1606,8 +1948,10 @@ instance defaultLimitRangeList :: Default LimitRangeList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LimitRangeSpec
 -- | LimitRangeSpec defines a min/max usage limit for resources that match on kind.
+-- |
+-- | Fields:
+-- | - `limits`: Limits is the list of LimitRangeItem objects that are enforced.
 newtype LimitRangeSpec = LimitRangeSpec
   { limits :: (NullOrUndefined (Array LimitRangeItem)) }
 
@@ -1623,8 +1967,11 @@ instance defaultLimitRangeSpec :: Default LimitRangeSpec where
   default = LimitRangeSpec
     { limits: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LoadBalancerIngress
 -- | LoadBalancerIngress represents the status of a load-balancer ingress point: traffic intended for the service should be sent to an ingress point.
+-- |
+-- | Fields:
+-- | - `hostname`: Hostname is set for load-balancer ingress points that are DNS based (typically AWS load-balancers)
+-- | - `ip`: IP is set for load-balancer ingress points that are IP based (typically GCE or OpenStack load-balancers)
 newtype LoadBalancerIngress = LoadBalancerIngress
   { hostname :: (NullOrUndefined String)
   , ip :: (NullOrUndefined String) }
@@ -1642,8 +1989,10 @@ instance defaultLoadBalancerIngress :: Default LoadBalancerIngress where
     { hostname: NullOrUndefined Nothing
     , ip: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LoadBalancerStatus
 -- | LoadBalancerStatus represents the status of a load-balancer.
+-- |
+-- | Fields:
+-- | - `ingress`: Ingress is a list containing ingress points for the load-balancer. Traffic intended for the service should be sent to these ingress points.
 newtype LoadBalancerStatus = LoadBalancerStatus
   { ingress :: (NullOrUndefined (Array LoadBalancerIngress)) }
 
@@ -1659,8 +2008,10 @@ instance defaultLoadBalancerStatus :: Default LoadBalancerStatus where
   default = LoadBalancerStatus
     { ingress: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LocalObjectReference
 -- | LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+-- |
+-- | Fields:
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 newtype LocalObjectReference = LocalObjectReference
   { name :: (NullOrUndefined String) }
 
@@ -1676,8 +2027,10 @@ instance defaultLocalObjectReference :: Default LocalObjectReference where
   default = LocalObjectReference
     { name: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.LocalVolumeSource
 -- | Local represents directly-attached storage with node affinity
+-- |
+-- | Fields:
+-- | - `path`: The full path to the volume on the node For alpha, this path must be a directory Once block as a source is supported, then this path can point to a block device
 newtype LocalVolumeSource = LocalVolumeSource
   { path :: (NullOrUndefined String) }
 
@@ -1693,8 +2046,12 @@ instance defaultLocalVolumeSource :: Default LocalVolumeSource where
   default = LocalVolumeSource
     { path: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NFSVolumeSource
 -- | Represents an NFS mount that lasts the lifetime of a pod. NFS volumes do not support ownership management or SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `path`: Path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
+-- | - `readOnly`: ReadOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
+-- | - `server`: Server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
 newtype NFSVolumeSource = NFSVolumeSource
   { path :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean)
@@ -1714,8 +2071,14 @@ instance defaultNFSVolumeSource :: Default NFSVolumeSource where
     , readOnly: NullOrUndefined Nothing
     , server: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Namespace
 -- | Namespace provides a scope for Names. Use of multiple namespaces is optional.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the behavior of the Namespace. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Status describes the current status of a Namespace. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Namespace = Namespace
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -1739,8 +2102,13 @@ instance defaultNamespace :: Default Namespace where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NamespaceList
 -- | NamespaceList is a list of Namespaces.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is the list of Namespace objects in the list. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NamespaceList = NamespaceList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Namespace))
@@ -1762,8 +2130,10 @@ instance defaultNamespaceList :: Default NamespaceList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NamespaceSpec
 -- | NamespaceSpec describes the attributes on a Namespace.
+-- |
+-- | Fields:
+-- | - `finalizers`: Finalizers is an opaque list of values that must be empty to permanently remove object from storage. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
 newtype NamespaceSpec = NamespaceSpec
   { finalizers :: (NullOrUndefined (Array String)) }
 
@@ -1779,8 +2149,10 @@ instance defaultNamespaceSpec :: Default NamespaceSpec where
   default = NamespaceSpec
     { finalizers: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NamespaceStatus
 -- | NamespaceStatus is information about the current status of a Namespace.
+-- |
+-- | Fields:
+-- | - `phase`: Phase is the current lifecycle phase of the namespace. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
 newtype NamespaceStatus = NamespaceStatus
   { phase :: (NullOrUndefined String) }
 
@@ -1796,8 +2168,14 @@ instance defaultNamespaceStatus :: Default NamespaceStatus where
   default = NamespaceStatus
     { phase: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Node
 -- | Node is a worker node in Kubernetes. Each node will have a unique identifier in the cache (i.e. in etcd).
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the behavior of a node. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Most recently observed status of the node. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Node = Node
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -1821,8 +2199,11 @@ instance defaultNode :: Default Node where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeAddress
 -- | NodeAddress contains information for the node's address.
+-- |
+-- | Fields:
+-- | - `address`: The node address.
+-- | - `_type`: Node address type, one of Hostname, ExternalIP or InternalIP.
 newtype NodeAddress = NodeAddress
   { _type :: (NullOrUndefined String)
   , address :: (NullOrUndefined String) }
@@ -1840,8 +2221,11 @@ instance defaultNodeAddress :: Default NodeAddress where
     { _type: NullOrUndefined Nothing
     , address: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeAffinity
 -- | Node affinity is a group of node affinity scheduling rules.
+-- |
+-- | Fields:
+-- | - `preferredDuringSchedulingIgnoredDuringExecution`: The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node matches the corresponding matchExpressions; the node(s) with the highest sum are the most preferred.
+-- | - `requiredDuringSchedulingIgnoredDuringExecution`: If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node.
 newtype NodeAffinity = NodeAffinity
   { preferredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array PreferredSchedulingTerm))
   , requiredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined NodeSelector) }
@@ -1859,8 +2243,15 @@ instance defaultNodeAffinity :: Default NodeAffinity where
     { preferredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing
     , requiredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeCondition
 -- | NodeCondition contains condition information for a node.
+-- |
+-- | Fields:
+-- | - `lastHeartbeatTime`: Last time we got an update on a given condition.
+-- | - `lastTransitionTime`: Last time the condition transit from one status to another.
+-- | - `message`: Human readable message indicating details about last transition.
+-- | - `reason`: (brief) reason for the condition's last transition.
+-- | - `status`: Status of the condition, one of True, False, Unknown.
+-- | - `_type`: Type of node condition.
 newtype NodeCondition = NodeCondition
   { _type :: (NullOrUndefined String)
   , lastHeartbeatTime :: (NullOrUndefined MetaV1.Time)
@@ -1886,8 +2277,12 @@ instance defaultNodeCondition :: Default NodeCondition where
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeConfigSource
 -- | NodeConfigSource specifies a source of node configuration. Exactly one subfield (excluding metadata) must be non-nil.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `configMapRef`
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NodeConfigSource = NodeConfigSource
   { apiVersion :: (NullOrUndefined String)
   , configMapRef :: (NullOrUndefined ObjectReference)
@@ -1907,8 +2302,10 @@ instance defaultNodeConfigSource :: Default NodeConfigSource where
     , configMapRef: NullOrUndefined Nothing
     , kind: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeDaemonEndpoints
 -- | NodeDaemonEndpoints lists ports opened by daemons running on the Node.
+-- |
+-- | Fields:
+-- | - `kubeletEndpoint`: Endpoint on which Kubelet is listening.
 newtype NodeDaemonEndpoints = NodeDaemonEndpoints
   { kubeletEndpoint :: (NullOrUndefined DaemonEndpoint) }
 
@@ -1924,8 +2321,13 @@ instance defaultNodeDaemonEndpoints :: Default NodeDaemonEndpoints where
   default = NodeDaemonEndpoints
     { kubeletEndpoint: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeList
 -- | NodeList is the whole list of all Nodes which have been registered with master.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of nodes
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NodeList = NodeList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Node))
@@ -1947,8 +2349,10 @@ instance defaultNodeList :: Default NodeList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeSelector
 -- | A node selector represents the union of the results of one or more label queries over a set of nodes; that is, it represents the OR of the selectors represented by the node selector terms.
+-- |
+-- | Fields:
+-- | - `nodeSelectorTerms`: Required. A list of node selector terms. The terms are ORed.
 newtype NodeSelector = NodeSelector
   { nodeSelectorTerms :: (NullOrUndefined (Array NodeSelectorTerm)) }
 
@@ -1964,8 +2368,12 @@ instance defaultNodeSelector :: Default NodeSelector where
   default = NodeSelector
     { nodeSelectorTerms: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeSelectorRequirement
 -- | A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+-- |
+-- | Fields:
+-- | - `key`: The label key that the selector applies to.
+-- | - `operator`: Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+-- | - `values`: An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
 newtype NodeSelectorRequirement = NodeSelectorRequirement
   { key :: (NullOrUndefined String)
   , operator :: (NullOrUndefined String)
@@ -1985,8 +2393,10 @@ instance defaultNodeSelectorRequirement :: Default NodeSelectorRequirement where
     , operator: NullOrUndefined Nothing
     , values: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeSelectorTerm
 -- | A null or empty node selector term matches no objects.
+-- |
+-- | Fields:
+-- | - `matchExpressions`: Required. A list of node selector requirements. The requirements are ANDed.
 newtype NodeSelectorTerm = NodeSelectorTerm
   { matchExpressions :: (NullOrUndefined (Array NodeSelectorRequirement)) }
 
@@ -2002,8 +2412,15 @@ instance defaultNodeSelectorTerm :: Default NodeSelectorTerm where
   default = NodeSelectorTerm
     { matchExpressions: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeSpec
 -- | NodeSpec describes the attributes that a node is created with.
+-- |
+-- | Fields:
+-- | - `configSource`: If specified, the source to get node configuration from The DynamicKubeletConfig feature gate must be enabled for the Kubelet to use this field
+-- | - `externalID`: External ID of the node assigned by some machine database (e.g. a cloud provider). Deprecated.
+-- | - `podCIDR`: PodCIDR represents the pod IP range assigned to the node.
+-- | - `providerID`: ID of the node assigned by the cloud provider in the format: <ProviderName>://<ProviderSpecificNodeID>
+-- | - `taints`: If specified, the node's taints.
+-- | - `unschedulable`: Unschedulable controls node schedulability of new pods. By default, node is schedulable. More info: https://kubernetes.io/docs/concepts/nodes/node/#manual-node-administration
 newtype NodeSpec = NodeSpec
   { configSource :: (NullOrUndefined NodeConfigSource)
   , externalID :: (NullOrUndefined String)
@@ -2029,8 +2446,19 @@ instance defaultNodeSpec :: Default NodeSpec where
     , taints: NullOrUndefined Nothing
     , unschedulable: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeStatus
 -- | NodeStatus is information about the current status of a node.
+-- |
+-- | Fields:
+-- | - `addresses`: List of addresses reachable to the node. Queried from cloud provider, if available. More info: https://kubernetes.io/docs/concepts/nodes/node/#addresses
+-- | - `allocatable`: Allocatable represents the resources of a node that are available for scheduling. Defaults to Capacity.
+-- | - `capacity`: Capacity represents the total resources of a node. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+-- | - `conditions`: Conditions is an array of current observed node conditions. More info: https://kubernetes.io/docs/concepts/nodes/node/#condition
+-- | - `daemonEndpoints`: Endpoints of daemons running on the Node.
+-- | - `images`: List of container images on this node
+-- | - `nodeInfo`: Set of ids/uuids to uniquely identify the node. More info: https://kubernetes.io/docs/concepts/nodes/node/#info
+-- | - `phase`: NodePhase is the recently observed lifecycle phase of the node. More info: https://kubernetes.io/docs/concepts/nodes/node/#phase The field is never populated, and now is deprecated.
+-- | - `volumesAttached`: List of volumes that are attached to the node.
+-- | - `volumesInUse`: List of attachable volumes in use (mounted) by the node.
 newtype NodeStatus = NodeStatus
   { addresses :: (NullOrUndefined (Array NodeAddress))
   , allocatable :: (NullOrUndefined (StrMap Resource.Quantity))
@@ -2064,8 +2492,19 @@ instance defaultNodeStatus :: Default NodeStatus where
     , volumesAttached: NullOrUndefined Nothing
     , volumesInUse: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.NodeSystemInfo
 -- | NodeSystemInfo is a set of ids/uuids to uniquely identify the node.
+-- |
+-- | Fields:
+-- | - `architecture`: The Architecture reported by the node
+-- | - `bootID`: Boot ID reported by the node.
+-- | - `containerRuntimeVersion`: ContainerRuntime Version reported by the node through runtime remote API (e.g. docker://1.5.0).
+-- | - `kernelVersion`: Kernel Version reported by the node from 'uname -r' (e.g. 3.16.0-0.bpo.4-amd64).
+-- | - `kubeProxyVersion`: KubeProxy Version reported by the node.
+-- | - `kubeletVersion`: Kubelet Version reported by the node.
+-- | - `machineID`: MachineID reported by the node. For unique machine identification in the cluster this field is preferred. Learn more from man(5) machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html
+-- | - `operatingSystem`: The Operating System reported by the node
+-- | - `osImage`: OS Image reported by the node from /etc/os-release (e.g. Debian GNU/Linux 7 (wheezy)).
+-- | - `systemUUID`: SystemUUID reported by the node. For unique machine identification MachineID is preferred. This field is specific to Red Hat hosts https://access.redhat.com/documentation/en-US/Red_Hat_Subscription_Management/1/html/RHSM/getting-system-uuid.html
 newtype NodeSystemInfo = NodeSystemInfo
   { architecture :: (NullOrUndefined String)
   , bootID :: (NullOrUndefined String)
@@ -2099,8 +2538,11 @@ instance defaultNodeSystemInfo :: Default NodeSystemInfo where
     , osImage: NullOrUndefined Nothing
     , systemUUID: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ObjectFieldSelector
 -- | ObjectFieldSelector selects an APIVersioned field of an object.
+-- |
+-- | Fields:
+-- | - `apiVersion`: Version of the schema the FieldPath is written in terms of, defaults to "v1".
+-- | - `fieldPath`: Path of the field to select in the specified API version.
 newtype ObjectFieldSelector = ObjectFieldSelector
   { apiVersion :: (NullOrUndefined String)
   , fieldPath :: (NullOrUndefined String) }
@@ -2118,8 +2560,16 @@ instance defaultObjectFieldSelector :: Default ObjectFieldSelector where
     { apiVersion: NullOrUndefined Nothing
     , fieldPath: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ObjectReference
 -- | ObjectReference contains enough information to let you inspect or modify the referred object.
+-- |
+-- | Fields:
+-- | - `apiVersion`: API version of the referent.
+-- | - `fieldPath`: If referring to a piece of an object instead of an entire object, this string should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2]. For example, if the object reference is to a container within a pod, this would take on a value like: "spec.containers{name}" (where "name" refers to the name of the container that triggered the event) or if no container name is specified "spec.containers[2]" (container with index 2 in this pod). This syntax is chosen only to have some well-defined way of referencing a part of an object.
+-- | - `kind`: Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `namespace`: Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+-- | - `resourceVersion`: Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency
+-- | - `uid`: UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
 newtype ObjectReference = ObjectReference
   { apiVersion :: (NullOrUndefined String)
   , fieldPath :: (NullOrUndefined String)
@@ -2147,8 +2597,14 @@ instance defaultObjectReference :: Default ObjectReference where
     , resourceVersion: NullOrUndefined Nothing
     , uid: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolume
 -- | PersistentVolume (PV) is a storage resource provisioned by an administrator. It is analogous to a node. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines a specification of a persistent volume owned by the cluster. Provisioned by an administrator. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
+-- | - `status`: Status represents the current information/status for the persistent volume. Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
 newtype PersistentVolume = PersistentVolume
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -2172,8 +2628,14 @@ instance defaultPersistentVolume :: Default PersistentVolume where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeClaim
 -- | PersistentVolumeClaim is a user's request for and claim to a persistent volume
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+-- | - `status`: Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 newtype PersistentVolumeClaim = PersistentVolumeClaim
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -2197,8 +2659,15 @@ instance defaultPersistentVolumeClaim :: Default PersistentVolumeClaim where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeClaimCondition
 -- | PersistentVolumeClaimCondition contails details about state of pvc
+-- |
+-- | Fields:
+-- | - `lastProbeTime`: Last time we probed the condition.
+-- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
+-- | - `message`: Human-readable message indicating details about last transition.
+-- | - `reason`: Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports "ResizeStarted" that means the underlying persistent volume is being resized.
+-- | - `status`
+-- | - `_type`
 newtype PersistentVolumeClaimCondition = PersistentVolumeClaimCondition
   { _type :: (NullOrUndefined String)
   , lastProbeTime :: (NullOrUndefined MetaV1.Time)
@@ -2224,8 +2693,13 @@ instance defaultPersistentVolumeClaimCondition :: Default PersistentVolumeClaimC
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeClaimList
 -- | PersistentVolumeClaimList is a list of PersistentVolumeClaim items.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: A list of persistent volume claims. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PersistentVolumeClaimList = PersistentVolumeClaimList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array PersistentVolumeClaim))
@@ -2247,8 +2721,15 @@ instance defaultPersistentVolumeClaimList :: Default PersistentVolumeClaimList w
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeClaimSpec
 -- | PersistentVolumeClaimSpec describes the common attributes of storage devices and allows a Source for provider-specific attributes
+-- |
+-- | Fields:
+-- | - `accessModes`: AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+-- | - `resources`: Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+-- | - `selector`: A label query over volumes to consider for binding.
+-- | - `storageClassName`: Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+-- | - `volumeMode`: volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec. This is an alpha feature and may change in the future.
+-- | - `volumeName`: VolumeName is the binding reference to the PersistentVolume backing this claim.
 newtype PersistentVolumeClaimSpec = PersistentVolumeClaimSpec
   { accessModes :: (NullOrUndefined (Array String))
   , resources :: (NullOrUndefined ResourceRequirements)
@@ -2274,8 +2755,13 @@ instance defaultPersistentVolumeClaimSpec :: Default PersistentVolumeClaimSpec w
     , volumeMode: NullOrUndefined Nothing
     , volumeName: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeClaimStatus
 -- | PersistentVolumeClaimStatus is the current status of a persistent volume claim.
+-- |
+-- | Fields:
+-- | - `accessModes`: AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+-- | - `capacity`: Represents the actual resources of the underlying volume.
+-- | - `conditions`: Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'.
+-- | - `phase`: Phase represents the current phase of PersistentVolumeClaim.
 newtype PersistentVolumeClaimStatus = PersistentVolumeClaimStatus
   { accessModes :: (NullOrUndefined (Array String))
   , capacity :: (NullOrUndefined (StrMap Resource.Quantity))
@@ -2297,8 +2783,11 @@ instance defaultPersistentVolumeClaimStatus :: Default PersistentVolumeClaimStat
     , conditions: NullOrUndefined Nothing
     , phase: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeClaimVolumeSource
 -- | PersistentVolumeClaimVolumeSource references the user's PVC in the same namespace. This volume finds the bound PV and mounts that volume for the pod. A PersistentVolumeClaimVolumeSource is, essentially, a wrapper around another type of volume that is owned by someone else (the system).
+-- |
+-- | Fields:
+-- | - `claimName`: ClaimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+-- | - `readOnly`: Will force the ReadOnly setting in VolumeMounts. Default false.
 newtype PersistentVolumeClaimVolumeSource = PersistentVolumeClaimVolumeSource
   { claimName :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean) }
@@ -2316,8 +2805,13 @@ instance defaultPersistentVolumeClaimVolumeSource :: Default PersistentVolumeCla
     { claimName: NullOrUndefined Nothing
     , readOnly: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeList
 -- | PersistentVolumeList is a list of PersistentVolume items.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of persistent volumes. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PersistentVolumeList = PersistentVolumeList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array PersistentVolume))
@@ -2339,8 +2833,38 @@ instance defaultPersistentVolumeList :: Default PersistentVolumeList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeSpec
 -- | PersistentVolumeSpec is the specification of a persistent volume.
+-- |
+-- | Fields:
+-- | - `accessModes`: AccessModes contains all ways the volume can be mounted. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes
+-- | - `awsElasticBlockStore`: AWSElasticBlockStore represents an AWS Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+-- | - `azureDisk`: AzureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
+-- | - `azureFile`: AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
+-- | - `capacity`: A description of the persistent volume's resources and capacity. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#capacity
+-- | - `cephfs`: CephFS represents a Ceph FS mount on the host that shares a pod's lifetime
+-- | - `cinder`: Cinder represents a cinder volume attached and mounted on kubelets host machine More info: https://releases.k8s.io/HEAD/examples/mysql-cinder-pd/README.md
+-- | - `claimRef`: ClaimRef is part of a bi-directional binding between PersistentVolume and PersistentVolumeClaim. Expected to be non-nil when bound. claim.VolumeName is the authoritative bind between PV and PVC. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#binding
+-- | - `csi`: CSI represents storage that handled by an external CSI driver
+-- | - `fc`: FC represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod.
+-- | - `flexVolume`: FlexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin.
+-- | - `flocker`: Flocker represents a Flocker volume attached to a kubelet's host machine and exposed to the pod for its usage. This depends on the Flocker control service being running
+-- | - `gcePersistentDisk`: GCEPersistentDisk represents a GCE Disk resource that is attached to a kubelet's host machine and then exposed to the pod. Provisioned by an admin. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+-- | - `glusterfs`: Glusterfs represents a Glusterfs volume that is attached to a host and exposed to the pod. Provisioned by an admin. More info: https://releases.k8s.io/HEAD/examples/volumes/glusterfs/README.md
+-- | - `hostPath`: HostPath represents a directory on the host. Provisioned by a developer or tester. This is useful for single-node development and testing only! On-host storage is not supported in any way and WILL NOT WORK in a multi-node cluster. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+-- | - `iscsi`: ISCSI represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. Provisioned by an admin.
+-- | - `local`: Local represents directly-attached storage with node affinity
+-- | - `mountOptions`: A list of mount options, e.g. ["ro", "soft"]. Not validated - mount will simply fail if one is invalid. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#mount-options
+-- | - `nfs`: NFS represents an NFS mount on the host. Provisioned by an admin. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
+-- | - `persistentVolumeReclaimPolicy`: What happens to a persistent volume when released from its claim. Valid options are Retain (default) and Recycle. Recycling must be supported by the volume plugin underlying this persistent volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#reclaiming
+-- | - `photonPersistentDisk`: PhotonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine
+-- | - `portworxVolume`: PortworxVolume represents a portworx volume attached and mounted on kubelets host machine
+-- | - `quobyte`: Quobyte represents a Quobyte mount on the host that shares a pod's lifetime
+-- | - `rbd`: RBD represents a Rados Block Device mount on the host that shares a pod's lifetime. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md
+-- | - `scaleIO`: ScaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes.
+-- | - `storageClassName`: Name of StorageClass to which this persistent volume belongs. Empty value means that this volume does not belong to any StorageClass.
+-- | - `storageos`: StorageOS represents a StorageOS volume that is attached to the kubelet's host machine and mounted into the pod More info: https://releases.k8s.io/HEAD/examples/volumes/storageos/README.md
+-- | - `volumeMode`: volumeMode defines if a volume is intended to be used with a formatted filesystem or to remain in raw block state. Value of Filesystem is implied when not included in spec. This is an alpha feature and may change in the future.
+-- | - `vsphereVolume`: VsphereVolume represents a vSphere volume attached and mounted on kubelets host machine
 newtype PersistentVolumeSpec = PersistentVolumeSpec
   { accessModes :: (NullOrUndefined (Array String))
   , awsElasticBlockStore :: (NullOrUndefined AWSElasticBlockStoreVolumeSource)
@@ -2412,8 +2936,12 @@ instance defaultPersistentVolumeSpec :: Default PersistentVolumeSpec where
     , volumeMode: NullOrUndefined Nothing
     , vsphereVolume: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PersistentVolumeStatus
 -- | PersistentVolumeStatus is the current status of a persistent volume.
+-- |
+-- | Fields:
+-- | - `message`: A human-readable message indicating details about why the volume is in this state.
+-- | - `phase`: Phase indicates if a volume is available, bound to a claim, or released by a claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#phase
+-- | - `reason`: Reason is a brief CamelCase string that describes any failure and is meant for machine parsing and tidy display in the CLI.
 newtype PersistentVolumeStatus = PersistentVolumeStatus
   { message :: (NullOrUndefined String)
   , phase :: (NullOrUndefined String)
@@ -2433,8 +2961,11 @@ instance defaultPersistentVolumeStatus :: Default PersistentVolumeStatus where
     , phase: NullOrUndefined Nothing
     , reason: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PhotonPersistentDiskVolumeSource
 -- | Represents a Photon Controller persistent disk resource.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `pdID`: ID that identifies Photon Controller persistent disk
 newtype PhotonPersistentDiskVolumeSource = PhotonPersistentDiskVolumeSource
   { fsType :: (NullOrUndefined String)
   , pdID :: (NullOrUndefined String) }
@@ -2452,8 +2983,14 @@ instance defaultPhotonPersistentDiskVolumeSource :: Default PhotonPersistentDisk
     { fsType: NullOrUndefined Nothing
     , pdID: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Pod
 -- | Pod is a collection of containers that can run on a host. This resource is created by clients and scheduled onto hosts.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Most recently observed status of the pod. This data may not be up to date. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Pod = Pod
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -2477,8 +3014,11 @@ instance defaultPod :: Default Pod where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodAffinity
 -- | Pod affinity is a group of inter pod affinity scheduling rules.
+-- |
+-- | Fields:
+-- | - `preferredDuringSchedulingIgnoredDuringExecution`: The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
+-- | - `requiredDuringSchedulingIgnoredDuringExecution`: If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
 newtype PodAffinity = PodAffinity
   { preferredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array WeightedPodAffinityTerm))
   , requiredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array PodAffinityTerm)) }
@@ -2496,8 +3036,12 @@ instance defaultPodAffinity :: Default PodAffinity where
     { preferredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing
     , requiredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodAffinityTerm
 -- | Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running
+-- |
+-- | Fields:
+-- | - `labelSelector`: A label query over a set of resources, in this case pods.
+-- | - `namespaces`: namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means "this pod's namespace"
+-- | - `topologyKey`: This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
 newtype PodAffinityTerm = PodAffinityTerm
   { labelSelector :: (NullOrUndefined MetaV1.LabelSelector)
   , namespaces :: (NullOrUndefined (Array String))
@@ -2517,8 +3061,11 @@ instance defaultPodAffinityTerm :: Default PodAffinityTerm where
     , namespaces: NullOrUndefined Nothing
     , topologyKey: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodAntiAffinity
 -- | Pod anti affinity is a group of inter pod anti affinity scheduling rules.
+-- |
+-- | Fields:
+-- | - `preferredDuringSchedulingIgnoredDuringExecution`: The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling anti-affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
+-- | - `requiredDuringSchedulingIgnoredDuringExecution`: If the anti-affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the anti-affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
 newtype PodAntiAffinity = PodAntiAffinity
   { preferredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array WeightedPodAffinityTerm))
   , requiredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array PodAffinityTerm)) }
@@ -2536,8 +3083,15 @@ instance defaultPodAntiAffinity :: Default PodAntiAffinity where
     { preferredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing
     , requiredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodCondition
 -- | PodCondition contains details for the current condition of this pod.
+-- |
+-- | Fields:
+-- | - `lastProbeTime`: Last time we probed the condition.
+-- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
+-- | - `message`: Human-readable message indicating details about last transition.
+-- | - `reason`: Unique, one-word, CamelCase reason for the condition's last transition.
+-- | - `status`: Status is the status of the condition. Can be True, False, Unknown. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
+-- | - `_type`: Type is the type of the condition. Currently only Ready. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
 newtype PodCondition = PodCondition
   { _type :: (NullOrUndefined String)
   , lastProbeTime :: (NullOrUndefined MetaV1.Time)
@@ -2563,8 +3117,12 @@ instance defaultPodCondition :: Default PodCondition where
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodDNSConfig
 -- | PodDNSConfig defines the DNS parameters of a pod in addition to those generated from DNSPolicy.
+-- |
+-- | Fields:
+-- | - `nameservers`: A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed.
+-- | - `options`: A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.
+-- | - `searches`: A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.
 newtype PodDNSConfig = PodDNSConfig
   { nameservers :: (NullOrUndefined (Array String))
   , options :: (NullOrUndefined (Array PodDNSConfigOption))
@@ -2584,8 +3142,11 @@ instance defaultPodDNSConfig :: Default PodDNSConfig where
     , options: NullOrUndefined Nothing
     , searches: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodDNSConfigOption
 -- | PodDNSConfigOption defines DNS resolver options of a pod.
+-- |
+-- | Fields:
+-- | - `name`: Required.
+-- | - `value`
 newtype PodDNSConfigOption = PodDNSConfigOption
   { name :: (NullOrUndefined String)
   , value :: (NullOrUndefined String) }
@@ -2603,8 +3164,13 @@ instance defaultPodDNSConfigOption :: Default PodDNSConfigOption where
     { name: NullOrUndefined Nothing
     , value: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodList
 -- | PodList is a list of Pods.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of pods. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PodList = PodList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Pod))
@@ -2626,8 +3192,18 @@ instance defaultPodList :: Default PodList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodSecurityContext
 -- | PodSecurityContext holds pod-level security attributes and common container settings. Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.
+-- |
+-- | Fields:
+-- | - `fsGroup`: A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:
+-- |    
+-- |    1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
+-- |    
+-- |    If unset, the Kubelet will not modify the ownership and permissions of any volume.
+-- | - `runAsNonRoot`: Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+-- | - `runAsUser`: The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+-- | - `seLinuxOptions`: The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
+-- | - `supplementalGroups`: A list of groups applied to the first process run in each container, in addition to the container's primary GID.  If unspecified, no groups will be added to any container.
 newtype PodSecurityContext = PodSecurityContext
   { fsGroup :: (NullOrUndefined Int)
   , runAsNonRoot :: (NullOrUndefined Boolean)
@@ -2651,8 +3227,35 @@ instance defaultPodSecurityContext :: Default PodSecurityContext where
     , seLinuxOptions: NullOrUndefined Nothing
     , supplementalGroups: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodSpec
 -- | PodSpec is a description of a pod.
+-- |
+-- | Fields:
+-- | - `activeDeadlineSeconds`: Optional duration in seconds the pod may be active on the node relative to StartTime before the system will actively try to mark it failed and kill associated containers. Value must be a positive integer.
+-- | - `affinity`: If specified, the pod's scheduling constraints
+-- | - `automountServiceAccountToken`: AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.
+-- | - `containers`: List of containers belonging to the pod. Containers cannot currently be added or removed. There must be at least one container in a Pod. Cannot be updated.
+-- | - `dnsConfig`: Specifies the DNS parameters of a pod. Parameters specified here will be merged to the generated DNS configuration based on DNSPolicy. This is an alpha feature introduced in v1.9 and CustomPodDNS feature gate must be enabled to use it.
+-- | - `dnsPolicy`: Set DNS policy for the pod. Defaults to "ClusterFirst". Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to 'ClusterFirstWithHostNet'. Note that 'None' policy is an alpha feature introduced in v1.9 and CustomPodDNS feature gate must be enabled to use it.
+-- | - `hostAliases`: HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified. This is only valid for non-hostNetwork pods.
+-- | - `hostIPC`: Use the host's ipc namespace. Optional: Default to false.
+-- | - `hostNetwork`: Host networking requested for this pod. Use the host's network namespace. If this option is set, the ports that will be used must be specified. Default to false.
+-- | - `hostPID`: Use the host's pid namespace. Optional: Default to false.
+-- | - `hostname`: Specifies the hostname of the Pod If not specified, the pod's hostname will be set to a system-defined value.
+-- | - `imagePullSecrets`: ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. For example, in the case of docker, only DockerConfig type secrets are honored. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
+-- | - `initContainers`: List of initialization containers belonging to the pod. Init containers are executed in order prior to containers being started. If any init container fails, the pod is considered to have failed and is handled according to its restartPolicy. The name for an init container or normal container must be unique among all containers. Init containers may not have Lifecycle actions, Readiness probes, or Liveness probes. The resourceRequirements of an init container are taken into account during scheduling by finding the highest request/limit for each resource type, and then using the max of of that value or the sum of the normal containers. Limits are applied to init containers in a similar fashion. Init containers cannot currently be added or removed. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+-- | - `nodeName`: NodeName is a request to schedule this pod onto a specific node. If it is non-empty, the scheduler simply schedules this pod onto that node, assuming that it fits resource requirements.
+-- | - `nodeSelector`: NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node's labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+-- | - `priority`: The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority.
+-- | - `priorityClassName`: If specified, indicates the pod's priority. "SYSTEM" is a special keyword which indicates the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default.
+-- | - `restartPolicy`: Restart policy for all containers within the pod. One of Always, OnFailure, Never. Default to Always. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
+-- | - `schedulerName`: If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler.
+-- | - `securityContext`: SecurityContext holds pod-level security attributes and common container settings. Optional: Defaults to empty.  See type description for default values of each field.
+-- | - `serviceAccount`: DeprecatedServiceAccount is a depreciated alias for ServiceAccountName. Deprecated: Use serviceAccountName instead.
+-- | - `serviceAccountName`: ServiceAccountName is the name of the ServiceAccount to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+-- | - `subdomain`: If specified, the fully qualified Pod hostname will be "<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>". If not specified, the pod will not have a domainname at all.
+-- | - `terminationGracePeriodSeconds`: Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period will be used instead. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. Defaults to 30 seconds.
+-- | - `tolerations`: If specified, the pod's tolerations.
+-- | - `volumes`: List of volumes that can be mounted by containers belonging to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes
 newtype PodSpec = PodSpec
   { activeDeadlineSeconds :: (NullOrUndefined Int)
   , affinity :: (NullOrUndefined Affinity)
@@ -2718,8 +3321,19 @@ instance defaultPodSpec :: Default PodSpec where
     , tolerations: NullOrUndefined Nothing
     , volumes: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodStatus
 -- | PodStatus represents information about the status of a pod. Status may trail the actual state of a system.
+-- |
+-- | Fields:
+-- | - `conditions`: Current service state of pod. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
+-- | - `containerStatuses`: The list has one entry per container in the manifest. Each entry is currently the output of `docker inspect`. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+-- | - `hostIP`: IP address of the host to which the pod is assigned. Empty if not yet scheduled.
+-- | - `initContainerStatuses`: The list has one entry per init container in the manifest. The most recent successful init container will have ready = true, the most recently started container will have startTime set. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-and-container-status
+-- | - `message`: A human readable message indicating details about why the pod is in this condition.
+-- | - `phase`: Current condition of the pod. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-phase
+-- | - `podIP`: IP address allocated to the pod. Routable at least within the cluster. Empty if not yet allocated.
+-- | - `qosClass`: The Quality of Service (QOS) classification assigned to the pod based on resource requirements See PodQOSClass type for available QOS classes More info: https://github.com/kubernetes/kubernetes/blob/master/docs/design/resource-qos.md
+-- | - `reason`: A brief CamelCase message indicating details about why the pod is in this state. e.g. 'Evicted'
+-- | - `startTime`: RFC 3339 date and time at which the object was acknowledged by the Kubelet. This is before the Kubelet pulled the container image(s) for the pod.
 newtype PodStatus = PodStatus
   { conditions :: (NullOrUndefined (Array PodCondition))
   , containerStatuses :: (NullOrUndefined (Array ContainerStatus))
@@ -2753,8 +3367,13 @@ instance defaultPodStatus :: Default PodStatus where
     , reason: NullOrUndefined Nothing
     , startTime: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodTemplate
 -- | PodTemplate describes a template for creating copies of a predefined pod.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `template`: Template defines the pods that will be created from this pod template. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype PodTemplate = PodTemplate
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -2776,8 +3395,13 @@ instance defaultPodTemplate :: Default PodTemplate where
     , metadata: NullOrUndefined Nothing
     , template: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodTemplateList
 -- | PodTemplateList is a list of PodTemplates.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of pod templates
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PodTemplateList = PodTemplateList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array PodTemplate))
@@ -2799,8 +3423,11 @@ instance defaultPodTemplateList :: Default PodTemplateList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PodTemplateSpec
 -- | PodTemplateSpec describes the data a pod should have when created from a template
+-- |
+-- | Fields:
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype PodTemplateSpec = PodTemplateSpec
   { metadata :: (NullOrUndefined MetaV1.ObjectMeta)
   , spec :: (NullOrUndefined PodSpec) }
@@ -2818,8 +3445,12 @@ instance defaultPodTemplateSpec :: Default PodTemplateSpec where
     { metadata: NullOrUndefined Nothing
     , spec: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PortworxVolumeSource
 -- | PortworxVolumeSource represents a Portworx volume resource.
+-- |
+-- | Fields:
+-- | - `fsType`: FSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `volumeID`: VolumeID uniquely identifies a Portworx volume
 newtype PortworxVolumeSource = PortworxVolumeSource
   { fsType :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean)
@@ -2839,8 +3470,11 @@ instance defaultPortworxVolumeSource :: Default PortworxVolumeSource where
     , readOnly: NullOrUndefined Nothing
     , volumeID: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.PreferredSchedulingTerm
 -- | An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op).
+-- |
+-- | Fields:
+-- | - `preference`: A node selector term, associated with the corresponding weight.
+-- | - `weight`: Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
 newtype PreferredSchedulingTerm = PreferredSchedulingTerm
   { preference :: (NullOrUndefined NodeSelectorTerm)
   , weight :: (NullOrUndefined Int) }
@@ -2858,8 +3492,17 @@ instance defaultPreferredSchedulingTerm :: Default PreferredSchedulingTerm where
     { preference: NullOrUndefined Nothing
     , weight: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Probe
 -- | Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+-- |
+-- | Fields:
+-- | - `exec`: One and only one of the following should be specified. Exec specifies the action to take.
+-- | - `failureThreshold`: Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1.
+-- | - `httpGet`: HTTPGet specifies the http request to perform.
+-- | - `initialDelaySeconds`: Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+-- | - `periodSeconds`: How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+-- | - `successThreshold`: Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
+-- | - `tcpSocket`: TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported
+-- | - `timeoutSeconds`: Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 newtype Probe = Probe
   { exec :: (NullOrUndefined ExecAction)
   , failureThreshold :: (NullOrUndefined Int)
@@ -2889,8 +3532,11 @@ instance defaultProbe :: Default Probe where
     , tcpSocket: NullOrUndefined Nothing
     , timeoutSeconds: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ProjectedVolumeSource
 -- | Represents a projected volume source
+-- |
+-- | Fields:
+-- | - `defaultMode`: Mode bits to use on created files by default. Must be a value between 0 and 0777. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+-- | - `sources`: list of volume projections
 newtype ProjectedVolumeSource = ProjectedVolumeSource
   { defaultMode :: (NullOrUndefined Int)
   , sources :: (NullOrUndefined (Array VolumeProjection)) }
@@ -2908,8 +3554,14 @@ instance defaultProjectedVolumeSource :: Default ProjectedVolumeSource where
     { defaultMode: NullOrUndefined Nothing
     , sources: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.QuobyteVolumeSource
 -- | Represents a Quobyte mount that lasts the lifetime of a pod. Quobyte volumes do not support ownership management or SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `group`: Group to map volume access to Default is no group
+-- | - `readOnly`: ReadOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false.
+-- | - `registry`: Registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes
+-- | - `user`: User to map volume access to Defaults to serivceaccount user
+-- | - `volume`: Volume is a string that references an already created Quobyte volume by name.
 newtype QuobyteVolumeSource = QuobyteVolumeSource
   { group :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean)
@@ -2933,8 +3585,17 @@ instance defaultQuobyteVolumeSource :: Default QuobyteVolumeSource where
     , user: NullOrUndefined Nothing
     , volume: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.RBDPersistentVolumeSource
 -- | Represents a Rados Block Device mount that lasts the lifetime of a pod. RBD volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd
+-- | - `image`: The rados image name. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `keyring`: Keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `monitors`: A collection of Ceph monitors. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `pool`: The rados pool name. Default is rbd. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `readOnly`: ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `secretRef`: SecretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `user`: The rados user name. Default is admin. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
 newtype RBDPersistentVolumeSource = RBDPersistentVolumeSource
   { fsType :: (NullOrUndefined String)
   , image :: (NullOrUndefined String)
@@ -2964,8 +3625,17 @@ instance defaultRBDPersistentVolumeSource :: Default RBDPersistentVolumeSource w
     , secretRef: NullOrUndefined Nothing
     , user: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.RBDVolumeSource
 -- | Represents a Rados Block Device mount that lasts the lifetime of a pod. RBD volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd
+-- | - `image`: The rados image name. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `keyring`: Keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `monitors`: A collection of Ceph monitors. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `pool`: The rados pool name. Default is rbd. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `readOnly`: ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `secretRef`: SecretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
+-- | - `user`: The rados user name. Default is admin. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
 newtype RBDVolumeSource = RBDVolumeSource
   { fsType :: (NullOrUndefined String)
   , image :: (NullOrUndefined String)
@@ -2995,8 +3665,14 @@ instance defaultRBDVolumeSource :: Default RBDVolumeSource where
     , secretRef: NullOrUndefined Nothing
     , user: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ReplicationController
 -- | ReplicationController represents the configuration of a replication controller.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: If the Labels of a ReplicationController are empty, they are defaulted to be the same as the Pod(s) that the replication controller manages. Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the specification of the desired behavior of the replication controller. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Status is the most recently observed status of the replication controller. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ReplicationController = ReplicationController
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -3020,8 +3696,14 @@ instance defaultReplicationController :: Default ReplicationController where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ReplicationControllerCondition
 -- | ReplicationControllerCondition describes the state of a replication controller at a certain point.
+-- |
+-- | Fields:
+-- | - `lastTransitionTime`: The last time the condition transitioned from one status to another.
+-- | - `message`: A human readable message indicating details about the transition.
+-- | - `reason`: The reason for the condition's last transition.
+-- | - `status`: Status of the condition, one of True, False, Unknown.
+-- | - `_type`: Type of replication controller condition.
 newtype ReplicationControllerCondition = ReplicationControllerCondition
   { _type :: (NullOrUndefined String)
   , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
@@ -3045,8 +3727,13 @@ instance defaultReplicationControllerCondition :: Default ReplicationControllerC
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ReplicationControllerList
 -- | ReplicationControllerList is a collection of replication controllers.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of replication controllers. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ReplicationControllerList = ReplicationControllerList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ReplicationController))
@@ -3068,8 +3755,13 @@ instance defaultReplicationControllerList :: Default ReplicationControllerList w
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ReplicationControllerSpec
 -- | ReplicationControllerSpec is the specification of a replication controller.
+-- |
+-- | Fields:
+-- | - `minReadySeconds`: Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 0 (pod will be considered available as soon as it is ready)
+-- | - `replicas`: Replicas is the number of desired replicas. This is a pointer to distinguish between explicit zero and unspecified. Defaults to 1. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#what-is-a-replicationcontroller
+-- | - `selector`: Selector is a label query over pods that should match the Replicas count. If Selector is empty, it is defaulted to the labels present on the Pod template. Label keys and values that must match in order to be controlled by this replication controller, if empty defaulted to labels on Pod template. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
+-- | - `template`: Template is the object that describes the pod that will be created if insufficient replicas are detected. This takes precedence over a TemplateRef. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 newtype ReplicationControllerSpec = ReplicationControllerSpec
   { minReadySeconds :: (NullOrUndefined Int)
   , replicas :: (NullOrUndefined Int)
@@ -3091,8 +3783,15 @@ instance defaultReplicationControllerSpec :: Default ReplicationControllerSpec w
     , selector: NullOrUndefined Nothing
     , template: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ReplicationControllerStatus
 -- | ReplicationControllerStatus represents the current status of a replication controller.
+-- |
+-- | Fields:
+-- | - `availableReplicas`: The number of available replicas (ready for at least minReadySeconds) for this replication controller.
+-- | - `conditions`: Represents the latest available observations of a replication controller's current state.
+-- | - `fullyLabeledReplicas`: The number of pods that have labels matching the labels of the pod template of the replication controller.
+-- | - `observedGeneration`: ObservedGeneration reflects the generation of the most recently observed replication controller.
+-- | - `readyReplicas`: The number of ready replicas for this replication controller.
+-- | - `replicas`: Replicas is the most recently oberved number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#what-is-a-replicationcontroller
 newtype ReplicationControllerStatus = ReplicationControllerStatus
   { availableReplicas :: (NullOrUndefined Int)
   , conditions :: (NullOrUndefined (Array ReplicationControllerCondition))
@@ -3118,8 +3817,12 @@ instance defaultReplicationControllerStatus :: Default ReplicationControllerStat
     , readyReplicas: NullOrUndefined Nothing
     , replicas: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ResourceFieldSelector
 -- | ResourceFieldSelector represents container resources (cpu, memory) and their output format
+-- |
+-- | Fields:
+-- | - `containerName`: Container name: required for volumes, optional for env vars
+-- | - `divisor`: Specifies the output format of the exposed resources, defaults to "1"
+-- | - `resource`: Required: resource to select
 newtype ResourceFieldSelector = ResourceFieldSelector
   { containerName :: (NullOrUndefined String)
   , divisor :: (NullOrUndefined Resource.Quantity)
@@ -3139,8 +3842,14 @@ instance defaultResourceFieldSelector :: Default ResourceFieldSelector where
     , divisor: NullOrUndefined Nothing
     , resource: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ResourceQuota
 -- | ResourceQuota sets aggregate quota restrictions enforced per namespace
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the desired quota. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Status defines the actual enforced quota and its current usage. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ResourceQuota = ResourceQuota
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -3164,8 +3873,13 @@ instance defaultResourceQuota :: Default ResourceQuota where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ResourceQuotaList
 -- | ResourceQuotaList is a list of ResourceQuota items.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is a list of ResourceQuota objects. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ResourceQuotaList = ResourceQuotaList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ResourceQuota))
@@ -3187,8 +3901,11 @@ instance defaultResourceQuotaList :: Default ResourceQuotaList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ResourceQuotaSpec
 -- | ResourceQuotaSpec defines the desired hard limits to enforce for Quota.
+-- |
+-- | Fields:
+-- | - `hard`: Hard is the set of desired hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+-- | - `scopes`: A collection of filters that must match each object tracked by a quota. If not specified, the quota matches all objects.
 newtype ResourceQuotaSpec = ResourceQuotaSpec
   { hard :: (NullOrUndefined (StrMap Resource.Quantity))
   , scopes :: (NullOrUndefined (Array String)) }
@@ -3206,8 +3923,11 @@ instance defaultResourceQuotaSpec :: Default ResourceQuotaSpec where
     { hard: NullOrUndefined Nothing
     , scopes: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ResourceQuotaStatus
 -- | ResourceQuotaStatus defines the enforced hard limits and observed use.
+-- |
+-- | Fields:
+-- | - `hard`: Hard is the set of enforced hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
+-- | - `used`: Used is the current observed total usage of the resource in the namespace.
 newtype ResourceQuotaStatus = ResourceQuotaStatus
   { hard :: (NullOrUndefined (StrMap Resource.Quantity))
   , used :: (NullOrUndefined (StrMap Resource.Quantity)) }
@@ -3225,8 +3945,11 @@ instance defaultResourceQuotaStatus :: Default ResourceQuotaStatus where
     { hard: NullOrUndefined Nothing
     , used: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ResourceRequirements
 -- | ResourceRequirements describes the compute resource requirements.
+-- |
+-- | Fields:
+-- | - `limits`: Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+-- | - `requests`: Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 newtype ResourceRequirements = ResourceRequirements
   { limits :: (NullOrUndefined (StrMap Resource.Quantity))
   , requests :: (NullOrUndefined (StrMap Resource.Quantity)) }
@@ -3244,8 +3967,13 @@ instance defaultResourceRequirements :: Default ResourceRequirements where
     { limits: NullOrUndefined Nothing
     , requests: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SELinuxOptions
 -- | SELinuxOptions are the labels to be applied to the container
+-- |
+-- | Fields:
+-- | - `level`: Level is SELinux level label that applies to the container.
+-- | - `role`: Role is a SELinux role label that applies to the container.
+-- | - `_type`: Type is a SELinux type label that applies to the container.
+-- | - `user`: User is a SELinux user label that applies to the container.
 newtype SELinuxOptions = SELinuxOptions
   { _type :: (NullOrUndefined String)
   , level :: (NullOrUndefined String)
@@ -3267,8 +3995,19 @@ instance defaultSELinuxOptions :: Default SELinuxOptions where
     , role: NullOrUndefined Nothing
     , user: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ScaleIOPersistentVolumeSource
 -- | ScaleIOPersistentVolumeSource represents a persistent ScaleIO volume
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `gateway`: The host address of the ScaleIO API Gateway.
+-- | - `protectionDomain`: The name of the ScaleIO Protection Domain for the configured storage.
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretRef`: SecretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail.
+-- | - `sslEnabled`: Flag to enable/disable SSL communication with Gateway, default false
+-- | - `storageMode`: Indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned.
+-- | - `storagePool`: The ScaleIO Storage Pool associated with the protection domain.
+-- | - `system`: The name of the storage system as configured in ScaleIO.
+-- | - `volumeName`: The name of a volume already created in the ScaleIO system that is associated with this volume source.
 newtype ScaleIOPersistentVolumeSource = ScaleIOPersistentVolumeSource
   { fsType :: (NullOrUndefined String)
   , gateway :: (NullOrUndefined String)
@@ -3302,8 +4041,19 @@ instance defaultScaleIOPersistentVolumeSource :: Default ScaleIOPersistentVolume
     , system: NullOrUndefined Nothing
     , volumeName: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ScaleIOVolumeSource
 -- | ScaleIOVolumeSource represents a persistent ScaleIO volume
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `gateway`: The host address of the ScaleIO API Gateway.
+-- | - `protectionDomain`: The name of the ScaleIO Protection Domain for the configured storage.
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretRef`: SecretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail.
+-- | - `sslEnabled`: Flag to enable/disable SSL communication with Gateway, default false
+-- | - `storageMode`: Indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned.
+-- | - `storagePool`: The ScaleIO Storage Pool associated with the protection domain.
+-- | - `system`: The name of the storage system as configured in ScaleIO.
+-- | - `volumeName`: The name of a volume already created in the ScaleIO system that is associated with this volume source.
 newtype ScaleIOVolumeSource = ScaleIOVolumeSource
   { fsType :: (NullOrUndefined String)
   , gateway :: (NullOrUndefined String)
@@ -3337,8 +4087,15 @@ instance defaultScaleIOVolumeSource :: Default ScaleIOVolumeSource where
     , system: NullOrUndefined Nothing
     , volumeName: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Secret
 -- | Secret holds secret data of a certain type. The total bytes of the values in the Data field must be less than MaxSecretSize bytes.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `_data`: Data contains the secret data. Each key must consist of alphanumeric characters, '-', '_' or '.'. The serialized form of the secret data is a base64 encoded string, representing the arbitrary (possibly non-string) data value here. Described in https://tools.ietf.org/html/rfc4648#section-4
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `stringData`: stringData allows specifying non-binary secret data in string form. It is provided as a write-only convenience method. All keys and values are merged into the data field on write, overwriting any existing values. It is never output when reading from the API.
+-- | - `_type`: Used to facilitate programmatic handling of secret data.
 newtype Secret = Secret
   { _data :: (NullOrUndefined (StrMap String))
   , _type :: (NullOrUndefined String)
@@ -3364,10 +4121,13 @@ instance defaultSecret :: Default Secret where
     , metadata: NullOrUndefined Nothing
     , stringData: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SecretEnvSource
 -- | SecretEnvSource selects a Secret to populate the environment variables with.
 -- | 
 -- | The contents of the target Secret's Data field will represent the key-value pairs as environment variables.
+-- |
+-- | Fields:
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `optional`: Specify whether the Secret must be defined
 newtype SecretEnvSource = SecretEnvSource
   { name :: (NullOrUndefined String)
   , optional :: (NullOrUndefined Boolean) }
@@ -3385,8 +4145,12 @@ instance defaultSecretEnvSource :: Default SecretEnvSource where
     { name: NullOrUndefined Nothing
     , optional: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SecretKeySelector
 -- | SecretKeySelector selects a key of a Secret.
+-- |
+-- | Fields:
+-- | - `key`: The key of the secret to select from.  Must be a valid secret key.
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `optional`: Specify whether the Secret or it's key must be defined
 newtype SecretKeySelector = SecretKeySelector
   { key :: (NullOrUndefined String)
   , name :: (NullOrUndefined String)
@@ -3406,8 +4170,13 @@ instance defaultSecretKeySelector :: Default SecretKeySelector where
     , name: NullOrUndefined Nothing
     , optional: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SecretList
 -- | SecretList is a list of Secret.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: Items is a list of secret objects. More info: https://kubernetes.io/docs/concepts/configuration/secret
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype SecretList = SecretList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Secret))
@@ -3429,10 +4198,14 @@ instance defaultSecretList :: Default SecretList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SecretProjection
 -- | Adapts a secret into a projected volume.
 -- | 
 -- | The contents of the target Secret's Data field will be presented in a projected volume as files using the keys in the Data field as the file names. Note that this is identical to a secret volume source without the default mode.
+-- |
+-- | Fields:
+-- | - `items`: If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+-- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `optional`: Specify whether the Secret or its key must be defined
 newtype SecretProjection = SecretProjection
   { items :: (NullOrUndefined (Array KeyToPath))
   , name :: (NullOrUndefined String)
@@ -3452,8 +4225,11 @@ instance defaultSecretProjection :: Default SecretProjection where
     , name: NullOrUndefined Nothing
     , optional: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SecretReference
 -- | SecretReference represents a Secret Reference. It has enough information to retrieve secret in any namespace
+-- |
+-- | Fields:
+-- | - `name`: Name is unique within a namespace to reference a secret resource.
+-- | - `namespace`: Namespace defines the space within which the secret name must be unique.
 newtype SecretReference = SecretReference
   { name :: (NullOrUndefined String)
   , namespace :: (NullOrUndefined String) }
@@ -3471,10 +4247,15 @@ instance defaultSecretReference :: Default SecretReference where
     { name: NullOrUndefined Nothing
     , namespace: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SecretVolumeSource
 -- | Adapts a Secret into a volume.
 -- | 
 -- | The contents of the target Secret's Data field will be presented in a volume as files using the keys in the Data field as the file names. Secret volumes support ownership management and SELinux relabeling.
+-- |
+-- | Fields:
+-- | - `defaultMode`: Optional: mode bits to use on created files by default. Must be a value between 0 and 0777. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
+-- | - `items`: If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'.
+-- | - `optional`: Specify whether the Secret or it's keys must be defined
+-- | - `secretName`: Name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
 newtype SecretVolumeSource = SecretVolumeSource
   { defaultMode :: (NullOrUndefined Int)
   , items :: (NullOrUndefined (Array KeyToPath))
@@ -3496,8 +4277,16 @@ instance defaultSecretVolumeSource :: Default SecretVolumeSource where
     , optional: NullOrUndefined Nothing
     , secretName: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SecurityContext
 -- | SecurityContext holds security configuration that will be applied to a container. Some fields are present in both SecurityContext and PodSecurityContext.  When both are set, the values in SecurityContext take precedence.
+-- |
+-- | Fields:
+-- | - `allowPrivilegeEscalation`: AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN
+-- | - `capabilities`: The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime.
+-- | - `privileged`: Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false.
+-- | - `readOnlyRootFilesystem`: Whether this container has a read-only root filesystem. Default is false.
+-- | - `runAsNonRoot`: Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+-- | - `runAsUser`: The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+-- | - `seLinuxOptions`: The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
 newtype SecurityContext = SecurityContext
   { allowPrivilegeEscalation :: (NullOrUndefined Boolean)
   , capabilities :: (NullOrUndefined Capabilities)
@@ -3525,8 +4314,14 @@ instance defaultSecurityContext :: Default SecurityContext where
     , runAsUser: NullOrUndefined Nothing
     , seLinuxOptions: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Service
 -- | Service is a named abstraction of software service (for example, mysql) consisting of local port (for example 3306) that the proxy listens on, and the selector that determines which pods will answer requests sent through the proxy.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Spec defines the behavior of a service. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Most recently observed status of the service. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Service = Service
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -3550,8 +4345,15 @@ instance defaultService :: Default Service where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ServiceAccount
 -- | ServiceAccount binds together: * a name, understood by users, and perhaps by peripheral systems, for an identity * a principal that can be authenticated and authorized * a set of secrets
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `automountServiceAccountToken`: AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted. Can be overridden at the pod level.
+-- | - `imagePullSecrets`: ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet. More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `secrets`: Secrets is the list of secrets allowed to be used by pods running using this ServiceAccount. More info: https://kubernetes.io/docs/concepts/configuration/secret
 newtype ServiceAccount = ServiceAccount
   { apiVersion :: (NullOrUndefined String)
   , automountServiceAccountToken :: (NullOrUndefined Boolean)
@@ -3577,8 +4379,13 @@ instance defaultServiceAccount :: Default ServiceAccount where
     , metadata: NullOrUndefined Nothing
     , secrets: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ServiceAccountList
 -- | ServiceAccountList is a list of ServiceAccount objects
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of ServiceAccounts. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ServiceAccountList = ServiceAccountList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array ServiceAccount))
@@ -3600,8 +4407,13 @@ instance defaultServiceAccountList :: Default ServiceAccountList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ServiceList
 -- | ServiceList holds a list of services.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: List of services
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ServiceList = ServiceList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array Service))
@@ -3623,8 +4435,14 @@ instance defaultServiceList :: Default ServiceList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ServicePort
 -- | ServicePort contains information on service's port.
+-- |
+-- | Fields:
+-- | - `name`: The name of this port within the service. This must be a DNS_LABEL. All ports within a ServiceSpec must have unique names. This maps to the 'Name' field in EndpointPort objects. Optional if only one ServicePort is defined on this service.
+-- | - `nodePort`: The port on each node on which this service is exposed when type=NodePort or LoadBalancer. Usually assigned by the system. If specified, it will be allocated to the service if unused or else creation of the service will fail. Default is to auto-allocate a port if the ServiceType of this Service requires one. More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+-- | - `port`: The port that will be exposed by this service.
+-- | - `protocol`: The IP protocol for this port. Supports "TCP" and "UDP". Default is TCP.
+-- | - `targetPort`: Number or name of the port to access on the pods targeted by the service. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME. If this is a string, it will be looked up as a named port in the target Pod's container ports. If this is not specified, the value of the 'port' field is used (an identity map). This field is ignored for services with clusterIP=None, and should be omitted or set equal to the 'port' field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
 newtype ServicePort = ServicePort
   { name :: (NullOrUndefined String)
   , nodePort :: (NullOrUndefined Int)
@@ -3648,8 +4466,22 @@ instance defaultServicePort :: Default ServicePort where
     , protocol: NullOrUndefined Nothing
     , targetPort: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ServiceSpec
 -- | ServiceSpec describes the attributes that a user creates on a service.
+-- |
+-- | Fields:
+-- | - `clusterIP`: clusterIP is the IP address of the service and is usually assigned randomly by the master. If an address is specified manually and is not in use by others, it will be allocated to the service; otherwise, creation of the service will fail. This field can not be changed through updates. Valid values are "None", empty string (""), or a valid IP address. "None" can be specified for headless services when proxying is not required. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+-- | - `externalIPs`: externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service.  These IPs are not managed by Kubernetes.  The user is responsible for ensuring that traffic arrives at a node with this IP.  A common example is external load-balancers that are not part of the Kubernetes system.
+-- | - `externalName`: externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service. No proxying will be involved. Must be a valid RFC-1123 hostname (https://tools.ietf.org/html/rfc1123) and requires Type to be ExternalName.
+-- | - `externalTrafficPolicy`: externalTrafficPolicy denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints. "Local" preserves the client source IP and avoids a second hop for LoadBalancer and Nodeport type services, but risks potentially imbalanced traffic spreading. "Cluster" obscures the client source IP and may cause a second hop to another node, but should have good overall load-spreading.
+-- | - `healthCheckNodePort`: healthCheckNodePort specifies the healthcheck nodePort for the service. If not specified, HealthCheckNodePort is created by the service api backend with the allocated nodePort. Will use user-specified nodePort value if specified by the client. Only effects when Type is set to LoadBalancer and ExternalTrafficPolicy is set to Local.
+-- | - `loadBalancerIP`: Only applies to Service Type: LoadBalancer LoadBalancer will get created with the IP specified in this field. This feature depends on whether the underlying cloud-provider supports specifying the loadBalancerIP when a load balancer is created. This field will be ignored if the cloud-provider does not support the feature.
+-- | - `loadBalancerSourceRanges`: If specified and supported by the platform, this will restrict traffic through the cloud-provider load-balancer will be restricted to the specified client IPs. This field will be ignored if the cloud-provider does not support the feature." More info: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/
+-- | - `ports`: The list of ports that are exposed by this service. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+-- | - `publishNotReadyAddresses`: publishNotReadyAddresses, when set to true, indicates that DNS implementations must publish the notReadyAddresses of subsets for the Endpoints associated with the Service. The default value is false. The primary use case for setting this field is to use a StatefulSet's Headless Service to propagate SRV records for its Pods without respect to their readiness for purpose of peer discovery. This field will replace the service.alpha.kubernetes.io/tolerate-unready-endpoints when that annotation is deprecated and all clients have been converted to use this field.
+-- | - `selector`: Route service traffic to pods with label keys and values matching this selector. If empty or not present, the service is assumed to have an external process managing its endpoints, which Kubernetes will not modify. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/
+-- | - `sessionAffinity`: Supports "ClientIP" and "None". Used to maintain session affinity. Enable client IP based session affinity. Must be ClientIP or None. Defaults to None. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+-- | - `sessionAffinityConfig`: sessionAffinityConfig contains the configurations of session affinity.
+-- | - `_type`: type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. "ExternalName" maps to the specified externalName. "ClusterIP" allocates a cluster-internal IP address for load-balancing to endpoints. Endpoints are determined by the selector or if that is not specified, by manual construction of an Endpoints object. If clusterIP is "None", no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a stable IP. "NodePort" builds on ClusterIP and allocates a port on every node which routes to the clusterIP. "LoadBalancer" builds on NodePort and creates an external load-balancer (if supported in the current cloud) which routes to the clusterIP. More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types
 newtype ServiceSpec = ServiceSpec
   { _type :: (NullOrUndefined String)
   , clusterIP :: (NullOrUndefined String)
@@ -3689,8 +4521,10 @@ instance defaultServiceSpec :: Default ServiceSpec where
     , sessionAffinity: NullOrUndefined Nothing
     , sessionAffinityConfig: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.ServiceStatus
 -- | ServiceStatus represents the current status of a service.
+-- |
+-- | Fields:
+-- | - `loadBalancer`: LoadBalancer contains the current status of the load-balancer, if one is present.
 newtype ServiceStatus = ServiceStatus
   { loadBalancer :: (NullOrUndefined LoadBalancerStatus) }
 
@@ -3706,8 +4540,10 @@ instance defaultServiceStatus :: Default ServiceStatus where
   default = ServiceStatus
     { loadBalancer: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.SessionAffinityConfig
 -- | SessionAffinityConfig represents the configurations of session affinity.
+-- |
+-- | Fields:
+-- | - `clientIP`: clientIP contains the configurations of Client IP based session affinity.
 newtype SessionAffinityConfig = SessionAffinityConfig
   { clientIP :: (NullOrUndefined ClientIPConfig) }
 
@@ -3723,8 +4559,14 @@ instance defaultSessionAffinityConfig :: Default SessionAffinityConfig where
   default = SessionAffinityConfig
     { clientIP: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.StorageOSPersistentVolumeSource
 -- | Represents a StorageOS persistent volume resource.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretRef`: SecretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted.
+-- | - `volumeName`: VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
+-- | - `volumeNamespace`: VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
 newtype StorageOSPersistentVolumeSource = StorageOSPersistentVolumeSource
   { fsType :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean)
@@ -3748,8 +4590,14 @@ instance defaultStorageOSPersistentVolumeSource :: Default StorageOSPersistentVo
     , volumeName: NullOrUndefined Nothing
     , volumeNamespace: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.StorageOSVolumeSource
 -- | Represents a StorageOS persistent volume resource.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
+-- | - `secretRef`: SecretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted.
+-- | - `volumeName`: VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
+-- | - `volumeNamespace`: VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
 newtype StorageOSVolumeSource = StorageOSVolumeSource
   { fsType :: (NullOrUndefined String)
   , readOnly :: (NullOrUndefined Boolean)
@@ -3773,8 +4621,11 @@ instance defaultStorageOSVolumeSource :: Default StorageOSVolumeSource where
     , volumeName: NullOrUndefined Nothing
     , volumeNamespace: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.TCPSocketAction
 -- | TCPSocketAction describes an action based on opening a socket
+-- |
+-- | Fields:
+-- | - `host`: Optional: Host name to connect to, defaults to the pod IP.
+-- | - `port`: Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
 newtype TCPSocketAction = TCPSocketAction
   { host :: (NullOrUndefined String)
   , port :: (NullOrUndefined Util.IntOrString) }
@@ -3792,8 +4643,13 @@ instance defaultTCPSocketAction :: Default TCPSocketAction where
     { host: NullOrUndefined Nothing
     , port: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Taint
 -- | The node this Taint is attached to has the "effect" on any pod that does not tolerate the Taint.
+-- |
+-- | Fields:
+-- | - `effect`: Required. The effect of the taint on pods that do not tolerate the taint. Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
+-- | - `key`: Required. The taint key to be applied to a node.
+-- | - `timeAdded`: TimeAdded represents the time at which the taint was added. It is only written for NoExecute taints.
+-- | - `value`: Required. The taint value corresponding to the taint key.
 newtype Taint = Taint
   { effect :: (NullOrUndefined String)
   , key :: (NullOrUndefined String)
@@ -3815,8 +4671,14 @@ instance defaultTaint :: Default Taint where
     , timeAdded: NullOrUndefined Nothing
     , value: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Toleration
 -- | The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect> using the matching operator <operator>.
+-- |
+-- | Fields:
+-- | - `effect`: Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
+-- | - `key`: Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys.
+-- | - `operator`: Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.
+-- | - `tolerationSeconds`: TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system.
+-- | - `value`: Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string.
 newtype Toleration = Toleration
   { effect :: (NullOrUndefined String)
   , key :: (NullOrUndefined String)
@@ -3840,8 +4702,37 @@ instance defaultToleration :: Default Toleration where
     , tolerationSeconds: NullOrUndefined Nothing
     , value: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.Volume
 -- | Volume represents a named volume in a pod that may be accessed by any container in the pod.
+-- |
+-- | Fields:
+-- | - `awsElasticBlockStore`: AWSElasticBlockStore represents an AWS Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
+-- | - `azureDisk`: AzureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
+-- | - `azureFile`: AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
+-- | - `cephfs`: CephFS represents a Ceph FS mount on the host that shares a pod's lifetime
+-- | - `cinder`: Cinder represents a cinder volume attached and mounted on kubelets host machine More info: https://releases.k8s.io/HEAD/examples/mysql-cinder-pd/README.md
+-- | - `configMap`: ConfigMap represents a configMap that should populate this volume
+-- | - `downwardAPI`: DownwardAPI represents downward API about the pod that should populate this volume
+-- | - `emptyDir`: EmptyDir represents a temporary directory that shares a pod's lifetime. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+-- | - `fc`: FC represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod.
+-- | - `flexVolume`: FlexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin.
+-- | - `flocker`: Flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running
+-- | - `gcePersistentDisk`: GCEPersistentDisk represents a GCE Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
+-- | - `gitRepo`: GitRepo represents a git repository at a particular revision.
+-- | - `glusterfs`: Glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime. More info: https://releases.k8s.io/HEAD/examples/volumes/glusterfs/README.md
+-- | - `hostPath`: HostPath represents a pre-existing file or directory on the host machine that is directly exposed to the container. This is generally used for system agents or other privileged things that are allowed to see the host machine. Most containers will NOT need this. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+-- | - `iscsi`: ISCSI represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://releases.k8s.io/HEAD/examples/volumes/iscsi/README.md
+-- | - `name`: Volume's name. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+-- | - `nfs`: NFS represents an NFS mount on the host that shares a pod's lifetime More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
+-- | - `persistentVolumeClaim`: PersistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+-- | - `photonPersistentDisk`: PhotonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine
+-- | - `portworxVolume`: PortworxVolume represents a portworx volume attached and mounted on kubelets host machine
+-- | - `projected`: Items for all in one resources secrets, configmaps, and downward API
+-- | - `quobyte`: Quobyte represents a Quobyte mount on the host that shares a pod's lifetime
+-- | - `rbd`: RBD represents a Rados Block Device mount on the host that shares a pod's lifetime. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md
+-- | - `scaleIO`: ScaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes.
+-- | - `secret`: Secret represents a secret that should populate this volume. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
+-- | - `storageos`: StorageOS represents a StorageOS volume attached and mounted on Kubernetes nodes.
+-- | - `vsphereVolume`: VsphereVolume represents a vSphere volume attached and mounted on kubelets host machine
 newtype Volume = Volume
   { awsElasticBlockStore :: (NullOrUndefined AWSElasticBlockStoreVolumeSource)
   , azureDisk :: (NullOrUndefined AzureDiskVolumeSource)
@@ -3911,8 +4802,11 @@ instance defaultVolume :: Default Volume where
     , storageos: NullOrUndefined Nothing
     , vsphereVolume: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.VolumeDevice
 -- | volumeDevice describes a mapping of a raw block device within a container.
+-- |
+-- | Fields:
+-- | - `devicePath`: devicePath is the path inside of the container that the device will be mapped to.
+-- | - `name`: name must match the name of a persistentVolumeClaim in the pod
 newtype VolumeDevice = VolumeDevice
   { devicePath :: (NullOrUndefined String)
   , name :: (NullOrUndefined String) }
@@ -3930,8 +4824,14 @@ instance defaultVolumeDevice :: Default VolumeDevice where
     { devicePath: NullOrUndefined Nothing
     , name: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.VolumeMount
 -- | VolumeMount describes a mounting of a Volume within a container.
+-- |
+-- | Fields:
+-- | - `mountPath`: Path within the container at which the volume should be mounted.  Must not contain ':'.
+-- | - `mountPropagation`: mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationHostToContainer is used. This field is alpha in 1.8 and can be reworked or removed in a future release.
+-- | - `name`: This must match the Name of a Volume.
+-- | - `readOnly`: Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false.
+-- | - `subPath`: Path within the volume from which the container's volume should be mounted. Defaults to "" (volume's root).
 newtype VolumeMount = VolumeMount
   { mountPath :: (NullOrUndefined String)
   , mountPropagation :: (NullOrUndefined String)
@@ -3955,8 +4855,12 @@ instance defaultVolumeMount :: Default VolumeMount where
     , readOnly: NullOrUndefined Nothing
     , subPath: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.VolumeProjection
 -- | Projection that may be projected along with other supported volume types
+-- |
+-- | Fields:
+-- | - `configMap`: information about the configMap data to project
+-- | - `downwardAPI`: information about the downwardAPI data to project
+-- | - `secret`: information about the secret data to project
 newtype VolumeProjection = VolumeProjection
   { configMap :: (NullOrUndefined ConfigMapProjection)
   , downwardAPI :: (NullOrUndefined DownwardAPIProjection)
@@ -3976,8 +4880,13 @@ instance defaultVolumeProjection :: Default VolumeProjection where
     , downwardAPI: NullOrUndefined Nothing
     , secret: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.VsphereVirtualDiskVolumeSource
 -- | Represents a vSphere volume resource.
+-- |
+-- | Fields:
+-- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
+-- | - `storagePolicyID`: Storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName.
+-- | - `storagePolicyName`: Storage Policy Based Management (SPBM) profile name.
+-- | - `volumePath`: Path that identifies vSphere volume vmdk
 newtype VsphereVirtualDiskVolumeSource = VsphereVirtualDiskVolumeSource
   { fsType :: (NullOrUndefined String)
   , storagePolicyID :: (NullOrUndefined String)
@@ -3999,8 +4908,11 @@ instance defaultVsphereVirtualDiskVolumeSource :: Default VsphereVirtualDiskVolu
     , storagePolicyName: NullOrUndefined Nothing
     , volumePath: NullOrUndefined Nothing }
 
--- | io.k8s.api.core.v1.WeightedPodAffinityTerm
 -- | The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
+-- |
+-- | Fields:
+-- | - `podAffinityTerm`: Required. A pod affinity term, associated with the corresponding weight.
+-- | - `weight`: weight associated with matching the corresponding podAffinityTerm, in the range 1-100.
 newtype WeightedPodAffinityTerm = WeightedPodAffinityTerm
   { podAffinityTerm :: (NullOrUndefined PodAffinityTerm)
   , weight :: (NullOrUndefined Int) }
@@ -4389,7 +5301,17 @@ createPersistentVolume cfg body = makeRequest (post cfg url (Just encodedBody))
     url = "/api/v1/persistentvolumes"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionNamespacedConfigMapOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedConfigMapOptions = DeleteCollectionNamespacedConfigMapOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4425,7 +5347,17 @@ deleteCollectionNamespacedConfigMap cfg namespace options = makeRequest (delete 
   where
     url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> formatQueryString options
 
--- | DeleteCollectionNamespacedEndpointsOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedEndpointsOptions = DeleteCollectionNamespacedEndpointsOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4461,7 +5393,17 @@ deleteCollectionNamespacedEndpoints cfg namespace options = makeRequest (delete 
   where
     url = "/api/v1/namespaces/" <> namespace <> "/endpoints" <> formatQueryString options
 
--- | DeleteCollectionNamespacedEventOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedEventOptions = DeleteCollectionNamespacedEventOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4497,7 +5439,17 @@ deleteCollectionNamespacedEvent cfg namespace options = makeRequest (delete cfg 
   where
     url = "/api/v1/namespaces/" <> namespace <> "/events" <> formatQueryString options
 
--- | DeleteCollectionNamespacedLimitRangeOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedLimitRangeOptions = DeleteCollectionNamespacedLimitRangeOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4533,7 +5485,17 @@ deleteCollectionNamespacedLimitRange cfg namespace options = makeRequest (delete
   where
     url = "/api/v1/namespaces/" <> namespace <> "/limitranges" <> formatQueryString options
 
--- | DeleteCollectionNamespacedPersistentVolumeClaimOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedPersistentVolumeClaimOptions = DeleteCollectionNamespacedPersistentVolumeClaimOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4569,7 +5531,17 @@ deleteCollectionNamespacedPersistentVolumeClaim cfg namespace options = makeRequ
   where
     url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims" <> formatQueryString options
 
--- | DeleteCollectionNamespacedPodOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedPodOptions = DeleteCollectionNamespacedPodOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4605,7 +5577,17 @@ deleteCollectionNamespacedPod cfg namespace options = makeRequest (delete cfg ur
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods" <> formatQueryString options
 
--- | DeleteCollectionNamespacedPodTemplateOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedPodTemplateOptions = DeleteCollectionNamespacedPodTemplateOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4641,7 +5623,17 @@ deleteCollectionNamespacedPodTemplate cfg namespace options = makeRequest (delet
   where
     url = "/api/v1/namespaces/" <> namespace <> "/podtemplates" <> formatQueryString options
 
--- | DeleteCollectionNamespacedReplicationControllerOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedReplicationControllerOptions = DeleteCollectionNamespacedReplicationControllerOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4677,7 +5669,17 @@ deleteCollectionNamespacedReplicationController cfg namespace options = makeRequ
   where
     url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers" <> formatQueryString options
 
--- | DeleteCollectionNamespacedResourceQuotaOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedResourceQuotaOptions = DeleteCollectionNamespacedResourceQuotaOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4713,7 +5715,17 @@ deleteCollectionNamespacedResourceQuota cfg namespace options = makeRequest (del
   where
     url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas" <> formatQueryString options
 
--- | DeleteCollectionNamespacedSecretOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedSecretOptions = DeleteCollectionNamespacedSecretOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4749,7 +5761,17 @@ deleteCollectionNamespacedSecret cfg namespace options = makeRequest (delete cfg
   where
     url = "/api/v1/namespaces/" <> namespace <> "/secrets" <> formatQueryString options
 
--- | DeleteCollectionNamespacedServiceAccountOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedServiceAccountOptions = DeleteCollectionNamespacedServiceAccountOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4785,7 +5807,17 @@ deleteCollectionNamespacedServiceAccount cfg namespace options = makeRequest (de
   where
     url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts" <> formatQueryString options
 
--- | DeleteCollectionNodeOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNodeOptions = DeleteCollectionNodeOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4821,7 +5853,17 @@ deleteCollectionNode cfg options = makeRequest (delete cfg url Nothing)
   where
     url = "/api/v1/nodes" <> formatQueryString options
 
--- | DeleteCollectionPersistentVolumeOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionPersistentVolumeOptions = DeleteCollectionPersistentVolumeOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -4857,7 +5899,10 @@ deleteCollectionPersistentVolume cfg options = makeRequest (delete cfg url Nothi
   where
     url = "/api/v1/persistentvolumes" <> formatQueryString options
 
--- | DeleteNamespaceOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespaceOptions = DeleteNamespaceOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -4884,7 +5929,10 @@ deleteNamespace cfg name body options = makeRequest (delete cfg url (Just encode
     url = "/api/v1/namespaces/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedConfigMapOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedConfigMapOptions = DeleteNamespacedConfigMapOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -4911,7 +5959,10 @@ deleteNamespacedConfigMap cfg namespace name body options = makeRequest (delete 
     url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedEndpointsOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedEndpointsOptions = DeleteNamespacedEndpointsOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -4938,7 +5989,10 @@ deleteNamespacedEndpoints cfg namespace name body options = makeRequest (delete 
     url = "/api/v1/namespaces/" <> namespace <> "/endpoints/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedEventOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedEventOptions = DeleteNamespacedEventOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -4965,7 +6019,10 @@ deleteNamespacedEvent cfg namespace name body options = makeRequest (delete cfg 
     url = "/api/v1/namespaces/" <> namespace <> "/events/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedLimitRangeOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedLimitRangeOptions = DeleteNamespacedLimitRangeOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -4992,7 +6049,10 @@ deleteNamespacedLimitRange cfg namespace name body options = makeRequest (delete
     url = "/api/v1/namespaces/" <> namespace <> "/limitranges/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedPersistentVolumeClaimOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedPersistentVolumeClaimOptions = DeleteNamespacedPersistentVolumeClaimOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5019,7 +6079,10 @@ deleteNamespacedPersistentVolumeClaim cfg namespace name body options = makeRequ
     url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedPodOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedPodOptions = DeleteNamespacedPodOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5046,7 +6109,10 @@ deleteNamespacedPod cfg namespace name body options = makeRequest (delete cfg ur
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedPodTemplateOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedPodTemplateOptions = DeleteNamespacedPodTemplateOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5073,7 +6139,10 @@ deleteNamespacedPodTemplate cfg namespace name body options = makeRequest (delet
     url = "/api/v1/namespaces/" <> namespace <> "/podtemplates/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedReplicationControllerOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedReplicationControllerOptions = DeleteNamespacedReplicationControllerOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5100,7 +6169,10 @@ deleteNamespacedReplicationController cfg namespace name body options = makeRequ
     url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedResourceQuotaOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedResourceQuotaOptions = DeleteNamespacedResourceQuotaOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5127,7 +6199,10 @@ deleteNamespacedResourceQuota cfg namespace name body options = makeRequest (del
     url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNamespacedSecretOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedSecretOptions = DeleteNamespacedSecretOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5160,7 +6235,10 @@ deleteNamespacedService cfg namespace name = makeRequest (delete cfg url Nothing
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> ""
 
--- | DeleteNamespacedServiceAccountOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedServiceAccountOptions = DeleteNamespacedServiceAccountOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5187,7 +6265,10 @@ deleteNamespacedServiceAccount cfg namespace name body options = makeRequest (de
     url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeleteNodeOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNodeOptions = DeleteNodeOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5214,7 +6295,10 @@ deleteNode cfg name body options = makeRequest (delete cfg url (Just encodedBody
     url = "/api/v1/nodes/" <> name <> "" <> formatQueryString options
     encodedBody = encodeJSON body
 
--- | DeletePersistentVolumeOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeletePersistentVolumeOptions = DeletePersistentVolumeOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -5277,7 +6361,17 @@ listLimitRangeForAllNamespaces cfg = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/limitranges"
 
--- | ListNamespaceOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespaceOptions = ListNamespaceOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5313,7 +6407,17 @@ listNamespace cfg options = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/namespaces" <> formatQueryString options
 
--- | ListNamespacedConfigMapOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedConfigMapOptions = ListNamespacedConfigMapOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5349,7 +6453,17 @@ listNamespacedConfigMap cfg namespace options = makeRequest (get cfg url Nothing
   where
     url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> formatQueryString options
 
--- | ListNamespacedEndpointsOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedEndpointsOptions = ListNamespacedEndpointsOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5385,7 +6499,17 @@ listNamespacedEndpoints cfg namespace options = makeRequest (get cfg url Nothing
   where
     url = "/api/v1/namespaces/" <> namespace <> "/endpoints" <> formatQueryString options
 
--- | ListNamespacedEventOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedEventOptions = ListNamespacedEventOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5421,7 +6545,17 @@ listNamespacedEvent cfg namespace options = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/events" <> formatQueryString options
 
--- | ListNamespacedLimitRangeOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedLimitRangeOptions = ListNamespacedLimitRangeOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5457,7 +6591,17 @@ listNamespacedLimitRange cfg namespace options = makeRequest (get cfg url Nothin
   where
     url = "/api/v1/namespaces/" <> namespace <> "/limitranges" <> formatQueryString options
 
--- | ListNamespacedPersistentVolumeClaimOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedPersistentVolumeClaimOptions = ListNamespacedPersistentVolumeClaimOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5493,7 +6637,17 @@ listNamespacedPersistentVolumeClaim cfg namespace options = makeRequest (get cfg
   where
     url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims" <> formatQueryString options
 
--- | ListNamespacedPodOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedPodOptions = ListNamespacedPodOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5529,7 +6683,17 @@ listNamespacedPod cfg namespace options = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods" <> formatQueryString options
 
--- | ListNamespacedPodTemplateOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedPodTemplateOptions = ListNamespacedPodTemplateOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5565,7 +6729,17 @@ listNamespacedPodTemplate cfg namespace options = makeRequest (get cfg url Nothi
   where
     url = "/api/v1/namespaces/" <> namespace <> "/podtemplates" <> formatQueryString options
 
--- | ListNamespacedReplicationControllerOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedReplicationControllerOptions = ListNamespacedReplicationControllerOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5601,7 +6775,17 @@ listNamespacedReplicationController cfg namespace options = makeRequest (get cfg
   where
     url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers" <> formatQueryString options
 
--- | ListNamespacedResourceQuotaOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedResourceQuotaOptions = ListNamespacedResourceQuotaOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5637,7 +6821,17 @@ listNamespacedResourceQuota cfg namespace options = makeRequest (get cfg url Not
   where
     url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas" <> formatQueryString options
 
--- | ListNamespacedSecretOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedSecretOptions = ListNamespacedSecretOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5673,7 +6867,17 @@ listNamespacedSecret cfg namespace options = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/secrets" <> formatQueryString options
 
--- | ListNamespacedServiceOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedServiceOptions = ListNamespacedServiceOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5709,7 +6913,17 @@ listNamespacedService cfg namespace options = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services" <> formatQueryString options
 
--- | ListNamespacedServiceAccountOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedServiceAccountOptions = ListNamespacedServiceAccountOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5745,7 +6959,17 @@ listNamespacedServiceAccount cfg namespace options = makeRequest (get cfg url No
   where
     url = "/api/v1/namespaces/" <> namespace <> "/serviceaccounts" <> formatQueryString options
 
--- | ListNodeOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNodeOptions = ListNodeOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -5781,7 +7005,17 @@ listNode cfg options = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/nodes" <> formatQueryString options
 
--- | ListPersistentVolumeOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListPersistentVolumeOptions = ListPersistentVolumeOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -6087,7 +7321,9 @@ readComponentStatus cfg name = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/componentstatuses/" <> name <> ""
 
--- | ReadNamespaceOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespaceOptions = ReadNamespaceOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6117,7 +7353,9 @@ readNamespaceStatus cfg name = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> name <> "/status"
 
--- | ReadNamespacedConfigMapOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedConfigMapOptions = ReadNamespacedConfigMapOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6141,7 +7379,9 @@ readNamespacedConfigMap cfg namespace name options = makeRequest (get cfg url No
   where
     url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedEndpointsOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedEndpointsOptions = ReadNamespacedEndpointsOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6165,7 +7405,9 @@ readNamespacedEndpoints cfg namespace name options = makeRequest (get cfg url No
   where
     url = "/api/v1/namespaces/" <> namespace <> "/endpoints/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedEventOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedEventOptions = ReadNamespacedEventOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6189,7 +7431,9 @@ readNamespacedEvent cfg namespace name options = makeRequest (get cfg url Nothin
   where
     url = "/api/v1/namespaces/" <> namespace <> "/events/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedLimitRangeOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedLimitRangeOptions = ReadNamespacedLimitRangeOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6213,7 +7457,9 @@ readNamespacedLimitRange cfg namespace name options = makeRequest (get cfg url N
   where
     url = "/api/v1/namespaces/" <> namespace <> "/limitranges/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedPersistentVolumeClaimOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedPersistentVolumeClaimOptions = ReadNamespacedPersistentVolumeClaimOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6243,7 +7489,9 @@ readNamespacedPersistentVolumeClaimStatus cfg namespace name = makeRequest (get 
   where
     url = "/api/v1/namespaces/" <> namespace <> "/persistentvolumeclaims/" <> name <> "/status"
 
--- | ReadNamespacedPodOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedPodOptions = ReadNamespacedPodOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6279,7 +7527,9 @@ readNamespacedPodStatus cfg namespace name = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/status"
 
--- | ReadNamespacedPodTemplateOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedPodTemplateOptions = ReadNamespacedPodTemplateOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6303,7 +7553,9 @@ readNamespacedPodTemplate cfg namespace name options = makeRequest (get cfg url 
   where
     url = "/api/v1/namespaces/" <> namespace <> "/podtemplates/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedReplicationControllerOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedReplicationControllerOptions = ReadNamespacedReplicationControllerOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6333,7 +7585,9 @@ readNamespacedReplicationControllerStatus cfg namespace name = makeRequest (get 
   where
     url = "/api/v1/namespaces/" <> namespace <> "/replicationcontrollers/" <> name <> "/status"
 
--- | ReadNamespacedResourceQuotaOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedResourceQuotaOptions = ReadNamespacedResourceQuotaOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6363,7 +7617,9 @@ readNamespacedResourceQuotaStatus cfg namespace name = makeRequest (get cfg url 
   where
     url = "/api/v1/namespaces/" <> namespace <> "/resourcequotas/" <> name <> "/status"
 
--- | ReadNamespacedSecretOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedSecretOptions = ReadNamespacedSecretOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6387,7 +7643,9 @@ readNamespacedSecret cfg namespace name options = makeRequest (get cfg url Nothi
   where
     url = "/api/v1/namespaces/" <> namespace <> "/secrets/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedServiceOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedServiceOptions = ReadNamespacedServiceOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6411,7 +7669,9 @@ readNamespacedService cfg namespace name options = makeRequest (get cfg url Noth
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "" <> formatQueryString options
 
--- | ReadNamespacedServiceAccountOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedServiceAccountOptions = ReadNamespacedServiceAccountOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6441,7 +7701,9 @@ readNamespacedServiceStatus cfg namespace name = makeRequest (get cfg url Nothin
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/status"
 
--- | ReadNodeOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNodeOptions = ReadNodeOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
@@ -6471,7 +7733,9 @@ readNodeStatus cfg name = makeRequest (get cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/status"
 
--- | ReadPersistentVolumeOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadPersistentVolumeOptions = ReadPersistentVolumeOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }

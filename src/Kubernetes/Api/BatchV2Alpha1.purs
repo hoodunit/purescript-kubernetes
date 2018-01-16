@@ -23,8 +23,14 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.batch.v2alpha1.CronJob
 -- | CronJob represents the configuration of a single cron job.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Specification of the desired behavior of a cron job, including the schedule. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
+-- | - `status`: Current status of a cron job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype CronJob = CronJob
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -48,8 +54,13 @@ instance defaultCronJob :: Default CronJob where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v2alpha1.CronJobList
 -- | CronJobList is a collection of cron jobs.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: items is the list of CronJobs.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype CronJobList = CronJobList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array CronJob))
@@ -71,8 +82,16 @@ instance defaultCronJobList :: Default CronJobList where
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v2alpha1.CronJobSpec
 -- | CronJobSpec describes how the job execution will look like and when it will actually run.
+-- |
+-- | Fields:
+-- | - `concurrencyPolicy`: Specifies how to treat concurrent executions of a Job. Valid values are: - "Allow" (default): allows CronJobs to run concurrently; - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet; - "Replace": cancels currently running job and replaces it with a new one
+-- | - `failedJobsHistoryLimit`: The number of failed finished jobs to retain. This is a pointer to distinguish between explicit zero and not specified.
+-- | - `jobTemplate`: Specifies the job that will be created when executing a CronJob.
+-- | - `schedule`: The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
+-- | - `startingDeadlineSeconds`: Optional deadline in seconds for starting the job if it misses scheduled time for any reason.  Missed jobs executions will be counted as failed ones.
+-- | - `successfulJobsHistoryLimit`: The number of successful finished jobs to retain. This is a pointer to distinguish between explicit zero and not specified.
+-- | - `suspend`: This flag tells the controller to suspend subsequent executions, it does not apply to already started executions.  Defaults to false.
 newtype CronJobSpec = CronJobSpec
   { concurrencyPolicy :: (NullOrUndefined String)
   , failedJobsHistoryLimit :: (NullOrUndefined Int)
@@ -100,8 +119,11 @@ instance defaultCronJobSpec :: Default CronJobSpec where
     , successfulJobsHistoryLimit: NullOrUndefined Nothing
     , suspend: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v2alpha1.CronJobStatus
 -- | CronJobStatus represents the current state of a cron job.
+-- |
+-- | Fields:
+-- | - `active`: A list of pointers to currently running jobs.
+-- | - `lastScheduleTime`: Information when was the last time the job was successfully scheduled.
 newtype CronJobStatus = CronJobStatus
   { active :: (NullOrUndefined (Array CoreV1.ObjectReference))
   , lastScheduleTime :: (NullOrUndefined MetaV1.Time) }
@@ -119,8 +141,11 @@ instance defaultCronJobStatus :: Default CronJobStatus where
     { active: NullOrUndefined Nothing
     , lastScheduleTime: NullOrUndefined Nothing }
 
--- | io.k8s.api.batch.v2alpha1.JobTemplateSpec
 -- | JobTemplateSpec describes the data a Job should have when created from a template
+-- |
+-- | Fields:
+-- | - `metadata`: Standard object's metadata of the jobs created from this template. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: Specification of the desired behavior of the job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype JobTemplateSpec = JobTemplateSpec
   { metadata :: (NullOrUndefined MetaV1.ObjectMeta)
   , spec :: (NullOrUndefined BatchV1.JobSpec) }
@@ -145,7 +170,17 @@ createNamespacedCronJob cfg namespace body = makeRequest (post cfg url (Just enc
     url = "/apis/batch/v2alpha1/namespaces/" <> namespace <> "/cronjobs"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionNamespacedCronJobOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedCronJobOptions = DeleteCollectionNamespacedCronJobOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -181,7 +216,10 @@ deleteCollectionNamespacedCronJob cfg namespace options = makeRequest (delete cf
   where
     url = "/apis/batch/v2alpha1/namespaces/" <> namespace <> "/cronjobs" <> formatQueryString options
 
--- | DeleteNamespacedCronJobOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedCronJobOptions = DeleteNamespacedCronJobOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -220,7 +258,17 @@ listCronJobForAllNamespaces cfg = makeRequest (get cfg url Nothing)
   where
     url = "/apis/batch/v2alpha1/cronjobs"
 
--- | ListNamespacedCronJobOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedCronJobOptions = ListNamespacedCronJobOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -256,7 +304,9 @@ listNamespacedCronJob cfg namespace options = makeRequest (get cfg url Nothing)
   where
     url = "/apis/batch/v2alpha1/namespaces/" <> namespace <> "/cronjobs" <> formatQueryString options
 
--- | ReadNamespacedCronJobOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedCronJobOptions = ReadNamespacedCronJobOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }

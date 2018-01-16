@@ -22,8 +22,12 @@ import Kubernetes.Json (jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
--- | io.k8s.api.autoscaling.v2beta1.CrossVersionObjectReference
 -- | CrossVersionObjectReference contains enough information to let you identify the referred resource.
+-- |
+-- | Fields:
+-- | - `apiVersion`: API version of the referent
+-- | - `kind`: Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds"
+-- | - `name`: Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names
 newtype CrossVersionObjectReference = CrossVersionObjectReference
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -43,8 +47,14 @@ instance defaultCrossVersionObjectReference :: Default CrossVersionObjectReferen
     , kind: NullOrUndefined Nothing
     , name: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscaler
 -- | HorizontalPodAutoscaler is the configuration for a horizontal pod autoscaler, which automatically manages the replica count of any resource implementing the scale subresource based on the metrics specified.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: metadata is the standard object metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+-- | - `spec`: spec is the specification for the behaviour of the autoscaler. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status.
+-- | - `status`: status is the current information about the autoscaler.
 newtype HorizontalPodAutoscaler = HorizontalPodAutoscaler
   { apiVersion :: (NullOrUndefined String)
   , kind :: (NullOrUndefined String)
@@ -68,8 +78,14 @@ instance defaultHorizontalPodAutoscaler :: Default HorizontalPodAutoscaler where
     , spec: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerCondition
 -- | HorizontalPodAutoscalerCondition describes the state of a HorizontalPodAutoscaler at a certain point.
+-- |
+-- | Fields:
+-- | - `lastTransitionTime`: lastTransitionTime is the last time the condition transitioned from one status to another
+-- | - `message`: message is a human-readable explanation containing details about the transition
+-- | - `reason`: reason is the reason for the condition's last transition.
+-- | - `status`: status is the status of the condition (True, False, Unknown)
+-- | - `_type`: type describes the current condition
 newtype HorizontalPodAutoscalerCondition = HorizontalPodAutoscalerCondition
   { _type :: (NullOrUndefined String)
   , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
@@ -93,8 +109,13 @@ instance defaultHorizontalPodAutoscalerCondition :: Default HorizontalPodAutosca
     , reason: NullOrUndefined Nothing
     , status: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerList
 -- | HorizontalPodAutoscaler is a list of horizontal pod autoscaler objects.
+-- |
+-- | Fields:
+-- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+-- | - `items`: items is the list of horizontal pod autoscaler objects.
+-- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `metadata`: metadata is the standard list metadata.
 newtype HorizontalPodAutoscalerList = HorizontalPodAutoscalerList
   { apiVersion :: (NullOrUndefined String)
   , items :: (NullOrUndefined (Array HorizontalPodAutoscaler))
@@ -116,8 +137,13 @@ instance defaultHorizontalPodAutoscalerList :: Default HorizontalPodAutoscalerLi
     , kind: NullOrUndefined Nothing
     , metadata: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerSpec
 -- | HorizontalPodAutoscalerSpec describes the desired functionality of the HorizontalPodAutoscaler.
+-- |
+-- | Fields:
+-- | - `maxReplicas`: maxReplicas is the upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.
+-- | - `metrics`: metrics contains the specifications for which to use to calculate the desired replica count (the maximum replica count across all metrics will be used).  The desired replica count is calculated multiplying the ratio between the target value and the current value by the current number of pods.  Ergo, metrics used must decrease as the pod count is increased, and vice-versa.  See the individual metric source types for more information about how each type of metric must respond.
+-- | - `minReplicas`: minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down. It defaults to 1 pod.
+-- | - `scaleTargetRef`: scaleTargetRef points to the target resource to scale, and is used to the pods for which metrics should be collected, as well as to actually change the replica count.
 newtype HorizontalPodAutoscalerSpec = HorizontalPodAutoscalerSpec
   { maxReplicas :: (NullOrUndefined Int)
   , metrics :: (NullOrUndefined (Array MetricSpec))
@@ -139,8 +165,15 @@ instance defaultHorizontalPodAutoscalerSpec :: Default HorizontalPodAutoscalerSp
     , minReplicas: NullOrUndefined Nothing
     , scaleTargetRef: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.HorizontalPodAutoscalerStatus
 -- | HorizontalPodAutoscalerStatus describes the current status of a horizontal pod autoscaler.
+-- |
+-- | Fields:
+-- | - `conditions`: conditions is the set of conditions required for this autoscaler to scale its target, and indicates whether or not those conditions are met.
+-- | - `currentMetrics`: currentMetrics is the last read state of the metrics used by this autoscaler.
+-- | - `currentReplicas`: currentReplicas is current number of replicas of pods managed by this autoscaler, as last seen by the autoscaler.
+-- | - `desiredReplicas`: desiredReplicas is the desired number of replicas of pods managed by this autoscaler, as last calculated by the autoscaler.
+-- | - `lastScaleTime`: lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods, used by the autoscaler to control how often the number of pods is changed.
+-- | - `observedGeneration`: observedGeneration is the most recent generation observed by this autoscaler.
 newtype HorizontalPodAutoscalerStatus = HorizontalPodAutoscalerStatus
   { conditions :: (NullOrUndefined (Array HorizontalPodAutoscalerCondition))
   , currentMetrics :: (NullOrUndefined (Array MetricStatus))
@@ -166,8 +199,13 @@ instance defaultHorizontalPodAutoscalerStatus :: Default HorizontalPodAutoscaler
     , lastScaleTime: NullOrUndefined Nothing
     , observedGeneration: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.MetricSpec
 -- | MetricSpec specifies how to scale based on a single metric (only `type` and one other matching field should be set at once).
+-- |
+-- | Fields:
+-- | - `object`: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
+-- | - `pods`: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
+-- | - `resource`: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
+-- | - `_type`: type is the type of metric source.  It should be one of "Object", "Pods" or "Resource", each mapping to a matching field in the object.
 newtype MetricSpec = MetricSpec
   { _type :: (NullOrUndefined String)
   , object :: (NullOrUndefined ObjectMetricSource)
@@ -189,8 +227,13 @@ instance defaultMetricSpec :: Default MetricSpec where
     , pods: NullOrUndefined Nothing
     , resource: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.MetricStatus
 -- | MetricStatus describes the last-read state of a single metric.
+-- |
+-- | Fields:
+-- | - `object`: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
+-- | - `pods`: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
+-- | - `resource`: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
+-- | - `_type`: type is the type of metric source.  It will be one of "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
 newtype MetricStatus = MetricStatus
   { _type :: (NullOrUndefined String)
   , object :: (NullOrUndefined ObjectMetricStatus)
@@ -212,8 +255,12 @@ instance defaultMetricStatus :: Default MetricStatus where
     , pods: NullOrUndefined Nothing
     , resource: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.ObjectMetricSource
 -- | ObjectMetricSource indicates how to scale on a metric describing a kubernetes object (for example, hits-per-second on an Ingress object).
+-- |
+-- | Fields:
+-- | - `metricName`: metricName is the name of the metric in question.
+-- | - `target`: target is the described Kubernetes object.
+-- | - `targetValue`: targetValue is the target value of the metric (as a quantity).
 newtype ObjectMetricSource = ObjectMetricSource
   { metricName :: (NullOrUndefined String)
   , target :: (NullOrUndefined CrossVersionObjectReference)
@@ -233,8 +280,12 @@ instance defaultObjectMetricSource :: Default ObjectMetricSource where
     , target: NullOrUndefined Nothing
     , targetValue: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.ObjectMetricStatus
 -- | ObjectMetricStatus indicates the current value of a metric describing a kubernetes object (for example, hits-per-second on an Ingress object).
+-- |
+-- | Fields:
+-- | - `currentValue`: currentValue is the current value of the metric (as a quantity).
+-- | - `metricName`: metricName is the name of the metric in question.
+-- | - `target`: target is the described Kubernetes object.
 newtype ObjectMetricStatus = ObjectMetricStatus
   { currentValue :: (NullOrUndefined Resource.Quantity)
   , metricName :: (NullOrUndefined String)
@@ -254,8 +305,11 @@ instance defaultObjectMetricStatus :: Default ObjectMetricStatus where
     , metricName: NullOrUndefined Nothing
     , target: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.PodsMetricSource
 -- | PodsMetricSource indicates how to scale on a metric describing each pod in the current scale target (for example, transactions-processed-per-second). The values will be averaged together before being compared to the target value.
+-- |
+-- | Fields:
+-- | - `metricName`: metricName is the name of the metric in question
+-- | - `targetAverageValue`: targetAverageValue is the target value of the average of the metric across all relevant pods (as a quantity)
 newtype PodsMetricSource = PodsMetricSource
   { metricName :: (NullOrUndefined String)
   , targetAverageValue :: (NullOrUndefined Resource.Quantity) }
@@ -273,8 +327,11 @@ instance defaultPodsMetricSource :: Default PodsMetricSource where
     { metricName: NullOrUndefined Nothing
     , targetAverageValue: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.PodsMetricStatus
 -- | PodsMetricStatus indicates the current value of a metric describing each pod in the current scale target (for example, transactions-processed-per-second).
+-- |
+-- | Fields:
+-- | - `currentAverageValue`: currentAverageValue is the current value of the average of the metric across all relevant pods (as a quantity)
+-- | - `metricName`: metricName is the name of the metric in question
 newtype PodsMetricStatus = PodsMetricStatus
   { currentAverageValue :: (NullOrUndefined Resource.Quantity)
   , metricName :: (NullOrUndefined String) }
@@ -292,8 +349,12 @@ instance defaultPodsMetricStatus :: Default PodsMetricStatus where
     { currentAverageValue: NullOrUndefined Nothing
     , metricName: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.ResourceMetricSource
 -- | ResourceMetricSource indicates how to scale on a resource metric known to Kubernetes, as specified in requests and limits, describing each pod in the current scale target (e.g. CPU or memory).  The values will be averaged together before being compared to the target.  Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.  Only one "target" type should be set.
+-- |
+-- | Fields:
+-- | - `name`: name is the name of the resource in question.
+-- | - `targetAverageUtilization`: targetAverageUtilization is the target value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods.
+-- | - `targetAverageValue`: targetAverageValue is the target value of the average of the resource metric across all relevant pods, as a raw value (instead of as a percentage of the request), similar to the "pods" metric source type.
 newtype ResourceMetricSource = ResourceMetricSource
   { name :: (NullOrUndefined String)
   , targetAverageUtilization :: (NullOrUndefined Int)
@@ -313,8 +374,12 @@ instance defaultResourceMetricSource :: Default ResourceMetricSource where
     , targetAverageUtilization: NullOrUndefined Nothing
     , targetAverageValue: NullOrUndefined Nothing }
 
--- | io.k8s.api.autoscaling.v2beta1.ResourceMetricStatus
 -- | ResourceMetricStatus indicates the current value of a resource metric known to Kubernetes, as specified in requests and limits, describing each pod in the current scale target (e.g. CPU or memory).  Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
+-- |
+-- | Fields:
+-- | - `currentAverageUtilization`: currentAverageUtilization is the current value of the average of the resource metric across all relevant pods, represented as a percentage of the requested value of the resource for the pods.  It will only be present if `targetAverageValue` was set in the corresponding metric specification.
+-- | - `currentAverageValue`: currentAverageValue is the current value of the average of the resource metric across all relevant pods, as a raw value (instead of as a percentage of the request), similar to the "pods" metric source type. It will always be set, regardless of the corresponding metric specification.
+-- | - `name`: name is the name of the resource in question.
 newtype ResourceMetricStatus = ResourceMetricStatus
   { currentAverageUtilization :: (NullOrUndefined Int)
   , currentAverageValue :: (NullOrUndefined Resource.Quantity)
@@ -341,7 +406,17 @@ createNamespacedHorizontalPodAutoscaler cfg namespace body = makeRequest (post c
     url = "/apis/autoscaling/v2beta1/namespaces/" <> namespace <> "/horizontalpodautoscalers"
     encodedBody = encodeJSON body
 
--- | DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -377,7 +452,10 @@ deleteCollectionNamespacedHorizontalPodAutoscaler cfg namespace options = makeRe
   where
     url = "/apis/autoscaling/v2beta1/namespaces/" <> namespace <> "/horizontalpodautoscalers" <> formatQueryString options
 
--- | DeleteNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedHorizontalPodAutoscalerOptions = DeleteNamespacedHorizontalPodAutoscalerOptions
   { gracePeriodSeconds :: (NullOrUndefined Int)
   , orphanDependents :: (NullOrUndefined Boolean)
@@ -416,7 +494,17 @@ listHorizontalPodAutoscalerForAllNamespaces cfg = makeRequest (get cfg url Nothi
   where
     url = "/apis/autoscaling/v2beta1/horizontalpodautoscalers"
 
--- | ListNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
+-- | - `fieldSelector`: A selector to restrict the list of returned objects by their fields. Defaults to everything.
+-- | - `includeUninitialized`: If true, partially initialized resources are included in the response.
+-- | - `labelSelector`: A selector to restrict the list of returned objects by their labels. Defaults to everything.
+-- | - `limit`: limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.
+-- |    
+-- |    The server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.
+-- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
+-- | - `timeoutSeconds`: Timeout for the list/watch call.
+-- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedHorizontalPodAutoscalerOptions = ListNamespacedHorizontalPodAutoscalerOptions
   { continue :: (NullOrUndefined String)
   , fieldSelector :: (NullOrUndefined String)
@@ -452,7 +540,9 @@ listNamespacedHorizontalPodAutoscaler cfg namespace options = makeRequest (get c
   where
     url = "/apis/autoscaling/v2beta1/namespaces/" <> namespace <> "/horizontalpodautoscalers" <> formatQueryString options
 
--- | ReadNamespacedHorizontalPodAutoscalerOptions
+-- | Fields:
+-- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
+-- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedHorizontalPodAutoscalerOptions = ReadNamespacedHorizontalPodAutoscalerOptions
   { exact :: (NullOrUndefined Boolean)
   , export :: (NullOrUndefined Boolean) }
