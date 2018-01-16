@@ -29,6 +29,8 @@ bower install --save purescript-kubernetes
 
 See the [integration test](test/Integration/Main.purs) for an example. This deploys and exposes a Hello World pod, pings it, and then tears it all down.
 
+API documentation is [published on Pursuit](https://pursuit.purescript.org/packages/purescript-kubernetes).
+
 ## Development
 
 Assuming [Nix](https://nixos.org/nix/) is installed:
