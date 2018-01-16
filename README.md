@@ -17,7 +17,7 @@ Missing:
 * Watch calls
 * Untested: exec, attach, port-forward calls
 * Encodings other than JSON
-* Works only in a Node.js environment (no browser support)
+* Support for browser environment (works only in Node.js)
 
 ## Installation
 
