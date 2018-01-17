@@ -94,4 +94,4 @@ parseError typeName req res errors = Ex.error $
 formatQueryString :: forall a b. Newtype a b => ToQueryString b => a -> String
 formatQueryString val = case toQueryString (Newtype.unwrap val) of
   "" -> ""
-  formatted -> "&" <> formatted
+  formatted -> "?" <> formatted
