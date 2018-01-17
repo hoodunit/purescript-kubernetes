@@ -37,7 +37,8 @@ instance defaultConfig :: Default Config where
         , clientCert: Nothing
         , clientKey: Nothing
         , verifyServerCert: true } }
-  
+    
+-- | Basic authentication should be used for development/testing only.
 type BasicAuth =
   { user :: String
   , password :: String }
