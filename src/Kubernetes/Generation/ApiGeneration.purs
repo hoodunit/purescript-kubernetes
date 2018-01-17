@@ -10,17 +10,24 @@ import Data.Lens ((^.))
 import Data.Lens as L
 import Data.List (List(..))
 import Data.List as List
-import Data.Maybe (Maybe(..))
+import Data.List.NonEmpty (NonEmptyList(..))
+import Data.List.NonEmpty as NonEmptyList
+import Data.Maybe (Maybe(..), maybe)
+import Data.Monoid (mempty)
+import Data.NonEmpty (NonEmpty(..), (:|))
 import Data.NonEmpty as NonEmpty
 import Data.Record as Record
 import Data.StrMap as StrMap
+import Data.String as String
 import Data.Symbol (SProxy(..))
 import Data.Tuple (Tuple(..), uncurry)
+import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, refName, refName', stripTagFromId, typeModule', typeQualifiedName, uppercaseFirstChar)
 import Kubernetes.Generation.PathParsing as PathParsing
 import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Swagger, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
 import Kubernetes.Generation.TypeGeneration (generateApiTypes)
+import Kubernetes.SchemaExtensions (KubernetesGroupVersionKind(..))
 import Partial.Unsafe (unsafeCrashWith, unsafePartial)
 import Simple.JSON (writeJSON)
     
@@ -32,7 +39,7 @@ type ApiOperation =
   { body :: Maybe AST.TypeDecl
   , description :: Maybe String
   , method :: AST.HttpMethod
-  , moduleName :: String
+  , moduleName :: AST.ApiModuleName
   , name :: String
   , params :: Maybe AST.ObjectType
   , responses :: Array ApiResponse }
@@ -42,7 +49,7 @@ type ApiResponse =
   , "type" :: Maybe String
   , typeRef :: Maybe String }
 
-generateApi :: Partial => String -> Swagger -> AST.ApiAst
+generateApi :: Partial => AST.ApiModuleName -> Swagger -> AST.ApiAst
 generateApi moduleNs swagger = mergeAsts endpointsAst definitionsAst
   where
     endpointsAst = { modules: endpointsModules }
@@ -77,38 +84,58 @@ mergeModules {name, imports: endpointsImports, declarations: endpointsDecls}
     imports = Array.nub $ Array.sort $ endpointsImports <> defsImports
     declarations = endpointsDecls <> defsDecls
 
-mkModules :: Partial => String -> Array ApiEndpoint -> Array AST.ApiModule
-mkModules moduleNs endpoints = groupEndpointsByModule moduleNs endpointDecls
+mkModules :: Partial => AST.ApiModuleName -> Array ApiEndpoint -> Array AST.ApiModule
+mkModules moduleNs endpoints = maybe [] (groupEndpointsByModule moduleNs) endpointDecls
   where
-    endpointDecls = Array.concat (mkEndpointDecls <$> endpoints)
+    endpointDecls = NonEmptyList.fromFoldable $ Array.concat (mkEndpointDecls <$> endpoints)
 
-groupEndpointsByModule :: String -> Array { moduleName :: String, decl :: AST.Declaration } -> Array AST.ApiModule
-groupEndpointsByModule moduleNs endpointDecls = modules
+type DeclWithModule =
+  { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
+
+groupEndpointsByModule ::
+  AST.ApiModuleName
+  -> NonEmptyList DeclWithModule
+  -> Array AST.ApiModule
+groupEndpointsByModule moduleNs endpointDecls =
+  groupByModule endpointDecls
+  # map (\d -> mkModule moduleNs (modName d) (decls d))
+  # NonEmptyList.toUnfoldable
   where
-    modules = StrMap.values $ mapWithIndex (mkModule moduleNs) grouped
-    grouped = (map <<< map) _.decl $ StrMap.fromFoldable tupleGroups
-    tupleGroups = mkTupleGroup <$> arrayGroups
-    arrayGroups = Array.groupBy byModuleName $ Array.sortWith _.moduleName endpointDecls
-    mkTupleGroup group = foldl
-                         (\(Tuple n xs) x -> Tuple n (xs <> [x]))
-                         (Tuple (groupName group) [])
-                         group
-    groupName g = (NonEmpty.head g).moduleName
-    byModuleName {moduleName: n1} {moduleName: n2} = n1 == n2
+    modName :: NonEmptyList DeclWithModule -> AST.ApiModuleName
+    modName = NonEmptyList.head >>> _.moduleName
+    
+    decls :: NonEmptyList DeclWithModule -> Array AST.Declaration
+    decls = Array.fromFoldable >>> map _.decl
+    
+    groupByModule :: NonEmptyList DeclWithModule -> NonEmptyList (NonEmptyList DeclWithModule)
+    groupByModule = NonEmptyList.sortBy sortByModName
+      >>> NonEmptyList.groupBy orderByModName
+      
+    sortByModName :: DeclWithModule -> DeclWithModule -> Ordering
+    sortByModName {moduleName: m1} {moduleName: m2} = m1 `compare` m2
+    
+    orderByModName :: DeclWithModule -> DeclWithModule -> Boolean
+    orderByModName {moduleName: m1} {moduleName: m2} = m1 == m2
 
-mkModule :: String -> String -> Array AST.Declaration -> AST.ApiModule
+mkModule :: AST.ApiModuleName -> AST.ApiModuleName -> Array AST.Declaration -> AST.ApiModule
 mkModule moduleNs moduleName decls =
-  { name: moduleNs <> "." <> moduleName
+  { name: moduleNs <> moduleName
   , imports:
     [ "Prelude"
     , "Control.Monad.Aff (Aff)"
     , "Data.Either (Either(Left,Right))"
-    , "Data.Foreign.Generic (encodeJSON)"
+    , "Data.Foreign.Class (class Decode, class Encode)"
+    , "Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
+    , "Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))"
+    , "Data.Generic.Rep (class Generic)"
+    , "Data.Generic.Rep.Show (genericShow)"
     , "Data.Maybe (Maybe(Just,Nothing))"
+    , "Data.Newtype (class Newtype)"
     , "Node.HTTP (HTTP)"
     , "Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)"
-    , "Kubernetes.Config (Config)"] <>
-    depImports
+    , "Kubernetes.Config (Config)"
+    , "Kubernetes.Default (class Default)"
+    , "Kubernetes.Json (jsonOptions)" ] <> depImports
   , declarations: (mapDeclRefs fixRefName) <$> decls }
   where
     depImports = decls >>= declRefs
@@ -117,11 +144,12 @@ mkModule moduleNs moduleName decls =
       # Array.sort
       # Array.insert "MetaV1"
       # Array.nub
-      # Array.filter ((/=) moduleName)
+      # Array.filter ((/=) (modNameAsStr moduleName))
       <#> mkImport
-    fixRefName (AST.TypeRef r) = AST.TypeRef (refName' moduleName r)
+    fixRefName (AST.TypeRef r) = AST.TypeRef (refName' (NonEmptyList.last moduleName) r)
     fixRefName t = t
-    mkImport dep = moduleNs <> "." <> dep <> " as " <> dep
+    modNameAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable
+    mkImport dep = modNameAsStr moduleNs <> "." <> dep <> " as " <> dep
 
 declRefs :: AST.Declaration -> Array String
 declRefs (AST.Endpoint {body, queryParams, returnType}) =
@@ -159,12 +187,12 @@ mapTypeDeclRef :: (AST.TypeDecl -> AST.TypeDecl) -> AST.TypeDecl -> AST.TypeDecl
 mapTypeDeclRef f t@(AST.TypeRef _) = f t
 mapTypeDeclRef _ t = t
 
-mkEndpointDecls :: Partial => ApiEndpoint -> Array { moduleName :: String, decl :: AST.Declaration }
+mkEndpointDecls :: Partial => ApiEndpoint -> Array { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
 mkEndpointDecls {operations, path} = endpointDecl url <$> operations
   where
     url = PathParsing.parse path
 
-endpointDecl :: Partial => AST.UrlWithParams -> ApiOperation -> { moduleName :: String, decl :: AST.Declaration }
+endpointDecl :: Partial => AST.UrlWithParams -> ApiOperation -> { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
 endpointDecl urlWithParams op@{description, name, body, method, moduleName, params, responses} =
   { moduleName
   , decl: AST.Endpoint { description, method, name, body, queryParams, returnType, urlWithParams } }
@@ -172,10 +200,10 @@ endpointDecl urlWithParams op@{description, name, body, method, moduleName, para
     queryParams = params
     returnType = endpointReturnType moduleName op
 
-endpointReturnType :: Partial => String -> ApiOperation -> AST.TypeDecl
+endpointReturnType :: Partial => AST.ApiModuleName -> ApiOperation -> AST.TypeDecl
 endpointReturnType modName {responses} =
   case find (((==) "200") <<< _.responseCode) responses of
-    Just {typeRef: Just ref} -> AST.TypeRef (refName modName ref)
+    Just {typeRef: Just ref} -> AST.TypeRef (refName (NonEmptyList.last modName) ref)
     Just {"type": Just simpleType} -> parseType simpleType
     _ -> AST.TypeString
 
@@ -210,8 +238,9 @@ generateOperation (Tuple method
     body = parseOperationBody op
 generateOperation (Tuple name op) = unsafeCrashWith $ "Could not parse operation: " <> show (writeJSON op)
 
-parseModuleName :: Partial => Operation -> String
-parseModuleName op@{"x-kubernetes-group-version-kind": NullOrUndefined (Just v)} =
+parseModuleName :: Partial => Operation -> AST.ApiModuleName
+parseModuleName op@{"x-kubernetes-group-version-kind":
+                    NullOrUndefined (Just (KubernetesGroupVersionKind v))} =
   case apiModuleFromGroupVersion v of
     Just name -> name
     Nothing -> unsafeCrashWith $ "Could not parse module name from group version: " <>

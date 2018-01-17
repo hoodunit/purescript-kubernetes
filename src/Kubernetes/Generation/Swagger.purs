@@ -10,6 +10,7 @@ import Data.Maybe (Maybe)
 import Data.StrMap (StrMap)
 import Data.Symbol (SProxy(..))
 import Kubernetes.Generation.JsonSchema (Schema)
+import Kubernetes.SchemaExtensions (KubernetesGroupVersionKind(..))
 
 type Swagger =
   { paths :: StrMap PathItem
@@ -103,11 +104,6 @@ _ref = prop (SProxy :: SProxy "$ref") <<< _Newtype
 
 _type :: L.Lens' SwaggerSchema (Maybe String)
 _type = prop (SProxy :: SProxy "type") <<< _Newtype
-
-type KubernetesGroupVersionKind = 
-  { group :: String
-  , kind :: String
-  , version :: String }
 
 type Param = 
   { "in" :: String

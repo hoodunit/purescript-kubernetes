@@ -3,9 +3,10 @@ module Kubernetes.Api.AuthorizationV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
+import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON)
+import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
@@ -383,34 +384,6 @@ instance defaultSubjectRulesReviewStatus :: Default SubjectRulesReviewStatus whe
     , incomplete: NullOrUndefined Nothing
     , nonResourceRules: NullOrUndefined Nothing
     , resourceRules: NullOrUndefined Nothing }
-
--- | create a LocalSubjectAccessReview
-createNamespacedLocalSubjectAccessReview :: forall e. Config -> LocalSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status LocalSubjectAccessReview)
-createNamespacedLocalSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1beta1/namespaces/{namespace}/localsubjectaccessreviews"
-    encodedBody = encodeJSON body
-
--- | create a SelfSubjectAccessReview
-createSelfSubjectAccessReview :: forall e. Config -> SelfSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SelfSubjectAccessReview)
-createSelfSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1beta1/selfsubjectaccessreviews"
-    encodedBody = encodeJSON body
-
--- | create a SelfSubjectRulesReview
-createSelfSubjectRulesReview :: forall e. Config -> SelfSubjectRulesReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SelfSubjectRulesReview)
-createSelfSubjectRulesReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1beta1/selfsubjectrulesreviews"
-    encodedBody = encodeJSON body
-
--- | create a SubjectAccessReview
-createSubjectAccessReview :: forall e. Config -> SubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status SubjectAccessReview)
-createSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authorization.k8s.io/v1beta1/subjectaccessreviews"
-    encodedBody = encodeJSON body
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

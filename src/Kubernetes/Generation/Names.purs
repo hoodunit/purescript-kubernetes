@@ -5,10 +5,12 @@ import Prelude
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (find, any)
+import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String as Str
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags as RegexFlags
+import Kubernetes.Generation.AST (ApiModuleName)
 
 type ApiMapping =
   { groupVersion :: Maybe GroupVersion
@@ -304,16 +306,16 @@ apiModule qualifiedName = _.moduleName <$> find hasPrefix apiMappings
 modulePrefix :: String -> String
 modulePrefix = Str.split (Str.Pattern ".") >>> Array.dropEnd 1 >>> Str.joinWith "."
 
-apiModuleFromGroupVersion :: forall f. {group :: String, version :: String | f} -> Maybe String
-apiModuleFromGroupVersion {group, version} =
-  _.moduleName <$> find hasGroupVersion apiMappings
+apiModuleFromGroupVersion :: forall f. {group :: String, version :: String, kind :: String | f} -> Maybe ApiModuleName
+apiModuleFromGroupVersion {group, version, kind} =
+  ((\m -> NonEmptyList.snoc m kind) <<< pure <<< _.moduleName) <$> find hasGroupVersion apiMappings
   where
     hasGroupVersion {groupVersion: Just {group: g, version: v}} = g == group && v == version
     hasGroupVersion {groupVersion: Nothing} = false
 
-apiModuleFromTag :: String -> Maybe String
+apiModuleFromTag :: String -> Maybe ApiModuleName
 apiModuleFromTag tag =
-  _.moduleName <$> find hasTag apiMappings
+  (pure <<< _.moduleName) <$> find hasTag apiMappings
   where
     hasTag {tag: Just t} = t == tag
     hasTag {tag: Nothing} = false

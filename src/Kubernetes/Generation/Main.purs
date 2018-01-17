@@ -9,9 +9,13 @@ import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Exception as Exception
 import Data.Array as Array
 import Data.Either (Either(..))
+import Data.List as List
+import Data.List.NonEmpty (NonEmptyList(..))
+import Data.List.NonEmpty as NonEmptyList
+import Data.NonEmpty ((:|))
 import Data.String as String
 import Data.Traversable (sequence)
-import Kubernetes.Generation.AST (ApiModule)
+import Kubernetes.Generation.AST (ApiModule, ApiModuleName)
 import Kubernetes.Generation.ApiGeneration as Gen
 import Kubernetes.Generation.Emitter as Emit
 import Kubernetes.Generation.Swagger (Swagger)
@@ -23,12 +27,12 @@ import Simple.JSON (class ReadForeign, readJSON)
 
 generationConfig :: Config
 generationConfig =
-  { moduleNs: "Kubernetes.Api"
+  { moduleNs: NonEmptyList ("Kubernetes" :| pure "Api")
   , outputDir: "src"
   , swaggerFile: "./definitions/swagger_v1.10.0.json" }
 
 type Config =
-  { moduleNs :: String
+  { moduleNs :: ApiModuleName
   , outputDir :: String
   , swaggerFile :: String }
 
@@ -36,7 +40,7 @@ generateAndEmitApi :: forall e. Config -> Aff (console :: CONSOLE, fs :: FS | e)
 generateAndEmitApi {moduleNs, outputDir, swaggerFile} = do
   (swagger :: Swagger) <- loadSimpleJsonFile swaggerFile
   let apiAst = (unsafePartial $ Gen.generateApi moduleNs swagger)
-  ensureModuleDirsExist outputDir moduleNs
+  ensureDirsOnPathExist (NonEmptyList.cons outputDir moduleNs)
   _ <- unsafePartial $ sequence $ writeModuleFile outputDir <$> apiAst.modules
   log $ "Generated " <> show (Array.length apiAst.modules) <> " modules"
   pure unit
@@ -50,29 +54,30 @@ unwrapEitherIntoAff :: forall a b e. Show a => Either a b -> Aff e b
 unwrapEitherIntoAff (Left error) = throwError (Exception.error $ show error)
 unwrapEitherIntoAff (Right val) = pure val
 
-ensureModuleDirsExist :: forall e. String -> String -> Aff (console :: CONSOLE, fs :: FS | e) Unit
-ensureModuleDirsExist outputDir moduleNs = do
+ensureDirsOnPathExist :: forall e. NonEmptyList String -> Aff (console :: CONSOLE, fs :: FS | e) Unit
+ensureDirsOnPathExist modulePath = do
   _ <- sequence $ ensureDirExists <$> outputDirs
   pure unit
   where
-    modulePath = [outputDir] <> String.split (String.Pattern ".") moduleNs
-    outputDirs = mkOutputDir <$> (Array.range 1 $ Array.length modulePath)
-    mkOutputDir i = String.joinWith "/" $ Array.take i modulePath
+    outputDirs = mkOutputDir <$> (Array.range 1 $ NonEmptyList.length modulePath)
+    mkOutputDir i = String.joinWith "/" $ List.toUnfoldable $ NonEmptyList.take i modulePath
 
 ensureDirExists :: forall e. String -> Aff (console :: CONSOLE, fs :: FS | e) Unit
 ensureDirExists outputDir = do
   dirResult <- try (mkdir outputDir)
   case dirResult of
-    Left error -> log $ "Ignoring error creating output directory '" <> outputDir <> "': " <>
-                  "\n  " <> show error
+    Left error -> pure unit
     Right ok -> log $ "Created output directory '" <> outputDir <> "'"
 
-writeModuleFile :: forall e. Partial => String -> ApiModule -> Aff (fs :: FS | e) Unit
-writeModuleFile dir mod@{name} = writeTextFile UTF8 fileName contents
+writeModuleFile :: forall e. Partial => String -> ApiModule -> Aff (console :: CONSOLE, fs :: FS | e) Unit
+writeModuleFile dir mod@{name} = do
+  let dropLast = NonEmptyList.init >>> NonEmptyList.fromList
+  _ <- sequence $ ensureDirsOnPathExist <$> (dropLast (NonEmptyList.cons dir name))
+  writeTextFile UTF8 fileName contents
   where
     fileName = dir <> "/" <> mkPath name <> ".purs"
     contents = Emit.emitApiModule mod
-    mkPath n = String.joinWith "/" $ String.split (String.Pattern ".") n
+    mkPath = String.joinWith "/" <<< NonEmptyList.toUnfoldable
   
 main :: forall e. Eff (console :: CONSOLE, fs :: FS | e) Unit
 main = launchAff_ $ generateAndEmitApi generationConfig

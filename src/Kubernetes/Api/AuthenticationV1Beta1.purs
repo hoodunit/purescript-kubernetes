@@ -3,9 +3,10 @@ module Kubernetes.Api.AuthenticationV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
+import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON)
+import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
@@ -123,13 +124,6 @@ instance defaultUserInfo :: Default UserInfo where
     , groups: NullOrUndefined Nothing
     , uid: NullOrUndefined Nothing
     , username: NullOrUndefined Nothing }
-
--- | create a TokenReview
-createTokenReview :: forall e. Config -> TokenReview -> Aff (http :: HTTP | e) (Either MetaV1.Status TokenReview)
-createTokenReview cfg body = makeRequest (post cfg url (Just encodedBody))
-  where
-    url = "/apis/authentication.k8s.io/v1beta1/tokenreviews"
-    encodedBody = encodeJSON body
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

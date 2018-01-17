@@ -29,9 +29,10 @@ import Data.StrMap as StrMap
 import Data.Time.Duration (Milliseconds(..))
 import Data.Tuple (Tuple(..))
 import Debug.Trace as Debug
-import Kubernetes.Api.CoreV1 as CoreV1
+import Kubernetes.Api.CoreV1.Namespace as NS
+import Kubernetes.Api.CoreV1.Service as Service
+import Kubernetes.Api.ExtensionsV1Beta1.Deployment as Deploy
 import Kubernetes.Api.APIExtensionsV1Beta1 (Deployment(Deployment))
-import Kubernetes.Api.ExtensionsV1Beta1 as ExtensionsV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.Util (IntOrString(..))
 import Kubernetes.Client as Client
@@ -110,7 +111,7 @@ testNamespace2 = default # (\(Namespace n) -> Namespace $ n
           { name = NullOrUndefined (Just "test") }) })
  
 readDeploy :: Config -> String -> String -> Aff _ (Either MetaV1.Status Deployment)
-readDeploy cfg ns name = ExtensionsV1Beta1.readNamespacedDeployment cfg ns name default
+readDeploy cfg ns name = Deploy.readNamespacedDeployment cfg ns name default
 
 isReadyDeploy :: (Either MetaV1.Status Deployment) -> Boolean
 isReadyDeploy = L.preview (L._Right <<< readyReplicas)
@@ -191,15 +192,15 @@ podHelloWorld cfg = Aff.finally cleanup do
   _ <- deleteNs testNs
   
   log "Creating test namespace"
-  ns <- CoreV1.createNamespace cfg testNamespace >>= unwrapEither
+  ns <- NS.createNamespace cfg testNamespace >>= unwrapEither
   
   log "Creating new deployment"
-  deployment <- ExtensionsV1Beta1.createNamespacedDeployment cfg testNs echoDeployment >>= unwrapEither
+  deployment <- Deploy.createNamespacedDeployment cfg testNs echoDeployment >>= unwrapEither
   log "Waiting for deployment to be ready"
   result <- iterateUntil isReadyDeploy $ shortDelay *> readDeploy cfg testNs "echoserver" 
   log $ "Deployment ready with status: " <> show (result ^? (L._Right <<< _status))
   log "Creating new service"
-  service <- CoreV1.createNamespacedService cfg testNs echoService >>= unwrapEither
+  service <- Service.createNamespacedService cfg testNs echoService >>= unwrapEither
   case service ^. _spec <<< L._Just <<< _clusterIP of
     Just ip -> pingEndpoint ip 9200
     Nothing -> throwError $ Exception.error "Failure: No cluster IP on service"
@@ -210,13 +211,13 @@ podHelloWorld cfg = Aff.finally cleanup do
     testNs = "test"
     deleteNs ns = do
       log $ "Deleting namespace '" <> ns <> "'"
-      deleteRes <- CoreV1.deleteNamespace cfg "test" default default
+      deleteRes <- NS.deleteNamespace cfg "test" default default
       _ <- iterateUntil notFound $ shortDelay *> log "Check: does namespace exist?" *> readNs cfg "test"
       log $ "Deleted test namespace with result: " <> show deleteRes
     shortDelay = Aff.delay (Milliseconds 500.0)
     
 readNs :: Config -> String -> Aff _ (Either MetaV1.Status Namespace)
-readNs cfg name = CoreV1.readNamespace cfg name default
+readNs cfg name = NS.readNamespace cfg name default
       
 notFound :: (Either MetaV1.Status Namespace) -> Boolean
 notFound = L.preview (L._Left <<< _code <<< L._Just)

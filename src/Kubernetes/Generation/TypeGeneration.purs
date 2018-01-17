@@ -7,6 +7,7 @@ import Data.Bifunctor (lmap)
 import Data.Foldable (elem, find, foldl)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.FunctorWithIndex (mapWithIndex)
+import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Newtype (unwrap)
 import Data.NonEmpty as NonEmpty
@@ -114,7 +115,7 @@ typeName mod (Schema {items: NullOrUndefined (Just s)}) (TypeValidatorString Sch
   AST.TypeArray (generateType mod s)
 typeName _ s _ = unsafeCrashWith $ "Could not get type name for schema " <> show s
 
-sharedImports :: String -> String -> Array String -> Array String
+sharedImports :: AST.ApiModuleName -> String -> Array String -> Array String
 sharedImports moduleNs moduleName deps =
   [ "Prelude"
   , "Control.Alt ((<|>))"
@@ -131,9 +132,10 @@ sharedImports moduleNs moduleName deps =
   , "Kubernetes.Json (jsonOptions)" ] <> depImports
   where
     depImports = mkImport <$> deps
-    mkImport modName = moduleNs <> "." <> modName <> " as " <> modName
+    moduleAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable
+    mkImport modName = moduleAsStr moduleNs <> "." <> modName <> " as " <> modName
 
-generateApiTypes :: Partial => String -> Array KubernetesSchema -> AST.ApiAst
+generateApiTypes :: Partial => AST.ApiModuleName -> Array KubernetesSchema -> AST.ApiAst
 generateApiTypes moduleNs schemas = {modules: k8sTypeModules <> [lensModule]}
   where
     modules = groupSchemasByModule schemas
@@ -149,9 +151,9 @@ generateApiTypes moduleNs schemas = {modules: k8sTypeModules <> [lensModule]}
 type GeneratedModule =
   { output :: AST.ApiModule, lenses :: Array String }
 
-generateLensModule :: String -> Array String -> AST.ApiModule
+generateLensModule :: AST.ApiModuleName -> Array String -> AST.ApiModule
 generateLensModule moduleNs lensNames =
-  { name: moduleNs <> ".Lens"
+  { name: NonEmptyList.snoc moduleNs "Lens"
   , imports:
     [ "Prelude"
     , "Data.Lens (Lens')"
@@ -166,11 +168,11 @@ generateLensModule moduleNs lensNames =
     declarations = (\name -> AST.LensHelper {name}) <$> sortedLenses
     sortedLenses = Array.sort lensNames
 
-generateModule :: Partial => String -> Array String -> String -> Array KubernetesSchema -> GeneratedModule
+generateModule :: Partial => AST.ApiModuleName -> Array String -> String -> Array KubernetesSchema -> GeneratedModule
 generateModule moduleNs allModules moduleName schemas = { output: mod, lenses }
   where
     mod =
-      { name: moduleNs <> "." <> moduleName
+      { name: NonEmptyList.snoc moduleNs moduleName
       , imports: sharedImports moduleNs moduleName moduleDeps
       , declarations: typeDeclarations }
     typeDeclarations = _.output <$> typeOutputs

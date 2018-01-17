@@ -2,6 +2,7 @@ module Kubernetes.Generation.AST where
 
 import Prelude
 
+import Data.List.NonEmpty (NonEmptyList(..))
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 
@@ -9,9 +10,11 @@ type ApiAst =
   { modules :: Array ApiModule }
 
 type ApiModule =
-  { name :: String
+  { name :: ApiModuleName
   , imports :: Array String
   , declarations :: Array Declaration }
+
+type ApiModuleName = NonEmptyList String
 
 data Declaration
   = NewtypeDecl ObjectType

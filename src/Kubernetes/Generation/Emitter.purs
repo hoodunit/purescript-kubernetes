@@ -5,6 +5,7 @@ import Prelude
 
 import Data.Array as Array
 import Data.Foldable (fold)
+import Data.List.NonEmpty as NonEmpty
 import Data.Maybe (Maybe(..), maybe)
 import Data.Newtype (unwrap)
 import Data.String as String
@@ -217,9 +218,10 @@ emitImport i = "import " <> i
 
 emitApiModule :: Partial => ApiModule -> String
 emitApiModule {name, imports, declarations} =
-  "module " <> name <> " where\n\n" <>
+  "module " <> moduleName name <> " where\n\n" <>
   emittedImports <> "\n\n" <>
   emittedDecls
   where
     emittedImports = String.joinWith "\n" $ emitImport <$> imports
     emittedDecls = String.joinWith "\n\n" $ emitDeclaration <$> (Array.sort declarations)
+    moduleName = String.joinWith "." <<< NonEmpty.toUnfoldable

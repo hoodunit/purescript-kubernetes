@@ -6,8 +6,11 @@ import Control.Alt ((<|>))
 import Data.Foreign (F, ForeignError(..), fail, readString)
 import Data.Foreign.Class (class Decode, decode)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined)
+import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
+import Data.Maybe (Maybe(..))
 import Data.StrMap (StrMap)
+import Debug.Trace as Debug
+import Kubernetes.SchemaExtensions (KubernetesGroupVersionKind)
 import Simple.JSON (class ReadForeign)
 
 newtype Schema = Schema
@@ -19,7 +22,8 @@ newtype Schema = Schema
   , oneOf :: NullOrUndefined (Array Schema)
   , properties :: NullOrUndefined (StrMap Schema)
   , ref :: NullOrUndefined String
-  , required :: NullOrUndefined (Array String) }
+  , required :: NullOrUndefined (Array String)
+  , "x-kubernetes-group-version-kind" :: NullOrUndefined KubernetesGroupVersionKind }
 instance readForeignSchema :: ReadForeign Schema where
   readImpl = decode
 instance decodeSchema :: Decode Schema where
@@ -33,9 +37,10 @@ instance decodeSchema :: Decode Schema where
     properties <- readProp "properties" f >>= decode
     ref <- readProp "$ref" f >>= decode
     required <- readProp "required" f >>= decode
-    pure $ Schema { _type, additionalProperties, description, format, items, oneOf, properties, ref, required }
+    groupVersion <- readProp "x-kubernetes-group-version-kind" f >>= decode
+    pure $ Schema { _type, additionalProperties, description, format, items, oneOf, properties, ref, required, "x-kubernetes-group-version-kind": groupVersion }
 instance showSchema :: Show Schema where
-  show (Schema { _type, additionalProperties, description, format, items, oneOf, properties, ref, required }) =
+  show (Schema { _type, additionalProperties, description, format, items, oneOf, properties, ref, required, "x-kubernetes-group-version-kind": groupVersion }) =
     "{\n  type: " <> show _type <>
     ",\n  additionalProperties: " <> show additionalProperties <>
     ",\n  description: " <> show description <>
@@ -44,7 +49,8 @@ instance showSchema :: Show Schema where
     ",\n  oneOf: " <> show oneOf <>
     ",\n  properties: " <> show properties <>
     ",\n  ref: " <> show ref <>
-    ",\n  required: " <> show required <> "}"
+    ",\n  required: " <> show required <>
+    ",\n  x-kubernetes-group-version-kind: " <> (Debug.traceAny groupVersion \_ -> "") <> "}"
 
 data TypeValidator = TypeValidatorString SchemaType | TypeValidatorArray (Array SchemaType)
 instance decodeTypeValidator :: Decode TypeValidator where
