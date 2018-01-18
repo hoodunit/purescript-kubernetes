@@ -3,13 +3,17 @@ module Kubernetes.Api.APIExtensionsV1Beta1.CustomResourceDefinition where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionCustomResourceDefinitionOptions :: Newtyp
 derive instance genericDeleteCollectionCustomResourceDefinitionOptions :: Generic DeleteCollectionCustomResourceDefinitionOptions _
 instance showDeleteCollectionCustomResourceDefinitionOptions :: Show DeleteCollectionCustomResourceDefinitionOptions where show a = genericShow a
 instance decodeDeleteCollectionCustomResourceDefinitionOptions :: Decode DeleteCollectionCustomResourceDefinitionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionCustomResourceDefinitionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionCustomResourceDefinitionOptions :: Encode DeleteCollectionCustomResourceDefinitionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionCustomResourceDefinitionOptions :: Default DeleteCollectionCustomResourceDefinitionOptions where
   default = DeleteCollectionCustomResourceDefinitionOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteCustomResourceDefinitionOptions :: Newtype DeleteCu
 derive instance genericDeleteCustomResourceDefinitionOptions :: Generic DeleteCustomResourceDefinitionOptions _
 instance showDeleteCustomResourceDefinitionOptions :: Show DeleteCustomResourceDefinitionOptions where show a = genericShow a
 instance decodeDeleteCustomResourceDefinitionOptions :: Decode DeleteCustomResourceDefinitionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteCustomResourceDefinitionOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteCustomResourceDefinitionOptions :: Encode DeleteCustomResourceDefinitionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteCustomResourceDefinitionOptions :: Default DeleteCustomResourceDefinitionOptions where
   default = DeleteCustomResourceDefinitionOptions
@@ -126,9 +156,27 @@ derive instance newtypeListCustomResourceDefinitionOptions :: Newtype ListCustom
 derive instance genericListCustomResourceDefinitionOptions :: Generic ListCustomResourceDefinitionOptions _
 instance showListCustomResourceDefinitionOptions :: Show ListCustomResourceDefinitionOptions where show a = genericShow a
 instance decodeListCustomResourceDefinitionOptions :: Decode ListCustomResourceDefinitionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListCustomResourceDefinitionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListCustomResourceDefinitionOptions :: Encode ListCustomResourceDefinitionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListCustomResourceDefinitionOptions :: Default ListCustomResourceDefinitionOptions where
   default = ListCustomResourceDefinitionOptions
@@ -158,9 +206,15 @@ derive instance newtypeReadCustomResourceDefinitionOptions :: Newtype ReadCustom
 derive instance genericReadCustomResourceDefinitionOptions :: Generic ReadCustomResourceDefinitionOptions _
 instance showReadCustomResourceDefinitionOptions :: Show ReadCustomResourceDefinitionOptions where show a = genericShow a
 instance decodeReadCustomResourceDefinitionOptions :: Decode ReadCustomResourceDefinitionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadCustomResourceDefinitionOptions { exact, export }
 instance encodeReadCustomResourceDefinitionOptions :: Encode ReadCustomResourceDefinitionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadCustomResourceDefinitionOptions :: Default ReadCustomResourceDefinitionOptions where
   default = ReadCustomResourceDefinitionOptions

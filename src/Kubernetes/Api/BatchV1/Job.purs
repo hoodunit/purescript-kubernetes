@@ -3,13 +3,17 @@ module Kubernetes.Api.BatchV1.Job where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedJobOptions :: Newtype DeleteCol
 derive instance genericDeleteCollectionNamespacedJobOptions :: Generic DeleteCollectionNamespacedJobOptions _
 instance showDeleteCollectionNamespacedJobOptions :: Show DeleteCollectionNamespacedJobOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedJobOptions :: Decode DeleteCollectionNamespacedJobOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedJobOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedJobOptions :: Encode DeleteCollectionNamespacedJobOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedJobOptions :: Default DeleteCollectionNamespacedJobOptions where
   default = DeleteCollectionNamespacedJobOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedJobOptions :: Newtype DeleteNamespacedJob
 derive instance genericDeleteNamespacedJobOptions :: Generic DeleteNamespacedJobOptions _
 instance showDeleteNamespacedJobOptions :: Show DeleteNamespacedJobOptions where show a = genericShow a
 instance decodeDeleteNamespacedJobOptions :: Decode DeleteNamespacedJobOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedJobOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedJobOptions :: Encode DeleteNamespacedJobOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedJobOptions :: Default DeleteNamespacedJobOptions where
   default = DeleteNamespacedJobOptions
@@ -132,9 +162,27 @@ derive instance newtypeListNamespacedJobOptions :: Newtype ListNamespacedJobOpti
 derive instance genericListNamespacedJobOptions :: Generic ListNamespacedJobOptions _
 instance showListNamespacedJobOptions :: Show ListNamespacedJobOptions where show a = genericShow a
 instance decodeListNamespacedJobOptions :: Decode ListNamespacedJobOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedJobOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedJobOptions :: Encode ListNamespacedJobOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedJobOptions :: Default ListNamespacedJobOptions where
   default = ListNamespacedJobOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedJobOptions :: Newtype ReadNamespacedJobOpti
 derive instance genericReadNamespacedJobOptions :: Generic ReadNamespacedJobOptions _
 instance showReadNamespacedJobOptions :: Show ReadNamespacedJobOptions where show a = genericShow a
 instance decodeReadNamespacedJobOptions :: Decode ReadNamespacedJobOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedJobOptions { exact, export }
 instance encodeReadNamespacedJobOptions :: Encode ReadNamespacedJobOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedJobOptions :: Default ReadNamespacedJobOptions where
   default = ReadNamespacedJobOptions

@@ -3,17 +3,20 @@ module Kubernetes.Api.SchedulingV1Alpha1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -43,9 +46,23 @@ derive instance newtypePriorityClass :: Newtype PriorityClass _
 derive instance genericPriorityClass :: Generic PriorityClass _
 instance showPriorityClass :: Show PriorityClass where show a = genericShow a
 instance decodePriorityClass :: Decode PriorityClass where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               description <- readProp "description" a >>= decode
+               globalDefault <- readProp "globalDefault" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               value <- readProp "value" a >>= decode
+               pure $ PriorityClass { apiVersion, description, globalDefault, kind, metadata, value }
 instance encodePriorityClass :: Encode PriorityClass where
-  encode a = genericEncode jsonOptions a
+  encode (PriorityClass a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "description" (encode a.description)
+               , Tuple "globalDefault" (encode a.globalDefault)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "value" (encode a.value) ]
+
 
 instance defaultPriorityClass :: Default PriorityClass where
   default = PriorityClass
@@ -73,9 +90,19 @@ derive instance newtypePriorityClassList :: Newtype PriorityClassList _
 derive instance genericPriorityClassList :: Generic PriorityClassList _
 instance showPriorityClassList :: Show PriorityClassList where show a = genericShow a
 instance decodePriorityClassList :: Decode PriorityClassList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ PriorityClassList { apiVersion, items, kind, metadata }
 instance encodePriorityClassList :: Encode PriorityClassList where
-  encode a = genericEncode jsonOptions a
+  encode (PriorityClassList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultPriorityClassList :: Default PriorityClassList where
   default = PriorityClassList

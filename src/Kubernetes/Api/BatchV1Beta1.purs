@@ -3,17 +3,20 @@ module Kubernetes.Api.BatchV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.BatchV1 as BatchV1
 import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
@@ -43,9 +46,21 @@ derive instance newtypeCronJob :: Newtype CronJob _
 derive instance genericCronJob :: Generic CronJob _
 instance showCronJob :: Show CronJob where show a = genericShow a
 instance decodeCronJob :: Decode CronJob where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ CronJob { apiVersion, kind, metadata, spec, status }
 instance encodeCronJob :: Encode CronJob where
-  encode a = genericEncode jsonOptions a
+  encode (CronJob a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultCronJob :: Default CronJob where
   default = CronJob
@@ -72,9 +87,19 @@ derive instance newtypeCronJobList :: Newtype CronJobList _
 derive instance genericCronJobList :: Generic CronJobList _
 instance showCronJobList :: Show CronJobList where show a = genericShow a
 instance decodeCronJobList :: Decode CronJobList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ CronJobList { apiVersion, items, kind, metadata }
 instance encodeCronJobList :: Encode CronJobList where
-  encode a = genericEncode jsonOptions a
+  encode (CronJobList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultCronJobList :: Default CronJobList where
   default = CronJobList
@@ -106,9 +131,25 @@ derive instance newtypeCronJobSpec :: Newtype CronJobSpec _
 derive instance genericCronJobSpec :: Generic CronJobSpec _
 instance showCronJobSpec :: Show CronJobSpec where show a = genericShow a
 instance decodeCronJobSpec :: Decode CronJobSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               concurrencyPolicy <- readProp "concurrencyPolicy" a >>= decode
+               failedJobsHistoryLimit <- readProp "failedJobsHistoryLimit" a >>= decode
+               jobTemplate <- readProp "jobTemplate" a >>= decode
+               schedule <- readProp "schedule" a >>= decode
+               startingDeadlineSeconds <- readProp "startingDeadlineSeconds" a >>= decode
+               successfulJobsHistoryLimit <- readProp "successfulJobsHistoryLimit" a >>= decode
+               suspend <- readProp "suspend" a >>= decode
+               pure $ CronJobSpec { concurrencyPolicy, failedJobsHistoryLimit, jobTemplate, schedule, startingDeadlineSeconds, successfulJobsHistoryLimit, suspend }
 instance encodeCronJobSpec :: Encode CronJobSpec where
-  encode a = genericEncode jsonOptions a
+  encode (CronJobSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "concurrencyPolicy" (encode a.concurrencyPolicy)
+               , Tuple "failedJobsHistoryLimit" (encode a.failedJobsHistoryLimit)
+               , Tuple "jobTemplate" (encode a.jobTemplate)
+               , Tuple "schedule" (encode a.schedule)
+               , Tuple "startingDeadlineSeconds" (encode a.startingDeadlineSeconds)
+               , Tuple "successfulJobsHistoryLimit" (encode a.successfulJobsHistoryLimit)
+               , Tuple "suspend" (encode a.suspend) ]
+
 
 instance defaultCronJobSpec :: Default CronJobSpec where
   default = CronJobSpec
@@ -133,9 +174,15 @@ derive instance newtypeCronJobStatus :: Newtype CronJobStatus _
 derive instance genericCronJobStatus :: Generic CronJobStatus _
 instance showCronJobStatus :: Show CronJobStatus where show a = genericShow a
 instance decodeCronJobStatus :: Decode CronJobStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               active <- readProp "active" a >>= decode
+               lastScheduleTime <- readProp "lastScheduleTime" a >>= decode
+               pure $ CronJobStatus { active, lastScheduleTime }
 instance encodeCronJobStatus :: Encode CronJobStatus where
-  encode a = genericEncode jsonOptions a
+  encode (CronJobStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "active" (encode a.active)
+               , Tuple "lastScheduleTime" (encode a.lastScheduleTime) ]
+
 
 instance defaultCronJobStatus :: Default CronJobStatus where
   default = CronJobStatus
@@ -155,9 +202,15 @@ derive instance newtypeJobTemplateSpec :: Newtype JobTemplateSpec _
 derive instance genericJobTemplateSpec :: Generic JobTemplateSpec _
 instance showJobTemplateSpec :: Show JobTemplateSpec where show a = genericShow a
 instance decodeJobTemplateSpec :: Decode JobTemplateSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               pure $ JobTemplateSpec { metadata, spec }
 instance encodeJobTemplateSpec :: Encode JobTemplateSpec where
-  encode a = genericEncode jsonOptions a
+  encode (JobTemplateSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec) ]
+
 
 instance defaultJobTemplateSpec :: Default JobTemplateSpec where
   default = JobTemplateSpec

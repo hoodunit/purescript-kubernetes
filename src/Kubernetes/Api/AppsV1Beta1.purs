@@ -3,17 +3,20 @@ module Kubernetes.Api.AppsV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.Runtime as Runtime
@@ -44,9 +47,21 @@ derive instance newtypeControllerRevision :: Newtype ControllerRevision _
 derive instance genericControllerRevision :: Generic ControllerRevision _
 instance showControllerRevision :: Show ControllerRevision where show a = genericShow a
 instance decodeControllerRevision :: Decode ControllerRevision where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _data <- readProp "_data" a >>= decode
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               revision <- readProp "revision" a >>= decode
+               pure $ ControllerRevision { _data, apiVersion, kind, metadata, revision }
 instance encodeControllerRevision :: Encode ControllerRevision where
-  encode a = genericEncode jsonOptions a
+  encode (ControllerRevision a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_data" (encode a._data)
+               , Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "revision" (encode a.revision) ]
+
 
 instance defaultControllerRevision :: Default ControllerRevision where
   default = ControllerRevision
@@ -73,9 +88,19 @@ derive instance newtypeControllerRevisionList :: Newtype ControllerRevisionList 
 derive instance genericControllerRevisionList :: Generic ControllerRevisionList _
 instance showControllerRevisionList :: Show ControllerRevisionList where show a = genericShow a
 instance decodeControllerRevisionList :: Decode ControllerRevisionList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ControllerRevisionList { apiVersion, items, kind, metadata }
 instance encodeControllerRevisionList :: Encode ControllerRevisionList where
-  encode a = genericEncode jsonOptions a
+  encode (ControllerRevisionList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultControllerRevisionList :: Default ControllerRevisionList where
   default = ControllerRevisionList
@@ -103,9 +128,21 @@ derive instance newtypeDeployment :: Newtype Deployment _
 derive instance genericDeployment :: Generic Deployment _
 instance showDeployment :: Show Deployment where show a = genericShow a
 instance decodeDeployment :: Decode Deployment where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Deployment { apiVersion, kind, metadata, spec, status }
 instance encodeDeployment :: Encode Deployment where
-  encode a = genericEncode jsonOptions a
+  encode (Deployment a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultDeployment :: Default Deployment where
   default = Deployment
@@ -136,9 +173,23 @@ derive instance newtypeDeploymentCondition :: Newtype DeploymentCondition _
 derive instance genericDeploymentCondition :: Generic DeploymentCondition _
 instance showDeploymentCondition :: Show DeploymentCondition where show a = genericShow a
 instance decodeDeploymentCondition :: Decode DeploymentCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               lastUpdateTime <- readProp "lastUpdateTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ DeploymentCondition { _type, lastTransitionTime, lastUpdateTime, message, reason, status }
 instance encodeDeploymentCondition :: Encode DeploymentCondition where
-  encode a = genericEncode jsonOptions a
+  encode (DeploymentCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "lastUpdateTime" (encode a.lastUpdateTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultDeploymentCondition :: Default DeploymentCondition where
   default = DeploymentCondition
@@ -166,9 +217,19 @@ derive instance newtypeDeploymentList :: Newtype DeploymentList _
 derive instance genericDeploymentList :: Generic DeploymentList _
 instance showDeploymentList :: Show DeploymentList where show a = genericShow a
 instance decodeDeploymentList :: Decode DeploymentList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ DeploymentList { apiVersion, items, kind, metadata }
 instance encodeDeploymentList :: Encode DeploymentList where
-  encode a = genericEncode jsonOptions a
+  encode (DeploymentList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultDeploymentList :: Default DeploymentList where
   default = DeploymentList
@@ -196,9 +257,21 @@ derive instance newtypeDeploymentRollback :: Newtype DeploymentRollback _
 derive instance genericDeploymentRollback :: Generic DeploymentRollback _
 instance showDeploymentRollback :: Show DeploymentRollback where show a = genericShow a
 instance decodeDeploymentRollback :: Decode DeploymentRollback where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               rollbackTo <- readProp "rollbackTo" a >>= decode
+               updatedAnnotations <- readProp "updatedAnnotations" a >>= decode
+               pure $ DeploymentRollback { apiVersion, kind, name, rollbackTo, updatedAnnotations }
 instance encodeDeploymentRollback :: Encode DeploymentRollback where
-  encode a = genericEncode jsonOptions a
+  encode (DeploymentRollback a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name)
+               , Tuple "rollbackTo" (encode a.rollbackTo)
+               , Tuple "updatedAnnotations" (encode a.updatedAnnotations) ]
+
 
 instance defaultDeploymentRollback :: Default DeploymentRollback where
   default = DeploymentRollback
@@ -235,9 +308,29 @@ derive instance newtypeDeploymentSpec :: Newtype DeploymentSpec _
 derive instance genericDeploymentSpec :: Generic DeploymentSpec _
 instance showDeploymentSpec :: Show DeploymentSpec where show a = genericShow a
 instance decodeDeploymentSpec :: Decode DeploymentSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               minReadySeconds <- readProp "minReadySeconds" a >>= decode
+               paused <- readProp "paused" a >>= decode
+               progressDeadlineSeconds <- readProp "progressDeadlineSeconds" a >>= decode
+               replicas <- readProp "replicas" a >>= decode
+               revisionHistoryLimit <- readProp "revisionHistoryLimit" a >>= decode
+               rollbackTo <- readProp "rollbackTo" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               strategy <- readProp "strategy" a >>= decode
+               template <- readProp "template" a >>= decode
+               pure $ DeploymentSpec { minReadySeconds, paused, progressDeadlineSeconds, replicas, revisionHistoryLimit, rollbackTo, selector, strategy, template }
 instance encodeDeploymentSpec :: Encode DeploymentSpec where
-  encode a = genericEncode jsonOptions a
+  encode (DeploymentSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "minReadySeconds" (encode a.minReadySeconds)
+               , Tuple "paused" (encode a.paused)
+               , Tuple "progressDeadlineSeconds" (encode a.progressDeadlineSeconds)
+               , Tuple "replicas" (encode a.replicas)
+               , Tuple "revisionHistoryLimit" (encode a.revisionHistoryLimit)
+               , Tuple "rollbackTo" (encode a.rollbackTo)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "strategy" (encode a.strategy)
+               , Tuple "template" (encode a.template) ]
+
 
 instance defaultDeploymentSpec :: Default DeploymentSpec where
   default = DeploymentSpec
@@ -276,9 +369,27 @@ derive instance newtypeDeploymentStatus :: Newtype DeploymentStatus _
 derive instance genericDeploymentStatus :: Generic DeploymentStatus _
 instance showDeploymentStatus :: Show DeploymentStatus where show a = genericShow a
 instance decodeDeploymentStatus :: Decode DeploymentStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               availableReplicas <- readProp "availableReplicas" a >>= decode
+               collisionCount <- readProp "collisionCount" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               observedGeneration <- readProp "observedGeneration" a >>= decode
+               readyReplicas <- readProp "readyReplicas" a >>= decode
+               replicas <- readProp "replicas" a >>= decode
+               unavailableReplicas <- readProp "unavailableReplicas" a >>= decode
+               updatedReplicas <- readProp "updatedReplicas" a >>= decode
+               pure $ DeploymentStatus { availableReplicas, collisionCount, conditions, observedGeneration, readyReplicas, replicas, unavailableReplicas, updatedReplicas }
 instance encodeDeploymentStatus :: Encode DeploymentStatus where
-  encode a = genericEncode jsonOptions a
+  encode (DeploymentStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "availableReplicas" (encode a.availableReplicas)
+               , Tuple "collisionCount" (encode a.collisionCount)
+               , Tuple "conditions" (encode a.conditions)
+               , Tuple "observedGeneration" (encode a.observedGeneration)
+               , Tuple "readyReplicas" (encode a.readyReplicas)
+               , Tuple "replicas" (encode a.replicas)
+               , Tuple "unavailableReplicas" (encode a.unavailableReplicas)
+               , Tuple "updatedReplicas" (encode a.updatedReplicas) ]
+
 
 instance defaultDeploymentStatus :: Default DeploymentStatus where
   default = DeploymentStatus
@@ -304,9 +415,15 @@ derive instance newtypeDeploymentStrategy :: Newtype DeploymentStrategy _
 derive instance genericDeploymentStrategy :: Generic DeploymentStrategy _
 instance showDeploymentStrategy :: Show DeploymentStrategy where show a = genericShow a
 instance decodeDeploymentStrategy :: Decode DeploymentStrategy where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               rollingUpdate <- readProp "rollingUpdate" a >>= decode
+               pure $ DeploymentStrategy { _type, rollingUpdate }
 instance encodeDeploymentStrategy :: Encode DeploymentStrategy where
-  encode a = genericEncode jsonOptions a
+  encode (DeploymentStrategy a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "rollingUpdate" (encode a.rollingUpdate) ]
+
 
 instance defaultDeploymentStrategy :: Default DeploymentStrategy where
   default = DeploymentStrategy
@@ -324,9 +441,13 @@ derive instance newtypeRollbackConfig :: Newtype RollbackConfig _
 derive instance genericRollbackConfig :: Generic RollbackConfig _
 instance showRollbackConfig :: Show RollbackConfig where show a = genericShow a
 instance decodeRollbackConfig :: Decode RollbackConfig where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               revision <- readProp "revision" a >>= decode
+               pure $ RollbackConfig { revision }
 instance encodeRollbackConfig :: Encode RollbackConfig where
-  encode a = genericEncode jsonOptions a
+  encode (RollbackConfig a) = encode $ StrMap.fromFoldable $
+               [ Tuple "revision" (encode a.revision) ]
+
 
 instance defaultRollbackConfig :: Default RollbackConfig where
   default = RollbackConfig
@@ -345,9 +466,15 @@ derive instance newtypeRollingUpdateDeployment :: Newtype RollingUpdateDeploymen
 derive instance genericRollingUpdateDeployment :: Generic RollingUpdateDeployment _
 instance showRollingUpdateDeployment :: Show RollingUpdateDeployment where show a = genericShow a
 instance decodeRollingUpdateDeployment :: Decode RollingUpdateDeployment where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               maxSurge <- readProp "maxSurge" a >>= decode
+               maxUnavailable <- readProp "maxUnavailable" a >>= decode
+               pure $ RollingUpdateDeployment { maxSurge, maxUnavailable }
 instance encodeRollingUpdateDeployment :: Encode RollingUpdateDeployment where
-  encode a = genericEncode jsonOptions a
+  encode (RollingUpdateDeployment a) = encode $ StrMap.fromFoldable $
+               [ Tuple "maxSurge" (encode a.maxSurge)
+               , Tuple "maxUnavailable" (encode a.maxUnavailable) ]
+
 
 instance defaultRollingUpdateDeployment :: Default RollingUpdateDeployment where
   default = RollingUpdateDeployment
@@ -365,9 +492,13 @@ derive instance newtypeRollingUpdateStatefulSetStrategy :: Newtype RollingUpdate
 derive instance genericRollingUpdateStatefulSetStrategy :: Generic RollingUpdateStatefulSetStrategy _
 instance showRollingUpdateStatefulSetStrategy :: Show RollingUpdateStatefulSetStrategy where show a = genericShow a
 instance decodeRollingUpdateStatefulSetStrategy :: Decode RollingUpdateStatefulSetStrategy where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               partition <- readProp "partition" a >>= decode
+               pure $ RollingUpdateStatefulSetStrategy { partition }
 instance encodeRollingUpdateStatefulSetStrategy :: Encode RollingUpdateStatefulSetStrategy where
-  encode a = genericEncode jsonOptions a
+  encode (RollingUpdateStatefulSetStrategy a) = encode $ StrMap.fromFoldable $
+               [ Tuple "partition" (encode a.partition) ]
+
 
 instance defaultRollingUpdateStatefulSetStrategy :: Default RollingUpdateStatefulSetStrategy where
   default = RollingUpdateStatefulSetStrategy
@@ -392,9 +523,21 @@ derive instance newtypeScale :: Newtype Scale _
 derive instance genericScale :: Generic Scale _
 instance showScale :: Show Scale where show a = genericShow a
 instance decodeScale :: Decode Scale where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Scale { apiVersion, kind, metadata, spec, status }
 instance encodeScale :: Encode Scale where
-  encode a = genericEncode jsonOptions a
+  encode (Scale a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultScale :: Default Scale where
   default = Scale
@@ -415,9 +558,13 @@ derive instance newtypeScaleSpec :: Newtype ScaleSpec _
 derive instance genericScaleSpec :: Generic ScaleSpec _
 instance showScaleSpec :: Show ScaleSpec where show a = genericShow a
 instance decodeScaleSpec :: Decode ScaleSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               replicas <- readProp "replicas" a >>= decode
+               pure $ ScaleSpec { replicas }
 instance encodeScaleSpec :: Encode ScaleSpec where
-  encode a = genericEncode jsonOptions a
+  encode (ScaleSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "replicas" (encode a.replicas) ]
+
 
 instance defaultScaleSpec :: Default ScaleSpec where
   default = ScaleSpec
@@ -438,9 +585,17 @@ derive instance newtypeScaleStatus :: Newtype ScaleStatus _
 derive instance genericScaleStatus :: Generic ScaleStatus _
 instance showScaleStatus :: Show ScaleStatus where show a = genericShow a
 instance decodeScaleStatus :: Decode ScaleStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               replicas <- readProp "replicas" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               targetSelector <- readProp "targetSelector" a >>= decode
+               pure $ ScaleStatus { replicas, selector, targetSelector }
 instance encodeScaleStatus :: Encode ScaleStatus where
-  encode a = genericEncode jsonOptions a
+  encode (ScaleStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "replicas" (encode a.replicas)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "targetSelector" (encode a.targetSelector) ]
+
 
 instance defaultScaleStatus :: Default ScaleStatus where
   default = ScaleStatus
@@ -470,9 +625,21 @@ derive instance newtypeStatefulSet :: Newtype StatefulSet _
 derive instance genericStatefulSet :: Generic StatefulSet _
 instance showStatefulSet :: Show StatefulSet where show a = genericShow a
 instance decodeStatefulSet :: Decode StatefulSet where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ StatefulSet { apiVersion, kind, metadata, spec, status }
 instance encodeStatefulSet :: Encode StatefulSet where
-  encode a = genericEncode jsonOptions a
+  encode (StatefulSet a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultStatefulSet :: Default StatefulSet where
   default = StatefulSet
@@ -501,9 +668,21 @@ derive instance newtypeStatefulSetCondition :: Newtype StatefulSetCondition _
 derive instance genericStatefulSetCondition :: Generic StatefulSetCondition _
 instance showStatefulSetCondition :: Show StatefulSetCondition where show a = genericShow a
 instance decodeStatefulSetCondition :: Decode StatefulSetCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ StatefulSetCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeStatefulSetCondition :: Encode StatefulSetCondition where
-  encode a = genericEncode jsonOptions a
+  encode (StatefulSetCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultStatefulSetCondition :: Default StatefulSetCondition where
   default = StatefulSetCondition
@@ -530,9 +709,19 @@ derive instance newtypeStatefulSetList :: Newtype StatefulSetList _
 derive instance genericStatefulSetList :: Generic StatefulSetList _
 instance showStatefulSetList :: Show StatefulSetList where show a = genericShow a
 instance decodeStatefulSetList :: Decode StatefulSetList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ StatefulSetList { apiVersion, items, kind, metadata }
 instance encodeStatefulSetList :: Encode StatefulSetList where
-  encode a = genericEncode jsonOptions a
+  encode (StatefulSetList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultStatefulSetList :: Default StatefulSetList where
   default = StatefulSetList
@@ -566,9 +755,27 @@ derive instance newtypeStatefulSetSpec :: Newtype StatefulSetSpec _
 derive instance genericStatefulSetSpec :: Generic StatefulSetSpec _
 instance showStatefulSetSpec :: Show StatefulSetSpec where show a = genericShow a
 instance decodeStatefulSetSpec :: Decode StatefulSetSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               podManagementPolicy <- readProp "podManagementPolicy" a >>= decode
+               replicas <- readProp "replicas" a >>= decode
+               revisionHistoryLimit <- readProp "revisionHistoryLimit" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               serviceName <- readProp "serviceName" a >>= decode
+               template <- readProp "template" a >>= decode
+               updateStrategy <- readProp "updateStrategy" a >>= decode
+               volumeClaimTemplates <- readProp "volumeClaimTemplates" a >>= decode
+               pure $ StatefulSetSpec { podManagementPolicy, replicas, revisionHistoryLimit, selector, serviceName, template, updateStrategy, volumeClaimTemplates }
 instance encodeStatefulSetSpec :: Encode StatefulSetSpec where
-  encode a = genericEncode jsonOptions a
+  encode (StatefulSetSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "podManagementPolicy" (encode a.podManagementPolicy)
+               , Tuple "replicas" (encode a.replicas)
+               , Tuple "revisionHistoryLimit" (encode a.revisionHistoryLimit)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "serviceName" (encode a.serviceName)
+               , Tuple "template" (encode a.template)
+               , Tuple "updateStrategy" (encode a.updateStrategy)
+               , Tuple "volumeClaimTemplates" (encode a.volumeClaimTemplates) ]
+
 
 instance defaultStatefulSetSpec :: Default StatefulSetSpec where
   default = StatefulSetSpec
@@ -608,9 +815,29 @@ derive instance newtypeStatefulSetStatus :: Newtype StatefulSetStatus _
 derive instance genericStatefulSetStatus :: Generic StatefulSetStatus _
 instance showStatefulSetStatus :: Show StatefulSetStatus where show a = genericShow a
 instance decodeStatefulSetStatus :: Decode StatefulSetStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               collisionCount <- readProp "collisionCount" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               currentReplicas <- readProp "currentReplicas" a >>= decode
+               currentRevision <- readProp "currentRevision" a >>= decode
+               observedGeneration <- readProp "observedGeneration" a >>= decode
+               readyReplicas <- readProp "readyReplicas" a >>= decode
+               replicas <- readProp "replicas" a >>= decode
+               updateRevision <- readProp "updateRevision" a >>= decode
+               updatedReplicas <- readProp "updatedReplicas" a >>= decode
+               pure $ StatefulSetStatus { collisionCount, conditions, currentReplicas, currentRevision, observedGeneration, readyReplicas, replicas, updateRevision, updatedReplicas }
 instance encodeStatefulSetStatus :: Encode StatefulSetStatus where
-  encode a = genericEncode jsonOptions a
+  encode (StatefulSetStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "collisionCount" (encode a.collisionCount)
+               , Tuple "conditions" (encode a.conditions)
+               , Tuple "currentReplicas" (encode a.currentReplicas)
+               , Tuple "currentRevision" (encode a.currentRevision)
+               , Tuple "observedGeneration" (encode a.observedGeneration)
+               , Tuple "readyReplicas" (encode a.readyReplicas)
+               , Tuple "replicas" (encode a.replicas)
+               , Tuple "updateRevision" (encode a.updateRevision)
+               , Tuple "updatedReplicas" (encode a.updatedReplicas) ]
+
 
 instance defaultStatefulSetStatus :: Default StatefulSetStatus where
   default = StatefulSetStatus
@@ -637,9 +864,15 @@ derive instance newtypeStatefulSetUpdateStrategy :: Newtype StatefulSetUpdateStr
 derive instance genericStatefulSetUpdateStrategy :: Generic StatefulSetUpdateStrategy _
 instance showStatefulSetUpdateStrategy :: Show StatefulSetUpdateStrategy where show a = genericShow a
 instance decodeStatefulSetUpdateStrategy :: Decode StatefulSetUpdateStrategy where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               rollingUpdate <- readProp "rollingUpdate" a >>= decode
+               pure $ StatefulSetUpdateStrategy { _type, rollingUpdate }
 instance encodeStatefulSetUpdateStrategy :: Encode StatefulSetUpdateStrategy where
-  encode a = genericEncode jsonOptions a
+  encode (StatefulSetUpdateStrategy a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "rollingUpdate" (encode a.rollingUpdate) ]
+
 
 instance defaultStatefulSetUpdateStrategy :: Default StatefulSetUpdateStrategy where
   default = StatefulSetUpdateStrategy

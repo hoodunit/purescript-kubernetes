@@ -3,17 +3,20 @@ module Kubernetes.Api.AutoscalingV1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -37,9 +40,17 @@ derive instance newtypeCrossVersionObjectReference :: Newtype CrossVersionObject
 derive instance genericCrossVersionObjectReference :: Generic CrossVersionObjectReference _
 instance showCrossVersionObjectReference :: Show CrossVersionObjectReference where show a = genericShow a
 instance decodeCrossVersionObjectReference :: Decode CrossVersionObjectReference where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               pure $ CrossVersionObjectReference { apiVersion, kind, name }
 instance encodeCrossVersionObjectReference :: Encode CrossVersionObjectReference where
-  encode a = genericEncode jsonOptions a
+  encode (CrossVersionObjectReference a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name) ]
+
 
 instance defaultCrossVersionObjectReference :: Default CrossVersionObjectReference where
   default = CrossVersionObjectReference
@@ -66,9 +77,21 @@ derive instance newtypeHorizontalPodAutoscaler :: Newtype HorizontalPodAutoscale
 derive instance genericHorizontalPodAutoscaler :: Generic HorizontalPodAutoscaler _
 instance showHorizontalPodAutoscaler :: Show HorizontalPodAutoscaler where show a = genericShow a
 instance decodeHorizontalPodAutoscaler :: Decode HorizontalPodAutoscaler where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ HorizontalPodAutoscaler { apiVersion, kind, metadata, spec, status }
 instance encodeHorizontalPodAutoscaler :: Encode HorizontalPodAutoscaler where
-  encode a = genericEncode jsonOptions a
+  encode (HorizontalPodAutoscaler a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultHorizontalPodAutoscaler :: Default HorizontalPodAutoscaler where
   default = HorizontalPodAutoscaler
@@ -95,9 +118,19 @@ derive instance newtypeHorizontalPodAutoscalerList :: Newtype HorizontalPodAutos
 derive instance genericHorizontalPodAutoscalerList :: Generic HorizontalPodAutoscalerList _
 instance showHorizontalPodAutoscalerList :: Show HorizontalPodAutoscalerList where show a = genericShow a
 instance decodeHorizontalPodAutoscalerList :: Decode HorizontalPodAutoscalerList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ HorizontalPodAutoscalerList { apiVersion, items, kind, metadata }
 instance encodeHorizontalPodAutoscalerList :: Encode HorizontalPodAutoscalerList where
-  encode a = genericEncode jsonOptions a
+  encode (HorizontalPodAutoscalerList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultHorizontalPodAutoscalerList :: Default HorizontalPodAutoscalerList where
   default = HorizontalPodAutoscalerList
@@ -123,9 +156,19 @@ derive instance newtypeHorizontalPodAutoscalerSpec :: Newtype HorizontalPodAutos
 derive instance genericHorizontalPodAutoscalerSpec :: Generic HorizontalPodAutoscalerSpec _
 instance showHorizontalPodAutoscalerSpec :: Show HorizontalPodAutoscalerSpec where show a = genericShow a
 instance decodeHorizontalPodAutoscalerSpec :: Decode HorizontalPodAutoscalerSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               maxReplicas <- readProp "maxReplicas" a >>= decode
+               minReplicas <- readProp "minReplicas" a >>= decode
+               scaleTargetRef <- readProp "scaleTargetRef" a >>= decode
+               targetCPUUtilizationPercentage <- readProp "targetCPUUtilizationPercentage" a >>= decode
+               pure $ HorizontalPodAutoscalerSpec { maxReplicas, minReplicas, scaleTargetRef, targetCPUUtilizationPercentage }
 instance encodeHorizontalPodAutoscalerSpec :: Encode HorizontalPodAutoscalerSpec where
-  encode a = genericEncode jsonOptions a
+  encode (HorizontalPodAutoscalerSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "maxReplicas" (encode a.maxReplicas)
+               , Tuple "minReplicas" (encode a.minReplicas)
+               , Tuple "scaleTargetRef" (encode a.scaleTargetRef)
+               , Tuple "targetCPUUtilizationPercentage" (encode a.targetCPUUtilizationPercentage) ]
+
 
 instance defaultHorizontalPodAutoscalerSpec :: Default HorizontalPodAutoscalerSpec where
   default = HorizontalPodAutoscalerSpec
@@ -153,9 +196,21 @@ derive instance newtypeHorizontalPodAutoscalerStatus :: Newtype HorizontalPodAut
 derive instance genericHorizontalPodAutoscalerStatus :: Generic HorizontalPodAutoscalerStatus _
 instance showHorizontalPodAutoscalerStatus :: Show HorizontalPodAutoscalerStatus where show a = genericShow a
 instance decodeHorizontalPodAutoscalerStatus :: Decode HorizontalPodAutoscalerStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               currentCPUUtilizationPercentage <- readProp "currentCPUUtilizationPercentage" a >>= decode
+               currentReplicas <- readProp "currentReplicas" a >>= decode
+               desiredReplicas <- readProp "desiredReplicas" a >>= decode
+               lastScaleTime <- readProp "lastScaleTime" a >>= decode
+               observedGeneration <- readProp "observedGeneration" a >>= decode
+               pure $ HorizontalPodAutoscalerStatus { currentCPUUtilizationPercentage, currentReplicas, desiredReplicas, lastScaleTime, observedGeneration }
 instance encodeHorizontalPodAutoscalerStatus :: Encode HorizontalPodAutoscalerStatus where
-  encode a = genericEncode jsonOptions a
+  encode (HorizontalPodAutoscalerStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "currentCPUUtilizationPercentage" (encode a.currentCPUUtilizationPercentage)
+               , Tuple "currentReplicas" (encode a.currentReplicas)
+               , Tuple "desiredReplicas" (encode a.desiredReplicas)
+               , Tuple "lastScaleTime" (encode a.lastScaleTime)
+               , Tuple "observedGeneration" (encode a.observedGeneration) ]
+
 
 instance defaultHorizontalPodAutoscalerStatus :: Default HorizontalPodAutoscalerStatus where
   default = HorizontalPodAutoscalerStatus
@@ -184,9 +239,21 @@ derive instance newtypeScale :: Newtype Scale _
 derive instance genericScale :: Generic Scale _
 instance showScale :: Show Scale where show a = genericShow a
 instance decodeScale :: Decode Scale where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Scale { apiVersion, kind, metadata, spec, status }
 instance encodeScale :: Encode Scale where
-  encode a = genericEncode jsonOptions a
+  encode (Scale a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultScale :: Default Scale where
   default = Scale
@@ -207,9 +274,13 @@ derive instance newtypeScaleSpec :: Newtype ScaleSpec _
 derive instance genericScaleSpec :: Generic ScaleSpec _
 instance showScaleSpec :: Show ScaleSpec where show a = genericShow a
 instance decodeScaleSpec :: Decode ScaleSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               replicas <- readProp "replicas" a >>= decode
+               pure $ ScaleSpec { replicas }
 instance encodeScaleSpec :: Encode ScaleSpec where
-  encode a = genericEncode jsonOptions a
+  encode (ScaleSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "replicas" (encode a.replicas) ]
+
 
 instance defaultScaleSpec :: Default ScaleSpec where
   default = ScaleSpec
@@ -228,9 +299,15 @@ derive instance newtypeScaleStatus :: Newtype ScaleStatus _
 derive instance genericScaleStatus :: Generic ScaleStatus _
 instance showScaleStatus :: Show ScaleStatus where show a = genericShow a
 instance decodeScaleStatus :: Decode ScaleStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               replicas <- readProp "replicas" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               pure $ ScaleStatus { replicas, selector }
 instance encodeScaleStatus :: Encode ScaleStatus where
-  encode a = genericEncode jsonOptions a
+  encode (ScaleStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "replicas" (encode a.replicas)
+               , Tuple "selector" (encode a.selector) ]
+
 
 instance defaultScaleStatus :: Default ScaleStatus where
   default = ScaleStatus

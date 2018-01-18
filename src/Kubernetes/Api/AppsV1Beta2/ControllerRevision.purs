@@ -3,13 +3,17 @@ module Kubernetes.Api.AppsV1Beta2.ControllerRevision where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedControllerRevisionOptions :: Ne
 derive instance genericDeleteCollectionNamespacedControllerRevisionOptions :: Generic DeleteCollectionNamespacedControllerRevisionOptions _
 instance showDeleteCollectionNamespacedControllerRevisionOptions :: Show DeleteCollectionNamespacedControllerRevisionOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedControllerRevisionOptions :: Decode DeleteCollectionNamespacedControllerRevisionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedControllerRevisionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedControllerRevisionOptions :: Encode DeleteCollectionNamespacedControllerRevisionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedControllerRevisionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedControllerRevisionOptions :: Default DeleteCollectionNamespacedControllerRevisionOptions where
   default = DeleteCollectionNamespacedControllerRevisionOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedControllerRevisionOptions :: Newtype Dele
 derive instance genericDeleteNamespacedControllerRevisionOptions :: Generic DeleteNamespacedControllerRevisionOptions _
 instance showDeleteNamespacedControllerRevisionOptions :: Show DeleteNamespacedControllerRevisionOptions where show a = genericShow a
 instance decodeDeleteNamespacedControllerRevisionOptions :: Decode DeleteNamespacedControllerRevisionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedControllerRevisionOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedControllerRevisionOptions :: Encode DeleteNamespacedControllerRevisionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedControllerRevisionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedControllerRevisionOptions :: Default DeleteNamespacedControllerRevisionOptions where
   default = DeleteNamespacedControllerRevisionOptions
@@ -132,9 +162,27 @@ derive instance newtypeListNamespacedControllerRevisionOptions :: Newtype ListNa
 derive instance genericListNamespacedControllerRevisionOptions :: Generic ListNamespacedControllerRevisionOptions _
 instance showListNamespacedControllerRevisionOptions :: Show ListNamespacedControllerRevisionOptions where show a = genericShow a
 instance decodeListNamespacedControllerRevisionOptions :: Decode ListNamespacedControllerRevisionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedControllerRevisionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedControllerRevisionOptions :: Encode ListNamespacedControllerRevisionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedControllerRevisionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedControllerRevisionOptions :: Default ListNamespacedControllerRevisionOptions where
   default = ListNamespacedControllerRevisionOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedControllerRevisionOptions :: Newtype ReadNa
 derive instance genericReadNamespacedControllerRevisionOptions :: Generic ReadNamespacedControllerRevisionOptions _
 instance showReadNamespacedControllerRevisionOptions :: Show ReadNamespacedControllerRevisionOptions where show a = genericShow a
 instance decodeReadNamespacedControllerRevisionOptions :: Decode ReadNamespacedControllerRevisionOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedControllerRevisionOptions { exact, export }
 instance encodeReadNamespacedControllerRevisionOptions :: Encode ReadNamespacedControllerRevisionOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedControllerRevisionOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedControllerRevisionOptions :: Default ReadNamespacedControllerRevisionOptions where
   default = ReadNamespacedControllerRevisionOptions

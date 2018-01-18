@@ -3,17 +3,20 @@ module Kubernetes.Api.NetworkingV1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
@@ -36,9 +39,15 @@ derive instance newtypeIPBlock :: Newtype IPBlock _
 derive instance genericIPBlock :: Generic IPBlock _
 instance showIPBlock :: Show IPBlock where show a = genericShow a
 instance decodeIPBlock :: Decode IPBlock where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               cidr <- readProp "cidr" a >>= decode
+               except <- readProp "except" a >>= decode
+               pure $ IPBlock { cidr, except }
 instance encodeIPBlock :: Encode IPBlock where
-  encode a = genericEncode jsonOptions a
+  encode (IPBlock a) = encode $ StrMap.fromFoldable $
+               [ Tuple "cidr" (encode a.cidr)
+               , Tuple "except" (encode a.except) ]
+
 
 instance defaultIPBlock :: Default IPBlock where
   default = IPBlock
@@ -62,9 +71,19 @@ derive instance newtypeNetworkPolicy :: Newtype NetworkPolicy _
 derive instance genericNetworkPolicy :: Generic NetworkPolicy _
 instance showNetworkPolicy :: Show NetworkPolicy where show a = genericShow a
 instance decodeNetworkPolicy :: Decode NetworkPolicy where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               pure $ NetworkPolicy { apiVersion, kind, metadata, spec }
 instance encodeNetworkPolicy :: Encode NetworkPolicy where
-  encode a = genericEncode jsonOptions a
+  encode (NetworkPolicy a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec) ]
+
 
 instance defaultNetworkPolicy :: Default NetworkPolicy where
   default = NetworkPolicy
@@ -86,9 +105,15 @@ derive instance newtypeNetworkPolicyEgressRule :: Newtype NetworkPolicyEgressRul
 derive instance genericNetworkPolicyEgressRule :: Generic NetworkPolicyEgressRule _
 instance showNetworkPolicyEgressRule :: Show NetworkPolicyEgressRule where show a = genericShow a
 instance decodeNetworkPolicyEgressRule :: Decode NetworkPolicyEgressRule where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               ports <- readProp "ports" a >>= decode
+               to <- readProp "to" a >>= decode
+               pure $ NetworkPolicyEgressRule { ports, to }
 instance encodeNetworkPolicyEgressRule :: Encode NetworkPolicyEgressRule where
-  encode a = genericEncode jsonOptions a
+  encode (NetworkPolicyEgressRule a) = encode $ StrMap.fromFoldable $
+               [ Tuple "ports" (encode a.ports)
+               , Tuple "to" (encode a.to) ]
+
 
 instance defaultNetworkPolicyEgressRule :: Default NetworkPolicyEgressRule where
   default = NetworkPolicyEgressRule
@@ -108,9 +133,15 @@ derive instance newtypeNetworkPolicyIngressRule :: Newtype NetworkPolicyIngressR
 derive instance genericNetworkPolicyIngressRule :: Generic NetworkPolicyIngressRule _
 instance showNetworkPolicyIngressRule :: Show NetworkPolicyIngressRule where show a = genericShow a
 instance decodeNetworkPolicyIngressRule :: Decode NetworkPolicyIngressRule where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               from <- readProp "from" a >>= decode
+               ports <- readProp "ports" a >>= decode
+               pure $ NetworkPolicyIngressRule { from, ports }
 instance encodeNetworkPolicyIngressRule :: Encode NetworkPolicyIngressRule where
-  encode a = genericEncode jsonOptions a
+  encode (NetworkPolicyIngressRule a) = encode $ StrMap.fromFoldable $
+               [ Tuple "from" (encode a.from)
+               , Tuple "ports" (encode a.ports) ]
+
 
 instance defaultNetworkPolicyIngressRule :: Default NetworkPolicyIngressRule where
   default = NetworkPolicyIngressRule
@@ -134,9 +165,19 @@ derive instance newtypeNetworkPolicyList :: Newtype NetworkPolicyList _
 derive instance genericNetworkPolicyList :: Generic NetworkPolicyList _
 instance showNetworkPolicyList :: Show NetworkPolicyList where show a = genericShow a
 instance decodeNetworkPolicyList :: Decode NetworkPolicyList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ NetworkPolicyList { apiVersion, items, kind, metadata }
 instance encodeNetworkPolicyList :: Encode NetworkPolicyList where
-  encode a = genericEncode jsonOptions a
+  encode (NetworkPolicyList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultNetworkPolicyList :: Default NetworkPolicyList where
   default = NetworkPolicyList
@@ -160,9 +201,17 @@ derive instance newtypeNetworkPolicyPeer :: Newtype NetworkPolicyPeer _
 derive instance genericNetworkPolicyPeer :: Generic NetworkPolicyPeer _
 instance showNetworkPolicyPeer :: Show NetworkPolicyPeer where show a = genericShow a
 instance decodeNetworkPolicyPeer :: Decode NetworkPolicyPeer where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               ipBlock <- readProp "ipBlock" a >>= decode
+               namespaceSelector <- readProp "namespaceSelector" a >>= decode
+               podSelector <- readProp "podSelector" a >>= decode
+               pure $ NetworkPolicyPeer { ipBlock, namespaceSelector, podSelector }
 instance encodeNetworkPolicyPeer :: Encode NetworkPolicyPeer where
-  encode a = genericEncode jsonOptions a
+  encode (NetworkPolicyPeer a) = encode $ StrMap.fromFoldable $
+               [ Tuple "ipBlock" (encode a.ipBlock)
+               , Tuple "namespaceSelector" (encode a.namespaceSelector)
+               , Tuple "podSelector" (encode a.podSelector) ]
+
 
 instance defaultNetworkPolicyPeer :: Default NetworkPolicyPeer where
   default = NetworkPolicyPeer
@@ -183,9 +232,15 @@ derive instance newtypeNetworkPolicyPort :: Newtype NetworkPolicyPort _
 derive instance genericNetworkPolicyPort :: Generic NetworkPolicyPort _
 instance showNetworkPolicyPort :: Show NetworkPolicyPort where show a = genericShow a
 instance decodeNetworkPolicyPort :: Decode NetworkPolicyPort where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               port <- readProp "port" a >>= decode
+               protocol <- readProp "protocol" a >>= decode
+               pure $ NetworkPolicyPort { port, protocol }
 instance encodeNetworkPolicyPort :: Encode NetworkPolicyPort where
-  encode a = genericEncode jsonOptions a
+  encode (NetworkPolicyPort a) = encode $ StrMap.fromFoldable $
+               [ Tuple "port" (encode a.port)
+               , Tuple "protocol" (encode a.protocol) ]
+
 
 instance defaultNetworkPolicyPort :: Default NetworkPolicyPort where
   default = NetworkPolicyPort
@@ -209,9 +264,19 @@ derive instance newtypeNetworkPolicySpec :: Newtype NetworkPolicySpec _
 derive instance genericNetworkPolicySpec :: Generic NetworkPolicySpec _
 instance showNetworkPolicySpec :: Show NetworkPolicySpec where show a = genericShow a
 instance decodeNetworkPolicySpec :: Decode NetworkPolicySpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               egress <- readProp "egress" a >>= decode
+               ingress <- readProp "ingress" a >>= decode
+               podSelector <- readProp "podSelector" a >>= decode
+               policyTypes <- readProp "policyTypes" a >>= decode
+               pure $ NetworkPolicySpec { egress, ingress, podSelector, policyTypes }
 instance encodeNetworkPolicySpec :: Encode NetworkPolicySpec where
-  encode a = genericEncode jsonOptions a
+  encode (NetworkPolicySpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "egress" (encode a.egress)
+               , Tuple "ingress" (encode a.ingress)
+               , Tuple "podSelector" (encode a.podSelector)
+               , Tuple "policyTypes" (encode a.policyTypes) ]
+
 
 instance defaultNetworkPolicySpec :: Default NetworkPolicySpec where
   default = NetworkPolicySpec

@@ -5,12 +5,15 @@ import Control.Alt ((<|>))
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (jsonOptions)
 import Kubernetes.Api.Runtime as Runtime
@@ -36,9 +39,23 @@ derive instance newtypeAPIGroup :: Newtype APIGroup _
 derive instance genericAPIGroup :: Generic APIGroup _
 instance showAPIGroup :: Show APIGroup where show a = genericShow a
 instance decodeAPIGroup :: Decode APIGroup where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               preferredVersion <- readProp "preferredVersion" a >>= decode
+               serverAddressByClientCIDRs <- readProp "serverAddressByClientCIDRs" a >>= decode
+               versions <- readProp "versions" a >>= decode
+               pure $ APIGroup { apiVersion, kind, name, preferredVersion, serverAddressByClientCIDRs, versions }
 instance encodeAPIGroup :: Encode APIGroup where
-  encode a = genericEncode jsonOptions a
+  encode (APIGroup a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name)
+               , Tuple "preferredVersion" (encode a.preferredVersion)
+               , Tuple "serverAddressByClientCIDRs" (encode a.serverAddressByClientCIDRs)
+               , Tuple "versions" (encode a.versions) ]
+
 
 instance defaultAPIGroup :: Default APIGroup where
   default = APIGroup
@@ -64,9 +81,17 @@ derive instance newtypeAPIGroupList :: Newtype APIGroupList _
 derive instance genericAPIGroupList :: Generic APIGroupList _
 instance showAPIGroupList :: Show APIGroupList where show a = genericShow a
 instance decodeAPIGroupList :: Decode APIGroupList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               groups <- readProp "groups" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               pure $ APIGroupList { apiVersion, groups, kind }
 instance encodeAPIGroupList :: Encode APIGroupList where
-  encode a = genericEncode jsonOptions a
+  encode (APIGroupList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "groups" (encode a.groups)
+               , Tuple "kind" (encode a.kind) ]
+
 
 instance defaultAPIGroupList :: Default APIGroupList where
   default = APIGroupList
@@ -101,9 +126,29 @@ derive instance newtypeAPIResource :: Newtype APIResource _
 derive instance genericAPIResource :: Generic APIResource _
 instance showAPIResource :: Show APIResource where show a = genericShow a
 instance decodeAPIResource :: Decode APIResource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               categories <- readProp "categories" a >>= decode
+               group <- readProp "group" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               namespaced <- readProp "namespaced" a >>= decode
+               shortNames <- readProp "shortNames" a >>= decode
+               singularName <- readProp "singularName" a >>= decode
+               verbs <- readProp "verbs" a >>= decode
+               version <- readProp "version" a >>= decode
+               pure $ APIResource { categories, group, kind, name, namespaced, shortNames, singularName, verbs, version }
 instance encodeAPIResource :: Encode APIResource where
-  encode a = genericEncode jsonOptions a
+  encode (APIResource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "categories" (encode a.categories)
+               , Tuple "group" (encode a.group)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name)
+               , Tuple "namespaced" (encode a.namespaced)
+               , Tuple "shortNames" (encode a.shortNames)
+               , Tuple "singularName" (encode a.singularName)
+               , Tuple "verbs" (encode a.verbs)
+               , Tuple "version" (encode a.version) ]
+
 
 instance defaultAPIResource :: Default APIResource where
   default = APIResource
@@ -134,9 +179,19 @@ derive instance newtypeAPIResourceList :: Newtype APIResourceList _
 derive instance genericAPIResourceList :: Generic APIResourceList _
 instance showAPIResourceList :: Show APIResourceList where show a = genericShow a
 instance decodeAPIResourceList :: Decode APIResourceList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               groupVersion <- readProp "groupVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               resources <- readProp "resources" a >>= decode
+               pure $ APIResourceList { apiVersion, groupVersion, kind, resources }
 instance encodeAPIResourceList :: Encode APIResourceList where
-  encode a = genericEncode jsonOptions a
+  encode (APIResourceList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "groupVersion" (encode a.groupVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "resources" (encode a.resources) ]
+
 
 instance defaultAPIResourceList :: Default APIResourceList where
   default = APIResourceList
@@ -162,9 +217,19 @@ derive instance newtypeAPIVersions :: Newtype APIVersions _
 derive instance genericAPIVersions :: Generic APIVersions _
 instance showAPIVersions :: Show APIVersions where show a = genericShow a
 instance decodeAPIVersions :: Decode APIVersions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               serverAddressByClientCIDRs <- readProp "serverAddressByClientCIDRs" a >>= decode
+               versions <- readProp "versions" a >>= decode
+               pure $ APIVersions { apiVersion, kind, serverAddressByClientCIDRs, versions }
 instance encodeAPIVersions :: Encode APIVersions where
-  encode a = genericEncode jsonOptions a
+  encode (APIVersions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "serverAddressByClientCIDRs" (encode a.serverAddressByClientCIDRs)
+               , Tuple "versions" (encode a.versions) ]
+
 
 instance defaultAPIVersions :: Default APIVersions where
   default = APIVersions
@@ -194,9 +259,23 @@ derive instance newtypeDeleteOptions :: Newtype DeleteOptions _
 derive instance genericDeleteOptions :: Generic DeleteOptions _
 instance showDeleteOptions :: Show DeleteOptions where show a = genericShow a
 instance decodeDeleteOptions :: Decode DeleteOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               preconditions <- readProp "preconditions" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteOptions { apiVersion, gracePeriodSeconds, kind, orphanDependents, preconditions, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "preconditions" (encode a.preconditions)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteOptions :: Default DeleteOptions where
   default = DeleteOptions
@@ -220,9 +299,15 @@ derive instance newtypeGroupVersionForDiscovery :: Newtype GroupVersionForDiscov
 derive instance genericGroupVersionForDiscovery :: Generic GroupVersionForDiscovery _
 instance showGroupVersionForDiscovery :: Show GroupVersionForDiscovery where show a = genericShow a
 instance decodeGroupVersionForDiscovery :: Decode GroupVersionForDiscovery where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               groupVersion <- readProp "groupVersion" a >>= decode
+               version <- readProp "version" a >>= decode
+               pure $ GroupVersionForDiscovery { groupVersion, version }
 instance encodeGroupVersionForDiscovery :: Encode GroupVersionForDiscovery where
-  encode a = genericEncode jsonOptions a
+  encode (GroupVersionForDiscovery a) = encode $ StrMap.fromFoldable $
+               [ Tuple "groupVersion" (encode a.groupVersion)
+               , Tuple "version" (encode a.version) ]
+
 
 instance defaultGroupVersionForDiscovery :: Default GroupVersionForDiscovery where
   default = GroupVersionForDiscovery
@@ -240,9 +325,13 @@ derive instance newtypeInitializer :: Newtype Initializer _
 derive instance genericInitializer :: Generic Initializer _
 instance showInitializer :: Show Initializer where show a = genericShow a
 instance decodeInitializer :: Decode Initializer where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               pure $ Initializer { name }
 instance encodeInitializer :: Encode Initializer where
-  encode a = genericEncode jsonOptions a
+  encode (Initializer a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name) ]
+
 
 instance defaultInitializer :: Default Initializer where
   default = Initializer
@@ -261,9 +350,15 @@ derive instance newtypeInitializers :: Newtype Initializers _
 derive instance genericInitializers :: Generic Initializers _
 instance showInitializers :: Show Initializers where show a = genericShow a
 instance decodeInitializers :: Decode Initializers where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               pending <- readProp "pending" a >>= decode
+               result <- readProp "result" a >>= decode
+               pure $ Initializers { pending, result }
 instance encodeInitializers :: Encode Initializers where
-  encode a = genericEncode jsonOptions a
+  encode (Initializers a) = encode $ StrMap.fromFoldable $
+               [ Tuple "pending" (encode a.pending)
+               , Tuple "result" (encode a.result) ]
+
 
 instance defaultInitializers :: Default Initializers where
   default = Initializers
@@ -283,9 +378,15 @@ derive instance newtypeLabelSelector :: Newtype LabelSelector _
 derive instance genericLabelSelector :: Generic LabelSelector _
 instance showLabelSelector :: Show LabelSelector where show a = genericShow a
 instance decodeLabelSelector :: Decode LabelSelector where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               matchExpressions <- readProp "matchExpressions" a >>= decode
+               matchLabels <- readProp "matchLabels" a >>= decode
+               pure $ LabelSelector { matchExpressions, matchLabels }
 instance encodeLabelSelector :: Encode LabelSelector where
-  encode a = genericEncode jsonOptions a
+  encode (LabelSelector a) = encode $ StrMap.fromFoldable $
+               [ Tuple "matchExpressions" (encode a.matchExpressions)
+               , Tuple "matchLabels" (encode a.matchLabels) ]
+
 
 instance defaultLabelSelector :: Default LabelSelector where
   default = LabelSelector
@@ -307,9 +408,17 @@ derive instance newtypeLabelSelectorRequirement :: Newtype LabelSelectorRequirem
 derive instance genericLabelSelectorRequirement :: Generic LabelSelectorRequirement _
 instance showLabelSelectorRequirement :: Show LabelSelectorRequirement where show a = genericShow a
 instance decodeLabelSelectorRequirement :: Decode LabelSelectorRequirement where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               key <- readProp "key" a >>= decode
+               operator <- readProp "operator" a >>= decode
+               values <- readProp "values" a >>= decode
+               pure $ LabelSelectorRequirement { key, operator, values }
 instance encodeLabelSelectorRequirement :: Encode LabelSelectorRequirement where
-  encode a = genericEncode jsonOptions a
+  encode (LabelSelectorRequirement a) = encode $ StrMap.fromFoldable $
+               [ Tuple "key" (encode a.key)
+               , Tuple "operator" (encode a.operator)
+               , Tuple "values" (encode a.values) ]
+
 
 instance defaultLabelSelectorRequirement :: Default LabelSelectorRequirement where
   default = LabelSelectorRequirement
@@ -332,9 +441,17 @@ derive instance newtypeListMeta :: Newtype ListMeta _
 derive instance genericListMeta :: Generic ListMeta _
 instance showListMeta :: Show ListMeta where show a = genericShow a
 instance decodeListMeta :: Decode ListMeta where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               selfLink <- readProp "selfLink" a >>= decode
+               pure $ ListMeta { continue, resourceVersion, selfLink }
 instance encodeListMeta :: Encode ListMeta where
-  encode a = genericEncode jsonOptions a
+  encode (ListMeta a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "selfLink" (encode a.selfLink) ]
+
 
 instance defaultListMeta :: Default ListMeta where
   default = ListMeta
@@ -409,9 +526,43 @@ derive instance newtypeObjectMeta :: Newtype ObjectMeta _
 derive instance genericObjectMeta :: Generic ObjectMeta _
 instance showObjectMeta :: Show ObjectMeta where show a = genericShow a
 instance decodeObjectMeta :: Decode ObjectMeta where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               annotations <- readProp "annotations" a >>= decode
+               clusterName <- readProp "clusterName" a >>= decode
+               creationTimestamp <- readProp "creationTimestamp" a >>= decode
+               deletionGracePeriodSeconds <- readProp "deletionGracePeriodSeconds" a >>= decode
+               deletionTimestamp <- readProp "deletionTimestamp" a >>= decode
+               finalizers <- readProp "finalizers" a >>= decode
+               generateName <- readProp "generateName" a >>= decode
+               generation <- readProp "generation" a >>= decode
+               initializers <- readProp "initializers" a >>= decode
+               labels <- readProp "labels" a >>= decode
+               name <- readProp "name" a >>= decode
+               namespace <- readProp "namespace" a >>= decode
+               ownerReferences <- readProp "ownerReferences" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               selfLink <- readProp "selfLink" a >>= decode
+               uid <- readProp "uid" a >>= decode
+               pure $ ObjectMeta { annotations, clusterName, creationTimestamp, deletionGracePeriodSeconds, deletionTimestamp, finalizers, generateName, generation, initializers, labels, name, namespace, ownerReferences, resourceVersion, selfLink, uid }
 instance encodeObjectMeta :: Encode ObjectMeta where
-  encode a = genericEncode jsonOptions a
+  encode (ObjectMeta a) = encode $ StrMap.fromFoldable $
+               [ Tuple "annotations" (encode a.annotations)
+               , Tuple "clusterName" (encode a.clusterName)
+               , Tuple "creationTimestamp" (encode a.creationTimestamp)
+               , Tuple "deletionGracePeriodSeconds" (encode a.deletionGracePeriodSeconds)
+               , Tuple "deletionTimestamp" (encode a.deletionTimestamp)
+               , Tuple "finalizers" (encode a.finalizers)
+               , Tuple "generateName" (encode a.generateName)
+               , Tuple "generation" (encode a.generation)
+               , Tuple "initializers" (encode a.initializers)
+               , Tuple "labels" (encode a.labels)
+               , Tuple "name" (encode a.name)
+               , Tuple "namespace" (encode a.namespace)
+               , Tuple "ownerReferences" (encode a.ownerReferences)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "selfLink" (encode a.selfLink)
+               , Tuple "uid" (encode a.uid) ]
+
 
 instance defaultObjectMeta :: Default ObjectMeta where
   default = ObjectMeta
@@ -453,9 +604,23 @@ derive instance newtypeOwnerReference :: Newtype OwnerReference _
 derive instance genericOwnerReference :: Generic OwnerReference _
 instance showOwnerReference :: Show OwnerReference where show a = genericShow a
 instance decodeOwnerReference :: Decode OwnerReference where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               blockOwnerDeletion <- readProp "blockOwnerDeletion" a >>= decode
+               controller <- readProp "controller" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               uid <- readProp "uid" a >>= decode
+               pure $ OwnerReference { apiVersion, blockOwnerDeletion, controller, kind, name, uid }
 instance encodeOwnerReference :: Encode OwnerReference where
-  encode a = genericEncode jsonOptions a
+  encode (OwnerReference a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "blockOwnerDeletion" (encode a.blockOwnerDeletion)
+               , Tuple "controller" (encode a.controller)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name)
+               , Tuple "uid" (encode a.uid) ]
+
 
 instance defaultOwnerReference :: Default OwnerReference where
   default = OwnerReference
@@ -477,9 +642,13 @@ derive instance newtypePreconditions :: Newtype Preconditions _
 derive instance genericPreconditions :: Generic Preconditions _
 instance showPreconditions :: Show Preconditions where show a = genericShow a
 instance decodePreconditions :: Decode Preconditions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               uid <- readProp "uid" a >>= decode
+               pure $ Preconditions { uid }
 instance encodePreconditions :: Encode Preconditions where
-  encode a = genericEncode jsonOptions a
+  encode (Preconditions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "uid" (encode a.uid) ]
+
 
 instance defaultPreconditions :: Default Preconditions where
   default = Preconditions
@@ -498,9 +667,15 @@ derive instance newtypeServerAddressByClientCIDR :: Newtype ServerAddressByClien
 derive instance genericServerAddressByClientCIDR :: Generic ServerAddressByClientCIDR _
 instance showServerAddressByClientCIDR :: Show ServerAddressByClientCIDR where show a = genericShow a
 instance decodeServerAddressByClientCIDR :: Decode ServerAddressByClientCIDR where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               clientCIDR <- readProp "clientCIDR" a >>= decode
+               serverAddress <- readProp "serverAddress" a >>= decode
+               pure $ ServerAddressByClientCIDR { clientCIDR, serverAddress }
 instance encodeServerAddressByClientCIDR :: Encode ServerAddressByClientCIDR where
-  encode a = genericEncode jsonOptions a
+  encode (ServerAddressByClientCIDR a) = encode $ StrMap.fromFoldable $
+               [ Tuple "clientCIDR" (encode a.clientCIDR)
+               , Tuple "serverAddress" (encode a.serverAddress) ]
+
 
 instance defaultServerAddressByClientCIDR :: Default ServerAddressByClientCIDR where
   default = ServerAddressByClientCIDR
@@ -532,9 +707,27 @@ derive instance newtypeStatus :: Newtype Status _
 derive instance genericStatus :: Generic Status _
 instance showStatus :: Show Status where show a = genericShow a
 instance decodeStatus :: Decode Status where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               code <- readProp "code" a >>= decode
+               details <- readProp "details" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               message <- readProp "message" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Status { apiVersion, code, details, kind, message, metadata, reason, status }
 instance encodeStatus :: Encode Status where
-  encode a = genericEncode jsonOptions a
+  encode (Status a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "code" (encode a.code)
+               , Tuple "details" (encode a.details)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "message" (encode a.message)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultStatus :: Default Status where
   default = Status
@@ -566,9 +759,17 @@ derive instance newtypeStatusCause :: Newtype StatusCause _
 derive instance genericStatusCause :: Generic StatusCause _
 instance showStatusCause :: Show StatusCause where show a = genericShow a
 instance decodeStatusCause :: Decode StatusCause where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               field <- readProp "field" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               pure $ StatusCause { field, message, reason }
 instance encodeStatusCause :: Encode StatusCause where
-  encode a = genericEncode jsonOptions a
+  encode (StatusCause a) = encode $ StrMap.fromFoldable $
+               [ Tuple "field" (encode a.field)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason) ]
+
 
 instance defaultStatusCause :: Default StatusCause where
   default = StatusCause
@@ -597,9 +798,23 @@ derive instance newtypeStatusDetails :: Newtype StatusDetails _
 derive instance genericStatusDetails :: Generic StatusDetails _
 instance showStatusDetails :: Show StatusDetails where show a = genericShow a
 instance decodeStatusDetails :: Decode StatusDetails where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               causes <- readProp "causes" a >>= decode
+               group <- readProp "group" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               retryAfterSeconds <- readProp "retryAfterSeconds" a >>= decode
+               uid <- readProp "uid" a >>= decode
+               pure $ StatusDetails { causes, group, kind, name, retryAfterSeconds, uid }
 instance encodeStatusDetails :: Encode StatusDetails where
-  encode a = genericEncode jsonOptions a
+  encode (StatusDetails a) = encode $ StrMap.fromFoldable $
+               [ Tuple "causes" (encode a.causes)
+               , Tuple "group" (encode a.group)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name)
+               , Tuple "retryAfterSeconds" (encode a.retryAfterSeconds)
+               , Tuple "uid" (encode a.uid) ]
+
 
 instance defaultStatusDetails :: Default StatusDetails where
   default = StatusDetails
@@ -637,9 +852,15 @@ derive instance newtypeWatchEvent :: Newtype WatchEvent _
 derive instance genericWatchEvent :: Generic WatchEvent _
 instance showWatchEvent :: Show WatchEvent where show a = genericShow a
 instance decodeWatchEvent :: Decode WatchEvent where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               object <- readProp "object" a >>= decode
+               pure $ WatchEvent { _type, object }
 instance encodeWatchEvent :: Encode WatchEvent where
-  encode a = genericEncode jsonOptions a
+  encode (WatchEvent a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "object" (encode a.object) ]
+
 
 instance defaultWatchEvent :: Default WatchEvent where
   default = WatchEvent

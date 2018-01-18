@@ -3,17 +3,20 @@ module Kubernetes.Api.StorageV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -51,9 +54,29 @@ derive instance newtypeStorageClass :: Newtype StorageClass _
 derive instance genericStorageClass :: Generic StorageClass _
 instance showStorageClass :: Show StorageClass where show a = genericShow a
 instance decodeStorageClass :: Decode StorageClass where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               allowVolumeExpansion <- readProp "allowVolumeExpansion" a >>= decode
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               mountOptions <- readProp "mountOptions" a >>= decode
+               parameters <- readProp "parameters" a >>= decode
+               provisioner <- readProp "provisioner" a >>= decode
+               reclaimPolicy <- readProp "reclaimPolicy" a >>= decode
+               volumeBindingMode <- readProp "volumeBindingMode" a >>= decode
+               pure $ StorageClass { allowVolumeExpansion, apiVersion, kind, metadata, mountOptions, parameters, provisioner, reclaimPolicy, volumeBindingMode }
 instance encodeStorageClass :: Encode StorageClass where
-  encode a = genericEncode jsonOptions a
+  encode (StorageClass a) = encode $ StrMap.fromFoldable $
+               [ Tuple "allowVolumeExpansion" (encode a.allowVolumeExpansion)
+               , Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "mountOptions" (encode a.mountOptions)
+               , Tuple "parameters" (encode a.parameters)
+               , Tuple "provisioner" (encode a.provisioner)
+               , Tuple "reclaimPolicy" (encode a.reclaimPolicy)
+               , Tuple "volumeBindingMode" (encode a.volumeBindingMode) ]
+
 
 instance defaultStorageClass :: Default StorageClass where
   default = StorageClass
@@ -84,9 +107,19 @@ derive instance newtypeStorageClassList :: Newtype StorageClassList _
 derive instance genericStorageClassList :: Generic StorageClassList _
 instance showStorageClassList :: Show StorageClassList where show a = genericShow a
 instance decodeStorageClassList :: Decode StorageClassList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ StorageClassList { apiVersion, items, kind, metadata }
 instance encodeStorageClassList :: Encode StorageClassList where
-  encode a = genericEncode jsonOptions a
+  encode (StorageClassList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultStorageClassList :: Default StorageClassList where
   default = StorageClassList

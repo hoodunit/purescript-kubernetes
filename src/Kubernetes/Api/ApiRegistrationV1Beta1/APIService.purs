@@ -3,13 +3,17 @@ module Kubernetes.Api.ApiRegistrationV1Beta1.APIService where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -38,9 +42,17 @@ derive instance newtypeDeleteAPIServiceOptions :: Newtype DeleteAPIServiceOption
 derive instance genericDeleteAPIServiceOptions :: Generic DeleteAPIServiceOptions _
 instance showDeleteAPIServiceOptions :: Show DeleteAPIServiceOptions where show a = genericShow a
 instance decodeDeleteAPIServiceOptions :: Decode DeleteAPIServiceOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteAPIServiceOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteAPIServiceOptions :: Encode DeleteAPIServiceOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteAPIServiceOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteAPIServiceOptions :: Default DeleteAPIServiceOptions where
   default = DeleteAPIServiceOptions
@@ -80,9 +92,27 @@ derive instance newtypeDeleteCollectionAPIServiceOptions :: Newtype DeleteCollec
 derive instance genericDeleteCollectionAPIServiceOptions :: Generic DeleteCollectionAPIServiceOptions _
 instance showDeleteCollectionAPIServiceOptions :: Show DeleteCollectionAPIServiceOptions where show a = genericShow a
 instance decodeDeleteCollectionAPIServiceOptions :: Decode DeleteCollectionAPIServiceOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionAPIServiceOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionAPIServiceOptions :: Encode DeleteCollectionAPIServiceOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionAPIServiceOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionAPIServiceOptions :: Default DeleteCollectionAPIServiceOptions where
   default = DeleteCollectionAPIServiceOptions
@@ -126,9 +156,27 @@ derive instance newtypeListAPIServiceOptions :: Newtype ListAPIServiceOptions _
 derive instance genericListAPIServiceOptions :: Generic ListAPIServiceOptions _
 instance showListAPIServiceOptions :: Show ListAPIServiceOptions where show a = genericShow a
 instance decodeListAPIServiceOptions :: Decode ListAPIServiceOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListAPIServiceOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListAPIServiceOptions :: Encode ListAPIServiceOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListAPIServiceOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListAPIServiceOptions :: Default ListAPIServiceOptions where
   default = ListAPIServiceOptions
@@ -158,9 +206,15 @@ derive instance newtypeReadAPIServiceOptions :: Newtype ReadAPIServiceOptions _
 derive instance genericReadAPIServiceOptions :: Generic ReadAPIServiceOptions _
 instance showReadAPIServiceOptions :: Show ReadAPIServiceOptions where show a = genericShow a
 instance decodeReadAPIServiceOptions :: Decode ReadAPIServiceOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadAPIServiceOptions { exact, export }
 instance encodeReadAPIServiceOptions :: Encode ReadAPIServiceOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadAPIServiceOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadAPIServiceOptions :: Default ReadAPIServiceOptions where
   default = ReadAPIServiceOptions

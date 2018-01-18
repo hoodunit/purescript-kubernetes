@@ -3,13 +3,17 @@ module Kubernetes.Api.ExtensionsV1Beta1.PodSecurityPolicy where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionPodSecurityPolicyOptions :: Newtype Delet
 derive instance genericDeleteCollectionPodSecurityPolicyOptions :: Generic DeleteCollectionPodSecurityPolicyOptions _
 instance showDeleteCollectionPodSecurityPolicyOptions :: Show DeleteCollectionPodSecurityPolicyOptions where show a = genericShow a
 instance decodeDeleteCollectionPodSecurityPolicyOptions :: Decode DeleteCollectionPodSecurityPolicyOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionPodSecurityPolicyOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionPodSecurityPolicyOptions :: Encode DeleteCollectionPodSecurityPolicyOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionPodSecurityPolicyOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionPodSecurityPolicyOptions :: Default DeleteCollectionPodSecurityPolicyOptions where
   default = DeleteCollectionPodSecurityPolicyOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeletePodSecurityPolicyOptions :: Newtype DeletePodSecuri
 derive instance genericDeletePodSecurityPolicyOptions :: Generic DeletePodSecurityPolicyOptions _
 instance showDeletePodSecurityPolicyOptions :: Show DeletePodSecurityPolicyOptions where show a = genericShow a
 instance decodeDeletePodSecurityPolicyOptions :: Decode DeletePodSecurityPolicyOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeletePodSecurityPolicyOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeletePodSecurityPolicyOptions :: Encode DeletePodSecurityPolicyOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeletePodSecurityPolicyOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeletePodSecurityPolicyOptions :: Default DeletePodSecurityPolicyOptions where
   default = DeletePodSecurityPolicyOptions
@@ -126,9 +156,27 @@ derive instance newtypeListPodSecurityPolicyOptions :: Newtype ListPodSecurityPo
 derive instance genericListPodSecurityPolicyOptions :: Generic ListPodSecurityPolicyOptions _
 instance showListPodSecurityPolicyOptions :: Show ListPodSecurityPolicyOptions where show a = genericShow a
 instance decodeListPodSecurityPolicyOptions :: Decode ListPodSecurityPolicyOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListPodSecurityPolicyOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListPodSecurityPolicyOptions :: Encode ListPodSecurityPolicyOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListPodSecurityPolicyOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListPodSecurityPolicyOptions :: Default ListPodSecurityPolicyOptions where
   default = ListPodSecurityPolicyOptions
@@ -158,9 +206,15 @@ derive instance newtypeReadPodSecurityPolicyOptions :: Newtype ReadPodSecurityPo
 derive instance genericReadPodSecurityPolicyOptions :: Generic ReadPodSecurityPolicyOptions _
 instance showReadPodSecurityPolicyOptions :: Show ReadPodSecurityPolicyOptions where show a = genericShow a
 instance decodeReadPodSecurityPolicyOptions :: Decode ReadPodSecurityPolicyOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadPodSecurityPolicyOptions { exact, export }
 instance encodeReadPodSecurityPolicyOptions :: Encode ReadPodSecurityPolicyOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadPodSecurityPolicyOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadPodSecurityPolicyOptions :: Default ReadPodSecurityPolicyOptions where
   default = ReadPodSecurityPolicyOptions

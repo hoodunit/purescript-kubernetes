@@ -3,17 +3,20 @@ module Kubernetes.Api.Events where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
@@ -66,9 +69,45 @@ derive instance newtypeEvent :: Newtype Event _
 derive instance genericEvent :: Generic Event _
 instance showEvent :: Show Event where show a = genericShow a
 instance decodeEvent :: Decode Event where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               action <- readProp "action" a >>= decode
+               apiVersion <- readProp "apiVersion" a >>= decode
+               deprecatedCount <- readProp "deprecatedCount" a >>= decode
+               deprecatedFirstTimestamp <- readProp "deprecatedFirstTimestamp" a >>= decode
+               deprecatedLastTimestamp <- readProp "deprecatedLastTimestamp" a >>= decode
+               deprecatedSource <- readProp "deprecatedSource" a >>= decode
+               eventTime <- readProp "eventTime" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               note <- readProp "note" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               regarding <- readProp "regarding" a >>= decode
+               related <- readProp "related" a >>= decode
+               reportingController <- readProp "reportingController" a >>= decode
+               reportingInstance <- readProp "reportingInstance" a >>= decode
+               series <- readProp "series" a >>= decode
+               pure $ Event { _type, action, apiVersion, deprecatedCount, deprecatedFirstTimestamp, deprecatedLastTimestamp, deprecatedSource, eventTime, kind, metadata, note, reason, regarding, related, reportingController, reportingInstance, series }
 instance encodeEvent :: Encode Event where
-  encode a = genericEncode jsonOptions a
+  encode (Event a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "action" (encode a.action)
+               , Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "deprecatedCount" (encode a.deprecatedCount)
+               , Tuple "deprecatedFirstTimestamp" (encode a.deprecatedFirstTimestamp)
+               , Tuple "deprecatedLastTimestamp" (encode a.deprecatedLastTimestamp)
+               , Tuple "deprecatedSource" (encode a.deprecatedSource)
+               , Tuple "eventTime" (encode a.eventTime)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "note" (encode a.note)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "regarding" (encode a.regarding)
+               , Tuple "related" (encode a.related)
+               , Tuple "reportingController" (encode a.reportingController)
+               , Tuple "reportingInstance" (encode a.reportingInstance)
+               , Tuple "series" (encode a.series) ]
+
 
 instance defaultEvent :: Default Event where
   default = Event
@@ -107,9 +146,19 @@ derive instance newtypeEventList :: Newtype EventList _
 derive instance genericEventList :: Generic EventList _
 instance showEventList :: Show EventList where show a = genericShow a
 instance decodeEventList :: Decode EventList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ EventList { apiVersion, items, kind, metadata }
 instance encodeEventList :: Encode EventList where
-  encode a = genericEncode jsonOptions a
+  encode (EventList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultEventList :: Default EventList where
   default = EventList
@@ -133,9 +182,17 @@ derive instance newtypeEventSeries :: Newtype EventSeries _
 derive instance genericEventSeries :: Generic EventSeries _
 instance showEventSeries :: Show EventSeries where show a = genericShow a
 instance decodeEventSeries :: Decode EventSeries where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               count <- readProp "count" a >>= decode
+               lastObservedTime <- readProp "lastObservedTime" a >>= decode
+               state <- readProp "state" a >>= decode
+               pure $ EventSeries { count, lastObservedTime, state }
 instance encodeEventSeries :: Encode EventSeries where
-  encode a = genericEncode jsonOptions a
+  encode (EventSeries a) = encode $ StrMap.fromFoldable $
+               [ Tuple "count" (encode a.count)
+               , Tuple "lastObservedTime" (encode a.lastObservedTime)
+               , Tuple "state" (encode a.state) ]
+
 
 instance defaultEventSeries :: Default EventSeries where
   default = EventSeries

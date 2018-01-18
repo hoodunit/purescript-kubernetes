@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.ServiceAccount where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedServiceAccountOptions :: Newtyp
 derive instance genericDeleteCollectionNamespacedServiceAccountOptions :: Generic DeleteCollectionNamespacedServiceAccountOptions _
 instance showDeleteCollectionNamespacedServiceAccountOptions :: Show DeleteCollectionNamespacedServiceAccountOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedServiceAccountOptions :: Decode DeleteCollectionNamespacedServiceAccountOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedServiceAccountOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedServiceAccountOptions :: Encode DeleteCollectionNamespacedServiceAccountOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedServiceAccountOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedServiceAccountOptions :: Default DeleteCollectionNamespacedServiceAccountOptions where
   default = DeleteCollectionNamespacedServiceAccountOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedServiceAccountOptions :: Newtype DeleteNa
 derive instance genericDeleteNamespacedServiceAccountOptions :: Generic DeleteNamespacedServiceAccountOptions _
 instance showDeleteNamespacedServiceAccountOptions :: Show DeleteNamespacedServiceAccountOptions where show a = genericShow a
 instance decodeDeleteNamespacedServiceAccountOptions :: Decode DeleteNamespacedServiceAccountOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedServiceAccountOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedServiceAccountOptions :: Encode DeleteNamespacedServiceAccountOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedServiceAccountOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedServiceAccountOptions :: Default DeleteNamespacedServiceAccountOptions where
   default = DeleteNamespacedServiceAccountOptions
@@ -126,9 +156,27 @@ derive instance newtypeListNamespacedServiceAccountOptions :: Newtype ListNamesp
 derive instance genericListNamespacedServiceAccountOptions :: Generic ListNamespacedServiceAccountOptions _
 instance showListNamespacedServiceAccountOptions :: Show ListNamespacedServiceAccountOptions where show a = genericShow a
 instance decodeListNamespacedServiceAccountOptions :: Decode ListNamespacedServiceAccountOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedServiceAccountOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedServiceAccountOptions :: Encode ListNamespacedServiceAccountOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedServiceAccountOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedServiceAccountOptions :: Default ListNamespacedServiceAccountOptions where
   default = ListNamespacedServiceAccountOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedServiceAccountOptions :: Newtype ReadNamesp
 derive instance genericReadNamespacedServiceAccountOptions :: Generic ReadNamespacedServiceAccountOptions _
 instance showReadNamespacedServiceAccountOptions :: Show ReadNamespacedServiceAccountOptions where show a = genericShow a
 instance decodeReadNamespacedServiceAccountOptions :: Decode ReadNamespacedServiceAccountOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedServiceAccountOptions { exact, export }
 instance encodeReadNamespacedServiceAccountOptions :: Encode ReadNamespacedServiceAccountOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedServiceAccountOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedServiceAccountOptions :: Default ReadNamespacedServiceAccountOptions where
   default = ReadNamespacedServiceAccountOptions

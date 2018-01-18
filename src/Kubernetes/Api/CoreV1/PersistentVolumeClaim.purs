@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.PersistentVolumeClaim where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedPersistentVolumeClaimOptions ::
 derive instance genericDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Generic DeleteCollectionNamespacedPersistentVolumeClaimOptions _
 instance showDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Show DeleteCollectionNamespacedPersistentVolumeClaimOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Decode DeleteCollectionNamespacedPersistentVolumeClaimOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedPersistentVolumeClaimOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Encode DeleteCollectionNamespacedPersistentVolumeClaimOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedPersistentVolumeClaimOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedPersistentVolumeClaimOptions :: Default DeleteCollectionNamespacedPersistentVolumeClaimOptions where
   default = DeleteCollectionNamespacedPersistentVolumeClaimOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedPersistentVolumeClaimOptions :: Newtype D
 derive instance genericDeleteNamespacedPersistentVolumeClaimOptions :: Generic DeleteNamespacedPersistentVolumeClaimOptions _
 instance showDeleteNamespacedPersistentVolumeClaimOptions :: Show DeleteNamespacedPersistentVolumeClaimOptions where show a = genericShow a
 instance decodeDeleteNamespacedPersistentVolumeClaimOptions :: Decode DeleteNamespacedPersistentVolumeClaimOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedPersistentVolumeClaimOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedPersistentVolumeClaimOptions :: Encode DeleteNamespacedPersistentVolumeClaimOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedPersistentVolumeClaimOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedPersistentVolumeClaimOptions :: Default DeleteNamespacedPersistentVolumeClaimOptions where
   default = DeleteNamespacedPersistentVolumeClaimOptions
@@ -126,9 +156,27 @@ derive instance newtypeListNamespacedPersistentVolumeClaimOptions :: Newtype Lis
 derive instance genericListNamespacedPersistentVolumeClaimOptions :: Generic ListNamespacedPersistentVolumeClaimOptions _
 instance showListNamespacedPersistentVolumeClaimOptions :: Show ListNamespacedPersistentVolumeClaimOptions where show a = genericShow a
 instance decodeListNamespacedPersistentVolumeClaimOptions :: Decode ListNamespacedPersistentVolumeClaimOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedPersistentVolumeClaimOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedPersistentVolumeClaimOptions :: Encode ListNamespacedPersistentVolumeClaimOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedPersistentVolumeClaimOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedPersistentVolumeClaimOptions :: Default ListNamespacedPersistentVolumeClaimOptions where
   default = ListNamespacedPersistentVolumeClaimOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedPersistentVolumeClaimOptions :: Newtype Rea
 derive instance genericReadNamespacedPersistentVolumeClaimOptions :: Generic ReadNamespacedPersistentVolumeClaimOptions _
 instance showReadNamespacedPersistentVolumeClaimOptions :: Show ReadNamespacedPersistentVolumeClaimOptions where show a = genericShow a
 instance decodeReadNamespacedPersistentVolumeClaimOptions :: Decode ReadNamespacedPersistentVolumeClaimOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedPersistentVolumeClaimOptions { exact, export }
 instance encodeReadNamespacedPersistentVolumeClaimOptions :: Encode ReadNamespacedPersistentVolumeClaimOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedPersistentVolumeClaimOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedPersistentVolumeClaimOptions :: Default ReadNamespacedPersistentVolumeClaimOptions where
   default = ReadNamespacedPersistentVolumeClaimOptions

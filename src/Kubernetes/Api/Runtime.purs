@@ -5,12 +5,15 @@ import Control.Alt ((<|>))
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (jsonOptions)
 
@@ -52,9 +55,13 @@ derive instance newtypeRawExtension :: Newtype RawExtension _
 derive instance genericRawExtension :: Generic RawExtension _
 instance showRawExtension :: Show RawExtension where show a = genericShow a
 instance decodeRawExtension :: Decode RawExtension where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _Raw <- readProp "_Raw" a >>= decode
+               pure $ RawExtension { _Raw }
 instance encodeRawExtension :: Encode RawExtension where
-  encode a = genericEncode jsonOptions a
+  encode (RawExtension a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_Raw" (encode a._Raw) ]
+
 
 instance defaultRawExtension :: Default RawExtension where
   default = RawExtension

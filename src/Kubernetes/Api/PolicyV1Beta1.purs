@@ -3,17 +3,20 @@ module Kubernetes.Api.PolicyV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
@@ -40,9 +43,19 @@ derive instance newtypeEviction :: Newtype Eviction _
 derive instance genericEviction :: Generic Eviction _
 instance showEviction :: Show Eviction where show a = genericShow a
 instance decodeEviction :: Decode Eviction where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               deleteOptions <- readProp "deleteOptions" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ Eviction { apiVersion, deleteOptions, kind, metadata }
 instance encodeEviction :: Encode Eviction where
-  encode a = genericEncode jsonOptions a
+  encode (Eviction a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "deleteOptions" (encode a.deleteOptions)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultEviction :: Default Eviction where
   default = Eviction
@@ -70,9 +83,21 @@ derive instance newtypePodDisruptionBudget :: Newtype PodDisruptionBudget _
 derive instance genericPodDisruptionBudget :: Generic PodDisruptionBudget _
 instance showPodDisruptionBudget :: Show PodDisruptionBudget where show a = genericShow a
 instance decodePodDisruptionBudget :: Decode PodDisruptionBudget where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ PodDisruptionBudget { apiVersion, kind, metadata, spec, status }
 instance encodePodDisruptionBudget :: Encode PodDisruptionBudget where
-  encode a = genericEncode jsonOptions a
+  encode (PodDisruptionBudget a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultPodDisruptionBudget :: Default PodDisruptionBudget where
   default = PodDisruptionBudget
@@ -99,9 +124,19 @@ derive instance newtypePodDisruptionBudgetList :: Newtype PodDisruptionBudgetLis
 derive instance genericPodDisruptionBudgetList :: Generic PodDisruptionBudgetList _
 instance showPodDisruptionBudgetList :: Show PodDisruptionBudgetList where show a = genericShow a
 instance decodePodDisruptionBudgetList :: Decode PodDisruptionBudgetList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ PodDisruptionBudgetList { apiVersion, items, kind, metadata }
 instance encodePodDisruptionBudgetList :: Encode PodDisruptionBudgetList where
-  encode a = genericEncode jsonOptions a
+  encode (PodDisruptionBudgetList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultPodDisruptionBudgetList :: Default PodDisruptionBudgetList where
   default = PodDisruptionBudgetList
@@ -125,9 +160,17 @@ derive instance newtypePodDisruptionBudgetSpec :: Newtype PodDisruptionBudgetSpe
 derive instance genericPodDisruptionBudgetSpec :: Generic PodDisruptionBudgetSpec _
 instance showPodDisruptionBudgetSpec :: Show PodDisruptionBudgetSpec where show a = genericShow a
 instance decodePodDisruptionBudgetSpec :: Decode PodDisruptionBudgetSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               maxUnavailable <- readProp "maxUnavailable" a >>= decode
+               minAvailable <- readProp "minAvailable" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               pure $ PodDisruptionBudgetSpec { maxUnavailable, minAvailable, selector }
 instance encodePodDisruptionBudgetSpec :: Encode PodDisruptionBudgetSpec where
-  encode a = genericEncode jsonOptions a
+  encode (PodDisruptionBudgetSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "maxUnavailable" (encode a.maxUnavailable)
+               , Tuple "minAvailable" (encode a.minAvailable)
+               , Tuple "selector" (encode a.selector) ]
+
 
 instance defaultPodDisruptionBudgetSpec :: Default PodDisruptionBudgetSpec where
   default = PodDisruptionBudgetSpec
@@ -156,9 +199,23 @@ derive instance newtypePodDisruptionBudgetStatus :: Newtype PodDisruptionBudgetS
 derive instance genericPodDisruptionBudgetStatus :: Generic PodDisruptionBudgetStatus _
 instance showPodDisruptionBudgetStatus :: Show PodDisruptionBudgetStatus where show a = genericShow a
 instance decodePodDisruptionBudgetStatus :: Decode PodDisruptionBudgetStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               currentHealthy <- readProp "currentHealthy" a >>= decode
+               desiredHealthy <- readProp "desiredHealthy" a >>= decode
+               disruptedPods <- readProp "disruptedPods" a >>= decode
+               disruptionsAllowed <- readProp "disruptionsAllowed" a >>= decode
+               expectedPods <- readProp "expectedPods" a >>= decode
+               observedGeneration <- readProp "observedGeneration" a >>= decode
+               pure $ PodDisruptionBudgetStatus { currentHealthy, desiredHealthy, disruptedPods, disruptionsAllowed, expectedPods, observedGeneration }
 instance encodePodDisruptionBudgetStatus :: Encode PodDisruptionBudgetStatus where
-  encode a = genericEncode jsonOptions a
+  encode (PodDisruptionBudgetStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "currentHealthy" (encode a.currentHealthy)
+               , Tuple "desiredHealthy" (encode a.desiredHealthy)
+               , Tuple "disruptedPods" (encode a.disruptedPods)
+               , Tuple "disruptionsAllowed" (encode a.disruptionsAllowed)
+               , Tuple "expectedPods" (encode a.expectedPods)
+               , Tuple "observedGeneration" (encode a.observedGeneration) ]
+
 
 instance defaultPodDisruptionBudgetStatus :: Default PodDisruptionBudgetStatus where
   default = PodDisruptionBudgetStatus

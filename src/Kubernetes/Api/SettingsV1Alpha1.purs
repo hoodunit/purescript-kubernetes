@@ -3,17 +3,20 @@ module Kubernetes.Api.SettingsV1Alpha1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
@@ -40,9 +43,19 @@ derive instance newtypePodPreset :: Newtype PodPreset _
 derive instance genericPodPreset :: Generic PodPreset _
 instance showPodPreset :: Show PodPreset where show a = genericShow a
 instance decodePodPreset :: Decode PodPreset where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               pure $ PodPreset { apiVersion, kind, metadata, spec }
 instance encodePodPreset :: Encode PodPreset where
-  encode a = genericEncode jsonOptions a
+  encode (PodPreset a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec) ]
+
 
 instance defaultPodPreset :: Default PodPreset where
   default = PodPreset
@@ -68,9 +81,19 @@ derive instance newtypePodPresetList :: Newtype PodPresetList _
 derive instance genericPodPresetList :: Generic PodPresetList _
 instance showPodPresetList :: Show PodPresetList where show a = genericShow a
 instance decodePodPresetList :: Decode PodPresetList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ PodPresetList { apiVersion, items, kind, metadata }
 instance encodePodPresetList :: Encode PodPresetList where
-  encode a = genericEncode jsonOptions a
+  encode (PodPresetList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultPodPresetList :: Default PodPresetList where
   default = PodPresetList
@@ -98,9 +121,21 @@ derive instance newtypePodPresetSpec :: Newtype PodPresetSpec _
 derive instance genericPodPresetSpec :: Generic PodPresetSpec _
 instance showPodPresetSpec :: Show PodPresetSpec where show a = genericShow a
 instance decodePodPresetSpec :: Decode PodPresetSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               env <- readProp "env" a >>= decode
+               envFrom <- readProp "envFrom" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               volumeMounts <- readProp "volumeMounts" a >>= decode
+               volumes <- readProp "volumes" a >>= decode
+               pure $ PodPresetSpec { env, envFrom, selector, volumeMounts, volumes }
 instance encodePodPresetSpec :: Encode PodPresetSpec where
-  encode a = genericEncode jsonOptions a
+  encode (PodPresetSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "env" (encode a.env)
+               , Tuple "envFrom" (encode a.envFrom)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "volumeMounts" (encode a.volumeMounts)
+               , Tuple "volumes" (encode a.volumes) ]
+
 
 instance defaultPodPresetSpec :: Default PodPresetSpec where
   default = PodPresetSpec

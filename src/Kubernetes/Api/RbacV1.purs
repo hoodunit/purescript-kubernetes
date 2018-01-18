@@ -3,17 +3,20 @@ module Kubernetes.Api.RbacV1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -33,9 +36,13 @@ derive instance newtypeAggregationRule :: Newtype AggregationRule _
 derive instance genericAggregationRule :: Generic AggregationRule _
 instance showAggregationRule :: Show AggregationRule where show a = genericShow a
 instance decodeAggregationRule :: Decode AggregationRule where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               clusterRoleSelectors <- readProp "clusterRoleSelectors" a >>= decode
+               pure $ AggregationRule { clusterRoleSelectors }
 instance encodeAggregationRule :: Encode AggregationRule where
-  encode a = genericEncode jsonOptions a
+  encode (AggregationRule a) = encode $ StrMap.fromFoldable $
+               [ Tuple "clusterRoleSelectors" (encode a.clusterRoleSelectors) ]
+
 
 instance defaultAggregationRule :: Default AggregationRule where
   default = AggregationRule
@@ -60,9 +67,21 @@ derive instance newtypeClusterRole :: Newtype ClusterRole _
 derive instance genericClusterRole :: Generic ClusterRole _
 instance showClusterRole :: Show ClusterRole where show a = genericShow a
 instance decodeClusterRole :: Decode ClusterRole where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               aggregationRule <- readProp "aggregationRule" a >>= decode
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               rules <- readProp "rules" a >>= decode
+               pure $ ClusterRole { aggregationRule, apiVersion, kind, metadata, rules }
 instance encodeClusterRole :: Encode ClusterRole where
-  encode a = genericEncode jsonOptions a
+  encode (ClusterRole a) = encode $ StrMap.fromFoldable $
+               [ Tuple "aggregationRule" (encode a.aggregationRule)
+               , Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "rules" (encode a.rules) ]
+
 
 instance defaultClusterRole :: Default ClusterRole where
   default = ClusterRole
@@ -91,9 +110,21 @@ derive instance newtypeClusterRoleBinding :: Newtype ClusterRoleBinding _
 derive instance genericClusterRoleBinding :: Generic ClusterRoleBinding _
 instance showClusterRoleBinding :: Show ClusterRoleBinding where show a = genericShow a
 instance decodeClusterRoleBinding :: Decode ClusterRoleBinding where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               roleRef <- readProp "roleRef" a >>= decode
+               subjects <- readProp "subjects" a >>= decode
+               pure $ ClusterRoleBinding { apiVersion, kind, metadata, roleRef, subjects }
 instance encodeClusterRoleBinding :: Encode ClusterRoleBinding where
-  encode a = genericEncode jsonOptions a
+  encode (ClusterRoleBinding a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "roleRef" (encode a.roleRef)
+               , Tuple "subjects" (encode a.subjects) ]
+
 
 instance defaultClusterRoleBinding :: Default ClusterRoleBinding where
   default = ClusterRoleBinding
@@ -120,9 +151,19 @@ derive instance newtypeClusterRoleBindingList :: Newtype ClusterRoleBindingList 
 derive instance genericClusterRoleBindingList :: Generic ClusterRoleBindingList _
 instance showClusterRoleBindingList :: Show ClusterRoleBindingList where show a = genericShow a
 instance decodeClusterRoleBindingList :: Decode ClusterRoleBindingList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ClusterRoleBindingList { apiVersion, items, kind, metadata }
 instance encodeClusterRoleBindingList :: Encode ClusterRoleBindingList where
-  encode a = genericEncode jsonOptions a
+  encode (ClusterRoleBindingList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultClusterRoleBindingList :: Default ClusterRoleBindingList where
   default = ClusterRoleBindingList
@@ -148,9 +189,19 @@ derive instance newtypeClusterRoleList :: Newtype ClusterRoleList _
 derive instance genericClusterRoleList :: Generic ClusterRoleList _
 instance showClusterRoleList :: Show ClusterRoleList where show a = genericShow a
 instance decodeClusterRoleList :: Decode ClusterRoleList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ClusterRoleList { apiVersion, items, kind, metadata }
 instance encodeClusterRoleList :: Encode ClusterRoleList where
-  encode a = genericEncode jsonOptions a
+  encode (ClusterRoleList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultClusterRoleList :: Default ClusterRoleList where
   default = ClusterRoleList
@@ -178,9 +229,21 @@ derive instance newtypePolicyRule :: Newtype PolicyRule _
 derive instance genericPolicyRule :: Generic PolicyRule _
 instance showPolicyRule :: Show PolicyRule where show a = genericShow a
 instance decodePolicyRule :: Decode PolicyRule where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiGroups <- readProp "apiGroups" a >>= decode
+               nonResourceURLs <- readProp "nonResourceURLs" a >>= decode
+               resourceNames <- readProp "resourceNames" a >>= decode
+               resources <- readProp "resources" a >>= decode
+               verbs <- readProp "verbs" a >>= decode
+               pure $ PolicyRule { apiGroups, nonResourceURLs, resourceNames, resources, verbs }
 instance encodePolicyRule :: Encode PolicyRule where
-  encode a = genericEncode jsonOptions a
+  encode (PolicyRule a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiGroups" (encode a.apiGroups)
+               , Tuple "nonResourceURLs" (encode a.nonResourceURLs)
+               , Tuple "resourceNames" (encode a.resourceNames)
+               , Tuple "resources" (encode a.resources)
+               , Tuple "verbs" (encode a.verbs) ]
+
 
 instance defaultPolicyRule :: Default PolicyRule where
   default = PolicyRule
@@ -207,9 +270,19 @@ derive instance newtypeRole :: Newtype Role _
 derive instance genericRole :: Generic Role _
 instance showRole :: Show Role where show a = genericShow a
 instance decodeRole :: Decode Role where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               rules <- readProp "rules" a >>= decode
+               pure $ Role { apiVersion, kind, metadata, rules }
 instance encodeRole :: Encode Role where
-  encode a = genericEncode jsonOptions a
+  encode (Role a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "rules" (encode a.rules) ]
+
 
 instance defaultRole :: Default Role where
   default = Role
@@ -237,9 +310,21 @@ derive instance newtypeRoleBinding :: Newtype RoleBinding _
 derive instance genericRoleBinding :: Generic RoleBinding _
 instance showRoleBinding :: Show RoleBinding where show a = genericShow a
 instance decodeRoleBinding :: Decode RoleBinding where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               roleRef <- readProp "roleRef" a >>= decode
+               subjects <- readProp "subjects" a >>= decode
+               pure $ RoleBinding { apiVersion, kind, metadata, roleRef, subjects }
 instance encodeRoleBinding :: Encode RoleBinding where
-  encode a = genericEncode jsonOptions a
+  encode (RoleBinding a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "roleRef" (encode a.roleRef)
+               , Tuple "subjects" (encode a.subjects) ]
+
 
 instance defaultRoleBinding :: Default RoleBinding where
   default = RoleBinding
@@ -266,9 +351,19 @@ derive instance newtypeRoleBindingList :: Newtype RoleBindingList _
 derive instance genericRoleBindingList :: Generic RoleBindingList _
 instance showRoleBindingList :: Show RoleBindingList where show a = genericShow a
 instance decodeRoleBindingList :: Decode RoleBindingList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ RoleBindingList { apiVersion, items, kind, metadata }
 instance encodeRoleBindingList :: Encode RoleBindingList where
-  encode a = genericEncode jsonOptions a
+  encode (RoleBindingList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultRoleBindingList :: Default RoleBindingList where
   default = RoleBindingList
@@ -294,9 +389,19 @@ derive instance newtypeRoleList :: Newtype RoleList _
 derive instance genericRoleList :: Generic RoleList _
 instance showRoleList :: Show RoleList where show a = genericShow a
 instance decodeRoleList :: Decode RoleList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ RoleList { apiVersion, items, kind, metadata }
 instance encodeRoleList :: Encode RoleList where
-  encode a = genericEncode jsonOptions a
+  encode (RoleList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultRoleList :: Default RoleList where
   default = RoleList
@@ -320,9 +425,17 @@ derive instance newtypeRoleRef :: Newtype RoleRef _
 derive instance genericRoleRef :: Generic RoleRef _
 instance showRoleRef :: Show RoleRef where show a = genericShow a
 instance decodeRoleRef :: Decode RoleRef where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiGroup <- readProp "apiGroup" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               pure $ RoleRef { apiGroup, kind, name }
 instance encodeRoleRef :: Encode RoleRef where
-  encode a = genericEncode jsonOptions a
+  encode (RoleRef a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiGroup" (encode a.apiGroup)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name) ]
+
 
 instance defaultRoleRef :: Default RoleRef where
   default = RoleRef
@@ -347,9 +460,19 @@ derive instance newtypeSubject :: Newtype Subject _
 derive instance genericSubject :: Generic Subject _
 instance showSubject :: Show Subject where show a = genericShow a
 instance decodeSubject :: Decode Subject where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiGroup <- readProp "apiGroup" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               namespace <- readProp "namespace" a >>= decode
+               pure $ Subject { apiGroup, kind, name, namespace }
 instance encodeSubject :: Encode Subject where
-  encode a = genericEncode jsonOptions a
+  encode (Subject a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiGroup" (encode a.apiGroup)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name)
+               , Tuple "namespace" (encode a.namespace) ]
+
 
 instance defaultSubject :: Default Subject where
   default = Subject

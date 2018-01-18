@@ -3,17 +3,20 @@ module Kubernetes.Api.ApiRegistrationV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -41,9 +44,21 @@ derive instance newtypeAPIService :: Newtype APIService _
 derive instance genericAPIService :: Generic APIService _
 instance showAPIService :: Show APIService where show a = genericShow a
 instance decodeAPIService :: Decode APIService where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ APIService { apiVersion, kind, metadata, spec, status }
 instance encodeAPIService :: Encode APIService where
-  encode a = genericEncode jsonOptions a
+  encode (APIService a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultAPIService :: Default APIService where
   default = APIService
@@ -70,9 +85,21 @@ derive instance newtypeAPIServiceCondition :: Newtype APIServiceCondition _
 derive instance genericAPIServiceCondition :: Generic APIServiceCondition _
 instance showAPIServiceCondition :: Show APIServiceCondition where show a = genericShow a
 instance decodeAPIServiceCondition :: Decode APIServiceCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ APIServiceCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeAPIServiceCondition :: Encode APIServiceCondition where
-  encode a = genericEncode jsonOptions a
+  encode (APIServiceCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultAPIServiceCondition :: Default APIServiceCondition where
   default = APIServiceCondition
@@ -99,9 +126,19 @@ derive instance newtypeAPIServiceList :: Newtype APIServiceList _
 derive instance genericAPIServiceList :: Generic APIServiceList _
 instance showAPIServiceList :: Show APIServiceList where show a = genericShow a
 instance decodeAPIServiceList :: Decode APIServiceList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ APIServiceList { apiVersion, items, kind, metadata }
 instance encodeAPIServiceList :: Encode APIServiceList where
-  encode a = genericEncode jsonOptions a
+  encode (APIServiceList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultAPIServiceList :: Default APIServiceList where
   default = APIServiceList
@@ -133,9 +170,25 @@ derive instance newtypeAPIServiceSpec :: Newtype APIServiceSpec _
 derive instance genericAPIServiceSpec :: Generic APIServiceSpec _
 instance showAPIServiceSpec :: Show APIServiceSpec where show a = genericShow a
 instance decodeAPIServiceSpec :: Decode APIServiceSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               caBundle <- readProp "caBundle" a >>= decode
+               group <- readProp "group" a >>= decode
+               groupPriorityMinimum <- readProp "groupPriorityMinimum" a >>= decode
+               insecureSkipTLSVerify <- readProp "insecureSkipTLSVerify" a >>= decode
+               service <- readProp "service" a >>= decode
+               version <- readProp "version" a >>= decode
+               versionPriority <- readProp "versionPriority" a >>= decode
+               pure $ APIServiceSpec { caBundle, group, groupPriorityMinimum, insecureSkipTLSVerify, service, version, versionPriority }
 instance encodeAPIServiceSpec :: Encode APIServiceSpec where
-  encode a = genericEncode jsonOptions a
+  encode (APIServiceSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "caBundle" (encode a.caBundle)
+               , Tuple "group" (encode a.group)
+               , Tuple "groupPriorityMinimum" (encode a.groupPriorityMinimum)
+               , Tuple "insecureSkipTLSVerify" (encode a.insecureSkipTLSVerify)
+               , Tuple "service" (encode a.service)
+               , Tuple "version" (encode a.version)
+               , Tuple "versionPriority" (encode a.versionPriority) ]
+
 
 instance defaultAPIServiceSpec :: Default APIServiceSpec where
   default = APIServiceSpec
@@ -158,9 +211,13 @@ derive instance newtypeAPIServiceStatus :: Newtype APIServiceStatus _
 derive instance genericAPIServiceStatus :: Generic APIServiceStatus _
 instance showAPIServiceStatus :: Show APIServiceStatus where show a = genericShow a
 instance decodeAPIServiceStatus :: Decode APIServiceStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               conditions <- readProp "conditions" a >>= decode
+               pure $ APIServiceStatus { conditions }
 instance encodeAPIServiceStatus :: Encode APIServiceStatus where
-  encode a = genericEncode jsonOptions a
+  encode (APIServiceStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "conditions" (encode a.conditions) ]
+
 
 instance defaultAPIServiceStatus :: Default APIServiceStatus where
   default = APIServiceStatus
@@ -179,9 +236,15 @@ derive instance newtypeServiceReference :: Newtype ServiceReference _
 derive instance genericServiceReference :: Generic ServiceReference _
 instance showServiceReference :: Show ServiceReference where show a = genericShow a
 instance decodeServiceReference :: Decode ServiceReference where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               namespace <- readProp "namespace" a >>= decode
+               pure $ ServiceReference { name, namespace }
 instance encodeServiceReference :: Encode ServiceReference where
-  encode a = genericEncode jsonOptions a
+  encode (ServiceReference a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "namespace" (encode a.namespace) ]
+
 
 instance defaultServiceReference :: Default ServiceReference where
   default = ServiceReference

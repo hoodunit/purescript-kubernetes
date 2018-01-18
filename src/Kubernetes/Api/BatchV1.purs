@@ -3,17 +3,20 @@ module Kubernetes.Api.BatchV1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
@@ -42,9 +45,21 @@ derive instance newtypeJob :: Newtype Job _
 derive instance genericJob :: Generic Job _
 instance showJob :: Show Job where show a = genericShow a
 instance decodeJob :: Decode Job where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Job { apiVersion, kind, metadata, spec, status }
 instance encodeJob :: Encode Job where
-  encode a = genericEncode jsonOptions a
+  encode (Job a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultJob :: Default Job where
   default = Job
@@ -75,9 +90,23 @@ derive instance newtypeJobCondition :: Newtype JobCondition _
 derive instance genericJobCondition :: Generic JobCondition _
 instance showJobCondition :: Show JobCondition where show a = genericShow a
 instance decodeJobCondition :: Decode JobCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastProbeTime <- readProp "lastProbeTime" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ JobCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodeJobCondition :: Encode JobCondition where
-  encode a = genericEncode jsonOptions a
+  encode (JobCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastProbeTime" (encode a.lastProbeTime)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultJobCondition :: Default JobCondition where
   default = JobCondition
@@ -105,9 +134,19 @@ derive instance newtypeJobList :: Newtype JobList _
 derive instance genericJobList :: Generic JobList _
 instance showJobList :: Show JobList where show a = genericShow a
 instance decodeJobList :: Decode JobList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ JobList { apiVersion, items, kind, metadata }
 instance encodeJobList :: Encode JobList where
-  encode a = genericEncode jsonOptions a
+  encode (JobList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultJobList :: Default JobList where
   default = JobList
@@ -139,9 +178,25 @@ derive instance newtypeJobSpec :: Newtype JobSpec _
 derive instance genericJobSpec :: Generic JobSpec _
 instance showJobSpec :: Show JobSpec where show a = genericShow a
 instance decodeJobSpec :: Decode JobSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               activeDeadlineSeconds <- readProp "activeDeadlineSeconds" a >>= decode
+               backoffLimit <- readProp "backoffLimit" a >>= decode
+               completions <- readProp "completions" a >>= decode
+               manualSelector <- readProp "manualSelector" a >>= decode
+               parallelism <- readProp "parallelism" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               template <- readProp "template" a >>= decode
+               pure $ JobSpec { activeDeadlineSeconds, backoffLimit, completions, manualSelector, parallelism, selector, template }
 instance encodeJobSpec :: Encode JobSpec where
-  encode a = genericEncode jsonOptions a
+  encode (JobSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "activeDeadlineSeconds" (encode a.activeDeadlineSeconds)
+               , Tuple "backoffLimit" (encode a.backoffLimit)
+               , Tuple "completions" (encode a.completions)
+               , Tuple "manualSelector" (encode a.manualSelector)
+               , Tuple "parallelism" (encode a.parallelism)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "template" (encode a.template) ]
+
 
 instance defaultJobSpec :: Default JobSpec where
   default = JobSpec
@@ -174,9 +229,23 @@ derive instance newtypeJobStatus :: Newtype JobStatus _
 derive instance genericJobStatus :: Generic JobStatus _
 instance showJobStatus :: Show JobStatus where show a = genericShow a
 instance decodeJobStatus :: Decode JobStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               active <- readProp "active" a >>= decode
+               completionTime <- readProp "completionTime" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               failed <- readProp "failed" a >>= decode
+               startTime <- readProp "startTime" a >>= decode
+               succeeded <- readProp "succeeded" a >>= decode
+               pure $ JobStatus { active, completionTime, conditions, failed, startTime, succeeded }
 instance encodeJobStatus :: Encode JobStatus where
-  encode a = genericEncode jsonOptions a
+  encode (JobStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "active" (encode a.active)
+               , Tuple "completionTime" (encode a.completionTime)
+               , Tuple "conditions" (encode a.conditions)
+               , Tuple "failed" (encode a.failed)
+               , Tuple "startTime" (encode a.startTime)
+               , Tuple "succeeded" (encode a.succeeded) ]
+
 
 instance defaultJobStatus :: Default JobStatus where
   default = JobStatus

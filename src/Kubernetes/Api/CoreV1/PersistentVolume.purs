@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.PersistentVolume where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionPersistentVolumeOptions :: Newtype Delete
 derive instance genericDeleteCollectionPersistentVolumeOptions :: Generic DeleteCollectionPersistentVolumeOptions _
 instance showDeleteCollectionPersistentVolumeOptions :: Show DeleteCollectionPersistentVolumeOptions where show a = genericShow a
 instance decodeDeleteCollectionPersistentVolumeOptions :: Decode DeleteCollectionPersistentVolumeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionPersistentVolumeOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionPersistentVolumeOptions :: Encode DeleteCollectionPersistentVolumeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionPersistentVolumeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionPersistentVolumeOptions :: Default DeleteCollectionPersistentVolumeOptions where
   default = DeleteCollectionPersistentVolumeOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeletePersistentVolumeOptions :: Newtype DeletePersistent
 derive instance genericDeletePersistentVolumeOptions :: Generic DeletePersistentVolumeOptions _
 instance showDeletePersistentVolumeOptions :: Show DeletePersistentVolumeOptions where show a = genericShow a
 instance decodeDeletePersistentVolumeOptions :: Decode DeletePersistentVolumeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeletePersistentVolumeOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeletePersistentVolumeOptions :: Encode DeletePersistentVolumeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeletePersistentVolumeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeletePersistentVolumeOptions :: Default DeletePersistentVolumeOptions where
   default = DeletePersistentVolumeOptions
@@ -126,9 +156,27 @@ derive instance newtypeListPersistentVolumeOptions :: Newtype ListPersistentVolu
 derive instance genericListPersistentVolumeOptions :: Generic ListPersistentVolumeOptions _
 instance showListPersistentVolumeOptions :: Show ListPersistentVolumeOptions where show a = genericShow a
 instance decodeListPersistentVolumeOptions :: Decode ListPersistentVolumeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListPersistentVolumeOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListPersistentVolumeOptions :: Encode ListPersistentVolumeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListPersistentVolumeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListPersistentVolumeOptions :: Default ListPersistentVolumeOptions where
   default = ListPersistentVolumeOptions
@@ -158,9 +206,15 @@ derive instance newtypeReadPersistentVolumeOptions :: Newtype ReadPersistentVolu
 derive instance genericReadPersistentVolumeOptions :: Generic ReadPersistentVolumeOptions _
 instance showReadPersistentVolumeOptions :: Show ReadPersistentVolumeOptions where show a = genericShow a
 instance decodeReadPersistentVolumeOptions :: Decode ReadPersistentVolumeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadPersistentVolumeOptions { exact, export }
 instance encodeReadPersistentVolumeOptions :: Encode ReadPersistentVolumeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadPersistentVolumeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadPersistentVolumeOptions :: Default ReadPersistentVolumeOptions where
   default = ReadPersistentVolumeOptions

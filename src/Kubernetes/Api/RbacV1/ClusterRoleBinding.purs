@@ -3,13 +3,17 @@ module Kubernetes.Api.RbacV1.ClusterRoleBinding where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -38,9 +42,17 @@ derive instance newtypeDeleteClusterRoleBindingOptions :: Newtype DeleteClusterR
 derive instance genericDeleteClusterRoleBindingOptions :: Generic DeleteClusterRoleBindingOptions _
 instance showDeleteClusterRoleBindingOptions :: Show DeleteClusterRoleBindingOptions where show a = genericShow a
 instance decodeDeleteClusterRoleBindingOptions :: Decode DeleteClusterRoleBindingOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteClusterRoleBindingOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteClusterRoleBindingOptions :: Encode DeleteClusterRoleBindingOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteClusterRoleBindingOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteClusterRoleBindingOptions :: Default DeleteClusterRoleBindingOptions where
   default = DeleteClusterRoleBindingOptions
@@ -80,9 +92,27 @@ derive instance newtypeDeleteCollectionClusterRoleBindingOptions :: Newtype Dele
 derive instance genericDeleteCollectionClusterRoleBindingOptions :: Generic DeleteCollectionClusterRoleBindingOptions _
 instance showDeleteCollectionClusterRoleBindingOptions :: Show DeleteCollectionClusterRoleBindingOptions where show a = genericShow a
 instance decodeDeleteCollectionClusterRoleBindingOptions :: Decode DeleteCollectionClusterRoleBindingOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionClusterRoleBindingOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionClusterRoleBindingOptions :: Encode DeleteCollectionClusterRoleBindingOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionClusterRoleBindingOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionClusterRoleBindingOptions :: Default DeleteCollectionClusterRoleBindingOptions where
   default = DeleteCollectionClusterRoleBindingOptions
@@ -126,9 +156,27 @@ derive instance newtypeListClusterRoleBindingOptions :: Newtype ListClusterRoleB
 derive instance genericListClusterRoleBindingOptions :: Generic ListClusterRoleBindingOptions _
 instance showListClusterRoleBindingOptions :: Show ListClusterRoleBindingOptions where show a = genericShow a
 instance decodeListClusterRoleBindingOptions :: Decode ListClusterRoleBindingOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListClusterRoleBindingOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListClusterRoleBindingOptions :: Encode ListClusterRoleBindingOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListClusterRoleBindingOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListClusterRoleBindingOptions :: Default ListClusterRoleBindingOptions where
   default = ListClusterRoleBindingOptions

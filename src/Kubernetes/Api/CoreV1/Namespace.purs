@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.Namespace where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -38,9 +42,17 @@ derive instance newtypeDeleteNamespaceOptions :: Newtype DeleteNamespaceOptions 
 derive instance genericDeleteNamespaceOptions :: Generic DeleteNamespaceOptions _
 instance showDeleteNamespaceOptions :: Show DeleteNamespaceOptions where show a = genericShow a
 instance decodeDeleteNamespaceOptions :: Decode DeleteNamespaceOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespaceOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespaceOptions :: Encode DeleteNamespaceOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespaceOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespaceOptions :: Default DeleteNamespaceOptions where
   default = DeleteNamespaceOptions
@@ -80,9 +92,27 @@ derive instance newtypeListNamespaceOptions :: Newtype ListNamespaceOptions _
 derive instance genericListNamespaceOptions :: Generic ListNamespaceOptions _
 instance showListNamespaceOptions :: Show ListNamespaceOptions where show a = genericShow a
 instance decodeListNamespaceOptions :: Decode ListNamespaceOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespaceOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespaceOptions :: Encode ListNamespaceOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespaceOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespaceOptions :: Default ListNamespaceOptions where
   default = ListNamespaceOptions
@@ -112,9 +142,15 @@ derive instance newtypeReadNamespaceOptions :: Newtype ReadNamespaceOptions _
 derive instance genericReadNamespaceOptions :: Generic ReadNamespaceOptions _
 instance showReadNamespaceOptions :: Show ReadNamespaceOptions where show a = genericShow a
 instance decodeReadNamespaceOptions :: Decode ReadNamespaceOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespaceOptions { exact, export }
 instance encodeReadNamespaceOptions :: Encode ReadNamespaceOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespaceOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespaceOptions :: Default ReadNamespaceOptions where
   default = ReadNamespaceOptions

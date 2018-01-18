@@ -3,17 +3,20 @@ module Kubernetes.Api.CertificatesV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -41,9 +44,21 @@ derive instance newtypeCertificateSigningRequest :: Newtype CertificateSigningRe
 derive instance genericCertificateSigningRequest :: Generic CertificateSigningRequest _
 instance showCertificateSigningRequest :: Show CertificateSigningRequest where show a = genericShow a
 instance decodeCertificateSigningRequest :: Decode CertificateSigningRequest where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ CertificateSigningRequest { apiVersion, kind, metadata, spec, status }
 instance encodeCertificateSigningRequest :: Encode CertificateSigningRequest where
-  encode a = genericEncode jsonOptions a
+  encode (CertificateSigningRequest a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultCertificateSigningRequest :: Default CertificateSigningRequest where
   default = CertificateSigningRequest
@@ -68,9 +83,19 @@ derive instance newtypeCertificateSigningRequestCondition :: Newtype Certificate
 derive instance genericCertificateSigningRequestCondition :: Generic CertificateSigningRequestCondition _
 instance showCertificateSigningRequestCondition :: Show CertificateSigningRequestCondition where show a = genericShow a
 instance decodeCertificateSigningRequestCondition :: Decode CertificateSigningRequestCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastUpdateTime <- readProp "lastUpdateTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               pure $ CertificateSigningRequestCondition { _type, lastUpdateTime, message, reason }
 instance encodeCertificateSigningRequestCondition :: Encode CertificateSigningRequestCondition where
-  encode a = genericEncode jsonOptions a
+  encode (CertificateSigningRequestCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastUpdateTime" (encode a.lastUpdateTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason) ]
+
 
 instance defaultCertificateSigningRequestCondition :: Default CertificateSigningRequestCondition where
   default = CertificateSigningRequestCondition
@@ -94,9 +119,19 @@ derive instance newtypeCertificateSigningRequestList :: Newtype CertificateSigni
 derive instance genericCertificateSigningRequestList :: Generic CertificateSigningRequestList _
 instance showCertificateSigningRequestList :: Show CertificateSigningRequestList where show a = genericShow a
 instance decodeCertificateSigningRequestList :: Decode CertificateSigningRequestList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ CertificateSigningRequestList { apiVersion, items, kind, metadata }
 instance encodeCertificateSigningRequestList :: Encode CertificateSigningRequestList where
-  encode a = genericEncode jsonOptions a
+  encode (CertificateSigningRequestList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultCertificateSigningRequestList :: Default CertificateSigningRequestList where
   default = CertificateSigningRequestList
@@ -127,9 +162,23 @@ derive instance newtypeCertificateSigningRequestSpec :: Newtype CertificateSigni
 derive instance genericCertificateSigningRequestSpec :: Generic CertificateSigningRequestSpec _
 instance showCertificateSigningRequestSpec :: Show CertificateSigningRequestSpec where show a = genericShow a
 instance decodeCertificateSigningRequestSpec :: Decode CertificateSigningRequestSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               extra <- readProp "extra" a >>= decode
+               groups <- readProp "groups" a >>= decode
+               request <- readProp "request" a >>= decode
+               uid <- readProp "uid" a >>= decode
+               usages <- readProp "usages" a >>= decode
+               username <- readProp "username" a >>= decode
+               pure $ CertificateSigningRequestSpec { extra, groups, request, uid, usages, username }
 instance encodeCertificateSigningRequestSpec :: Encode CertificateSigningRequestSpec where
-  encode a = genericEncode jsonOptions a
+  encode (CertificateSigningRequestSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "extra" (encode a.extra)
+               , Tuple "groups" (encode a.groups)
+               , Tuple "request" (encode a.request)
+               , Tuple "uid" (encode a.uid)
+               , Tuple "usages" (encode a.usages)
+               , Tuple "username" (encode a.username) ]
+
 
 instance defaultCertificateSigningRequestSpec :: Default CertificateSigningRequestSpec where
   default = CertificateSigningRequestSpec
@@ -151,9 +200,15 @@ derive instance newtypeCertificateSigningRequestStatus :: Newtype CertificateSig
 derive instance genericCertificateSigningRequestStatus :: Generic CertificateSigningRequestStatus _
 instance showCertificateSigningRequestStatus :: Show CertificateSigningRequestStatus where show a = genericShow a
 instance decodeCertificateSigningRequestStatus :: Decode CertificateSigningRequestStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               certificate <- readProp "certificate" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               pure $ CertificateSigningRequestStatus { certificate, conditions }
 instance encodeCertificateSigningRequestStatus :: Encode CertificateSigningRequestStatus where
-  encode a = genericEncode jsonOptions a
+  encode (CertificateSigningRequestStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "certificate" (encode a.certificate)
+               , Tuple "conditions" (encode a.conditions) ]
+
 
 instance defaultCertificateSigningRequestStatus :: Default CertificateSigningRequestStatus where
   default = CertificateSigningRequestStatus

@@ -3,17 +3,20 @@ module Kubernetes.Api.StorageV1Alpha1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -43,9 +46,21 @@ derive instance newtypeVolumeAttachment :: Newtype VolumeAttachment _
 derive instance genericVolumeAttachment :: Generic VolumeAttachment _
 instance showVolumeAttachment :: Show VolumeAttachment where show a = genericShow a
 instance decodeVolumeAttachment :: Decode VolumeAttachment where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ VolumeAttachment { apiVersion, kind, metadata, spec, status }
 instance encodeVolumeAttachment :: Encode VolumeAttachment where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeAttachment a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultVolumeAttachment :: Default VolumeAttachment where
   default = VolumeAttachment
@@ -72,9 +87,19 @@ derive instance newtypeVolumeAttachmentList :: Newtype VolumeAttachmentList _
 derive instance genericVolumeAttachmentList :: Generic VolumeAttachmentList _
 instance showVolumeAttachmentList :: Show VolumeAttachmentList where show a = genericShow a
 instance decodeVolumeAttachmentList :: Decode VolumeAttachmentList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ VolumeAttachmentList { apiVersion, items, kind, metadata }
 instance encodeVolumeAttachmentList :: Encode VolumeAttachmentList where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeAttachmentList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultVolumeAttachmentList :: Default VolumeAttachmentList where
   default = VolumeAttachmentList
@@ -94,9 +119,13 @@ derive instance newtypeVolumeAttachmentSource :: Newtype VolumeAttachmentSource 
 derive instance genericVolumeAttachmentSource :: Generic VolumeAttachmentSource _
 instance showVolumeAttachmentSource :: Show VolumeAttachmentSource where show a = genericShow a
 instance decodeVolumeAttachmentSource :: Decode VolumeAttachmentSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               persistentVolumeName <- readProp "persistentVolumeName" a >>= decode
+               pure $ VolumeAttachmentSource { persistentVolumeName }
 instance encodeVolumeAttachmentSource :: Encode VolumeAttachmentSource where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeAttachmentSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "persistentVolumeName" (encode a.persistentVolumeName) ]
+
 
 instance defaultVolumeAttachmentSource :: Default VolumeAttachmentSource where
   default = VolumeAttachmentSource
@@ -117,9 +146,17 @@ derive instance newtypeVolumeAttachmentSpec :: Newtype VolumeAttachmentSpec _
 derive instance genericVolumeAttachmentSpec :: Generic VolumeAttachmentSpec _
 instance showVolumeAttachmentSpec :: Show VolumeAttachmentSpec where show a = genericShow a
 instance decodeVolumeAttachmentSpec :: Decode VolumeAttachmentSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               attacher <- readProp "attacher" a >>= decode
+               nodeName <- readProp "nodeName" a >>= decode
+               source <- readProp "source" a >>= decode
+               pure $ VolumeAttachmentSpec { attacher, nodeName, source }
 instance encodeVolumeAttachmentSpec :: Encode VolumeAttachmentSpec where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeAttachmentSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "attacher" (encode a.attacher)
+               , Tuple "nodeName" (encode a.nodeName)
+               , Tuple "source" (encode a.source) ]
+
 
 instance defaultVolumeAttachmentSpec :: Default VolumeAttachmentSpec where
   default = VolumeAttachmentSpec
@@ -144,9 +181,19 @@ derive instance newtypeVolumeAttachmentStatus :: Newtype VolumeAttachmentStatus 
 derive instance genericVolumeAttachmentStatus :: Generic VolumeAttachmentStatus _
 instance showVolumeAttachmentStatus :: Show VolumeAttachmentStatus where show a = genericShow a
 instance decodeVolumeAttachmentStatus :: Decode VolumeAttachmentStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               attachError <- readProp "attachError" a >>= decode
+               attached <- readProp "attached" a >>= decode
+               attachmentMetadata <- readProp "attachmentMetadata" a >>= decode
+               detachError <- readProp "detachError" a >>= decode
+               pure $ VolumeAttachmentStatus { attachError, attached, attachmentMetadata, detachError }
 instance encodeVolumeAttachmentStatus :: Encode VolumeAttachmentStatus where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeAttachmentStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "attachError" (encode a.attachError)
+               , Tuple "attached" (encode a.attached)
+               , Tuple "attachmentMetadata" (encode a.attachmentMetadata)
+               , Tuple "detachError" (encode a.detachError) ]
+
 
 instance defaultVolumeAttachmentStatus :: Default VolumeAttachmentStatus where
   default = VolumeAttachmentStatus
@@ -168,9 +215,15 @@ derive instance newtypeVolumeError :: Newtype VolumeError _
 derive instance genericVolumeError :: Generic VolumeError _
 instance showVolumeError :: Show VolumeError where show a = genericShow a
 instance decodeVolumeError :: Decode VolumeError where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               message <- readProp "message" a >>= decode
+               time <- readProp "time" a >>= decode
+               pure $ VolumeError { message, time }
 instance encodeVolumeError :: Encode VolumeError where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeError a) = encode $ StrMap.fromFoldable $
+               [ Tuple "message" (encode a.message)
+               , Tuple "time" (encode a.time) ]
+
 
 instance defaultVolumeError :: Default VolumeError where
   default = VolumeError

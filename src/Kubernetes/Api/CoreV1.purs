@@ -3,17 +3,20 @@ module Kubernetes.Api.CoreV1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.Resource as Resource
 import Kubernetes.Api.Util as Util
@@ -43,9 +46,19 @@ derive instance newtypeAWSElasticBlockStoreVolumeSource :: Newtype AWSElasticBlo
 derive instance genericAWSElasticBlockStoreVolumeSource :: Generic AWSElasticBlockStoreVolumeSource _
 instance showAWSElasticBlockStoreVolumeSource :: Show AWSElasticBlockStoreVolumeSource where show a = genericShow a
 instance decodeAWSElasticBlockStoreVolumeSource :: Decode AWSElasticBlockStoreVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               partition <- readProp "partition" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               volumeID <- readProp "volumeID" a >>= decode
+               pure $ AWSElasticBlockStoreVolumeSource { fsType, partition, readOnly, volumeID }
 instance encodeAWSElasticBlockStoreVolumeSource :: Encode AWSElasticBlockStoreVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (AWSElasticBlockStoreVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "partition" (encode a.partition)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "volumeID" (encode a.volumeID) ]
+
 
 instance defaultAWSElasticBlockStoreVolumeSource :: Default AWSElasticBlockStoreVolumeSource where
   default = AWSElasticBlockStoreVolumeSource
@@ -69,9 +82,17 @@ derive instance newtypeAffinity :: Newtype Affinity _
 derive instance genericAffinity :: Generic Affinity _
 instance showAffinity :: Show Affinity where show a = genericShow a
 instance decodeAffinity :: Decode Affinity where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               nodeAffinity <- readProp "nodeAffinity" a >>= decode
+               podAffinity <- readProp "podAffinity" a >>= decode
+               podAntiAffinity <- readProp "podAntiAffinity" a >>= decode
+               pure $ Affinity { nodeAffinity, podAffinity, podAntiAffinity }
 instance encodeAffinity :: Encode Affinity where
-  encode a = genericEncode jsonOptions a
+  encode (Affinity a) = encode $ StrMap.fromFoldable $
+               [ Tuple "nodeAffinity" (encode a.nodeAffinity)
+               , Tuple "podAffinity" (encode a.podAffinity)
+               , Tuple "podAntiAffinity" (encode a.podAntiAffinity) ]
+
 
 instance defaultAffinity :: Default Affinity where
   default = Affinity
@@ -92,9 +113,15 @@ derive instance newtypeAttachedVolume :: Newtype AttachedVolume _
 derive instance genericAttachedVolume :: Generic AttachedVolume _
 instance showAttachedVolume :: Show AttachedVolume where show a = genericShow a
 instance decodeAttachedVolume :: Decode AttachedVolume where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               devicePath <- readProp "devicePath" a >>= decode
+               name <- readProp "name" a >>= decode
+               pure $ AttachedVolume { devicePath, name }
 instance encodeAttachedVolume :: Encode AttachedVolume where
-  encode a = genericEncode jsonOptions a
+  encode (AttachedVolume a) = encode $ StrMap.fromFoldable $
+               [ Tuple "devicePath" (encode a.devicePath)
+               , Tuple "name" (encode a.name) ]
+
 
 instance defaultAttachedVolume :: Default AttachedVolume where
   default = AttachedVolume
@@ -122,9 +149,23 @@ derive instance newtypeAzureDiskVolumeSource :: Newtype AzureDiskVolumeSource _
 derive instance genericAzureDiskVolumeSource :: Generic AzureDiskVolumeSource _
 instance showAzureDiskVolumeSource :: Show AzureDiskVolumeSource where show a = genericShow a
 instance decodeAzureDiskVolumeSource :: Decode AzureDiskVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               cachingMode <- readProp "cachingMode" a >>= decode
+               diskName <- readProp "diskName" a >>= decode
+               diskURI <- readProp "diskURI" a >>= decode
+               fsType <- readProp "fsType" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               pure $ AzureDiskVolumeSource { cachingMode, diskName, diskURI, fsType, kind, readOnly }
 instance encodeAzureDiskVolumeSource :: Encode AzureDiskVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (AzureDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "cachingMode" (encode a.cachingMode)
+               , Tuple "diskName" (encode a.diskName)
+               , Tuple "diskURI" (encode a.diskURI)
+               , Tuple "fsType" (encode a.fsType)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "readOnly" (encode a.readOnly) ]
+
 
 instance defaultAzureDiskVolumeSource :: Default AzureDiskVolumeSource where
   default = AzureDiskVolumeSource
@@ -152,9 +193,19 @@ derive instance newtypeAzureFilePersistentVolumeSource :: Newtype AzureFilePersi
 derive instance genericAzureFilePersistentVolumeSource :: Generic AzureFilePersistentVolumeSource _
 instance showAzureFilePersistentVolumeSource :: Show AzureFilePersistentVolumeSource where show a = genericShow a
 instance decodeAzureFilePersistentVolumeSource :: Decode AzureFilePersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               readOnly <- readProp "readOnly" a >>= decode
+               secretName <- readProp "secretName" a >>= decode
+               secretNamespace <- readProp "secretNamespace" a >>= decode
+               shareName <- readProp "shareName" a >>= decode
+               pure $ AzureFilePersistentVolumeSource { readOnly, secretName, secretNamespace, shareName }
 instance encodeAzureFilePersistentVolumeSource :: Encode AzureFilePersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (AzureFilePersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretName" (encode a.secretName)
+               , Tuple "secretNamespace" (encode a.secretNamespace)
+               , Tuple "shareName" (encode a.shareName) ]
+
 
 instance defaultAzureFilePersistentVolumeSource :: Default AzureFilePersistentVolumeSource where
   default = AzureFilePersistentVolumeSource
@@ -178,9 +229,17 @@ derive instance newtypeAzureFileVolumeSource :: Newtype AzureFileVolumeSource _
 derive instance genericAzureFileVolumeSource :: Generic AzureFileVolumeSource _
 instance showAzureFileVolumeSource :: Show AzureFileVolumeSource where show a = genericShow a
 instance decodeAzureFileVolumeSource :: Decode AzureFileVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               readOnly <- readProp "readOnly" a >>= decode
+               secretName <- readProp "secretName" a >>= decode
+               shareName <- readProp "shareName" a >>= decode
+               pure $ AzureFileVolumeSource { readOnly, secretName, shareName }
 instance encodeAzureFileVolumeSource :: Encode AzureFileVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (AzureFileVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretName" (encode a.secretName)
+               , Tuple "shareName" (encode a.shareName) ]
+
 
 instance defaultAzureFileVolumeSource :: Default AzureFileVolumeSource where
   default = AzureFileVolumeSource
@@ -205,9 +264,19 @@ derive instance newtypeBinding :: Newtype Binding _
 derive instance genericBinding :: Generic Binding _
 instance showBinding :: Show Binding where show a = genericShow a
 instance decodeBinding :: Decode Binding where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               target <- readProp "target" a >>= decode
+               pure $ Binding { apiVersion, kind, metadata, target }
 instance encodeBinding :: Encode Binding where
-  encode a = genericEncode jsonOptions a
+  encode (Binding a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "target" (encode a.target) ]
+
 
 instance defaultBinding :: Default Binding where
   default = Binding
@@ -231,9 +300,17 @@ derive instance newtypeCSIPersistentVolumeSource :: Newtype CSIPersistentVolumeS
 derive instance genericCSIPersistentVolumeSource :: Generic CSIPersistentVolumeSource _
 instance showCSIPersistentVolumeSource :: Show CSIPersistentVolumeSource where show a = genericShow a
 instance decodeCSIPersistentVolumeSource :: Decode CSIPersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               driver <- readProp "driver" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               volumeHandle <- readProp "volumeHandle" a >>= decode
+               pure $ CSIPersistentVolumeSource { driver, readOnly, volumeHandle }
 instance encodeCSIPersistentVolumeSource :: Encode CSIPersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (CSIPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "driver" (encode a.driver)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "volumeHandle" (encode a.volumeHandle) ]
+
 
 instance defaultCSIPersistentVolumeSource :: Default CSIPersistentVolumeSource where
   default = CSIPersistentVolumeSource
@@ -254,9 +331,15 @@ derive instance newtypeCapabilities :: Newtype Capabilities _
 derive instance genericCapabilities :: Generic Capabilities _
 instance showCapabilities :: Show Capabilities where show a = genericShow a
 instance decodeCapabilities :: Decode Capabilities where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               add <- readProp "add" a >>= decode
+               drop <- readProp "drop" a >>= decode
+               pure $ Capabilities { add, drop }
 instance encodeCapabilities :: Encode Capabilities where
-  encode a = genericEncode jsonOptions a
+  encode (Capabilities a) = encode $ StrMap.fromFoldable $
+               [ Tuple "add" (encode a.add)
+               , Tuple "drop" (encode a.drop) ]
+
 
 instance defaultCapabilities :: Default Capabilities where
   default = Capabilities
@@ -284,9 +367,23 @@ derive instance newtypeCephFSPersistentVolumeSource :: Newtype CephFSPersistentV
 derive instance genericCephFSPersistentVolumeSource :: Generic CephFSPersistentVolumeSource _
 instance showCephFSPersistentVolumeSource :: Show CephFSPersistentVolumeSource where show a = genericShow a
 instance decodeCephFSPersistentVolumeSource :: Decode CephFSPersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               monitors <- readProp "monitors" a >>= decode
+               path <- readProp "path" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretFile <- readProp "secretFile" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               user <- readProp "user" a >>= decode
+               pure $ CephFSPersistentVolumeSource { monitors, path, readOnly, secretFile, secretRef, user }
 instance encodeCephFSPersistentVolumeSource :: Encode CephFSPersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (CephFSPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "monitors" (encode a.monitors)
+               , Tuple "path" (encode a.path)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretFile" (encode a.secretFile)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "user" (encode a.user) ]
+
 
 instance defaultCephFSPersistentVolumeSource :: Default CephFSPersistentVolumeSource where
   default = CephFSPersistentVolumeSource
@@ -318,9 +415,23 @@ derive instance newtypeCephFSVolumeSource :: Newtype CephFSVolumeSource _
 derive instance genericCephFSVolumeSource :: Generic CephFSVolumeSource _
 instance showCephFSVolumeSource :: Show CephFSVolumeSource where show a = genericShow a
 instance decodeCephFSVolumeSource :: Decode CephFSVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               monitors <- readProp "monitors" a >>= decode
+               path <- readProp "path" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretFile <- readProp "secretFile" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               user <- readProp "user" a >>= decode
+               pure $ CephFSVolumeSource { monitors, path, readOnly, secretFile, secretRef, user }
 instance encodeCephFSVolumeSource :: Encode CephFSVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (CephFSVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "monitors" (encode a.monitors)
+               , Tuple "path" (encode a.path)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretFile" (encode a.secretFile)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "user" (encode a.user) ]
+
 
 instance defaultCephFSVolumeSource :: Default CephFSVolumeSource where
   default = CephFSVolumeSource
@@ -346,9 +457,17 @@ derive instance newtypeCinderVolumeSource :: Newtype CinderVolumeSource _
 derive instance genericCinderVolumeSource :: Generic CinderVolumeSource _
 instance showCinderVolumeSource :: Show CinderVolumeSource where show a = genericShow a
 instance decodeCinderVolumeSource :: Decode CinderVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               volumeID <- readProp "volumeID" a >>= decode
+               pure $ CinderVolumeSource { fsType, readOnly, volumeID }
 instance encodeCinderVolumeSource :: Encode CinderVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (CinderVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "volumeID" (encode a.volumeID) ]
+
 
 instance defaultCinderVolumeSource :: Default CinderVolumeSource where
   default = CinderVolumeSource
@@ -367,9 +486,13 @@ derive instance newtypeClientIPConfig :: Newtype ClientIPConfig _
 derive instance genericClientIPConfig :: Generic ClientIPConfig _
 instance showClientIPConfig :: Show ClientIPConfig where show a = genericShow a
 instance decodeClientIPConfig :: Decode ClientIPConfig where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               pure $ ClientIPConfig { timeoutSeconds }
 instance encodeClientIPConfig :: Encode ClientIPConfig where
-  encode a = genericEncode jsonOptions a
+  encode (ClientIPConfig a) = encode $ StrMap.fromFoldable $
+               [ Tuple "timeoutSeconds" (encode a.timeoutSeconds) ]
+
 
 instance defaultClientIPConfig :: Default ClientIPConfig where
   default = ClientIPConfig
@@ -392,9 +515,19 @@ derive instance newtypeComponentCondition :: Newtype ComponentCondition _
 derive instance genericComponentCondition :: Generic ComponentCondition _
 instance showComponentCondition :: Show ComponentCondition where show a = genericShow a
 instance decodeComponentCondition :: Decode ComponentCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               error <- readProp "error" a >>= decode
+               message <- readProp "message" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ ComponentCondition { _type, error, message, status }
 instance encodeComponentCondition :: Encode ComponentCondition where
-  encode a = genericEncode jsonOptions a
+  encode (ComponentCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "error" (encode a.error)
+               , Tuple "message" (encode a.message)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultComponentCondition :: Default ComponentCondition where
   default = ComponentCondition
@@ -420,9 +553,19 @@ derive instance newtypeComponentStatus :: Newtype ComponentStatus _
 derive instance genericComponentStatus :: Generic ComponentStatus _
 instance showComponentStatus :: Show ComponentStatus where show a = genericShow a
 instance decodeComponentStatus :: Decode ComponentStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ComponentStatus { apiVersion, conditions, kind, metadata }
 instance encodeComponentStatus :: Encode ComponentStatus where
-  encode a = genericEncode jsonOptions a
+  encode (ComponentStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "conditions" (encode a.conditions)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultComponentStatus :: Default ComponentStatus where
   default = ComponentStatus
@@ -448,9 +591,19 @@ derive instance newtypeComponentStatusList :: Newtype ComponentStatusList _
 derive instance genericComponentStatusList :: Generic ComponentStatusList _
 instance showComponentStatusList :: Show ComponentStatusList where show a = genericShow a
 instance decodeComponentStatusList :: Decode ComponentStatusList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ComponentStatusList { apiVersion, items, kind, metadata }
 instance encodeComponentStatusList :: Encode ComponentStatusList where
-  encode a = genericEncode jsonOptions a
+  encode (ComponentStatusList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultComponentStatusList :: Default ComponentStatusList where
   default = ComponentStatusList
@@ -476,9 +629,19 @@ derive instance newtypeConfigMap :: Newtype ConfigMap _
 derive instance genericConfigMap :: Generic ConfigMap _
 instance showConfigMap :: Show ConfigMap where show a = genericShow a
 instance decodeConfigMap :: Decode ConfigMap where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _data <- readProp "_data" a >>= decode
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ConfigMap { _data, apiVersion, kind, metadata }
 instance encodeConfigMap :: Encode ConfigMap where
-  encode a = genericEncode jsonOptions a
+  encode (ConfigMap a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_data" (encode a._data)
+               , Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultConfigMap :: Default ConfigMap where
   default = ConfigMap
@@ -502,9 +665,15 @@ derive instance newtypeConfigMapEnvSource :: Newtype ConfigMapEnvSource _
 derive instance genericConfigMapEnvSource :: Generic ConfigMapEnvSource _
 instance showConfigMapEnvSource :: Show ConfigMapEnvSource where show a = genericShow a
 instance decodeConfigMapEnvSource :: Decode ConfigMapEnvSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               pure $ ConfigMapEnvSource { name, optional }
 instance encodeConfigMapEnvSource :: Encode ConfigMapEnvSource where
-  encode a = genericEncode jsonOptions a
+  encode (ConfigMapEnvSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "optional" (encode a.optional) ]
+
 
 instance defaultConfigMapEnvSource :: Default ConfigMapEnvSource where
   default = ConfigMapEnvSource
@@ -526,9 +695,17 @@ derive instance newtypeConfigMapKeySelector :: Newtype ConfigMapKeySelector _
 derive instance genericConfigMapKeySelector :: Generic ConfigMapKeySelector _
 instance showConfigMapKeySelector :: Show ConfigMapKeySelector where show a = genericShow a
 instance decodeConfigMapKeySelector :: Decode ConfigMapKeySelector where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               key <- readProp "key" a >>= decode
+               name <- readProp "name" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               pure $ ConfigMapKeySelector { key, name, optional }
 instance encodeConfigMapKeySelector :: Encode ConfigMapKeySelector where
-  encode a = genericEncode jsonOptions a
+  encode (ConfigMapKeySelector a) = encode $ StrMap.fromFoldable $
+               [ Tuple "key" (encode a.key)
+               , Tuple "name" (encode a.name)
+               , Tuple "optional" (encode a.optional) ]
+
 
 instance defaultConfigMapKeySelector :: Default ConfigMapKeySelector where
   default = ConfigMapKeySelector
@@ -553,9 +730,19 @@ derive instance newtypeConfigMapList :: Newtype ConfigMapList _
 derive instance genericConfigMapList :: Generic ConfigMapList _
 instance showConfigMapList :: Show ConfigMapList where show a = genericShow a
 instance decodeConfigMapList :: Decode ConfigMapList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ConfigMapList { apiVersion, items, kind, metadata }
 instance encodeConfigMapList :: Encode ConfigMapList where
-  encode a = genericEncode jsonOptions a
+  encode (ConfigMapList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultConfigMapList :: Default ConfigMapList where
   default = ConfigMapList
@@ -581,9 +768,17 @@ derive instance newtypeConfigMapProjection :: Newtype ConfigMapProjection _
 derive instance genericConfigMapProjection :: Generic ConfigMapProjection _
 instance showConfigMapProjection :: Show ConfigMapProjection where show a = genericShow a
 instance decodeConfigMapProjection :: Decode ConfigMapProjection where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               items <- readProp "items" a >>= decode
+               name <- readProp "name" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               pure $ ConfigMapProjection { items, name, optional }
 instance encodeConfigMapProjection :: Encode ConfigMapProjection where
-  encode a = genericEncode jsonOptions a
+  encode (ConfigMapProjection a) = encode $ StrMap.fromFoldable $
+               [ Tuple "items" (encode a.items)
+               , Tuple "name" (encode a.name)
+               , Tuple "optional" (encode a.optional) ]
+
 
 instance defaultConfigMapProjection :: Default ConfigMapProjection where
   default = ConfigMapProjection
@@ -610,9 +805,19 @@ derive instance newtypeConfigMapVolumeSource :: Newtype ConfigMapVolumeSource _
 derive instance genericConfigMapVolumeSource :: Generic ConfigMapVolumeSource _
 instance showConfigMapVolumeSource :: Show ConfigMapVolumeSource where show a = genericShow a
 instance decodeConfigMapVolumeSource :: Decode ConfigMapVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               defaultMode <- readProp "defaultMode" a >>= decode
+               items <- readProp "items" a >>= decode
+               name <- readProp "name" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               pure $ ConfigMapVolumeSource { defaultMode, items, name, optional }
 instance encodeConfigMapVolumeSource :: Encode ConfigMapVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (ConfigMapVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "defaultMode" (encode a.defaultMode)
+               , Tuple "items" (encode a.items)
+               , Tuple "name" (encode a.name)
+               , Tuple "optional" (encode a.optional) ]
+
 
 instance defaultConfigMapVolumeSource :: Default ConfigMapVolumeSource where
   default = ConfigMapVolumeSource
@@ -672,9 +877,53 @@ derive instance newtypeContainer :: Newtype Container _
 derive instance genericContainer :: Generic Container _
 instance showContainer :: Show Container where show a = genericShow a
 instance decodeContainer :: Decode Container where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               args <- readProp "args" a >>= decode
+               command <- readProp "command" a >>= decode
+               env <- readProp "env" a >>= decode
+               envFrom <- readProp "envFrom" a >>= decode
+               image <- readProp "image" a >>= decode
+               imagePullPolicy <- readProp "imagePullPolicy" a >>= decode
+               lifecycle <- readProp "lifecycle" a >>= decode
+               livenessProbe <- readProp "livenessProbe" a >>= decode
+               name <- readProp "name" a >>= decode
+               ports <- readProp "ports" a >>= decode
+               readinessProbe <- readProp "readinessProbe" a >>= decode
+               resources <- readProp "resources" a >>= decode
+               securityContext <- readProp "securityContext" a >>= decode
+               stdin <- readProp "stdin" a >>= decode
+               stdinOnce <- readProp "stdinOnce" a >>= decode
+               terminationMessagePath <- readProp "terminationMessagePath" a >>= decode
+               terminationMessagePolicy <- readProp "terminationMessagePolicy" a >>= decode
+               tty <- readProp "tty" a >>= decode
+               volumeDevices <- readProp "volumeDevices" a >>= decode
+               volumeMounts <- readProp "volumeMounts" a >>= decode
+               workingDir <- readProp "workingDir" a >>= decode
+               pure $ Container { args, command, env, envFrom, image, imagePullPolicy, lifecycle, livenessProbe, name, ports, readinessProbe, resources, securityContext, stdin, stdinOnce, terminationMessagePath, terminationMessagePolicy, tty, volumeDevices, volumeMounts, workingDir }
 instance encodeContainer :: Encode Container where
-  encode a = genericEncode jsonOptions a
+  encode (Container a) = encode $ StrMap.fromFoldable $
+               [ Tuple "args" (encode a.args)
+               , Tuple "command" (encode a.command)
+               , Tuple "env" (encode a.env)
+               , Tuple "envFrom" (encode a.envFrom)
+               , Tuple "image" (encode a.image)
+               , Tuple "imagePullPolicy" (encode a.imagePullPolicy)
+               , Tuple "lifecycle" (encode a.lifecycle)
+               , Tuple "livenessProbe" (encode a.livenessProbe)
+               , Tuple "name" (encode a.name)
+               , Tuple "ports" (encode a.ports)
+               , Tuple "readinessProbe" (encode a.readinessProbe)
+               , Tuple "resources" (encode a.resources)
+               , Tuple "securityContext" (encode a.securityContext)
+               , Tuple "stdin" (encode a.stdin)
+               , Tuple "stdinOnce" (encode a.stdinOnce)
+               , Tuple "terminationMessagePath" (encode a.terminationMessagePath)
+               , Tuple "terminationMessagePolicy" (encode a.terminationMessagePolicy)
+               , Tuple "tty" (encode a.tty)
+               , Tuple "volumeDevices" (encode a.volumeDevices)
+               , Tuple "volumeMounts" (encode a.volumeMounts)
+               , Tuple "workingDir" (encode a.workingDir) ]
+
 
 instance defaultContainer :: Default Container where
   default = Container
@@ -713,9 +962,15 @@ derive instance newtypeContainerImage :: Newtype ContainerImage _
 derive instance genericContainerImage :: Generic ContainerImage _
 instance showContainerImage :: Show ContainerImage where show a = genericShow a
 instance decodeContainerImage :: Decode ContainerImage where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               names <- readProp "names" a >>= decode
+               sizeBytes <- readProp "sizeBytes" a >>= decode
+               pure $ ContainerImage { names, sizeBytes }
 instance encodeContainerImage :: Encode ContainerImage where
-  encode a = genericEncode jsonOptions a
+  encode (ContainerImage a) = encode $ StrMap.fromFoldable $
+               [ Tuple "names" (encode a.names)
+               , Tuple "sizeBytes" (encode a.sizeBytes) ]
+
 
 instance defaultContainerImage :: Default ContainerImage where
   default = ContainerImage
@@ -741,9 +996,21 @@ derive instance newtypeContainerPort :: Newtype ContainerPort _
 derive instance genericContainerPort :: Generic ContainerPort _
 instance showContainerPort :: Show ContainerPort where show a = genericShow a
 instance decodeContainerPort :: Decode ContainerPort where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               containerPort <- readProp "containerPort" a >>= decode
+               hostIP <- readProp "hostIP" a >>= decode
+               hostPort <- readProp "hostPort" a >>= decode
+               name <- readProp "name" a >>= decode
+               protocol <- readProp "protocol" a >>= decode
+               pure $ ContainerPort { containerPort, hostIP, hostPort, name, protocol }
 instance encodeContainerPort :: Encode ContainerPort where
-  encode a = genericEncode jsonOptions a
+  encode (ContainerPort a) = encode $ StrMap.fromFoldable $
+               [ Tuple "containerPort" (encode a.containerPort)
+               , Tuple "hostIP" (encode a.hostIP)
+               , Tuple "hostPort" (encode a.hostPort)
+               , Tuple "name" (encode a.name)
+               , Tuple "protocol" (encode a.protocol) ]
+
 
 instance defaultContainerPort :: Default ContainerPort where
   default = ContainerPort
@@ -768,9 +1035,17 @@ derive instance newtypeContainerState :: Newtype ContainerState _
 derive instance genericContainerState :: Generic ContainerState _
 instance showContainerState :: Show ContainerState where show a = genericShow a
 instance decodeContainerState :: Decode ContainerState where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               running <- readProp "running" a >>= decode
+               terminated <- readProp "terminated" a >>= decode
+               waiting <- readProp "waiting" a >>= decode
+               pure $ ContainerState { running, terminated, waiting }
 instance encodeContainerState :: Encode ContainerState where
-  encode a = genericEncode jsonOptions a
+  encode (ContainerState a) = encode $ StrMap.fromFoldable $
+               [ Tuple "running" (encode a.running)
+               , Tuple "terminated" (encode a.terminated)
+               , Tuple "waiting" (encode a.waiting) ]
+
 
 instance defaultContainerState :: Default ContainerState where
   default = ContainerState
@@ -789,9 +1064,13 @@ derive instance newtypeContainerStateRunning :: Newtype ContainerStateRunning _
 derive instance genericContainerStateRunning :: Generic ContainerStateRunning _
 instance showContainerStateRunning :: Show ContainerStateRunning where show a = genericShow a
 instance decodeContainerStateRunning :: Decode ContainerStateRunning where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               startedAt <- readProp "startedAt" a >>= decode
+               pure $ ContainerStateRunning { startedAt }
 instance encodeContainerStateRunning :: Encode ContainerStateRunning where
-  encode a = genericEncode jsonOptions a
+  encode (ContainerStateRunning a) = encode $ StrMap.fromFoldable $
+               [ Tuple "startedAt" (encode a.startedAt) ]
+
 
 instance defaultContainerStateRunning :: Default ContainerStateRunning where
   default = ContainerStateRunning
@@ -820,9 +1099,25 @@ derive instance newtypeContainerStateTerminated :: Newtype ContainerStateTermina
 derive instance genericContainerStateTerminated :: Generic ContainerStateTerminated _
 instance showContainerStateTerminated :: Show ContainerStateTerminated where show a = genericShow a
 instance decodeContainerStateTerminated :: Decode ContainerStateTerminated where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               containerID <- readProp "containerID" a >>= decode
+               exitCode <- readProp "exitCode" a >>= decode
+               finishedAt <- readProp "finishedAt" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               signal <- readProp "signal" a >>= decode
+               startedAt <- readProp "startedAt" a >>= decode
+               pure $ ContainerStateTerminated { containerID, exitCode, finishedAt, message, reason, signal, startedAt }
 instance encodeContainerStateTerminated :: Encode ContainerStateTerminated where
-  encode a = genericEncode jsonOptions a
+  encode (ContainerStateTerminated a) = encode $ StrMap.fromFoldable $
+               [ Tuple "containerID" (encode a.containerID)
+               , Tuple "exitCode" (encode a.exitCode)
+               , Tuple "finishedAt" (encode a.finishedAt)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "signal" (encode a.signal)
+               , Tuple "startedAt" (encode a.startedAt) ]
+
 
 instance defaultContainerStateTerminated :: Default ContainerStateTerminated where
   default = ContainerStateTerminated
@@ -847,9 +1142,15 @@ derive instance newtypeContainerStateWaiting :: Newtype ContainerStateWaiting _
 derive instance genericContainerStateWaiting :: Generic ContainerStateWaiting _
 instance showContainerStateWaiting :: Show ContainerStateWaiting where show a = genericShow a
 instance decodeContainerStateWaiting :: Decode ContainerStateWaiting where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               pure $ ContainerStateWaiting { message, reason }
 instance encodeContainerStateWaiting :: Encode ContainerStateWaiting where
-  encode a = genericEncode jsonOptions a
+  encode (ContainerStateWaiting a) = encode $ StrMap.fromFoldable $
+               [ Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason) ]
+
 
 instance defaultContainerStateWaiting :: Default ContainerStateWaiting where
   default = ContainerStateWaiting
@@ -881,9 +1182,27 @@ derive instance newtypeContainerStatus :: Newtype ContainerStatus _
 derive instance genericContainerStatus :: Generic ContainerStatus _
 instance showContainerStatus :: Show ContainerStatus where show a = genericShow a
 instance decodeContainerStatus :: Decode ContainerStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               containerID <- readProp "containerID" a >>= decode
+               image <- readProp "image" a >>= decode
+               imageID <- readProp "imageID" a >>= decode
+               lastState <- readProp "lastState" a >>= decode
+               name <- readProp "name" a >>= decode
+               ready <- readProp "ready" a >>= decode
+               restartCount <- readProp "restartCount" a >>= decode
+               state <- readProp "state" a >>= decode
+               pure $ ContainerStatus { containerID, image, imageID, lastState, name, ready, restartCount, state }
 instance encodeContainerStatus :: Encode ContainerStatus where
-  encode a = genericEncode jsonOptions a
+  encode (ContainerStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "containerID" (encode a.containerID)
+               , Tuple "image" (encode a.image)
+               , Tuple "imageID" (encode a.imageID)
+               , Tuple "lastState" (encode a.lastState)
+               , Tuple "name" (encode a.name)
+               , Tuple "ready" (encode a.ready)
+               , Tuple "restartCount" (encode a.restartCount)
+               , Tuple "state" (encode a.state) ]
+
 
 instance defaultContainerStatus :: Default ContainerStatus where
   default = ContainerStatus
@@ -907,9 +1226,13 @@ derive instance newtypeDaemonEndpoint :: Newtype DaemonEndpoint _
 derive instance genericDaemonEndpoint :: Generic DaemonEndpoint _
 instance showDaemonEndpoint :: Show DaemonEndpoint where show a = genericShow a
 instance decodeDaemonEndpoint :: Decode DaemonEndpoint where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _Port <- readProp "_Port" a >>= decode
+               pure $ DaemonEndpoint { _Port }
 instance encodeDaemonEndpoint :: Encode DaemonEndpoint where
-  encode a = genericEncode jsonOptions a
+  encode (DaemonEndpoint a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_Port" (encode a._Port) ]
+
 
 instance defaultDaemonEndpoint :: Default DaemonEndpoint where
   default = DaemonEndpoint
@@ -926,9 +1249,13 @@ derive instance newtypeDownwardAPIProjection :: Newtype DownwardAPIProjection _
 derive instance genericDownwardAPIProjection :: Generic DownwardAPIProjection _
 instance showDownwardAPIProjection :: Show DownwardAPIProjection where show a = genericShow a
 instance decodeDownwardAPIProjection :: Decode DownwardAPIProjection where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               items <- readProp "items" a >>= decode
+               pure $ DownwardAPIProjection { items }
 instance encodeDownwardAPIProjection :: Encode DownwardAPIProjection where
-  encode a = genericEncode jsonOptions a
+  encode (DownwardAPIProjection a) = encode $ StrMap.fromFoldable $
+               [ Tuple "items" (encode a.items) ]
+
 
 instance defaultDownwardAPIProjection :: Default DownwardAPIProjection where
   default = DownwardAPIProjection
@@ -951,9 +1278,19 @@ derive instance newtypeDownwardAPIVolumeFile :: Newtype DownwardAPIVolumeFile _
 derive instance genericDownwardAPIVolumeFile :: Generic DownwardAPIVolumeFile _
 instance showDownwardAPIVolumeFile :: Show DownwardAPIVolumeFile where show a = genericShow a
 instance decodeDownwardAPIVolumeFile :: Decode DownwardAPIVolumeFile where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fieldRef <- readProp "fieldRef" a >>= decode
+               mode <- readProp "mode" a >>= decode
+               path <- readProp "path" a >>= decode
+               resourceFieldRef <- readProp "resourceFieldRef" a >>= decode
+               pure $ DownwardAPIVolumeFile { fieldRef, mode, path, resourceFieldRef }
 instance encodeDownwardAPIVolumeFile :: Encode DownwardAPIVolumeFile where
-  encode a = genericEncode jsonOptions a
+  encode (DownwardAPIVolumeFile a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fieldRef" (encode a.fieldRef)
+               , Tuple "mode" (encode a.mode)
+               , Tuple "path" (encode a.path)
+               , Tuple "resourceFieldRef" (encode a.resourceFieldRef) ]
+
 
 instance defaultDownwardAPIVolumeFile :: Default DownwardAPIVolumeFile where
   default = DownwardAPIVolumeFile
@@ -975,9 +1312,15 @@ derive instance newtypeDownwardAPIVolumeSource :: Newtype DownwardAPIVolumeSourc
 derive instance genericDownwardAPIVolumeSource :: Generic DownwardAPIVolumeSource _
 instance showDownwardAPIVolumeSource :: Show DownwardAPIVolumeSource where show a = genericShow a
 instance decodeDownwardAPIVolumeSource :: Decode DownwardAPIVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               defaultMode <- readProp "defaultMode" a >>= decode
+               items <- readProp "items" a >>= decode
+               pure $ DownwardAPIVolumeSource { defaultMode, items }
 instance encodeDownwardAPIVolumeSource :: Encode DownwardAPIVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (DownwardAPIVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "defaultMode" (encode a.defaultMode)
+               , Tuple "items" (encode a.items) ]
+
 
 instance defaultDownwardAPIVolumeSource :: Default DownwardAPIVolumeSource where
   default = DownwardAPIVolumeSource
@@ -997,9 +1340,15 @@ derive instance newtypeEmptyDirVolumeSource :: Newtype EmptyDirVolumeSource _
 derive instance genericEmptyDirVolumeSource :: Generic EmptyDirVolumeSource _
 instance showEmptyDirVolumeSource :: Show EmptyDirVolumeSource where show a = genericShow a
 instance decodeEmptyDirVolumeSource :: Decode EmptyDirVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               medium <- readProp "medium" a >>= decode
+               sizeLimit <- readProp "sizeLimit" a >>= decode
+               pure $ EmptyDirVolumeSource { medium, sizeLimit }
 instance encodeEmptyDirVolumeSource :: Encode EmptyDirVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (EmptyDirVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "medium" (encode a.medium)
+               , Tuple "sizeLimit" (encode a.sizeLimit) ]
+
 
 instance defaultEmptyDirVolumeSource :: Default EmptyDirVolumeSource where
   default = EmptyDirVolumeSource
@@ -1023,9 +1372,19 @@ derive instance newtypeEndpointAddress :: Newtype EndpointAddress _
 derive instance genericEndpointAddress :: Generic EndpointAddress _
 instance showEndpointAddress :: Show EndpointAddress where show a = genericShow a
 instance decodeEndpointAddress :: Decode EndpointAddress where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               hostname <- readProp "hostname" a >>= decode
+               ip <- readProp "ip" a >>= decode
+               nodeName <- readProp "nodeName" a >>= decode
+               targetRef <- readProp "targetRef" a >>= decode
+               pure $ EndpointAddress { hostname, ip, nodeName, targetRef }
 instance encodeEndpointAddress :: Encode EndpointAddress where
-  encode a = genericEncode jsonOptions a
+  encode (EndpointAddress a) = encode $ StrMap.fromFoldable $
+               [ Tuple "hostname" (encode a.hostname)
+               , Tuple "ip" (encode a.ip)
+               , Tuple "nodeName" (encode a.nodeName)
+               , Tuple "targetRef" (encode a.targetRef) ]
+
 
 instance defaultEndpointAddress :: Default EndpointAddress where
   default = EndpointAddress
@@ -1049,9 +1408,17 @@ derive instance newtypeEndpointPort :: Newtype EndpointPort _
 derive instance genericEndpointPort :: Generic EndpointPort _
 instance showEndpointPort :: Show EndpointPort where show a = genericShow a
 instance decodeEndpointPort :: Decode EndpointPort where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               port <- readProp "port" a >>= decode
+               protocol <- readProp "protocol" a >>= decode
+               pure $ EndpointPort { name, port, protocol }
 instance encodeEndpointPort :: Encode EndpointPort where
-  encode a = genericEncode jsonOptions a
+  encode (EndpointPort a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "port" (encode a.port)
+               , Tuple "protocol" (encode a.protocol) ]
+
 
 instance defaultEndpointPort :: Default EndpointPort where
   default = EndpointPort
@@ -1081,9 +1448,17 @@ derive instance newtypeEndpointSubset :: Newtype EndpointSubset _
 derive instance genericEndpointSubset :: Generic EndpointSubset _
 instance showEndpointSubset :: Show EndpointSubset where show a = genericShow a
 instance decodeEndpointSubset :: Decode EndpointSubset where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               addresses <- readProp "addresses" a >>= decode
+               notReadyAddresses <- readProp "notReadyAddresses" a >>= decode
+               ports <- readProp "ports" a >>= decode
+               pure $ EndpointSubset { addresses, notReadyAddresses, ports }
 instance encodeEndpointSubset :: Encode EndpointSubset where
-  encode a = genericEncode jsonOptions a
+  encode (EndpointSubset a) = encode $ StrMap.fromFoldable $
+               [ Tuple "addresses" (encode a.addresses)
+               , Tuple "notReadyAddresses" (encode a.notReadyAddresses)
+               , Tuple "ports" (encode a.ports) ]
+
 
 instance defaultEndpointSubset :: Default EndpointSubset where
   default = EndpointSubset
@@ -1119,9 +1494,19 @@ derive instance newtypeEndpoints :: Newtype Endpoints _
 derive instance genericEndpoints :: Generic Endpoints _
 instance showEndpoints :: Show Endpoints where show a = genericShow a
 instance decodeEndpoints :: Decode Endpoints where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               subsets <- readProp "subsets" a >>= decode
+               pure $ Endpoints { apiVersion, kind, metadata, subsets }
 instance encodeEndpoints :: Encode Endpoints where
-  encode a = genericEncode jsonOptions a
+  encode (Endpoints a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "subsets" (encode a.subsets) ]
+
 
 instance defaultEndpoints :: Default Endpoints where
   default = Endpoints
@@ -1147,9 +1532,19 @@ derive instance newtypeEndpointsList :: Newtype EndpointsList _
 derive instance genericEndpointsList :: Generic EndpointsList _
 instance showEndpointsList :: Show EndpointsList where show a = genericShow a
 instance decodeEndpointsList :: Decode EndpointsList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ EndpointsList { apiVersion, items, kind, metadata }
 instance encodeEndpointsList :: Encode EndpointsList where
-  encode a = genericEncode jsonOptions a
+  encode (EndpointsList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultEndpointsList :: Default EndpointsList where
   default = EndpointsList
@@ -1173,9 +1568,17 @@ derive instance newtypeEnvFromSource :: Newtype EnvFromSource _
 derive instance genericEnvFromSource :: Generic EnvFromSource _
 instance showEnvFromSource :: Show EnvFromSource where show a = genericShow a
 instance decodeEnvFromSource :: Decode EnvFromSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               configMapRef <- readProp "configMapRef" a >>= decode
+               prefix <- readProp "prefix" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               pure $ EnvFromSource { configMapRef, prefix, secretRef }
 instance encodeEnvFromSource :: Encode EnvFromSource where
-  encode a = genericEncode jsonOptions a
+  encode (EnvFromSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "configMapRef" (encode a.configMapRef)
+               , Tuple "prefix" (encode a.prefix)
+               , Tuple "secretRef" (encode a.secretRef) ]
+
 
 instance defaultEnvFromSource :: Default EnvFromSource where
   default = EnvFromSource
@@ -1198,9 +1601,17 @@ derive instance newtypeEnvVar :: Newtype EnvVar _
 derive instance genericEnvVar :: Generic EnvVar _
 instance showEnvVar :: Show EnvVar where show a = genericShow a
 instance decodeEnvVar :: Decode EnvVar where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               value <- readProp "value" a >>= decode
+               valueFrom <- readProp "valueFrom" a >>= decode
+               pure $ EnvVar { name, value, valueFrom }
 instance encodeEnvVar :: Encode EnvVar where
-  encode a = genericEncode jsonOptions a
+  encode (EnvVar a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "value" (encode a.value)
+               , Tuple "valueFrom" (encode a.valueFrom) ]
+
 
 instance defaultEnvVar :: Default EnvVar where
   default = EnvVar
@@ -1225,9 +1636,19 @@ derive instance newtypeEnvVarSource :: Newtype EnvVarSource _
 derive instance genericEnvVarSource :: Generic EnvVarSource _
 instance showEnvVarSource :: Show EnvVarSource where show a = genericShow a
 instance decodeEnvVarSource :: Decode EnvVarSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               configMapKeyRef <- readProp "configMapKeyRef" a >>= decode
+               fieldRef <- readProp "fieldRef" a >>= decode
+               resourceFieldRef <- readProp "resourceFieldRef" a >>= decode
+               secretKeyRef <- readProp "secretKeyRef" a >>= decode
+               pure $ EnvVarSource { configMapKeyRef, fieldRef, resourceFieldRef, secretKeyRef }
 instance encodeEnvVarSource :: Encode EnvVarSource where
-  encode a = genericEncode jsonOptions a
+  encode (EnvVarSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "configMapKeyRef" (encode a.configMapKeyRef)
+               , Tuple "fieldRef" (encode a.fieldRef)
+               , Tuple "resourceFieldRef" (encode a.resourceFieldRef)
+               , Tuple "secretKeyRef" (encode a.secretKeyRef) ]
+
 
 instance defaultEnvVarSource :: Default EnvVarSource where
   default = EnvVarSource
@@ -1279,9 +1700,45 @@ derive instance newtypeEvent :: Newtype Event _
 derive instance genericEvent :: Generic Event _
 instance showEvent :: Show Event where show a = genericShow a
 instance decodeEvent :: Decode Event where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               action <- readProp "action" a >>= decode
+               apiVersion <- readProp "apiVersion" a >>= decode
+               count <- readProp "count" a >>= decode
+               eventTime <- readProp "eventTime" a >>= decode
+               firstTimestamp <- readProp "firstTimestamp" a >>= decode
+               involvedObject <- readProp "involvedObject" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               lastTimestamp <- readProp "lastTimestamp" a >>= decode
+               message <- readProp "message" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               related <- readProp "related" a >>= decode
+               reportingComponent <- readProp "reportingComponent" a >>= decode
+               reportingInstance <- readProp "reportingInstance" a >>= decode
+               series <- readProp "series" a >>= decode
+               source <- readProp "source" a >>= decode
+               pure $ Event { _type, action, apiVersion, count, eventTime, firstTimestamp, involvedObject, kind, lastTimestamp, message, metadata, reason, related, reportingComponent, reportingInstance, series, source }
 instance encodeEvent :: Encode Event where
-  encode a = genericEncode jsonOptions a
+  encode (Event a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "action" (encode a.action)
+               , Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "count" (encode a.count)
+               , Tuple "eventTime" (encode a.eventTime)
+               , Tuple "firstTimestamp" (encode a.firstTimestamp)
+               , Tuple "involvedObject" (encode a.involvedObject)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "lastTimestamp" (encode a.lastTimestamp)
+               , Tuple "message" (encode a.message)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "related" (encode a.related)
+               , Tuple "reportingComponent" (encode a.reportingComponent)
+               , Tuple "reportingInstance" (encode a.reportingInstance)
+               , Tuple "series" (encode a.series)
+               , Tuple "source" (encode a.source) ]
+
 
 instance defaultEvent :: Default Event where
   default = Event
@@ -1320,9 +1777,19 @@ derive instance newtypeEventList :: Newtype EventList _
 derive instance genericEventList :: Generic EventList _
 instance showEventList :: Show EventList where show a = genericShow a
 instance decodeEventList :: Decode EventList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ EventList { apiVersion, items, kind, metadata }
 instance encodeEventList :: Encode EventList where
-  encode a = genericEncode jsonOptions a
+  encode (EventList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultEventList :: Default EventList where
   default = EventList
@@ -1346,9 +1813,17 @@ derive instance newtypeEventSeries :: Newtype EventSeries _
 derive instance genericEventSeries :: Generic EventSeries _
 instance showEventSeries :: Show EventSeries where show a = genericShow a
 instance decodeEventSeries :: Decode EventSeries where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               count <- readProp "count" a >>= decode
+               lastObservedTime <- readProp "lastObservedTime" a >>= decode
+               state <- readProp "state" a >>= decode
+               pure $ EventSeries { count, lastObservedTime, state }
 instance encodeEventSeries :: Encode EventSeries where
-  encode a = genericEncode jsonOptions a
+  encode (EventSeries a) = encode $ StrMap.fromFoldable $
+               [ Tuple "count" (encode a.count)
+               , Tuple "lastObservedTime" (encode a.lastObservedTime)
+               , Tuple "state" (encode a.state) ]
+
 
 instance defaultEventSeries :: Default EventSeries where
   default = EventSeries
@@ -1369,9 +1844,15 @@ derive instance newtypeEventSource :: Newtype EventSource _
 derive instance genericEventSource :: Generic EventSource _
 instance showEventSource :: Show EventSource where show a = genericShow a
 instance decodeEventSource :: Decode EventSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               component <- readProp "component" a >>= decode
+               host <- readProp "host" a >>= decode
+               pure $ EventSource { component, host }
 instance encodeEventSource :: Encode EventSource where
-  encode a = genericEncode jsonOptions a
+  encode (EventSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "component" (encode a.component)
+               , Tuple "host" (encode a.host) ]
+
 
 instance defaultEventSource :: Default EventSource where
   default = EventSource
@@ -1389,9 +1870,13 @@ derive instance newtypeExecAction :: Newtype ExecAction _
 derive instance genericExecAction :: Generic ExecAction _
 instance showExecAction :: Show ExecAction where show a = genericShow a
 instance decodeExecAction :: Decode ExecAction where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               command <- readProp "command" a >>= decode
+               pure $ ExecAction { command }
 instance encodeExecAction :: Encode ExecAction where
-  encode a = genericEncode jsonOptions a
+  encode (ExecAction a) = encode $ StrMap.fromFoldable $
+               [ Tuple "command" (encode a.command) ]
+
 
 instance defaultExecAction :: Default ExecAction where
   default = ExecAction
@@ -1416,9 +1901,21 @@ derive instance newtypeFCVolumeSource :: Newtype FCVolumeSource _
 derive instance genericFCVolumeSource :: Generic FCVolumeSource _
 instance showFCVolumeSource :: Show FCVolumeSource where show a = genericShow a
 instance decodeFCVolumeSource :: Decode FCVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               lun <- readProp "lun" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               targetWWNs <- readProp "targetWWNs" a >>= decode
+               wwids <- readProp "wwids" a >>= decode
+               pure $ FCVolumeSource { fsType, lun, readOnly, targetWWNs, wwids }
 instance encodeFCVolumeSource :: Encode FCVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (FCVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "lun" (encode a.lun)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "targetWWNs" (encode a.targetWWNs)
+               , Tuple "wwids" (encode a.wwids) ]
+
 
 instance defaultFCVolumeSource :: Default FCVolumeSource where
   default = FCVolumeSource
@@ -1447,9 +1944,21 @@ derive instance newtypeFlexPersistentVolumeSource :: Newtype FlexPersistentVolum
 derive instance genericFlexPersistentVolumeSource :: Generic FlexPersistentVolumeSource _
 instance showFlexPersistentVolumeSource :: Show FlexPersistentVolumeSource where show a = genericShow a
 instance decodeFlexPersistentVolumeSource :: Decode FlexPersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               driver <- readProp "driver" a >>= decode
+               fsType <- readProp "fsType" a >>= decode
+               options <- readProp "options" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               pure $ FlexPersistentVolumeSource { driver, fsType, options, readOnly, secretRef }
 instance encodeFlexPersistentVolumeSource :: Encode FlexPersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (FlexPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "driver" (encode a.driver)
+               , Tuple "fsType" (encode a.fsType)
+               , Tuple "options" (encode a.options)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef) ]
+
 
 instance defaultFlexPersistentVolumeSource :: Default FlexPersistentVolumeSource where
   default = FlexPersistentVolumeSource
@@ -1478,9 +1987,21 @@ derive instance newtypeFlexVolumeSource :: Newtype FlexVolumeSource _
 derive instance genericFlexVolumeSource :: Generic FlexVolumeSource _
 instance showFlexVolumeSource :: Show FlexVolumeSource where show a = genericShow a
 instance decodeFlexVolumeSource :: Decode FlexVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               driver <- readProp "driver" a >>= decode
+               fsType <- readProp "fsType" a >>= decode
+               options <- readProp "options" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               pure $ FlexVolumeSource { driver, fsType, options, readOnly, secretRef }
 instance encodeFlexVolumeSource :: Encode FlexVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (FlexVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "driver" (encode a.driver)
+               , Tuple "fsType" (encode a.fsType)
+               , Tuple "options" (encode a.options)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef) ]
+
 
 instance defaultFlexVolumeSource :: Default FlexVolumeSource where
   default = FlexVolumeSource
@@ -1503,9 +2024,15 @@ derive instance newtypeFlockerVolumeSource :: Newtype FlockerVolumeSource _
 derive instance genericFlockerVolumeSource :: Generic FlockerVolumeSource _
 instance showFlockerVolumeSource :: Show FlockerVolumeSource where show a = genericShow a
 instance decodeFlockerVolumeSource :: Decode FlockerVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               datasetName <- readProp "datasetName" a >>= decode
+               datasetUUID <- readProp "datasetUUID" a >>= decode
+               pure $ FlockerVolumeSource { datasetName, datasetUUID }
 instance encodeFlockerVolumeSource :: Encode FlockerVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (FlockerVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "datasetName" (encode a.datasetName)
+               , Tuple "datasetUUID" (encode a.datasetUUID) ]
+
 
 instance defaultFlockerVolumeSource :: Default FlockerVolumeSource where
   default = FlockerVolumeSource
@@ -1531,9 +2058,19 @@ derive instance newtypeGCEPersistentDiskVolumeSource :: Newtype GCEPersistentDis
 derive instance genericGCEPersistentDiskVolumeSource :: Generic GCEPersistentDiskVolumeSource _
 instance showGCEPersistentDiskVolumeSource :: Show GCEPersistentDiskVolumeSource where show a = genericShow a
 instance decodeGCEPersistentDiskVolumeSource :: Decode GCEPersistentDiskVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               partition <- readProp "partition" a >>= decode
+               pdName <- readProp "pdName" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               pure $ GCEPersistentDiskVolumeSource { fsType, partition, pdName, readOnly }
 instance encodeGCEPersistentDiskVolumeSource :: Encode GCEPersistentDiskVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (GCEPersistentDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "partition" (encode a.partition)
+               , Tuple "pdName" (encode a.pdName)
+               , Tuple "readOnly" (encode a.readOnly) ]
+
 
 instance defaultGCEPersistentDiskVolumeSource :: Default GCEPersistentDiskVolumeSource where
   default = GCEPersistentDiskVolumeSource
@@ -1557,9 +2094,17 @@ derive instance newtypeGitRepoVolumeSource :: Newtype GitRepoVolumeSource _
 derive instance genericGitRepoVolumeSource :: Generic GitRepoVolumeSource _
 instance showGitRepoVolumeSource :: Show GitRepoVolumeSource where show a = genericShow a
 instance decodeGitRepoVolumeSource :: Decode GitRepoVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               directory <- readProp "directory" a >>= decode
+               repository <- readProp "repository" a >>= decode
+               revision <- readProp "revision" a >>= decode
+               pure $ GitRepoVolumeSource { directory, repository, revision }
 instance encodeGitRepoVolumeSource :: Encode GitRepoVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (GitRepoVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "directory" (encode a.directory)
+               , Tuple "repository" (encode a.repository)
+               , Tuple "revision" (encode a.revision) ]
+
 
 instance defaultGitRepoVolumeSource :: Default GitRepoVolumeSource where
   default = GitRepoVolumeSource
@@ -1582,9 +2127,17 @@ derive instance newtypeGlusterfsVolumeSource :: Newtype GlusterfsVolumeSource _
 derive instance genericGlusterfsVolumeSource :: Generic GlusterfsVolumeSource _
 instance showGlusterfsVolumeSource :: Show GlusterfsVolumeSource where show a = genericShow a
 instance decodeGlusterfsVolumeSource :: Decode GlusterfsVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               endpoints <- readProp "endpoints" a >>= decode
+               path <- readProp "path" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               pure $ GlusterfsVolumeSource { endpoints, path, readOnly }
 instance encodeGlusterfsVolumeSource :: Encode GlusterfsVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (GlusterfsVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "endpoints" (encode a.endpoints)
+               , Tuple "path" (encode a.path)
+               , Tuple "readOnly" (encode a.readOnly) ]
+
 
 instance defaultGlusterfsVolumeSource :: Default GlusterfsVolumeSource where
   default = GlusterfsVolumeSource
@@ -1611,9 +2164,21 @@ derive instance newtypeHTTPGetAction :: Newtype HTTPGetAction _
 derive instance genericHTTPGetAction :: Generic HTTPGetAction _
 instance showHTTPGetAction :: Show HTTPGetAction where show a = genericShow a
 instance decodeHTTPGetAction :: Decode HTTPGetAction where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               host <- readProp "host" a >>= decode
+               httpHeaders <- readProp "httpHeaders" a >>= decode
+               path <- readProp "path" a >>= decode
+               port <- readProp "port" a >>= decode
+               scheme <- readProp "scheme" a >>= decode
+               pure $ HTTPGetAction { host, httpHeaders, path, port, scheme }
 instance encodeHTTPGetAction :: Encode HTTPGetAction where
-  encode a = genericEncode jsonOptions a
+  encode (HTTPGetAction a) = encode $ StrMap.fromFoldable $
+               [ Tuple "host" (encode a.host)
+               , Tuple "httpHeaders" (encode a.httpHeaders)
+               , Tuple "path" (encode a.path)
+               , Tuple "port" (encode a.port)
+               , Tuple "scheme" (encode a.scheme) ]
+
 
 instance defaultHTTPGetAction :: Default HTTPGetAction where
   default = HTTPGetAction
@@ -1636,9 +2201,15 @@ derive instance newtypeHTTPHeader :: Newtype HTTPHeader _
 derive instance genericHTTPHeader :: Generic HTTPHeader _
 instance showHTTPHeader :: Show HTTPHeader where show a = genericShow a
 instance decodeHTTPHeader :: Decode HTTPHeader where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               value <- readProp "value" a >>= decode
+               pure $ HTTPHeader { name, value }
 instance encodeHTTPHeader :: Encode HTTPHeader where
-  encode a = genericEncode jsonOptions a
+  encode (HTTPHeader a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "value" (encode a.value) ]
+
 
 instance defaultHTTPHeader :: Default HTTPHeader where
   default = HTTPHeader
@@ -1660,9 +2231,17 @@ derive instance newtypeHandler :: Newtype Handler _
 derive instance genericHandler :: Generic Handler _
 instance showHandler :: Show Handler where show a = genericShow a
 instance decodeHandler :: Decode Handler where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exec <- readProp "exec" a >>= decode
+               httpGet <- readProp "httpGet" a >>= decode
+               tcpSocket <- readProp "tcpSocket" a >>= decode
+               pure $ Handler { exec, httpGet, tcpSocket }
 instance encodeHandler :: Encode Handler where
-  encode a = genericEncode jsonOptions a
+  encode (Handler a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exec" (encode a.exec)
+               , Tuple "httpGet" (encode a.httpGet)
+               , Tuple "tcpSocket" (encode a.tcpSocket) ]
+
 
 instance defaultHandler :: Default Handler where
   default = Handler
@@ -1683,9 +2262,15 @@ derive instance newtypeHostAlias :: Newtype HostAlias _
 derive instance genericHostAlias :: Generic HostAlias _
 instance showHostAlias :: Show HostAlias where show a = genericShow a
 instance decodeHostAlias :: Decode HostAlias where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               hostnames <- readProp "hostnames" a >>= decode
+               ip <- readProp "ip" a >>= decode
+               pure $ HostAlias { hostnames, ip }
 instance encodeHostAlias :: Encode HostAlias where
-  encode a = genericEncode jsonOptions a
+  encode (HostAlias a) = encode $ StrMap.fromFoldable $
+               [ Tuple "hostnames" (encode a.hostnames)
+               , Tuple "ip" (encode a.ip) ]
+
 
 instance defaultHostAlias :: Default HostAlias where
   default = HostAlias
@@ -1705,9 +2290,15 @@ derive instance newtypeHostPathVolumeSource :: Newtype HostPathVolumeSource _
 derive instance genericHostPathVolumeSource :: Generic HostPathVolumeSource _
 instance showHostPathVolumeSource :: Show HostPathVolumeSource where show a = genericShow a
 instance decodeHostPathVolumeSource :: Decode HostPathVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               path <- readProp "path" a >>= decode
+               pure $ HostPathVolumeSource { _type, path }
 instance encodeHostPathVolumeSource :: Encode HostPathVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (HostPathVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "path" (encode a.path) ]
+
 
 instance defaultHostPathVolumeSource :: Default HostPathVolumeSource where
   default = HostPathVolumeSource
@@ -1745,9 +2336,33 @@ derive instance newtypeISCSIPersistentVolumeSource :: Newtype ISCSIPersistentVol
 derive instance genericISCSIPersistentVolumeSource :: Generic ISCSIPersistentVolumeSource _
 instance showISCSIPersistentVolumeSource :: Show ISCSIPersistentVolumeSource where show a = genericShow a
 instance decodeISCSIPersistentVolumeSource :: Decode ISCSIPersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               chapAuthDiscovery <- readProp "chapAuthDiscovery" a >>= decode
+               chapAuthSession <- readProp "chapAuthSession" a >>= decode
+               fsType <- readProp "fsType" a >>= decode
+               initiatorName <- readProp "initiatorName" a >>= decode
+               iqn <- readProp "iqn" a >>= decode
+               iscsiInterface <- readProp "iscsiInterface" a >>= decode
+               lun <- readProp "lun" a >>= decode
+               portals <- readProp "portals" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               targetPortal <- readProp "targetPortal" a >>= decode
+               pure $ ISCSIPersistentVolumeSource { chapAuthDiscovery, chapAuthSession, fsType, initiatorName, iqn, iscsiInterface, lun, portals, readOnly, secretRef, targetPortal }
 instance encodeISCSIPersistentVolumeSource :: Encode ISCSIPersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (ISCSIPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "chapAuthDiscovery" (encode a.chapAuthDiscovery)
+               , Tuple "chapAuthSession" (encode a.chapAuthSession)
+               , Tuple "fsType" (encode a.fsType)
+               , Tuple "initiatorName" (encode a.initiatorName)
+               , Tuple "iqn" (encode a.iqn)
+               , Tuple "iscsiInterface" (encode a.iscsiInterface)
+               , Tuple "lun" (encode a.lun)
+               , Tuple "portals" (encode a.portals)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "targetPortal" (encode a.targetPortal) ]
+
 
 instance defaultISCSIPersistentVolumeSource :: Default ISCSIPersistentVolumeSource where
   default = ISCSIPersistentVolumeSource
@@ -1794,9 +2409,33 @@ derive instance newtypeISCSIVolumeSource :: Newtype ISCSIVolumeSource _
 derive instance genericISCSIVolumeSource :: Generic ISCSIVolumeSource _
 instance showISCSIVolumeSource :: Show ISCSIVolumeSource where show a = genericShow a
 instance decodeISCSIVolumeSource :: Decode ISCSIVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               chapAuthDiscovery <- readProp "chapAuthDiscovery" a >>= decode
+               chapAuthSession <- readProp "chapAuthSession" a >>= decode
+               fsType <- readProp "fsType" a >>= decode
+               initiatorName <- readProp "initiatorName" a >>= decode
+               iqn <- readProp "iqn" a >>= decode
+               iscsiInterface <- readProp "iscsiInterface" a >>= decode
+               lun <- readProp "lun" a >>= decode
+               portals <- readProp "portals" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               targetPortal <- readProp "targetPortal" a >>= decode
+               pure $ ISCSIVolumeSource { chapAuthDiscovery, chapAuthSession, fsType, initiatorName, iqn, iscsiInterface, lun, portals, readOnly, secretRef, targetPortal }
 instance encodeISCSIVolumeSource :: Encode ISCSIVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (ISCSIVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "chapAuthDiscovery" (encode a.chapAuthDiscovery)
+               , Tuple "chapAuthSession" (encode a.chapAuthSession)
+               , Tuple "fsType" (encode a.fsType)
+               , Tuple "initiatorName" (encode a.initiatorName)
+               , Tuple "iqn" (encode a.iqn)
+               , Tuple "iscsiInterface" (encode a.iscsiInterface)
+               , Tuple "lun" (encode a.lun)
+               , Tuple "portals" (encode a.portals)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "targetPortal" (encode a.targetPortal) ]
+
 
 instance defaultISCSIVolumeSource :: Default ISCSIVolumeSource where
   default = ISCSIVolumeSource
@@ -1827,9 +2466,17 @@ derive instance newtypeKeyToPath :: Newtype KeyToPath _
 derive instance genericKeyToPath :: Generic KeyToPath _
 instance showKeyToPath :: Show KeyToPath where show a = genericShow a
 instance decodeKeyToPath :: Decode KeyToPath where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               key <- readProp "key" a >>= decode
+               mode <- readProp "mode" a >>= decode
+               path <- readProp "path" a >>= decode
+               pure $ KeyToPath { key, mode, path }
 instance encodeKeyToPath :: Encode KeyToPath where
-  encode a = genericEncode jsonOptions a
+  encode (KeyToPath a) = encode $ StrMap.fromFoldable $
+               [ Tuple "key" (encode a.key)
+               , Tuple "mode" (encode a.mode)
+               , Tuple "path" (encode a.path) ]
+
 
 instance defaultKeyToPath :: Default KeyToPath where
   default = KeyToPath
@@ -1850,9 +2497,15 @@ derive instance newtypeLifecycle :: Newtype Lifecycle _
 derive instance genericLifecycle :: Generic Lifecycle _
 instance showLifecycle :: Show Lifecycle where show a = genericShow a
 instance decodeLifecycle :: Decode Lifecycle where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               postStart <- readProp "postStart" a >>= decode
+               preStop <- readProp "preStop" a >>= decode
+               pure $ Lifecycle { postStart, preStop }
 instance encodeLifecycle :: Encode Lifecycle where
-  encode a = genericEncode jsonOptions a
+  encode (Lifecycle a) = encode $ StrMap.fromFoldable $
+               [ Tuple "postStart" (encode a.postStart)
+               , Tuple "preStop" (encode a.preStop) ]
+
 
 instance defaultLifecycle :: Default Lifecycle where
   default = Lifecycle
@@ -1876,9 +2529,19 @@ derive instance newtypeLimitRange :: Newtype LimitRange _
 derive instance genericLimitRange :: Generic LimitRange _
 instance showLimitRange :: Show LimitRange where show a = genericShow a
 instance decodeLimitRange :: Decode LimitRange where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               pure $ LimitRange { apiVersion, kind, metadata, spec }
 instance encodeLimitRange :: Encode LimitRange where
-  encode a = genericEncode jsonOptions a
+  encode (LimitRange a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec) ]
+
 
 instance defaultLimitRange :: Default LimitRange where
   default = LimitRange
@@ -1908,9 +2571,23 @@ derive instance newtypeLimitRangeItem :: Newtype LimitRangeItem _
 derive instance genericLimitRangeItem :: Generic LimitRangeItem _
 instance showLimitRangeItem :: Show LimitRangeItem where show a = genericShow a
 instance decodeLimitRangeItem :: Decode LimitRangeItem where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _default <- readProp "_default" a >>= decode
+               _type <- readProp "_type" a >>= decode
+               defaultRequest <- readProp "defaultRequest" a >>= decode
+               max <- readProp "max" a >>= decode
+               maxLimitRequestRatio <- readProp "maxLimitRequestRatio" a >>= decode
+               min <- readProp "min" a >>= decode
+               pure $ LimitRangeItem { _default, _type, defaultRequest, max, maxLimitRequestRatio, min }
 instance encodeLimitRangeItem :: Encode LimitRangeItem where
-  encode a = genericEncode jsonOptions a
+  encode (LimitRangeItem a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_default" (encode a._default)
+               , Tuple "_type" (encode a._type)
+               , Tuple "defaultRequest" (encode a.defaultRequest)
+               , Tuple "max" (encode a.max)
+               , Tuple "maxLimitRequestRatio" (encode a.maxLimitRequestRatio)
+               , Tuple "min" (encode a.min) ]
+
 
 instance defaultLimitRangeItem :: Default LimitRangeItem where
   default = LimitRangeItem
@@ -1938,9 +2615,19 @@ derive instance newtypeLimitRangeList :: Newtype LimitRangeList _
 derive instance genericLimitRangeList :: Generic LimitRangeList _
 instance showLimitRangeList :: Show LimitRangeList where show a = genericShow a
 instance decodeLimitRangeList :: Decode LimitRangeList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ LimitRangeList { apiVersion, items, kind, metadata }
 instance encodeLimitRangeList :: Encode LimitRangeList where
-  encode a = genericEncode jsonOptions a
+  encode (LimitRangeList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultLimitRangeList :: Default LimitRangeList where
   default = LimitRangeList
@@ -1960,9 +2647,13 @@ derive instance newtypeLimitRangeSpec :: Newtype LimitRangeSpec _
 derive instance genericLimitRangeSpec :: Generic LimitRangeSpec _
 instance showLimitRangeSpec :: Show LimitRangeSpec where show a = genericShow a
 instance decodeLimitRangeSpec :: Decode LimitRangeSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               limits <- readProp "limits" a >>= decode
+               pure $ LimitRangeSpec { limits }
 instance encodeLimitRangeSpec :: Encode LimitRangeSpec where
-  encode a = genericEncode jsonOptions a
+  encode (LimitRangeSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "limits" (encode a.limits) ]
+
 
 instance defaultLimitRangeSpec :: Default LimitRangeSpec where
   default = LimitRangeSpec
@@ -1981,9 +2672,15 @@ derive instance newtypeLoadBalancerIngress :: Newtype LoadBalancerIngress _
 derive instance genericLoadBalancerIngress :: Generic LoadBalancerIngress _
 instance showLoadBalancerIngress :: Show LoadBalancerIngress where show a = genericShow a
 instance decodeLoadBalancerIngress :: Decode LoadBalancerIngress where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               hostname <- readProp "hostname" a >>= decode
+               ip <- readProp "ip" a >>= decode
+               pure $ LoadBalancerIngress { hostname, ip }
 instance encodeLoadBalancerIngress :: Encode LoadBalancerIngress where
-  encode a = genericEncode jsonOptions a
+  encode (LoadBalancerIngress a) = encode $ StrMap.fromFoldable $
+               [ Tuple "hostname" (encode a.hostname)
+               , Tuple "ip" (encode a.ip) ]
+
 
 instance defaultLoadBalancerIngress :: Default LoadBalancerIngress where
   default = LoadBalancerIngress
@@ -2001,9 +2698,13 @@ derive instance newtypeLoadBalancerStatus :: Newtype LoadBalancerStatus _
 derive instance genericLoadBalancerStatus :: Generic LoadBalancerStatus _
 instance showLoadBalancerStatus :: Show LoadBalancerStatus where show a = genericShow a
 instance decodeLoadBalancerStatus :: Decode LoadBalancerStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               ingress <- readProp "ingress" a >>= decode
+               pure $ LoadBalancerStatus { ingress }
 instance encodeLoadBalancerStatus :: Encode LoadBalancerStatus where
-  encode a = genericEncode jsonOptions a
+  encode (LoadBalancerStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "ingress" (encode a.ingress) ]
+
 
 instance defaultLoadBalancerStatus :: Default LoadBalancerStatus where
   default = LoadBalancerStatus
@@ -2020,9 +2721,13 @@ derive instance newtypeLocalObjectReference :: Newtype LocalObjectReference _
 derive instance genericLocalObjectReference :: Generic LocalObjectReference _
 instance showLocalObjectReference :: Show LocalObjectReference where show a = genericShow a
 instance decodeLocalObjectReference :: Decode LocalObjectReference where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               pure $ LocalObjectReference { name }
 instance encodeLocalObjectReference :: Encode LocalObjectReference where
-  encode a = genericEncode jsonOptions a
+  encode (LocalObjectReference a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name) ]
+
 
 instance defaultLocalObjectReference :: Default LocalObjectReference where
   default = LocalObjectReference
@@ -2039,9 +2744,13 @@ derive instance newtypeLocalVolumeSource :: Newtype LocalVolumeSource _
 derive instance genericLocalVolumeSource :: Generic LocalVolumeSource _
 instance showLocalVolumeSource :: Show LocalVolumeSource where show a = genericShow a
 instance decodeLocalVolumeSource :: Decode LocalVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               path <- readProp "path" a >>= decode
+               pure $ LocalVolumeSource { path }
 instance encodeLocalVolumeSource :: Encode LocalVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (LocalVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "path" (encode a.path) ]
+
 
 instance defaultLocalVolumeSource :: Default LocalVolumeSource where
   default = LocalVolumeSource
@@ -2062,9 +2771,17 @@ derive instance newtypeNFSVolumeSource :: Newtype NFSVolumeSource _
 derive instance genericNFSVolumeSource :: Generic NFSVolumeSource _
 instance showNFSVolumeSource :: Show NFSVolumeSource where show a = genericShow a
 instance decodeNFSVolumeSource :: Decode NFSVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               path <- readProp "path" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               server <- readProp "server" a >>= decode
+               pure $ NFSVolumeSource { path, readOnly, server }
 instance encodeNFSVolumeSource :: Encode NFSVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (NFSVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "path" (encode a.path)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "server" (encode a.server) ]
+
 
 instance defaultNFSVolumeSource :: Default NFSVolumeSource where
   default = NFSVolumeSource
@@ -2091,9 +2808,21 @@ derive instance newtypeNamespace :: Newtype Namespace _
 derive instance genericNamespace :: Generic Namespace _
 instance showNamespace :: Show Namespace where show a = genericShow a
 instance decodeNamespace :: Decode Namespace where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Namespace { apiVersion, kind, metadata, spec, status }
 instance encodeNamespace :: Encode Namespace where
-  encode a = genericEncode jsonOptions a
+  encode (Namespace a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultNamespace :: Default Namespace where
   default = Namespace
@@ -2120,9 +2849,19 @@ derive instance newtypeNamespaceList :: Newtype NamespaceList _
 derive instance genericNamespaceList :: Generic NamespaceList _
 instance showNamespaceList :: Show NamespaceList where show a = genericShow a
 instance decodeNamespaceList :: Decode NamespaceList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ NamespaceList { apiVersion, items, kind, metadata }
 instance encodeNamespaceList :: Encode NamespaceList where
-  encode a = genericEncode jsonOptions a
+  encode (NamespaceList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultNamespaceList :: Default NamespaceList where
   default = NamespaceList
@@ -2142,9 +2881,13 @@ derive instance newtypeNamespaceSpec :: Newtype NamespaceSpec _
 derive instance genericNamespaceSpec :: Generic NamespaceSpec _
 instance showNamespaceSpec :: Show NamespaceSpec where show a = genericShow a
 instance decodeNamespaceSpec :: Decode NamespaceSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               finalizers <- readProp "finalizers" a >>= decode
+               pure $ NamespaceSpec { finalizers }
 instance encodeNamespaceSpec :: Encode NamespaceSpec where
-  encode a = genericEncode jsonOptions a
+  encode (NamespaceSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "finalizers" (encode a.finalizers) ]
+
 
 instance defaultNamespaceSpec :: Default NamespaceSpec where
   default = NamespaceSpec
@@ -2161,9 +2904,13 @@ derive instance newtypeNamespaceStatus :: Newtype NamespaceStatus _
 derive instance genericNamespaceStatus :: Generic NamespaceStatus _
 instance showNamespaceStatus :: Show NamespaceStatus where show a = genericShow a
 instance decodeNamespaceStatus :: Decode NamespaceStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               phase <- readProp "phase" a >>= decode
+               pure $ NamespaceStatus { phase }
 instance encodeNamespaceStatus :: Encode NamespaceStatus where
-  encode a = genericEncode jsonOptions a
+  encode (NamespaceStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "phase" (encode a.phase) ]
+
 
 instance defaultNamespaceStatus :: Default NamespaceStatus where
   default = NamespaceStatus
@@ -2188,9 +2935,21 @@ derive instance newtypeNode :: Newtype Node _
 derive instance genericNode :: Generic Node _
 instance showNode :: Show Node where show a = genericShow a
 instance decodeNode :: Decode Node where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Node { apiVersion, kind, metadata, spec, status }
 instance encodeNode :: Encode Node where
-  encode a = genericEncode jsonOptions a
+  encode (Node a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultNode :: Default Node where
   default = Node
@@ -2213,9 +2972,15 @@ derive instance newtypeNodeAddress :: Newtype NodeAddress _
 derive instance genericNodeAddress :: Generic NodeAddress _
 instance showNodeAddress :: Show NodeAddress where show a = genericShow a
 instance decodeNodeAddress :: Decode NodeAddress where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               address <- readProp "address" a >>= decode
+               pure $ NodeAddress { _type, address }
 instance encodeNodeAddress :: Encode NodeAddress where
-  encode a = genericEncode jsonOptions a
+  encode (NodeAddress a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "address" (encode a.address) ]
+
 
 instance defaultNodeAddress :: Default NodeAddress where
   default = NodeAddress
@@ -2235,9 +3000,15 @@ derive instance newtypeNodeAffinity :: Newtype NodeAffinity _
 derive instance genericNodeAffinity :: Generic NodeAffinity _
 instance showNodeAffinity :: Show NodeAffinity where show a = genericShow a
 instance decodeNodeAffinity :: Decode NodeAffinity where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               preferredDuringSchedulingIgnoredDuringExecution <- readProp "preferredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               requiredDuringSchedulingIgnoredDuringExecution <- readProp "requiredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               pure $ NodeAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodeNodeAffinity :: Encode NodeAffinity where
-  encode a = genericEncode jsonOptions a
+  encode (NodeAffinity a) = encode $ StrMap.fromFoldable $
+               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encode a.preferredDuringSchedulingIgnoredDuringExecution)
+               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encode a.requiredDuringSchedulingIgnoredDuringExecution) ]
+
 
 instance defaultNodeAffinity :: Default NodeAffinity where
   default = NodeAffinity
@@ -2265,9 +3036,23 @@ derive instance newtypeNodeCondition :: Newtype NodeCondition _
 derive instance genericNodeCondition :: Generic NodeCondition _
 instance showNodeCondition :: Show NodeCondition where show a = genericShow a
 instance decodeNodeCondition :: Decode NodeCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastHeartbeatTime <- readProp "lastHeartbeatTime" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ NodeCondition { _type, lastHeartbeatTime, lastTransitionTime, message, reason, status }
 instance encodeNodeCondition :: Encode NodeCondition where
-  encode a = genericEncode jsonOptions a
+  encode (NodeCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastHeartbeatTime" (encode a.lastHeartbeatTime)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultNodeCondition :: Default NodeCondition where
   default = NodeCondition
@@ -2293,9 +3078,17 @@ derive instance newtypeNodeConfigSource :: Newtype NodeConfigSource _
 derive instance genericNodeConfigSource :: Generic NodeConfigSource _
 instance showNodeConfigSource :: Show NodeConfigSource where show a = genericShow a
 instance decodeNodeConfigSource :: Decode NodeConfigSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               configMapRef <- readProp "configMapRef" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               pure $ NodeConfigSource { apiVersion, configMapRef, kind }
 instance encodeNodeConfigSource :: Encode NodeConfigSource where
-  encode a = genericEncode jsonOptions a
+  encode (NodeConfigSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "configMapRef" (encode a.configMapRef)
+               , Tuple "kind" (encode a.kind) ]
+
 
 instance defaultNodeConfigSource :: Default NodeConfigSource where
   default = NodeConfigSource
@@ -2314,9 +3107,13 @@ derive instance newtypeNodeDaemonEndpoints :: Newtype NodeDaemonEndpoints _
 derive instance genericNodeDaemonEndpoints :: Generic NodeDaemonEndpoints _
 instance showNodeDaemonEndpoints :: Show NodeDaemonEndpoints where show a = genericShow a
 instance decodeNodeDaemonEndpoints :: Decode NodeDaemonEndpoints where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               kubeletEndpoint <- readProp "kubeletEndpoint" a >>= decode
+               pure $ NodeDaemonEndpoints { kubeletEndpoint }
 instance encodeNodeDaemonEndpoints :: Encode NodeDaemonEndpoints where
-  encode a = genericEncode jsonOptions a
+  encode (NodeDaemonEndpoints a) = encode $ StrMap.fromFoldable $
+               [ Tuple "kubeletEndpoint" (encode a.kubeletEndpoint) ]
+
 
 instance defaultNodeDaemonEndpoints :: Default NodeDaemonEndpoints where
   default = NodeDaemonEndpoints
@@ -2339,9 +3136,19 @@ derive instance newtypeNodeList :: Newtype NodeList _
 derive instance genericNodeList :: Generic NodeList _
 instance showNodeList :: Show NodeList where show a = genericShow a
 instance decodeNodeList :: Decode NodeList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ NodeList { apiVersion, items, kind, metadata }
 instance encodeNodeList :: Encode NodeList where
-  encode a = genericEncode jsonOptions a
+  encode (NodeList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultNodeList :: Default NodeList where
   default = NodeList
@@ -2361,9 +3168,13 @@ derive instance newtypeNodeSelector :: Newtype NodeSelector _
 derive instance genericNodeSelector :: Generic NodeSelector _
 instance showNodeSelector :: Show NodeSelector where show a = genericShow a
 instance decodeNodeSelector :: Decode NodeSelector where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               nodeSelectorTerms <- readProp "nodeSelectorTerms" a >>= decode
+               pure $ NodeSelector { nodeSelectorTerms }
 instance encodeNodeSelector :: Encode NodeSelector where
-  encode a = genericEncode jsonOptions a
+  encode (NodeSelector a) = encode $ StrMap.fromFoldable $
+               [ Tuple "nodeSelectorTerms" (encode a.nodeSelectorTerms) ]
+
 
 instance defaultNodeSelector :: Default NodeSelector where
   default = NodeSelector
@@ -2384,9 +3195,17 @@ derive instance newtypeNodeSelectorRequirement :: Newtype NodeSelectorRequiremen
 derive instance genericNodeSelectorRequirement :: Generic NodeSelectorRequirement _
 instance showNodeSelectorRequirement :: Show NodeSelectorRequirement where show a = genericShow a
 instance decodeNodeSelectorRequirement :: Decode NodeSelectorRequirement where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               key <- readProp "key" a >>= decode
+               operator <- readProp "operator" a >>= decode
+               values <- readProp "values" a >>= decode
+               pure $ NodeSelectorRequirement { key, operator, values }
 instance encodeNodeSelectorRequirement :: Encode NodeSelectorRequirement where
-  encode a = genericEncode jsonOptions a
+  encode (NodeSelectorRequirement a) = encode $ StrMap.fromFoldable $
+               [ Tuple "key" (encode a.key)
+               , Tuple "operator" (encode a.operator)
+               , Tuple "values" (encode a.values) ]
+
 
 instance defaultNodeSelectorRequirement :: Default NodeSelectorRequirement where
   default = NodeSelectorRequirement
@@ -2405,9 +3224,13 @@ derive instance newtypeNodeSelectorTerm :: Newtype NodeSelectorTerm _
 derive instance genericNodeSelectorTerm :: Generic NodeSelectorTerm _
 instance showNodeSelectorTerm :: Show NodeSelectorTerm where show a = genericShow a
 instance decodeNodeSelectorTerm :: Decode NodeSelectorTerm where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               matchExpressions <- readProp "matchExpressions" a >>= decode
+               pure $ NodeSelectorTerm { matchExpressions }
 instance encodeNodeSelectorTerm :: Encode NodeSelectorTerm where
-  encode a = genericEncode jsonOptions a
+  encode (NodeSelectorTerm a) = encode $ StrMap.fromFoldable $
+               [ Tuple "matchExpressions" (encode a.matchExpressions) ]
+
 
 instance defaultNodeSelectorTerm :: Default NodeSelectorTerm where
   default = NodeSelectorTerm
@@ -2434,9 +3257,23 @@ derive instance newtypeNodeSpec :: Newtype NodeSpec _
 derive instance genericNodeSpec :: Generic NodeSpec _
 instance showNodeSpec :: Show NodeSpec where show a = genericShow a
 instance decodeNodeSpec :: Decode NodeSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               configSource <- readProp "configSource" a >>= decode
+               externalID <- readProp "externalID" a >>= decode
+               podCIDR <- readProp "podCIDR" a >>= decode
+               providerID <- readProp "providerID" a >>= decode
+               taints <- readProp "taints" a >>= decode
+               unschedulable <- readProp "unschedulable" a >>= decode
+               pure $ NodeSpec { configSource, externalID, podCIDR, providerID, taints, unschedulable }
 instance encodeNodeSpec :: Encode NodeSpec where
-  encode a = genericEncode jsonOptions a
+  encode (NodeSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "configSource" (encode a.configSource)
+               , Tuple "externalID" (encode a.externalID)
+               , Tuple "podCIDR" (encode a.podCIDR)
+               , Tuple "providerID" (encode a.providerID)
+               , Tuple "taints" (encode a.taints)
+               , Tuple "unschedulable" (encode a.unschedulable) ]
+
 
 instance defaultNodeSpec :: Default NodeSpec where
   default = NodeSpec
@@ -2476,9 +3313,31 @@ derive instance newtypeNodeStatus :: Newtype NodeStatus _
 derive instance genericNodeStatus :: Generic NodeStatus _
 instance showNodeStatus :: Show NodeStatus where show a = genericShow a
 instance decodeNodeStatus :: Decode NodeStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               addresses <- readProp "addresses" a >>= decode
+               allocatable <- readProp "allocatable" a >>= decode
+               capacity <- readProp "capacity" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               daemonEndpoints <- readProp "daemonEndpoints" a >>= decode
+               images <- readProp "images" a >>= decode
+               nodeInfo <- readProp "nodeInfo" a >>= decode
+               phase <- readProp "phase" a >>= decode
+               volumesAttached <- readProp "volumesAttached" a >>= decode
+               volumesInUse <- readProp "volumesInUse" a >>= decode
+               pure $ NodeStatus { addresses, allocatable, capacity, conditions, daemonEndpoints, images, nodeInfo, phase, volumesAttached, volumesInUse }
 instance encodeNodeStatus :: Encode NodeStatus where
-  encode a = genericEncode jsonOptions a
+  encode (NodeStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "addresses" (encode a.addresses)
+               , Tuple "allocatable" (encode a.allocatable)
+               , Tuple "capacity" (encode a.capacity)
+               , Tuple "conditions" (encode a.conditions)
+               , Tuple "daemonEndpoints" (encode a.daemonEndpoints)
+               , Tuple "images" (encode a.images)
+               , Tuple "nodeInfo" (encode a.nodeInfo)
+               , Tuple "phase" (encode a.phase)
+               , Tuple "volumesAttached" (encode a.volumesAttached)
+               , Tuple "volumesInUse" (encode a.volumesInUse) ]
+
 
 instance defaultNodeStatus :: Default NodeStatus where
   default = NodeStatus
@@ -2522,9 +3381,31 @@ derive instance newtypeNodeSystemInfo :: Newtype NodeSystemInfo _
 derive instance genericNodeSystemInfo :: Generic NodeSystemInfo _
 instance showNodeSystemInfo :: Show NodeSystemInfo where show a = genericShow a
 instance decodeNodeSystemInfo :: Decode NodeSystemInfo where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               architecture <- readProp "architecture" a >>= decode
+               bootID <- readProp "bootID" a >>= decode
+               containerRuntimeVersion <- readProp "containerRuntimeVersion" a >>= decode
+               kernelVersion <- readProp "kernelVersion" a >>= decode
+               kubeProxyVersion <- readProp "kubeProxyVersion" a >>= decode
+               kubeletVersion <- readProp "kubeletVersion" a >>= decode
+               machineID <- readProp "machineID" a >>= decode
+               operatingSystem <- readProp "operatingSystem" a >>= decode
+               osImage <- readProp "osImage" a >>= decode
+               systemUUID <- readProp "systemUUID" a >>= decode
+               pure $ NodeSystemInfo { architecture, bootID, containerRuntimeVersion, kernelVersion, kubeProxyVersion, kubeletVersion, machineID, operatingSystem, osImage, systemUUID }
 instance encodeNodeSystemInfo :: Encode NodeSystemInfo where
-  encode a = genericEncode jsonOptions a
+  encode (NodeSystemInfo a) = encode $ StrMap.fromFoldable $
+               [ Tuple "architecture" (encode a.architecture)
+               , Tuple "bootID" (encode a.bootID)
+               , Tuple "containerRuntimeVersion" (encode a.containerRuntimeVersion)
+               , Tuple "kernelVersion" (encode a.kernelVersion)
+               , Tuple "kubeProxyVersion" (encode a.kubeProxyVersion)
+               , Tuple "kubeletVersion" (encode a.kubeletVersion)
+               , Tuple "machineID" (encode a.machineID)
+               , Tuple "operatingSystem" (encode a.operatingSystem)
+               , Tuple "osImage" (encode a.osImage)
+               , Tuple "systemUUID" (encode a.systemUUID) ]
+
 
 instance defaultNodeSystemInfo :: Default NodeSystemInfo where
   default = NodeSystemInfo
@@ -2552,9 +3433,15 @@ derive instance newtypeObjectFieldSelector :: Newtype ObjectFieldSelector _
 derive instance genericObjectFieldSelector :: Generic ObjectFieldSelector _
 instance showObjectFieldSelector :: Show ObjectFieldSelector where show a = genericShow a
 instance decodeObjectFieldSelector :: Decode ObjectFieldSelector where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               fieldPath <- readProp "fieldPath" a >>= decode
+               pure $ ObjectFieldSelector { apiVersion, fieldPath }
 instance encodeObjectFieldSelector :: Encode ObjectFieldSelector where
-  encode a = genericEncode jsonOptions a
+  encode (ObjectFieldSelector a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "fieldPath" (encode a.fieldPath) ]
+
 
 instance defaultObjectFieldSelector :: Default ObjectFieldSelector where
   default = ObjectFieldSelector
@@ -2584,9 +3471,25 @@ derive instance newtypeObjectReference :: Newtype ObjectReference _
 derive instance genericObjectReference :: Generic ObjectReference _
 instance showObjectReference :: Show ObjectReference where show a = genericShow a
 instance decodeObjectReference :: Decode ObjectReference where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               fieldPath <- readProp "fieldPath" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               name <- readProp "name" a >>= decode
+               namespace <- readProp "namespace" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               uid <- readProp "uid" a >>= decode
+               pure $ ObjectReference { apiVersion, fieldPath, kind, name, namespace, resourceVersion, uid }
 instance encodeObjectReference :: Encode ObjectReference where
-  encode a = genericEncode jsonOptions a
+  encode (ObjectReference a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "fieldPath" (encode a.fieldPath)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "name" (encode a.name)
+               , Tuple "namespace" (encode a.namespace)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "uid" (encode a.uid) ]
+
 
 instance defaultObjectReference :: Default ObjectReference where
   default = ObjectReference
@@ -2617,9 +3520,21 @@ derive instance newtypePersistentVolume :: Newtype PersistentVolume _
 derive instance genericPersistentVolume :: Generic PersistentVolume _
 instance showPersistentVolume :: Show PersistentVolume where show a = genericShow a
 instance decodePersistentVolume :: Decode PersistentVolume where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ PersistentVolume { apiVersion, kind, metadata, spec, status }
 instance encodePersistentVolume :: Encode PersistentVolume where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolume a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultPersistentVolume :: Default PersistentVolume where
   default = PersistentVolume
@@ -2648,9 +3563,21 @@ derive instance newtypePersistentVolumeClaim :: Newtype PersistentVolumeClaim _
 derive instance genericPersistentVolumeClaim :: Generic PersistentVolumeClaim _
 instance showPersistentVolumeClaim :: Show PersistentVolumeClaim where show a = genericShow a
 instance decodePersistentVolumeClaim :: Decode PersistentVolumeClaim where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ PersistentVolumeClaim { apiVersion, kind, metadata, spec, status }
 instance encodePersistentVolumeClaim :: Encode PersistentVolumeClaim where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeClaim a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultPersistentVolumeClaim :: Default PersistentVolumeClaim where
   default = PersistentVolumeClaim
@@ -2681,9 +3608,23 @@ derive instance newtypePersistentVolumeClaimCondition :: Newtype PersistentVolum
 derive instance genericPersistentVolumeClaimCondition :: Generic PersistentVolumeClaimCondition _
 instance showPersistentVolumeClaimCondition :: Show PersistentVolumeClaimCondition where show a = genericShow a
 instance decodePersistentVolumeClaimCondition :: Decode PersistentVolumeClaimCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastProbeTime <- readProp "lastProbeTime" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ PersistentVolumeClaimCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodePersistentVolumeClaimCondition :: Encode PersistentVolumeClaimCondition where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeClaimCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastProbeTime" (encode a.lastProbeTime)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultPersistentVolumeClaimCondition :: Default PersistentVolumeClaimCondition where
   default = PersistentVolumeClaimCondition
@@ -2711,9 +3652,19 @@ derive instance newtypePersistentVolumeClaimList :: Newtype PersistentVolumeClai
 derive instance genericPersistentVolumeClaimList :: Generic PersistentVolumeClaimList _
 instance showPersistentVolumeClaimList :: Show PersistentVolumeClaimList where show a = genericShow a
 instance decodePersistentVolumeClaimList :: Decode PersistentVolumeClaimList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ PersistentVolumeClaimList { apiVersion, items, kind, metadata }
 instance encodePersistentVolumeClaimList :: Encode PersistentVolumeClaimList where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeClaimList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultPersistentVolumeClaimList :: Default PersistentVolumeClaimList where
   default = PersistentVolumeClaimList
@@ -2743,9 +3694,23 @@ derive instance newtypePersistentVolumeClaimSpec :: Newtype PersistentVolumeClai
 derive instance genericPersistentVolumeClaimSpec :: Generic PersistentVolumeClaimSpec _
 instance showPersistentVolumeClaimSpec :: Show PersistentVolumeClaimSpec where show a = genericShow a
 instance decodePersistentVolumeClaimSpec :: Decode PersistentVolumeClaimSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               accessModes <- readProp "accessModes" a >>= decode
+               resources <- readProp "resources" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               storageClassName <- readProp "storageClassName" a >>= decode
+               volumeMode <- readProp "volumeMode" a >>= decode
+               volumeName <- readProp "volumeName" a >>= decode
+               pure $ PersistentVolumeClaimSpec { accessModes, resources, selector, storageClassName, volumeMode, volumeName }
 instance encodePersistentVolumeClaimSpec :: Encode PersistentVolumeClaimSpec where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeClaimSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "accessModes" (encode a.accessModes)
+               , Tuple "resources" (encode a.resources)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "storageClassName" (encode a.storageClassName)
+               , Tuple "volumeMode" (encode a.volumeMode)
+               , Tuple "volumeName" (encode a.volumeName) ]
+
 
 instance defaultPersistentVolumeClaimSpec :: Default PersistentVolumeClaimSpec where
   default = PersistentVolumeClaimSpec
@@ -2773,9 +3738,19 @@ derive instance newtypePersistentVolumeClaimStatus :: Newtype PersistentVolumeCl
 derive instance genericPersistentVolumeClaimStatus :: Generic PersistentVolumeClaimStatus _
 instance showPersistentVolumeClaimStatus :: Show PersistentVolumeClaimStatus where show a = genericShow a
 instance decodePersistentVolumeClaimStatus :: Decode PersistentVolumeClaimStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               accessModes <- readProp "accessModes" a >>= decode
+               capacity <- readProp "capacity" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               phase <- readProp "phase" a >>= decode
+               pure $ PersistentVolumeClaimStatus { accessModes, capacity, conditions, phase }
 instance encodePersistentVolumeClaimStatus :: Encode PersistentVolumeClaimStatus where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeClaimStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "accessModes" (encode a.accessModes)
+               , Tuple "capacity" (encode a.capacity)
+               , Tuple "conditions" (encode a.conditions)
+               , Tuple "phase" (encode a.phase) ]
+
 
 instance defaultPersistentVolumeClaimStatus :: Default PersistentVolumeClaimStatus where
   default = PersistentVolumeClaimStatus
@@ -2797,9 +3772,15 @@ derive instance newtypePersistentVolumeClaimVolumeSource :: Newtype PersistentVo
 derive instance genericPersistentVolumeClaimVolumeSource :: Generic PersistentVolumeClaimVolumeSource _
 instance showPersistentVolumeClaimVolumeSource :: Show PersistentVolumeClaimVolumeSource where show a = genericShow a
 instance decodePersistentVolumeClaimVolumeSource :: Decode PersistentVolumeClaimVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               claimName <- readProp "claimName" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               pure $ PersistentVolumeClaimVolumeSource { claimName, readOnly }
 instance encodePersistentVolumeClaimVolumeSource :: Encode PersistentVolumeClaimVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeClaimVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "claimName" (encode a.claimName)
+               , Tuple "readOnly" (encode a.readOnly) ]
+
 
 instance defaultPersistentVolumeClaimVolumeSource :: Default PersistentVolumeClaimVolumeSource where
   default = PersistentVolumeClaimVolumeSource
@@ -2823,9 +3804,19 @@ derive instance newtypePersistentVolumeList :: Newtype PersistentVolumeList _
 derive instance genericPersistentVolumeList :: Generic PersistentVolumeList _
 instance showPersistentVolumeList :: Show PersistentVolumeList where show a = genericShow a
 instance decodePersistentVolumeList :: Decode PersistentVolumeList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ PersistentVolumeList { apiVersion, items, kind, metadata }
 instance encodePersistentVolumeList :: Encode PersistentVolumeList where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultPersistentVolumeList :: Default PersistentVolumeList where
   default = PersistentVolumeList
@@ -2901,9 +3892,69 @@ derive instance newtypePersistentVolumeSpec :: Newtype PersistentVolumeSpec _
 derive instance genericPersistentVolumeSpec :: Generic PersistentVolumeSpec _
 instance showPersistentVolumeSpec :: Show PersistentVolumeSpec where show a = genericShow a
 instance decodePersistentVolumeSpec :: Decode PersistentVolumeSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               accessModes <- readProp "accessModes" a >>= decode
+               awsElasticBlockStore <- readProp "awsElasticBlockStore" a >>= decode
+               azureDisk <- readProp "azureDisk" a >>= decode
+               azureFile <- readProp "azureFile" a >>= decode
+               capacity <- readProp "capacity" a >>= decode
+               cephfs <- readProp "cephfs" a >>= decode
+               cinder <- readProp "cinder" a >>= decode
+               claimRef <- readProp "claimRef" a >>= decode
+               csi <- readProp "csi" a >>= decode
+               fc <- readProp "fc" a >>= decode
+               flexVolume <- readProp "flexVolume" a >>= decode
+               flocker <- readProp "flocker" a >>= decode
+               gcePersistentDisk <- readProp "gcePersistentDisk" a >>= decode
+               glusterfs <- readProp "glusterfs" a >>= decode
+               hostPath <- readProp "hostPath" a >>= decode
+               iscsi <- readProp "iscsi" a >>= decode
+               local <- readProp "local" a >>= decode
+               mountOptions <- readProp "mountOptions" a >>= decode
+               nfs <- readProp "nfs" a >>= decode
+               persistentVolumeReclaimPolicy <- readProp "persistentVolumeReclaimPolicy" a >>= decode
+               photonPersistentDisk <- readProp "photonPersistentDisk" a >>= decode
+               portworxVolume <- readProp "portworxVolume" a >>= decode
+               quobyte <- readProp "quobyte" a >>= decode
+               rbd <- readProp "rbd" a >>= decode
+               scaleIO <- readProp "scaleIO" a >>= decode
+               storageClassName <- readProp "storageClassName" a >>= decode
+               storageos <- readProp "storageos" a >>= decode
+               volumeMode <- readProp "volumeMode" a >>= decode
+               vsphereVolume <- readProp "vsphereVolume" a >>= decode
+               pure $ PersistentVolumeSpec { accessModes, awsElasticBlockStore, azureDisk, azureFile, capacity, cephfs, cinder, claimRef, csi, fc, flexVolume, flocker, gcePersistentDisk, glusterfs, hostPath, iscsi, local, mountOptions, nfs, persistentVolumeReclaimPolicy, photonPersistentDisk, portworxVolume, quobyte, rbd, scaleIO, storageClassName, storageos, volumeMode, vsphereVolume }
 instance encodePersistentVolumeSpec :: Encode PersistentVolumeSpec where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "accessModes" (encode a.accessModes)
+               , Tuple "awsElasticBlockStore" (encode a.awsElasticBlockStore)
+               , Tuple "azureDisk" (encode a.azureDisk)
+               , Tuple "azureFile" (encode a.azureFile)
+               , Tuple "capacity" (encode a.capacity)
+               , Tuple "cephfs" (encode a.cephfs)
+               , Tuple "cinder" (encode a.cinder)
+               , Tuple "claimRef" (encode a.claimRef)
+               , Tuple "csi" (encode a.csi)
+               , Tuple "fc" (encode a.fc)
+               , Tuple "flexVolume" (encode a.flexVolume)
+               , Tuple "flocker" (encode a.flocker)
+               , Tuple "gcePersistentDisk" (encode a.gcePersistentDisk)
+               , Tuple "glusterfs" (encode a.glusterfs)
+               , Tuple "hostPath" (encode a.hostPath)
+               , Tuple "iscsi" (encode a.iscsi)
+               , Tuple "local" (encode a.local)
+               , Tuple "mountOptions" (encode a.mountOptions)
+               , Tuple "nfs" (encode a.nfs)
+               , Tuple "persistentVolumeReclaimPolicy" (encode a.persistentVolumeReclaimPolicy)
+               , Tuple "photonPersistentDisk" (encode a.photonPersistentDisk)
+               , Tuple "portworxVolume" (encode a.portworxVolume)
+               , Tuple "quobyte" (encode a.quobyte)
+               , Tuple "rbd" (encode a.rbd)
+               , Tuple "scaleIO" (encode a.scaleIO)
+               , Tuple "storageClassName" (encode a.storageClassName)
+               , Tuple "storageos" (encode a.storageos)
+               , Tuple "volumeMode" (encode a.volumeMode)
+               , Tuple "vsphereVolume" (encode a.vsphereVolume) ]
+
 
 instance defaultPersistentVolumeSpec :: Default PersistentVolumeSpec where
   default = PersistentVolumeSpec
@@ -2952,9 +4003,17 @@ derive instance newtypePersistentVolumeStatus :: Newtype PersistentVolumeStatus 
 derive instance genericPersistentVolumeStatus :: Generic PersistentVolumeStatus _
 instance showPersistentVolumeStatus :: Show PersistentVolumeStatus where show a = genericShow a
 instance decodePersistentVolumeStatus :: Decode PersistentVolumeStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               message <- readProp "message" a >>= decode
+               phase <- readProp "phase" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               pure $ PersistentVolumeStatus { message, phase, reason }
 instance encodePersistentVolumeStatus :: Encode PersistentVolumeStatus where
-  encode a = genericEncode jsonOptions a
+  encode (PersistentVolumeStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "message" (encode a.message)
+               , Tuple "phase" (encode a.phase)
+               , Tuple "reason" (encode a.reason) ]
+
 
 instance defaultPersistentVolumeStatus :: Default PersistentVolumeStatus where
   default = PersistentVolumeStatus
@@ -2975,9 +4034,15 @@ derive instance newtypePhotonPersistentDiskVolumeSource :: Newtype PhotonPersist
 derive instance genericPhotonPersistentDiskVolumeSource :: Generic PhotonPersistentDiskVolumeSource _
 instance showPhotonPersistentDiskVolumeSource :: Show PhotonPersistentDiskVolumeSource where show a = genericShow a
 instance decodePhotonPersistentDiskVolumeSource :: Decode PhotonPersistentDiskVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               pdID <- readProp "pdID" a >>= decode
+               pure $ PhotonPersistentDiskVolumeSource { fsType, pdID }
 instance encodePhotonPersistentDiskVolumeSource :: Encode PhotonPersistentDiskVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (PhotonPersistentDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "pdID" (encode a.pdID) ]
+
 
 instance defaultPhotonPersistentDiskVolumeSource :: Default PhotonPersistentDiskVolumeSource where
   default = PhotonPersistentDiskVolumeSource
@@ -3003,9 +4068,21 @@ derive instance newtypePod :: Newtype Pod _
 derive instance genericPod :: Generic Pod _
 instance showPod :: Show Pod where show a = genericShow a
 instance decodePod :: Decode Pod where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Pod { apiVersion, kind, metadata, spec, status }
 instance encodePod :: Encode Pod where
-  encode a = genericEncode jsonOptions a
+  encode (Pod a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultPod :: Default Pod where
   default = Pod
@@ -3028,9 +4105,15 @@ derive instance newtypePodAffinity :: Newtype PodAffinity _
 derive instance genericPodAffinity :: Generic PodAffinity _
 instance showPodAffinity :: Show PodAffinity where show a = genericShow a
 instance decodePodAffinity :: Decode PodAffinity where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               preferredDuringSchedulingIgnoredDuringExecution <- readProp "preferredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               requiredDuringSchedulingIgnoredDuringExecution <- readProp "requiredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               pure $ PodAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodePodAffinity :: Encode PodAffinity where
-  encode a = genericEncode jsonOptions a
+  encode (PodAffinity a) = encode $ StrMap.fromFoldable $
+               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encode a.preferredDuringSchedulingIgnoredDuringExecution)
+               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encode a.requiredDuringSchedulingIgnoredDuringExecution) ]
+
 
 instance defaultPodAffinity :: Default PodAffinity where
   default = PodAffinity
@@ -3052,9 +4135,17 @@ derive instance newtypePodAffinityTerm :: Newtype PodAffinityTerm _
 derive instance genericPodAffinityTerm :: Generic PodAffinityTerm _
 instance showPodAffinityTerm :: Show PodAffinityTerm where show a = genericShow a
 instance decodePodAffinityTerm :: Decode PodAffinityTerm where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               labelSelector <- readProp "labelSelector" a >>= decode
+               namespaces <- readProp "namespaces" a >>= decode
+               topologyKey <- readProp "topologyKey" a >>= decode
+               pure $ PodAffinityTerm { labelSelector, namespaces, topologyKey }
 instance encodePodAffinityTerm :: Encode PodAffinityTerm where
-  encode a = genericEncode jsonOptions a
+  encode (PodAffinityTerm a) = encode $ StrMap.fromFoldable $
+               [ Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "namespaces" (encode a.namespaces)
+               , Tuple "topologyKey" (encode a.topologyKey) ]
+
 
 instance defaultPodAffinityTerm :: Default PodAffinityTerm where
   default = PodAffinityTerm
@@ -3075,9 +4166,15 @@ derive instance newtypePodAntiAffinity :: Newtype PodAntiAffinity _
 derive instance genericPodAntiAffinity :: Generic PodAntiAffinity _
 instance showPodAntiAffinity :: Show PodAntiAffinity where show a = genericShow a
 instance decodePodAntiAffinity :: Decode PodAntiAffinity where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               preferredDuringSchedulingIgnoredDuringExecution <- readProp "preferredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               requiredDuringSchedulingIgnoredDuringExecution <- readProp "requiredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               pure $ PodAntiAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodePodAntiAffinity :: Encode PodAntiAffinity where
-  encode a = genericEncode jsonOptions a
+  encode (PodAntiAffinity a) = encode $ StrMap.fromFoldable $
+               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encode a.preferredDuringSchedulingIgnoredDuringExecution)
+               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encode a.requiredDuringSchedulingIgnoredDuringExecution) ]
+
 
 instance defaultPodAntiAffinity :: Default PodAntiAffinity where
   default = PodAntiAffinity
@@ -3105,9 +4202,23 @@ derive instance newtypePodCondition :: Newtype PodCondition _
 derive instance genericPodCondition :: Generic PodCondition _
 instance showPodCondition :: Show PodCondition where show a = genericShow a
 instance decodePodCondition :: Decode PodCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastProbeTime <- readProp "lastProbeTime" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ PodCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodePodCondition :: Encode PodCondition where
-  encode a = genericEncode jsonOptions a
+  encode (PodCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastProbeTime" (encode a.lastProbeTime)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultPodCondition :: Default PodCondition where
   default = PodCondition
@@ -3133,9 +4244,17 @@ derive instance newtypePodDNSConfig :: Newtype PodDNSConfig _
 derive instance genericPodDNSConfig :: Generic PodDNSConfig _
 instance showPodDNSConfig :: Show PodDNSConfig where show a = genericShow a
 instance decodePodDNSConfig :: Decode PodDNSConfig where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               nameservers <- readProp "nameservers" a >>= decode
+               options <- readProp "options" a >>= decode
+               searches <- readProp "searches" a >>= decode
+               pure $ PodDNSConfig { nameservers, options, searches }
 instance encodePodDNSConfig :: Encode PodDNSConfig where
-  encode a = genericEncode jsonOptions a
+  encode (PodDNSConfig a) = encode $ StrMap.fromFoldable $
+               [ Tuple "nameservers" (encode a.nameservers)
+               , Tuple "options" (encode a.options)
+               , Tuple "searches" (encode a.searches) ]
+
 
 instance defaultPodDNSConfig :: Default PodDNSConfig where
   default = PodDNSConfig
@@ -3156,9 +4275,15 @@ derive instance newtypePodDNSConfigOption :: Newtype PodDNSConfigOption _
 derive instance genericPodDNSConfigOption :: Generic PodDNSConfigOption _
 instance showPodDNSConfigOption :: Show PodDNSConfigOption where show a = genericShow a
 instance decodePodDNSConfigOption :: Decode PodDNSConfigOption where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               value <- readProp "value" a >>= decode
+               pure $ PodDNSConfigOption { name, value }
 instance encodePodDNSConfigOption :: Encode PodDNSConfigOption where
-  encode a = genericEncode jsonOptions a
+  encode (PodDNSConfigOption a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "value" (encode a.value) ]
+
 
 instance defaultPodDNSConfigOption :: Default PodDNSConfigOption where
   default = PodDNSConfigOption
@@ -3182,9 +4307,19 @@ derive instance newtypePodList :: Newtype PodList _
 derive instance genericPodList :: Generic PodList _
 instance showPodList :: Show PodList where show a = genericShow a
 instance decodePodList :: Decode PodList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ PodList { apiVersion, items, kind, metadata }
 instance encodePodList :: Encode PodList where
-  encode a = genericEncode jsonOptions a
+  encode (PodList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultPodList :: Default PodList where
   default = PodList
@@ -3216,9 +4351,21 @@ derive instance newtypePodSecurityContext :: Newtype PodSecurityContext _
 derive instance genericPodSecurityContext :: Generic PodSecurityContext _
 instance showPodSecurityContext :: Show PodSecurityContext where show a = genericShow a
 instance decodePodSecurityContext :: Decode PodSecurityContext where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsGroup <- readProp "fsGroup" a >>= decode
+               runAsNonRoot <- readProp "runAsNonRoot" a >>= decode
+               runAsUser <- readProp "runAsUser" a >>= decode
+               seLinuxOptions <- readProp "seLinuxOptions" a >>= decode
+               supplementalGroups <- readProp "supplementalGroups" a >>= decode
+               pure $ PodSecurityContext { fsGroup, runAsNonRoot, runAsUser, seLinuxOptions, supplementalGroups }
 instance encodePodSecurityContext :: Encode PodSecurityContext where
-  encode a = genericEncode jsonOptions a
+  encode (PodSecurityContext a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsGroup" (encode a.fsGroup)
+               , Tuple "runAsNonRoot" (encode a.runAsNonRoot)
+               , Tuple "runAsUser" (encode a.runAsUser)
+               , Tuple "seLinuxOptions" (encode a.seLinuxOptions)
+               , Tuple "supplementalGroups" (encode a.supplementalGroups) ]
+
 
 instance defaultPodSecurityContext :: Default PodSecurityContext where
   default = PodSecurityContext
@@ -3289,9 +4436,63 @@ derive instance newtypePodSpec :: Newtype PodSpec _
 derive instance genericPodSpec :: Generic PodSpec _
 instance showPodSpec :: Show PodSpec where show a = genericShow a
 instance decodePodSpec :: Decode PodSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               activeDeadlineSeconds <- readProp "activeDeadlineSeconds" a >>= decode
+               affinity <- readProp "affinity" a >>= decode
+               automountServiceAccountToken <- readProp "automountServiceAccountToken" a >>= decode
+               containers <- readProp "containers" a >>= decode
+               dnsConfig <- readProp "dnsConfig" a >>= decode
+               dnsPolicy <- readProp "dnsPolicy" a >>= decode
+               hostAliases <- readProp "hostAliases" a >>= decode
+               hostIPC <- readProp "hostIPC" a >>= decode
+               hostNetwork <- readProp "hostNetwork" a >>= decode
+               hostPID <- readProp "hostPID" a >>= decode
+               hostname <- readProp "hostname" a >>= decode
+               imagePullSecrets <- readProp "imagePullSecrets" a >>= decode
+               initContainers <- readProp "initContainers" a >>= decode
+               nodeName <- readProp "nodeName" a >>= decode
+               nodeSelector <- readProp "nodeSelector" a >>= decode
+               priority <- readProp "priority" a >>= decode
+               priorityClassName <- readProp "priorityClassName" a >>= decode
+               restartPolicy <- readProp "restartPolicy" a >>= decode
+               schedulerName <- readProp "schedulerName" a >>= decode
+               securityContext <- readProp "securityContext" a >>= decode
+               serviceAccount <- readProp "serviceAccount" a >>= decode
+               serviceAccountName <- readProp "serviceAccountName" a >>= decode
+               subdomain <- readProp "subdomain" a >>= decode
+               terminationGracePeriodSeconds <- readProp "terminationGracePeriodSeconds" a >>= decode
+               tolerations <- readProp "tolerations" a >>= decode
+               volumes <- readProp "volumes" a >>= decode
+               pure $ PodSpec { activeDeadlineSeconds, affinity, automountServiceAccountToken, containers, dnsConfig, dnsPolicy, hostAliases, hostIPC, hostNetwork, hostPID, hostname, imagePullSecrets, initContainers, nodeName, nodeSelector, priority, priorityClassName, restartPolicy, schedulerName, securityContext, serviceAccount, serviceAccountName, subdomain, terminationGracePeriodSeconds, tolerations, volumes }
 instance encodePodSpec :: Encode PodSpec where
-  encode a = genericEncode jsonOptions a
+  encode (PodSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "activeDeadlineSeconds" (encode a.activeDeadlineSeconds)
+               , Tuple "affinity" (encode a.affinity)
+               , Tuple "automountServiceAccountToken" (encode a.automountServiceAccountToken)
+               , Tuple "containers" (encode a.containers)
+               , Tuple "dnsConfig" (encode a.dnsConfig)
+               , Tuple "dnsPolicy" (encode a.dnsPolicy)
+               , Tuple "hostAliases" (encode a.hostAliases)
+               , Tuple "hostIPC" (encode a.hostIPC)
+               , Tuple "hostNetwork" (encode a.hostNetwork)
+               , Tuple "hostPID" (encode a.hostPID)
+               , Tuple "hostname" (encode a.hostname)
+               , Tuple "imagePullSecrets" (encode a.imagePullSecrets)
+               , Tuple "initContainers" (encode a.initContainers)
+               , Tuple "nodeName" (encode a.nodeName)
+               , Tuple "nodeSelector" (encode a.nodeSelector)
+               , Tuple "priority" (encode a.priority)
+               , Tuple "priorityClassName" (encode a.priorityClassName)
+               , Tuple "restartPolicy" (encode a.restartPolicy)
+               , Tuple "schedulerName" (encode a.schedulerName)
+               , Tuple "securityContext" (encode a.securityContext)
+               , Tuple "serviceAccount" (encode a.serviceAccount)
+               , Tuple "serviceAccountName" (encode a.serviceAccountName)
+               , Tuple "subdomain" (encode a.subdomain)
+               , Tuple "terminationGracePeriodSeconds" (encode a.terminationGracePeriodSeconds)
+               , Tuple "tolerations" (encode a.tolerations)
+               , Tuple "volumes" (encode a.volumes) ]
+
 
 instance defaultPodSpec :: Default PodSpec where
   default = PodSpec
@@ -3351,9 +4552,31 @@ derive instance newtypePodStatus :: Newtype PodStatus _
 derive instance genericPodStatus :: Generic PodStatus _
 instance showPodStatus :: Show PodStatus where show a = genericShow a
 instance decodePodStatus :: Decode PodStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               conditions <- readProp "conditions" a >>= decode
+               containerStatuses <- readProp "containerStatuses" a >>= decode
+               hostIP <- readProp "hostIP" a >>= decode
+               initContainerStatuses <- readProp "initContainerStatuses" a >>= decode
+               message <- readProp "message" a >>= decode
+               phase <- readProp "phase" a >>= decode
+               podIP <- readProp "podIP" a >>= decode
+               qosClass <- readProp "qosClass" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               startTime <- readProp "startTime" a >>= decode
+               pure $ PodStatus { conditions, containerStatuses, hostIP, initContainerStatuses, message, phase, podIP, qosClass, reason, startTime }
 instance encodePodStatus :: Encode PodStatus where
-  encode a = genericEncode jsonOptions a
+  encode (PodStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "conditions" (encode a.conditions)
+               , Tuple "containerStatuses" (encode a.containerStatuses)
+               , Tuple "hostIP" (encode a.hostIP)
+               , Tuple "initContainerStatuses" (encode a.initContainerStatuses)
+               , Tuple "message" (encode a.message)
+               , Tuple "phase" (encode a.phase)
+               , Tuple "podIP" (encode a.podIP)
+               , Tuple "qosClass" (encode a.qosClass)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "startTime" (encode a.startTime) ]
+
 
 instance defaultPodStatus :: Default PodStatus where
   default = PodStatus
@@ -3385,9 +4608,19 @@ derive instance newtypePodTemplate :: Newtype PodTemplate _
 derive instance genericPodTemplate :: Generic PodTemplate _
 instance showPodTemplate :: Show PodTemplate where show a = genericShow a
 instance decodePodTemplate :: Decode PodTemplate where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               template <- readProp "template" a >>= decode
+               pure $ PodTemplate { apiVersion, kind, metadata, template }
 instance encodePodTemplate :: Encode PodTemplate where
-  encode a = genericEncode jsonOptions a
+  encode (PodTemplate a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "template" (encode a.template) ]
+
 
 instance defaultPodTemplate :: Default PodTemplate where
   default = PodTemplate
@@ -3413,9 +4646,19 @@ derive instance newtypePodTemplateList :: Newtype PodTemplateList _
 derive instance genericPodTemplateList :: Generic PodTemplateList _
 instance showPodTemplateList :: Show PodTemplateList where show a = genericShow a
 instance decodePodTemplateList :: Decode PodTemplateList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ PodTemplateList { apiVersion, items, kind, metadata }
 instance encodePodTemplateList :: Encode PodTemplateList where
-  encode a = genericEncode jsonOptions a
+  encode (PodTemplateList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultPodTemplateList :: Default PodTemplateList where
   default = PodTemplateList
@@ -3437,9 +4680,15 @@ derive instance newtypePodTemplateSpec :: Newtype PodTemplateSpec _
 derive instance genericPodTemplateSpec :: Generic PodTemplateSpec _
 instance showPodTemplateSpec :: Show PodTemplateSpec where show a = genericShow a
 instance decodePodTemplateSpec :: Decode PodTemplateSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               pure $ PodTemplateSpec { metadata, spec }
 instance encodePodTemplateSpec :: Encode PodTemplateSpec where
-  encode a = genericEncode jsonOptions a
+  encode (PodTemplateSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec) ]
+
 
 instance defaultPodTemplateSpec :: Default PodTemplateSpec where
   default = PodTemplateSpec
@@ -3461,9 +4710,17 @@ derive instance newtypePortworxVolumeSource :: Newtype PortworxVolumeSource _
 derive instance genericPortworxVolumeSource :: Generic PortworxVolumeSource _
 instance showPortworxVolumeSource :: Show PortworxVolumeSource where show a = genericShow a
 instance decodePortworxVolumeSource :: Decode PortworxVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               volumeID <- readProp "volumeID" a >>= decode
+               pure $ PortworxVolumeSource { fsType, readOnly, volumeID }
 instance encodePortworxVolumeSource :: Encode PortworxVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (PortworxVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "volumeID" (encode a.volumeID) ]
+
 
 instance defaultPortworxVolumeSource :: Default PortworxVolumeSource where
   default = PortworxVolumeSource
@@ -3484,9 +4741,15 @@ derive instance newtypePreferredSchedulingTerm :: Newtype PreferredSchedulingTer
 derive instance genericPreferredSchedulingTerm :: Generic PreferredSchedulingTerm _
 instance showPreferredSchedulingTerm :: Show PreferredSchedulingTerm where show a = genericShow a
 instance decodePreferredSchedulingTerm :: Decode PreferredSchedulingTerm where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               preference <- readProp "preference" a >>= decode
+               weight <- readProp "weight" a >>= decode
+               pure $ PreferredSchedulingTerm { preference, weight }
 instance encodePreferredSchedulingTerm :: Encode PreferredSchedulingTerm where
-  encode a = genericEncode jsonOptions a
+  encode (PreferredSchedulingTerm a) = encode $ StrMap.fromFoldable $
+               [ Tuple "preference" (encode a.preference)
+               , Tuple "weight" (encode a.weight) ]
+
 
 instance defaultPreferredSchedulingTerm :: Default PreferredSchedulingTerm where
   default = PreferredSchedulingTerm
@@ -3518,9 +4781,27 @@ derive instance newtypeProbe :: Newtype Probe _
 derive instance genericProbe :: Generic Probe _
 instance showProbe :: Show Probe where show a = genericShow a
 instance decodeProbe :: Decode Probe where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exec <- readProp "exec" a >>= decode
+               failureThreshold <- readProp "failureThreshold" a >>= decode
+               httpGet <- readProp "httpGet" a >>= decode
+               initialDelaySeconds <- readProp "initialDelaySeconds" a >>= decode
+               periodSeconds <- readProp "periodSeconds" a >>= decode
+               successThreshold <- readProp "successThreshold" a >>= decode
+               tcpSocket <- readProp "tcpSocket" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               pure $ Probe { exec, failureThreshold, httpGet, initialDelaySeconds, periodSeconds, successThreshold, tcpSocket, timeoutSeconds }
 instance encodeProbe :: Encode Probe where
-  encode a = genericEncode jsonOptions a
+  encode (Probe a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exec" (encode a.exec)
+               , Tuple "failureThreshold" (encode a.failureThreshold)
+               , Tuple "httpGet" (encode a.httpGet)
+               , Tuple "initialDelaySeconds" (encode a.initialDelaySeconds)
+               , Tuple "periodSeconds" (encode a.periodSeconds)
+               , Tuple "successThreshold" (encode a.successThreshold)
+               , Tuple "tcpSocket" (encode a.tcpSocket)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds) ]
+
 
 instance defaultProbe :: Default Probe where
   default = Probe
@@ -3546,9 +4827,15 @@ derive instance newtypeProjectedVolumeSource :: Newtype ProjectedVolumeSource _
 derive instance genericProjectedVolumeSource :: Generic ProjectedVolumeSource _
 instance showProjectedVolumeSource :: Show ProjectedVolumeSource where show a = genericShow a
 instance decodeProjectedVolumeSource :: Decode ProjectedVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               defaultMode <- readProp "defaultMode" a >>= decode
+               sources <- readProp "sources" a >>= decode
+               pure $ ProjectedVolumeSource { defaultMode, sources }
 instance encodeProjectedVolumeSource :: Encode ProjectedVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (ProjectedVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "defaultMode" (encode a.defaultMode)
+               , Tuple "sources" (encode a.sources) ]
+
 
 instance defaultProjectedVolumeSource :: Default ProjectedVolumeSource where
   default = ProjectedVolumeSource
@@ -3574,9 +4861,21 @@ derive instance newtypeQuobyteVolumeSource :: Newtype QuobyteVolumeSource _
 derive instance genericQuobyteVolumeSource :: Generic QuobyteVolumeSource _
 instance showQuobyteVolumeSource :: Show QuobyteVolumeSource where show a = genericShow a
 instance decodeQuobyteVolumeSource :: Decode QuobyteVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               group <- readProp "group" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               registry <- readProp "registry" a >>= decode
+               user <- readProp "user" a >>= decode
+               volume <- readProp "volume" a >>= decode
+               pure $ QuobyteVolumeSource { group, readOnly, registry, user, volume }
 instance encodeQuobyteVolumeSource :: Encode QuobyteVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (QuobyteVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "group" (encode a.group)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "registry" (encode a.registry)
+               , Tuple "user" (encode a.user)
+               , Tuple "volume" (encode a.volume) ]
+
 
 instance defaultQuobyteVolumeSource :: Default QuobyteVolumeSource where
   default = QuobyteVolumeSource
@@ -3611,9 +4910,27 @@ derive instance newtypeRBDPersistentVolumeSource :: Newtype RBDPersistentVolumeS
 derive instance genericRBDPersistentVolumeSource :: Generic RBDPersistentVolumeSource _
 instance showRBDPersistentVolumeSource :: Show RBDPersistentVolumeSource where show a = genericShow a
 instance decodeRBDPersistentVolumeSource :: Decode RBDPersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               image <- readProp "image" a >>= decode
+               keyring <- readProp "keyring" a >>= decode
+               monitors <- readProp "monitors" a >>= decode
+               pool <- readProp "pool" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               user <- readProp "user" a >>= decode
+               pure $ RBDPersistentVolumeSource { fsType, image, keyring, monitors, pool, readOnly, secretRef, user }
 instance encodeRBDPersistentVolumeSource :: Encode RBDPersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (RBDPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "image" (encode a.image)
+               , Tuple "keyring" (encode a.keyring)
+               , Tuple "monitors" (encode a.monitors)
+               , Tuple "pool" (encode a.pool)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "user" (encode a.user) ]
+
 
 instance defaultRBDPersistentVolumeSource :: Default RBDPersistentVolumeSource where
   default = RBDPersistentVolumeSource
@@ -3651,9 +4968,27 @@ derive instance newtypeRBDVolumeSource :: Newtype RBDVolumeSource _
 derive instance genericRBDVolumeSource :: Generic RBDVolumeSource _
 instance showRBDVolumeSource :: Show RBDVolumeSource where show a = genericShow a
 instance decodeRBDVolumeSource :: Decode RBDVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               image <- readProp "image" a >>= decode
+               keyring <- readProp "keyring" a >>= decode
+               monitors <- readProp "monitors" a >>= decode
+               pool <- readProp "pool" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               user <- readProp "user" a >>= decode
+               pure $ RBDVolumeSource { fsType, image, keyring, monitors, pool, readOnly, secretRef, user }
 instance encodeRBDVolumeSource :: Encode RBDVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (RBDVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "image" (encode a.image)
+               , Tuple "keyring" (encode a.keyring)
+               , Tuple "monitors" (encode a.monitors)
+               , Tuple "pool" (encode a.pool)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "user" (encode a.user) ]
+
 
 instance defaultRBDVolumeSource :: Default RBDVolumeSource where
   default = RBDVolumeSource
@@ -3685,9 +5020,21 @@ derive instance newtypeReplicationController :: Newtype ReplicationController _
 derive instance genericReplicationController :: Generic ReplicationController _
 instance showReplicationController :: Show ReplicationController where show a = genericShow a
 instance decodeReplicationController :: Decode ReplicationController where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ ReplicationController { apiVersion, kind, metadata, spec, status }
 instance encodeReplicationController :: Encode ReplicationController where
-  encode a = genericEncode jsonOptions a
+  encode (ReplicationController a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultReplicationController :: Default ReplicationController where
   default = ReplicationController
@@ -3716,9 +5063,21 @@ derive instance newtypeReplicationControllerCondition :: Newtype ReplicationCont
 derive instance genericReplicationControllerCondition :: Generic ReplicationControllerCondition _
 instance showReplicationControllerCondition :: Show ReplicationControllerCondition where show a = genericShow a
 instance decodeReplicationControllerCondition :: Decode ReplicationControllerCondition where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
+               message <- readProp "message" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ ReplicationControllerCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeReplicationControllerCondition :: Encode ReplicationControllerCondition where
-  encode a = genericEncode jsonOptions a
+  encode (ReplicationControllerCondition a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
+               , Tuple "message" (encode a.message)
+               , Tuple "reason" (encode a.reason)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultReplicationControllerCondition :: Default ReplicationControllerCondition where
   default = ReplicationControllerCondition
@@ -3745,9 +5104,19 @@ derive instance newtypeReplicationControllerList :: Newtype ReplicationControlle
 derive instance genericReplicationControllerList :: Generic ReplicationControllerList _
 instance showReplicationControllerList :: Show ReplicationControllerList where show a = genericShow a
 instance decodeReplicationControllerList :: Decode ReplicationControllerList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ReplicationControllerList { apiVersion, items, kind, metadata }
 instance encodeReplicationControllerList :: Encode ReplicationControllerList where
-  encode a = genericEncode jsonOptions a
+  encode (ReplicationControllerList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultReplicationControllerList :: Default ReplicationControllerList where
   default = ReplicationControllerList
@@ -3773,9 +5142,19 @@ derive instance newtypeReplicationControllerSpec :: Newtype ReplicationControlle
 derive instance genericReplicationControllerSpec :: Generic ReplicationControllerSpec _
 instance showReplicationControllerSpec :: Show ReplicationControllerSpec where show a = genericShow a
 instance decodeReplicationControllerSpec :: Decode ReplicationControllerSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               minReadySeconds <- readProp "minReadySeconds" a >>= decode
+               replicas <- readProp "replicas" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               template <- readProp "template" a >>= decode
+               pure $ ReplicationControllerSpec { minReadySeconds, replicas, selector, template }
 instance encodeReplicationControllerSpec :: Encode ReplicationControllerSpec where
-  encode a = genericEncode jsonOptions a
+  encode (ReplicationControllerSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "minReadySeconds" (encode a.minReadySeconds)
+               , Tuple "replicas" (encode a.replicas)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "template" (encode a.template) ]
+
 
 instance defaultReplicationControllerSpec :: Default ReplicationControllerSpec where
   default = ReplicationControllerSpec
@@ -3805,9 +5184,23 @@ derive instance newtypeReplicationControllerStatus :: Newtype ReplicationControl
 derive instance genericReplicationControllerStatus :: Generic ReplicationControllerStatus _
 instance showReplicationControllerStatus :: Show ReplicationControllerStatus where show a = genericShow a
 instance decodeReplicationControllerStatus :: Decode ReplicationControllerStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               availableReplicas <- readProp "availableReplicas" a >>= decode
+               conditions <- readProp "conditions" a >>= decode
+               fullyLabeledReplicas <- readProp "fullyLabeledReplicas" a >>= decode
+               observedGeneration <- readProp "observedGeneration" a >>= decode
+               readyReplicas <- readProp "readyReplicas" a >>= decode
+               replicas <- readProp "replicas" a >>= decode
+               pure $ ReplicationControllerStatus { availableReplicas, conditions, fullyLabeledReplicas, observedGeneration, readyReplicas, replicas }
 instance encodeReplicationControllerStatus :: Encode ReplicationControllerStatus where
-  encode a = genericEncode jsonOptions a
+  encode (ReplicationControllerStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "availableReplicas" (encode a.availableReplicas)
+               , Tuple "conditions" (encode a.conditions)
+               , Tuple "fullyLabeledReplicas" (encode a.fullyLabeledReplicas)
+               , Tuple "observedGeneration" (encode a.observedGeneration)
+               , Tuple "readyReplicas" (encode a.readyReplicas)
+               , Tuple "replicas" (encode a.replicas) ]
+
 
 instance defaultReplicationControllerStatus :: Default ReplicationControllerStatus where
   default = ReplicationControllerStatus
@@ -3833,9 +5226,17 @@ derive instance newtypeResourceFieldSelector :: Newtype ResourceFieldSelector _
 derive instance genericResourceFieldSelector :: Generic ResourceFieldSelector _
 instance showResourceFieldSelector :: Show ResourceFieldSelector where show a = genericShow a
 instance decodeResourceFieldSelector :: Decode ResourceFieldSelector where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               containerName <- readProp "containerName" a >>= decode
+               divisor <- readProp "divisor" a >>= decode
+               resource <- readProp "resource" a >>= decode
+               pure $ ResourceFieldSelector { containerName, divisor, resource }
 instance encodeResourceFieldSelector :: Encode ResourceFieldSelector where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceFieldSelector a) = encode $ StrMap.fromFoldable $
+               [ Tuple "containerName" (encode a.containerName)
+               , Tuple "divisor" (encode a.divisor)
+               , Tuple "resource" (encode a.resource) ]
+
 
 instance defaultResourceFieldSelector :: Default ResourceFieldSelector where
   default = ResourceFieldSelector
@@ -3862,9 +5263,21 @@ derive instance newtypeResourceQuota :: Newtype ResourceQuota _
 derive instance genericResourceQuota :: Generic ResourceQuota _
 instance showResourceQuota :: Show ResourceQuota where show a = genericShow a
 instance decodeResourceQuota :: Decode ResourceQuota where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ ResourceQuota { apiVersion, kind, metadata, spec, status }
 instance encodeResourceQuota :: Encode ResourceQuota where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceQuota a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultResourceQuota :: Default ResourceQuota where
   default = ResourceQuota
@@ -3891,9 +5304,19 @@ derive instance newtypeResourceQuotaList :: Newtype ResourceQuotaList _
 derive instance genericResourceQuotaList :: Generic ResourceQuotaList _
 instance showResourceQuotaList :: Show ResourceQuotaList where show a = genericShow a
 instance decodeResourceQuotaList :: Decode ResourceQuotaList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ResourceQuotaList { apiVersion, items, kind, metadata }
 instance encodeResourceQuotaList :: Encode ResourceQuotaList where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceQuotaList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultResourceQuotaList :: Default ResourceQuotaList where
   default = ResourceQuotaList
@@ -3915,9 +5338,15 @@ derive instance newtypeResourceQuotaSpec :: Newtype ResourceQuotaSpec _
 derive instance genericResourceQuotaSpec :: Generic ResourceQuotaSpec _
 instance showResourceQuotaSpec :: Show ResourceQuotaSpec where show a = genericShow a
 instance decodeResourceQuotaSpec :: Decode ResourceQuotaSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               hard <- readProp "hard" a >>= decode
+               scopes <- readProp "scopes" a >>= decode
+               pure $ ResourceQuotaSpec { hard, scopes }
 instance encodeResourceQuotaSpec :: Encode ResourceQuotaSpec where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceQuotaSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "hard" (encode a.hard)
+               , Tuple "scopes" (encode a.scopes) ]
+
 
 instance defaultResourceQuotaSpec :: Default ResourceQuotaSpec where
   default = ResourceQuotaSpec
@@ -3937,9 +5366,15 @@ derive instance newtypeResourceQuotaStatus :: Newtype ResourceQuotaStatus _
 derive instance genericResourceQuotaStatus :: Generic ResourceQuotaStatus _
 instance showResourceQuotaStatus :: Show ResourceQuotaStatus where show a = genericShow a
 instance decodeResourceQuotaStatus :: Decode ResourceQuotaStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               hard <- readProp "hard" a >>= decode
+               used <- readProp "used" a >>= decode
+               pure $ ResourceQuotaStatus { hard, used }
 instance encodeResourceQuotaStatus :: Encode ResourceQuotaStatus where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceQuotaStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "hard" (encode a.hard)
+               , Tuple "used" (encode a.used) ]
+
 
 instance defaultResourceQuotaStatus :: Default ResourceQuotaStatus where
   default = ResourceQuotaStatus
@@ -3959,9 +5394,15 @@ derive instance newtypeResourceRequirements :: Newtype ResourceRequirements _
 derive instance genericResourceRequirements :: Generic ResourceRequirements _
 instance showResourceRequirements :: Show ResourceRequirements where show a = genericShow a
 instance decodeResourceRequirements :: Decode ResourceRequirements where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               limits <- readProp "limits" a >>= decode
+               requests <- readProp "requests" a >>= decode
+               pure $ ResourceRequirements { limits, requests }
 instance encodeResourceRequirements :: Encode ResourceRequirements where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceRequirements a) = encode $ StrMap.fromFoldable $
+               [ Tuple "limits" (encode a.limits)
+               , Tuple "requests" (encode a.requests) ]
+
 
 instance defaultResourceRequirements :: Default ResourceRequirements where
   default = ResourceRequirements
@@ -3985,9 +5426,19 @@ derive instance newtypeSELinuxOptions :: Newtype SELinuxOptions _
 derive instance genericSELinuxOptions :: Generic SELinuxOptions _
 instance showSELinuxOptions :: Show SELinuxOptions where show a = genericShow a
 instance decodeSELinuxOptions :: Decode SELinuxOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               level <- readProp "level" a >>= decode
+               role <- readProp "role" a >>= decode
+               user <- readProp "user" a >>= decode
+               pure $ SELinuxOptions { _type, level, role, user }
 instance encodeSELinuxOptions :: Encode SELinuxOptions where
-  encode a = genericEncode jsonOptions a
+  encode (SELinuxOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "level" (encode a.level)
+               , Tuple "role" (encode a.role)
+               , Tuple "user" (encode a.user) ]
+
 
 instance defaultSELinuxOptions :: Default SELinuxOptions where
   default = SELinuxOptions
@@ -4025,9 +5476,31 @@ derive instance newtypeScaleIOPersistentVolumeSource :: Newtype ScaleIOPersisten
 derive instance genericScaleIOPersistentVolumeSource :: Generic ScaleIOPersistentVolumeSource _
 instance showScaleIOPersistentVolumeSource :: Show ScaleIOPersistentVolumeSource where show a = genericShow a
 instance decodeScaleIOPersistentVolumeSource :: Decode ScaleIOPersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               gateway <- readProp "gateway" a >>= decode
+               protectionDomain <- readProp "protectionDomain" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               sslEnabled <- readProp "sslEnabled" a >>= decode
+               storageMode <- readProp "storageMode" a >>= decode
+               storagePool <- readProp "storagePool" a >>= decode
+               system <- readProp "system" a >>= decode
+               volumeName <- readProp "volumeName" a >>= decode
+               pure $ ScaleIOPersistentVolumeSource { fsType, gateway, protectionDomain, readOnly, secretRef, sslEnabled, storageMode, storagePool, system, volumeName }
 instance encodeScaleIOPersistentVolumeSource :: Encode ScaleIOPersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (ScaleIOPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "gateway" (encode a.gateway)
+               , Tuple "protectionDomain" (encode a.protectionDomain)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "sslEnabled" (encode a.sslEnabled)
+               , Tuple "storageMode" (encode a.storageMode)
+               , Tuple "storagePool" (encode a.storagePool)
+               , Tuple "system" (encode a.system)
+               , Tuple "volumeName" (encode a.volumeName) ]
+
 
 instance defaultScaleIOPersistentVolumeSource :: Default ScaleIOPersistentVolumeSource where
   default = ScaleIOPersistentVolumeSource
@@ -4071,9 +5544,31 @@ derive instance newtypeScaleIOVolumeSource :: Newtype ScaleIOVolumeSource _
 derive instance genericScaleIOVolumeSource :: Generic ScaleIOVolumeSource _
 instance showScaleIOVolumeSource :: Show ScaleIOVolumeSource where show a = genericShow a
 instance decodeScaleIOVolumeSource :: Decode ScaleIOVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               gateway <- readProp "gateway" a >>= decode
+               protectionDomain <- readProp "protectionDomain" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               sslEnabled <- readProp "sslEnabled" a >>= decode
+               storageMode <- readProp "storageMode" a >>= decode
+               storagePool <- readProp "storagePool" a >>= decode
+               system <- readProp "system" a >>= decode
+               volumeName <- readProp "volumeName" a >>= decode
+               pure $ ScaleIOVolumeSource { fsType, gateway, protectionDomain, readOnly, secretRef, sslEnabled, storageMode, storagePool, system, volumeName }
 instance encodeScaleIOVolumeSource :: Encode ScaleIOVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (ScaleIOVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "gateway" (encode a.gateway)
+               , Tuple "protectionDomain" (encode a.protectionDomain)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "sslEnabled" (encode a.sslEnabled)
+               , Tuple "storageMode" (encode a.storageMode)
+               , Tuple "storagePool" (encode a.storagePool)
+               , Tuple "system" (encode a.system)
+               , Tuple "volumeName" (encode a.volumeName) ]
+
 
 instance defaultScaleIOVolumeSource :: Default ScaleIOVolumeSource where
   default = ScaleIOVolumeSource
@@ -4109,9 +5604,23 @@ derive instance newtypeSecret :: Newtype Secret _
 derive instance genericSecret :: Generic Secret _
 instance showSecret :: Show Secret where show a = genericShow a
 instance decodeSecret :: Decode Secret where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _data <- readProp "_data" a >>= decode
+               _type <- readProp "_type" a >>= decode
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               stringData <- readProp "stringData" a >>= decode
+               pure $ Secret { _data, _type, apiVersion, kind, metadata, stringData }
 instance encodeSecret :: Encode Secret where
-  encode a = genericEncode jsonOptions a
+  encode (Secret a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_data" (encode a._data)
+               , Tuple "_type" (encode a._type)
+               , Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "stringData" (encode a.stringData) ]
+
 
 instance defaultSecret :: Default Secret where
   default = Secret
@@ -4137,9 +5646,15 @@ derive instance newtypeSecretEnvSource :: Newtype SecretEnvSource _
 derive instance genericSecretEnvSource :: Generic SecretEnvSource _
 instance showSecretEnvSource :: Show SecretEnvSource where show a = genericShow a
 instance decodeSecretEnvSource :: Decode SecretEnvSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               pure $ SecretEnvSource { name, optional }
 instance encodeSecretEnvSource :: Encode SecretEnvSource where
-  encode a = genericEncode jsonOptions a
+  encode (SecretEnvSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "optional" (encode a.optional) ]
+
 
 instance defaultSecretEnvSource :: Default SecretEnvSource where
   default = SecretEnvSource
@@ -4161,9 +5676,17 @@ derive instance newtypeSecretKeySelector :: Newtype SecretKeySelector _
 derive instance genericSecretKeySelector :: Generic SecretKeySelector _
 instance showSecretKeySelector :: Show SecretKeySelector where show a = genericShow a
 instance decodeSecretKeySelector :: Decode SecretKeySelector where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               key <- readProp "key" a >>= decode
+               name <- readProp "name" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               pure $ SecretKeySelector { key, name, optional }
 instance encodeSecretKeySelector :: Encode SecretKeySelector where
-  encode a = genericEncode jsonOptions a
+  encode (SecretKeySelector a) = encode $ StrMap.fromFoldable $
+               [ Tuple "key" (encode a.key)
+               , Tuple "name" (encode a.name)
+               , Tuple "optional" (encode a.optional) ]
+
 
 instance defaultSecretKeySelector :: Default SecretKeySelector where
   default = SecretKeySelector
@@ -4188,9 +5711,19 @@ derive instance newtypeSecretList :: Newtype SecretList _
 derive instance genericSecretList :: Generic SecretList _
 instance showSecretList :: Show SecretList where show a = genericShow a
 instance decodeSecretList :: Decode SecretList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ SecretList { apiVersion, items, kind, metadata }
 instance encodeSecretList :: Encode SecretList where
-  encode a = genericEncode jsonOptions a
+  encode (SecretList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultSecretList :: Default SecretList where
   default = SecretList
@@ -4216,9 +5749,17 @@ derive instance newtypeSecretProjection :: Newtype SecretProjection _
 derive instance genericSecretProjection :: Generic SecretProjection _
 instance showSecretProjection :: Show SecretProjection where show a = genericShow a
 instance decodeSecretProjection :: Decode SecretProjection where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               items <- readProp "items" a >>= decode
+               name <- readProp "name" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               pure $ SecretProjection { items, name, optional }
 instance encodeSecretProjection :: Encode SecretProjection where
-  encode a = genericEncode jsonOptions a
+  encode (SecretProjection a) = encode $ StrMap.fromFoldable $
+               [ Tuple "items" (encode a.items)
+               , Tuple "name" (encode a.name)
+               , Tuple "optional" (encode a.optional) ]
+
 
 instance defaultSecretProjection :: Default SecretProjection where
   default = SecretProjection
@@ -4239,9 +5780,15 @@ derive instance newtypeSecretReference :: Newtype SecretReference _
 derive instance genericSecretReference :: Generic SecretReference _
 instance showSecretReference :: Show SecretReference where show a = genericShow a
 instance decodeSecretReference :: Decode SecretReference where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               namespace <- readProp "namespace" a >>= decode
+               pure $ SecretReference { name, namespace }
 instance encodeSecretReference :: Encode SecretReference where
-  encode a = genericEncode jsonOptions a
+  encode (SecretReference a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "namespace" (encode a.namespace) ]
+
 
 instance defaultSecretReference :: Default SecretReference where
   default = SecretReference
@@ -4267,9 +5814,19 @@ derive instance newtypeSecretVolumeSource :: Newtype SecretVolumeSource _
 derive instance genericSecretVolumeSource :: Generic SecretVolumeSource _
 instance showSecretVolumeSource :: Show SecretVolumeSource where show a = genericShow a
 instance decodeSecretVolumeSource :: Decode SecretVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               defaultMode <- readProp "defaultMode" a >>= decode
+               items <- readProp "items" a >>= decode
+               optional <- readProp "optional" a >>= decode
+               secretName <- readProp "secretName" a >>= decode
+               pure $ SecretVolumeSource { defaultMode, items, optional, secretName }
 instance encodeSecretVolumeSource :: Encode SecretVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (SecretVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "defaultMode" (encode a.defaultMode)
+               , Tuple "items" (encode a.items)
+               , Tuple "optional" (encode a.optional)
+               , Tuple "secretName" (encode a.secretName) ]
+
 
 instance defaultSecretVolumeSource :: Default SecretVolumeSource where
   default = SecretVolumeSource
@@ -4301,9 +5858,25 @@ derive instance newtypeSecurityContext :: Newtype SecurityContext _
 derive instance genericSecurityContext :: Generic SecurityContext _
 instance showSecurityContext :: Show SecurityContext where show a = genericShow a
 instance decodeSecurityContext :: Decode SecurityContext where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               allowPrivilegeEscalation <- readProp "allowPrivilegeEscalation" a >>= decode
+               capabilities <- readProp "capabilities" a >>= decode
+               privileged <- readProp "privileged" a >>= decode
+               readOnlyRootFilesystem <- readProp "readOnlyRootFilesystem" a >>= decode
+               runAsNonRoot <- readProp "runAsNonRoot" a >>= decode
+               runAsUser <- readProp "runAsUser" a >>= decode
+               seLinuxOptions <- readProp "seLinuxOptions" a >>= decode
+               pure $ SecurityContext { allowPrivilegeEscalation, capabilities, privileged, readOnlyRootFilesystem, runAsNonRoot, runAsUser, seLinuxOptions }
 instance encodeSecurityContext :: Encode SecurityContext where
-  encode a = genericEncode jsonOptions a
+  encode (SecurityContext a) = encode $ StrMap.fromFoldable $
+               [ Tuple "allowPrivilegeEscalation" (encode a.allowPrivilegeEscalation)
+               , Tuple "capabilities" (encode a.capabilities)
+               , Tuple "privileged" (encode a.privileged)
+               , Tuple "readOnlyRootFilesystem" (encode a.readOnlyRootFilesystem)
+               , Tuple "runAsNonRoot" (encode a.runAsNonRoot)
+               , Tuple "runAsUser" (encode a.runAsUser)
+               , Tuple "seLinuxOptions" (encode a.seLinuxOptions) ]
+
 
 instance defaultSecurityContext :: Default SecurityContext where
   default = SecurityContext
@@ -4334,9 +5907,21 @@ derive instance newtypeService :: Newtype Service _
 derive instance genericService :: Generic Service _
 instance showService :: Show Service where show a = genericShow a
 instance decodeService :: Decode Service where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ Service { apiVersion, kind, metadata, spec, status }
 instance encodeService :: Encode Service where
-  encode a = genericEncode jsonOptions a
+  encode (Service a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultService :: Default Service where
   default = Service
@@ -4367,9 +5952,23 @@ derive instance newtypeServiceAccount :: Newtype ServiceAccount _
 derive instance genericServiceAccount :: Generic ServiceAccount _
 instance showServiceAccount :: Show ServiceAccount where show a = genericShow a
 instance decodeServiceAccount :: Decode ServiceAccount where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               automountServiceAccountToken <- readProp "automountServiceAccountToken" a >>= decode
+               imagePullSecrets <- readProp "imagePullSecrets" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               secrets <- readProp "secrets" a >>= decode
+               pure $ ServiceAccount { apiVersion, automountServiceAccountToken, imagePullSecrets, kind, metadata, secrets }
 instance encodeServiceAccount :: Encode ServiceAccount where
-  encode a = genericEncode jsonOptions a
+  encode (ServiceAccount a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "automountServiceAccountToken" (encode a.automountServiceAccountToken)
+               , Tuple "imagePullSecrets" (encode a.imagePullSecrets)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "secrets" (encode a.secrets) ]
+
 
 instance defaultServiceAccount :: Default ServiceAccount where
   default = ServiceAccount
@@ -4397,9 +5996,19 @@ derive instance newtypeServiceAccountList :: Newtype ServiceAccountList _
 derive instance genericServiceAccountList :: Generic ServiceAccountList _
 instance showServiceAccountList :: Show ServiceAccountList where show a = genericShow a
 instance decodeServiceAccountList :: Decode ServiceAccountList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ServiceAccountList { apiVersion, items, kind, metadata }
 instance encodeServiceAccountList :: Encode ServiceAccountList where
-  encode a = genericEncode jsonOptions a
+  encode (ServiceAccountList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultServiceAccountList :: Default ServiceAccountList where
   default = ServiceAccountList
@@ -4425,9 +6034,19 @@ derive instance newtypeServiceList :: Newtype ServiceList _
 derive instance genericServiceList :: Generic ServiceList _
 instance showServiceList :: Show ServiceList where show a = genericShow a
 instance decodeServiceList :: Decode ServiceList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ServiceList { apiVersion, items, kind, metadata }
 instance encodeServiceList :: Encode ServiceList where
-  encode a = genericEncode jsonOptions a
+  encode (ServiceList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultServiceList :: Default ServiceList where
   default = ServiceList
@@ -4455,9 +6074,21 @@ derive instance newtypeServicePort :: Newtype ServicePort _
 derive instance genericServicePort :: Generic ServicePort _
 instance showServicePort :: Show ServicePort where show a = genericShow a
 instance decodeServicePort :: Decode ServicePort where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               nodePort <- readProp "nodePort" a >>= decode
+               port <- readProp "port" a >>= decode
+               protocol <- readProp "protocol" a >>= decode
+               targetPort <- readProp "targetPort" a >>= decode
+               pure $ ServicePort { name, nodePort, port, protocol, targetPort }
 instance encodeServicePort :: Encode ServicePort where
-  encode a = genericEncode jsonOptions a
+  encode (ServicePort a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "nodePort" (encode a.nodePort)
+               , Tuple "port" (encode a.port)
+               , Tuple "protocol" (encode a.protocol)
+               , Tuple "targetPort" (encode a.targetPort) ]
+
 
 instance defaultServicePort :: Default ServicePort where
   default = ServicePort
@@ -4502,9 +6133,37 @@ derive instance newtypeServiceSpec :: Newtype ServiceSpec _
 derive instance genericServiceSpec :: Generic ServiceSpec _
 instance showServiceSpec :: Show ServiceSpec where show a = genericShow a
 instance decodeServiceSpec :: Decode ServiceSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               _type <- readProp "_type" a >>= decode
+               clusterIP <- readProp "clusterIP" a >>= decode
+               externalIPs <- readProp "externalIPs" a >>= decode
+               externalName <- readProp "externalName" a >>= decode
+               externalTrafficPolicy <- readProp "externalTrafficPolicy" a >>= decode
+               healthCheckNodePort <- readProp "healthCheckNodePort" a >>= decode
+               loadBalancerIP <- readProp "loadBalancerIP" a >>= decode
+               loadBalancerSourceRanges <- readProp "loadBalancerSourceRanges" a >>= decode
+               ports <- readProp "ports" a >>= decode
+               publishNotReadyAddresses <- readProp "publishNotReadyAddresses" a >>= decode
+               selector <- readProp "selector" a >>= decode
+               sessionAffinity <- readProp "sessionAffinity" a >>= decode
+               sessionAffinityConfig <- readProp "sessionAffinityConfig" a >>= decode
+               pure $ ServiceSpec { _type, clusterIP, externalIPs, externalName, externalTrafficPolicy, healthCheckNodePort, loadBalancerIP, loadBalancerSourceRanges, ports, publishNotReadyAddresses, selector, sessionAffinity, sessionAffinityConfig }
 instance encodeServiceSpec :: Encode ServiceSpec where
-  encode a = genericEncode jsonOptions a
+  encode (ServiceSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "_type" (encode a._type)
+               , Tuple "clusterIP" (encode a.clusterIP)
+               , Tuple "externalIPs" (encode a.externalIPs)
+               , Tuple "externalName" (encode a.externalName)
+               , Tuple "externalTrafficPolicy" (encode a.externalTrafficPolicy)
+               , Tuple "healthCheckNodePort" (encode a.healthCheckNodePort)
+               , Tuple "loadBalancerIP" (encode a.loadBalancerIP)
+               , Tuple "loadBalancerSourceRanges" (encode a.loadBalancerSourceRanges)
+               , Tuple "ports" (encode a.ports)
+               , Tuple "publishNotReadyAddresses" (encode a.publishNotReadyAddresses)
+               , Tuple "selector" (encode a.selector)
+               , Tuple "sessionAffinity" (encode a.sessionAffinity)
+               , Tuple "sessionAffinityConfig" (encode a.sessionAffinityConfig) ]
+
 
 instance defaultServiceSpec :: Default ServiceSpec where
   default = ServiceSpec
@@ -4533,9 +6192,13 @@ derive instance newtypeServiceStatus :: Newtype ServiceStatus _
 derive instance genericServiceStatus :: Generic ServiceStatus _
 instance showServiceStatus :: Show ServiceStatus where show a = genericShow a
 instance decodeServiceStatus :: Decode ServiceStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               loadBalancer <- readProp "loadBalancer" a >>= decode
+               pure $ ServiceStatus { loadBalancer }
 instance encodeServiceStatus :: Encode ServiceStatus where
-  encode a = genericEncode jsonOptions a
+  encode (ServiceStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "loadBalancer" (encode a.loadBalancer) ]
+
 
 instance defaultServiceStatus :: Default ServiceStatus where
   default = ServiceStatus
@@ -4552,9 +6215,13 @@ derive instance newtypeSessionAffinityConfig :: Newtype SessionAffinityConfig _
 derive instance genericSessionAffinityConfig :: Generic SessionAffinityConfig _
 instance showSessionAffinityConfig :: Show SessionAffinityConfig where show a = genericShow a
 instance decodeSessionAffinityConfig :: Decode SessionAffinityConfig where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               clientIP <- readProp "clientIP" a >>= decode
+               pure $ SessionAffinityConfig { clientIP }
 instance encodeSessionAffinityConfig :: Encode SessionAffinityConfig where
-  encode a = genericEncode jsonOptions a
+  encode (SessionAffinityConfig a) = encode $ StrMap.fromFoldable $
+               [ Tuple "clientIP" (encode a.clientIP) ]
+
 
 instance defaultSessionAffinityConfig :: Default SessionAffinityConfig where
   default = SessionAffinityConfig
@@ -4579,9 +6246,21 @@ derive instance newtypeStorageOSPersistentVolumeSource :: Newtype StorageOSPersi
 derive instance genericStorageOSPersistentVolumeSource :: Generic StorageOSPersistentVolumeSource _
 instance showStorageOSPersistentVolumeSource :: Show StorageOSPersistentVolumeSource where show a = genericShow a
 instance decodeStorageOSPersistentVolumeSource :: Decode StorageOSPersistentVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               volumeName <- readProp "volumeName" a >>= decode
+               volumeNamespace <- readProp "volumeNamespace" a >>= decode
+               pure $ StorageOSPersistentVolumeSource { fsType, readOnly, secretRef, volumeName, volumeNamespace }
 instance encodeStorageOSPersistentVolumeSource :: Encode StorageOSPersistentVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (StorageOSPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "volumeName" (encode a.volumeName)
+               , Tuple "volumeNamespace" (encode a.volumeNamespace) ]
+
 
 instance defaultStorageOSPersistentVolumeSource :: Default StorageOSPersistentVolumeSource where
   default = StorageOSPersistentVolumeSource
@@ -4610,9 +6289,21 @@ derive instance newtypeStorageOSVolumeSource :: Newtype StorageOSVolumeSource _
 derive instance genericStorageOSVolumeSource :: Generic StorageOSVolumeSource _
 instance showStorageOSVolumeSource :: Show StorageOSVolumeSource where show a = genericShow a
 instance decodeStorageOSVolumeSource :: Decode StorageOSVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               secretRef <- readProp "secretRef" a >>= decode
+               volumeName <- readProp "volumeName" a >>= decode
+               volumeNamespace <- readProp "volumeNamespace" a >>= decode
+               pure $ StorageOSVolumeSource { fsType, readOnly, secretRef, volumeName, volumeNamespace }
 instance encodeStorageOSVolumeSource :: Encode StorageOSVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (StorageOSVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "secretRef" (encode a.secretRef)
+               , Tuple "volumeName" (encode a.volumeName)
+               , Tuple "volumeNamespace" (encode a.volumeNamespace) ]
+
 
 instance defaultStorageOSVolumeSource :: Default StorageOSVolumeSource where
   default = StorageOSVolumeSource
@@ -4635,9 +6326,15 @@ derive instance newtypeTCPSocketAction :: Newtype TCPSocketAction _
 derive instance genericTCPSocketAction :: Generic TCPSocketAction _
 instance showTCPSocketAction :: Show TCPSocketAction where show a = genericShow a
 instance decodeTCPSocketAction :: Decode TCPSocketAction where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               host <- readProp "host" a >>= decode
+               port <- readProp "port" a >>= decode
+               pure $ TCPSocketAction { host, port }
 instance encodeTCPSocketAction :: Encode TCPSocketAction where
-  encode a = genericEncode jsonOptions a
+  encode (TCPSocketAction a) = encode $ StrMap.fromFoldable $
+               [ Tuple "host" (encode a.host)
+               , Tuple "port" (encode a.port) ]
+
 
 instance defaultTCPSocketAction :: Default TCPSocketAction where
   default = TCPSocketAction
@@ -4661,9 +6358,19 @@ derive instance newtypeTaint :: Newtype Taint _
 derive instance genericTaint :: Generic Taint _
 instance showTaint :: Show Taint where show a = genericShow a
 instance decodeTaint :: Decode Taint where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               effect <- readProp "effect" a >>= decode
+               key <- readProp "key" a >>= decode
+               timeAdded <- readProp "timeAdded" a >>= decode
+               value <- readProp "value" a >>= decode
+               pure $ Taint { effect, key, timeAdded, value }
 instance encodeTaint :: Encode Taint where
-  encode a = genericEncode jsonOptions a
+  encode (Taint a) = encode $ StrMap.fromFoldable $
+               [ Tuple "effect" (encode a.effect)
+               , Tuple "key" (encode a.key)
+               , Tuple "timeAdded" (encode a.timeAdded)
+               , Tuple "value" (encode a.value) ]
+
 
 instance defaultTaint :: Default Taint where
   default = Taint
@@ -4691,9 +6398,21 @@ derive instance newtypeToleration :: Newtype Toleration _
 derive instance genericToleration :: Generic Toleration _
 instance showToleration :: Show Toleration where show a = genericShow a
 instance decodeToleration :: Decode Toleration where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               effect <- readProp "effect" a >>= decode
+               key <- readProp "key" a >>= decode
+               operator <- readProp "operator" a >>= decode
+               tolerationSeconds <- readProp "tolerationSeconds" a >>= decode
+               value <- readProp "value" a >>= decode
+               pure $ Toleration { effect, key, operator, tolerationSeconds, value }
 instance encodeToleration :: Encode Toleration where
-  encode a = genericEncode jsonOptions a
+  encode (Toleration a) = encode $ StrMap.fromFoldable $
+               [ Tuple "effect" (encode a.effect)
+               , Tuple "key" (encode a.key)
+               , Tuple "operator" (encode a.operator)
+               , Tuple "tolerationSeconds" (encode a.tolerationSeconds)
+               , Tuple "value" (encode a.value) ]
+
 
 instance defaultToleration :: Default Toleration where
   default = Toleration
@@ -4768,9 +6487,67 @@ derive instance newtypeVolume :: Newtype Volume _
 derive instance genericVolume :: Generic Volume _
 instance showVolume :: Show Volume where show a = genericShow a
 instance decodeVolume :: Decode Volume where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               awsElasticBlockStore <- readProp "awsElasticBlockStore" a >>= decode
+               azureDisk <- readProp "azureDisk" a >>= decode
+               azureFile <- readProp "azureFile" a >>= decode
+               cephfs <- readProp "cephfs" a >>= decode
+               cinder <- readProp "cinder" a >>= decode
+               configMap <- readProp "configMap" a >>= decode
+               downwardAPI <- readProp "downwardAPI" a >>= decode
+               emptyDir <- readProp "emptyDir" a >>= decode
+               fc <- readProp "fc" a >>= decode
+               flexVolume <- readProp "flexVolume" a >>= decode
+               flocker <- readProp "flocker" a >>= decode
+               gcePersistentDisk <- readProp "gcePersistentDisk" a >>= decode
+               gitRepo <- readProp "gitRepo" a >>= decode
+               glusterfs <- readProp "glusterfs" a >>= decode
+               hostPath <- readProp "hostPath" a >>= decode
+               iscsi <- readProp "iscsi" a >>= decode
+               name <- readProp "name" a >>= decode
+               nfs <- readProp "nfs" a >>= decode
+               persistentVolumeClaim <- readProp "persistentVolumeClaim" a >>= decode
+               photonPersistentDisk <- readProp "photonPersistentDisk" a >>= decode
+               portworxVolume <- readProp "portworxVolume" a >>= decode
+               projected <- readProp "projected" a >>= decode
+               quobyte <- readProp "quobyte" a >>= decode
+               rbd <- readProp "rbd" a >>= decode
+               scaleIO <- readProp "scaleIO" a >>= decode
+               secret <- readProp "secret" a >>= decode
+               storageos <- readProp "storageos" a >>= decode
+               vsphereVolume <- readProp "vsphereVolume" a >>= decode
+               pure $ Volume { awsElasticBlockStore, azureDisk, azureFile, cephfs, cinder, configMap, downwardAPI, emptyDir, fc, flexVolume, flocker, gcePersistentDisk, gitRepo, glusterfs, hostPath, iscsi, name, nfs, persistentVolumeClaim, photonPersistentDisk, portworxVolume, projected, quobyte, rbd, scaleIO, secret, storageos, vsphereVolume }
 instance encodeVolume :: Encode Volume where
-  encode a = genericEncode jsonOptions a
+  encode (Volume a) = encode $ StrMap.fromFoldable $
+               [ Tuple "awsElasticBlockStore" (encode a.awsElasticBlockStore)
+               , Tuple "azureDisk" (encode a.azureDisk)
+               , Tuple "azureFile" (encode a.azureFile)
+               , Tuple "cephfs" (encode a.cephfs)
+               , Tuple "cinder" (encode a.cinder)
+               , Tuple "configMap" (encode a.configMap)
+               , Tuple "downwardAPI" (encode a.downwardAPI)
+               , Tuple "emptyDir" (encode a.emptyDir)
+               , Tuple "fc" (encode a.fc)
+               , Tuple "flexVolume" (encode a.flexVolume)
+               , Tuple "flocker" (encode a.flocker)
+               , Tuple "gcePersistentDisk" (encode a.gcePersistentDisk)
+               , Tuple "gitRepo" (encode a.gitRepo)
+               , Tuple "glusterfs" (encode a.glusterfs)
+               , Tuple "hostPath" (encode a.hostPath)
+               , Tuple "iscsi" (encode a.iscsi)
+               , Tuple "name" (encode a.name)
+               , Tuple "nfs" (encode a.nfs)
+               , Tuple "persistentVolumeClaim" (encode a.persistentVolumeClaim)
+               , Tuple "photonPersistentDisk" (encode a.photonPersistentDisk)
+               , Tuple "portworxVolume" (encode a.portworxVolume)
+               , Tuple "projected" (encode a.projected)
+               , Tuple "quobyte" (encode a.quobyte)
+               , Tuple "rbd" (encode a.rbd)
+               , Tuple "scaleIO" (encode a.scaleIO)
+               , Tuple "secret" (encode a.secret)
+               , Tuple "storageos" (encode a.storageos)
+               , Tuple "vsphereVolume" (encode a.vsphereVolume) ]
+
 
 instance defaultVolume :: Default Volume where
   default = Volume
@@ -4816,9 +6593,15 @@ derive instance newtypeVolumeDevice :: Newtype VolumeDevice _
 derive instance genericVolumeDevice :: Generic VolumeDevice _
 instance showVolumeDevice :: Show VolumeDevice where show a = genericShow a
 instance decodeVolumeDevice :: Decode VolumeDevice where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               devicePath <- readProp "devicePath" a >>= decode
+               name <- readProp "name" a >>= decode
+               pure $ VolumeDevice { devicePath, name }
 instance encodeVolumeDevice :: Encode VolumeDevice where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeDevice a) = encode $ StrMap.fromFoldable $
+               [ Tuple "devicePath" (encode a.devicePath)
+               , Tuple "name" (encode a.name) ]
+
 
 instance defaultVolumeDevice :: Default VolumeDevice where
   default = VolumeDevice
@@ -4844,9 +6627,21 @@ derive instance newtypeVolumeMount :: Newtype VolumeMount _
 derive instance genericVolumeMount :: Generic VolumeMount _
 instance showVolumeMount :: Show VolumeMount where show a = genericShow a
 instance decodeVolumeMount :: Decode VolumeMount where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               mountPath <- readProp "mountPath" a >>= decode
+               mountPropagation <- readProp "mountPropagation" a >>= decode
+               name <- readProp "name" a >>= decode
+               readOnly <- readProp "readOnly" a >>= decode
+               subPath <- readProp "subPath" a >>= decode
+               pure $ VolumeMount { mountPath, mountPropagation, name, readOnly, subPath }
 instance encodeVolumeMount :: Encode VolumeMount where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeMount a) = encode $ StrMap.fromFoldable $
+               [ Tuple "mountPath" (encode a.mountPath)
+               , Tuple "mountPropagation" (encode a.mountPropagation)
+               , Tuple "name" (encode a.name)
+               , Tuple "readOnly" (encode a.readOnly)
+               , Tuple "subPath" (encode a.subPath) ]
+
 
 instance defaultVolumeMount :: Default VolumeMount where
   default = VolumeMount
@@ -4871,9 +6666,17 @@ derive instance newtypeVolumeProjection :: Newtype VolumeProjection _
 derive instance genericVolumeProjection :: Generic VolumeProjection _
 instance showVolumeProjection :: Show VolumeProjection where show a = genericShow a
 instance decodeVolumeProjection :: Decode VolumeProjection where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               configMap <- readProp "configMap" a >>= decode
+               downwardAPI <- readProp "downwardAPI" a >>= decode
+               secret <- readProp "secret" a >>= decode
+               pure $ VolumeProjection { configMap, downwardAPI, secret }
 instance encodeVolumeProjection :: Encode VolumeProjection where
-  encode a = genericEncode jsonOptions a
+  encode (VolumeProjection a) = encode $ StrMap.fromFoldable $
+               [ Tuple "configMap" (encode a.configMap)
+               , Tuple "downwardAPI" (encode a.downwardAPI)
+               , Tuple "secret" (encode a.secret) ]
+
 
 instance defaultVolumeProjection :: Default VolumeProjection where
   default = VolumeProjection
@@ -4898,9 +6701,19 @@ derive instance newtypeVsphereVirtualDiskVolumeSource :: Newtype VsphereVirtualD
 derive instance genericVsphereVirtualDiskVolumeSource :: Generic VsphereVirtualDiskVolumeSource _
 instance showVsphereVirtualDiskVolumeSource :: Show VsphereVirtualDiskVolumeSource where show a = genericShow a
 instance decodeVsphereVirtualDiskVolumeSource :: Decode VsphereVirtualDiskVolumeSource where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               fsType <- readProp "fsType" a >>= decode
+               storagePolicyID <- readProp "storagePolicyID" a >>= decode
+               storagePolicyName <- readProp "storagePolicyName" a >>= decode
+               volumePath <- readProp "volumePath" a >>= decode
+               pure $ VsphereVirtualDiskVolumeSource { fsType, storagePolicyID, storagePolicyName, volumePath }
 instance encodeVsphereVirtualDiskVolumeSource :: Encode VsphereVirtualDiskVolumeSource where
-  encode a = genericEncode jsonOptions a
+  encode (VsphereVirtualDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+               [ Tuple "fsType" (encode a.fsType)
+               , Tuple "storagePolicyID" (encode a.storagePolicyID)
+               , Tuple "storagePolicyName" (encode a.storagePolicyName)
+               , Tuple "volumePath" (encode a.volumePath) ]
+
 
 instance defaultVsphereVirtualDiskVolumeSource :: Default VsphereVirtualDiskVolumeSource where
   default = VsphereVirtualDiskVolumeSource
@@ -4922,9 +6735,15 @@ derive instance newtypeWeightedPodAffinityTerm :: Newtype WeightedPodAffinityTer
 derive instance genericWeightedPodAffinityTerm :: Generic WeightedPodAffinityTerm _
 instance showWeightedPodAffinityTerm :: Show WeightedPodAffinityTerm where show a = genericShow a
 instance decodeWeightedPodAffinityTerm :: Decode WeightedPodAffinityTerm where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               podAffinityTerm <- readProp "podAffinityTerm" a >>= decode
+               weight <- readProp "weight" a >>= decode
+               pure $ WeightedPodAffinityTerm { podAffinityTerm, weight }
 instance encodeWeightedPodAffinityTerm :: Encode WeightedPodAffinityTerm where
-  encode a = genericEncode jsonOptions a
+  encode (WeightedPodAffinityTerm a) = encode $ StrMap.fromFoldable $
+               [ Tuple "podAffinityTerm" (encode a.podAffinityTerm)
+               , Tuple "weight" (encode a.weight) ]
+
 
 instance defaultWeightedPodAffinityTerm :: Default WeightedPodAffinityTerm where
   default = WeightedPodAffinityTerm

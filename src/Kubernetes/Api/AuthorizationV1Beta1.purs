@@ -3,17 +3,20 @@ module Kubernetes.Api.AuthorizationV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -41,9 +44,21 @@ derive instance newtypeLocalSubjectAccessReview :: Newtype LocalSubjectAccessRev
 derive instance genericLocalSubjectAccessReview :: Generic LocalSubjectAccessReview _
 instance showLocalSubjectAccessReview :: Show LocalSubjectAccessReview where show a = genericShow a
 instance decodeLocalSubjectAccessReview :: Decode LocalSubjectAccessReview where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ LocalSubjectAccessReview { apiVersion, kind, metadata, spec, status }
 instance encodeLocalSubjectAccessReview :: Encode LocalSubjectAccessReview where
-  encode a = genericEncode jsonOptions a
+  encode (LocalSubjectAccessReview a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultLocalSubjectAccessReview :: Default LocalSubjectAccessReview where
   default = LocalSubjectAccessReview
@@ -66,9 +81,15 @@ derive instance newtypeNonResourceAttributes :: Newtype NonResourceAttributes _
 derive instance genericNonResourceAttributes :: Generic NonResourceAttributes _
 instance showNonResourceAttributes :: Show NonResourceAttributes where show a = genericShow a
 instance decodeNonResourceAttributes :: Decode NonResourceAttributes where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               path <- readProp "path" a >>= decode
+               verb <- readProp "verb" a >>= decode
+               pure $ NonResourceAttributes { path, verb }
 instance encodeNonResourceAttributes :: Encode NonResourceAttributes where
-  encode a = genericEncode jsonOptions a
+  encode (NonResourceAttributes a) = encode $ StrMap.fromFoldable $
+               [ Tuple "path" (encode a.path)
+               , Tuple "verb" (encode a.verb) ]
+
 
 instance defaultNonResourceAttributes :: Default NonResourceAttributes where
   default = NonResourceAttributes
@@ -88,9 +109,15 @@ derive instance newtypeNonResourceRule :: Newtype NonResourceRule _
 derive instance genericNonResourceRule :: Generic NonResourceRule _
 instance showNonResourceRule :: Show NonResourceRule where show a = genericShow a
 instance decodeNonResourceRule :: Decode NonResourceRule where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               nonResourceURLs <- readProp "nonResourceURLs" a >>= decode
+               verbs <- readProp "verbs" a >>= decode
+               pure $ NonResourceRule { nonResourceURLs, verbs }
 instance encodeNonResourceRule :: Encode NonResourceRule where
-  encode a = genericEncode jsonOptions a
+  encode (NonResourceRule a) = encode $ StrMap.fromFoldable $
+               [ Tuple "nonResourceURLs" (encode a.nonResourceURLs)
+               , Tuple "verbs" (encode a.verbs) ]
+
 
 instance defaultNonResourceRule :: Default NonResourceRule where
   default = NonResourceRule
@@ -120,9 +147,25 @@ derive instance newtypeResourceAttributes :: Newtype ResourceAttributes _
 derive instance genericResourceAttributes :: Generic ResourceAttributes _
 instance showResourceAttributes :: Show ResourceAttributes where show a = genericShow a
 instance decodeResourceAttributes :: Decode ResourceAttributes where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               group <- readProp "group" a >>= decode
+               name <- readProp "name" a >>= decode
+               namespace <- readProp "namespace" a >>= decode
+               resource <- readProp "resource" a >>= decode
+               subresource <- readProp "subresource" a >>= decode
+               verb <- readProp "verb" a >>= decode
+               version <- readProp "version" a >>= decode
+               pure $ ResourceAttributes { group, name, namespace, resource, subresource, verb, version }
 instance encodeResourceAttributes :: Encode ResourceAttributes where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceAttributes a) = encode $ StrMap.fromFoldable $
+               [ Tuple "group" (encode a.group)
+               , Tuple "name" (encode a.name)
+               , Tuple "namespace" (encode a.namespace)
+               , Tuple "resource" (encode a.resource)
+               , Tuple "subresource" (encode a.subresource)
+               , Tuple "verb" (encode a.verb)
+               , Tuple "version" (encode a.version) ]
+
 
 instance defaultResourceAttributes :: Default ResourceAttributes where
   default = ResourceAttributes
@@ -152,9 +195,19 @@ derive instance newtypeResourceRule :: Newtype ResourceRule _
 derive instance genericResourceRule :: Generic ResourceRule _
 instance showResourceRule :: Show ResourceRule where show a = genericShow a
 instance decodeResourceRule :: Decode ResourceRule where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiGroups <- readProp "apiGroups" a >>= decode
+               resourceNames <- readProp "resourceNames" a >>= decode
+               resources <- readProp "resources" a >>= decode
+               verbs <- readProp "verbs" a >>= decode
+               pure $ ResourceRule { apiGroups, resourceNames, resources, verbs }
 instance encodeResourceRule :: Encode ResourceRule where
-  encode a = genericEncode jsonOptions a
+  encode (ResourceRule a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiGroups" (encode a.apiGroups)
+               , Tuple "resourceNames" (encode a.resourceNames)
+               , Tuple "resources" (encode a.resources)
+               , Tuple "verbs" (encode a.verbs) ]
+
 
 instance defaultResourceRule :: Default ResourceRule where
   default = ResourceRule
@@ -182,9 +235,21 @@ derive instance newtypeSelfSubjectAccessReview :: Newtype SelfSubjectAccessRevie
 derive instance genericSelfSubjectAccessReview :: Generic SelfSubjectAccessReview _
 instance showSelfSubjectAccessReview :: Show SelfSubjectAccessReview where show a = genericShow a
 instance decodeSelfSubjectAccessReview :: Decode SelfSubjectAccessReview where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ SelfSubjectAccessReview { apiVersion, kind, metadata, spec, status }
 instance encodeSelfSubjectAccessReview :: Encode SelfSubjectAccessReview where
-  encode a = genericEncode jsonOptions a
+  encode (SelfSubjectAccessReview a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultSelfSubjectAccessReview :: Default SelfSubjectAccessReview where
   default = SelfSubjectAccessReview
@@ -207,9 +272,15 @@ derive instance newtypeSelfSubjectAccessReviewSpec :: Newtype SelfSubjectAccessR
 derive instance genericSelfSubjectAccessReviewSpec :: Generic SelfSubjectAccessReviewSpec _
 instance showSelfSubjectAccessReviewSpec :: Show SelfSubjectAccessReviewSpec where show a = genericShow a
 instance decodeSelfSubjectAccessReviewSpec :: Decode SelfSubjectAccessReviewSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               nonResourceAttributes <- readProp "nonResourceAttributes" a >>= decode
+               resourceAttributes <- readProp "resourceAttributes" a >>= decode
+               pure $ SelfSubjectAccessReviewSpec { nonResourceAttributes, resourceAttributes }
 instance encodeSelfSubjectAccessReviewSpec :: Encode SelfSubjectAccessReviewSpec where
-  encode a = genericEncode jsonOptions a
+  encode (SelfSubjectAccessReviewSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "nonResourceAttributes" (encode a.nonResourceAttributes)
+               , Tuple "resourceAttributes" (encode a.resourceAttributes) ]
+
 
 instance defaultSelfSubjectAccessReviewSpec :: Default SelfSubjectAccessReviewSpec where
   default = SelfSubjectAccessReviewSpec
@@ -235,9 +306,21 @@ derive instance newtypeSelfSubjectRulesReview :: Newtype SelfSubjectRulesReview 
 derive instance genericSelfSubjectRulesReview :: Generic SelfSubjectRulesReview _
 instance showSelfSubjectRulesReview :: Show SelfSubjectRulesReview where show a = genericShow a
 instance decodeSelfSubjectRulesReview :: Decode SelfSubjectRulesReview where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ SelfSubjectRulesReview { apiVersion, kind, metadata, spec, status }
 instance encodeSelfSubjectRulesReview :: Encode SelfSubjectRulesReview where
-  encode a = genericEncode jsonOptions a
+  encode (SelfSubjectRulesReview a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultSelfSubjectRulesReview :: Default SelfSubjectRulesReview where
   default = SelfSubjectRulesReview
@@ -256,9 +339,13 @@ derive instance newtypeSelfSubjectRulesReviewSpec :: Newtype SelfSubjectRulesRev
 derive instance genericSelfSubjectRulesReviewSpec :: Generic SelfSubjectRulesReviewSpec _
 instance showSelfSubjectRulesReviewSpec :: Show SelfSubjectRulesReviewSpec where show a = genericShow a
 instance decodeSelfSubjectRulesReviewSpec :: Decode SelfSubjectRulesReviewSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               namespace <- readProp "namespace" a >>= decode
+               pure $ SelfSubjectRulesReviewSpec { namespace }
 instance encodeSelfSubjectRulesReviewSpec :: Encode SelfSubjectRulesReviewSpec where
-  encode a = genericEncode jsonOptions a
+  encode (SelfSubjectRulesReviewSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "namespace" (encode a.namespace) ]
+
 
 instance defaultSelfSubjectRulesReviewSpec :: Default SelfSubjectRulesReviewSpec where
   default = SelfSubjectRulesReviewSpec
@@ -283,9 +370,21 @@ derive instance newtypeSubjectAccessReview :: Newtype SubjectAccessReview _
 derive instance genericSubjectAccessReview :: Generic SubjectAccessReview _
 instance showSubjectAccessReview :: Show SubjectAccessReview where show a = genericShow a
 instance decodeSubjectAccessReview :: Decode SubjectAccessReview where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ SubjectAccessReview { apiVersion, kind, metadata, spec, status }
 instance encodeSubjectAccessReview :: Encode SubjectAccessReview where
-  encode a = genericEncode jsonOptions a
+  encode (SubjectAccessReview a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultSubjectAccessReview :: Default SubjectAccessReview where
   default = SubjectAccessReview
@@ -316,9 +415,23 @@ derive instance newtypeSubjectAccessReviewSpec :: Newtype SubjectAccessReviewSpe
 derive instance genericSubjectAccessReviewSpec :: Generic SubjectAccessReviewSpec _
 instance showSubjectAccessReviewSpec :: Show SubjectAccessReviewSpec where show a = genericShow a
 instance decodeSubjectAccessReviewSpec :: Decode SubjectAccessReviewSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               extra <- readProp "extra" a >>= decode
+               group <- readProp "group" a >>= decode
+               nonResourceAttributes <- readProp "nonResourceAttributes" a >>= decode
+               resourceAttributes <- readProp "resourceAttributes" a >>= decode
+               uid <- readProp "uid" a >>= decode
+               user <- readProp "user" a >>= decode
+               pure $ SubjectAccessReviewSpec { extra, group, nonResourceAttributes, resourceAttributes, uid, user }
 instance encodeSubjectAccessReviewSpec :: Encode SubjectAccessReviewSpec where
-  encode a = genericEncode jsonOptions a
+  encode (SubjectAccessReviewSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "extra" (encode a.extra)
+               , Tuple "group" (encode a.group)
+               , Tuple "nonResourceAttributes" (encode a.nonResourceAttributes)
+               , Tuple "resourceAttributes" (encode a.resourceAttributes)
+               , Tuple "uid" (encode a.uid)
+               , Tuple "user" (encode a.user) ]
+
 
 instance defaultSubjectAccessReviewSpec :: Default SubjectAccessReviewSpec where
   default = SubjectAccessReviewSpec
@@ -346,9 +459,19 @@ derive instance newtypeSubjectAccessReviewStatus :: Newtype SubjectAccessReviewS
 derive instance genericSubjectAccessReviewStatus :: Generic SubjectAccessReviewStatus _
 instance showSubjectAccessReviewStatus :: Show SubjectAccessReviewStatus where show a = genericShow a
 instance decodeSubjectAccessReviewStatus :: Decode SubjectAccessReviewStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               allowed <- readProp "allowed" a >>= decode
+               denied <- readProp "denied" a >>= decode
+               evaluationError <- readProp "evaluationError" a >>= decode
+               reason <- readProp "reason" a >>= decode
+               pure $ SubjectAccessReviewStatus { allowed, denied, evaluationError, reason }
 instance encodeSubjectAccessReviewStatus :: Encode SubjectAccessReviewStatus where
-  encode a = genericEncode jsonOptions a
+  encode (SubjectAccessReviewStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "allowed" (encode a.allowed)
+               , Tuple "denied" (encode a.denied)
+               , Tuple "evaluationError" (encode a.evaluationError)
+               , Tuple "reason" (encode a.reason) ]
+
 
 instance defaultSubjectAccessReviewStatus :: Default SubjectAccessReviewStatus where
   default = SubjectAccessReviewStatus
@@ -374,9 +497,19 @@ derive instance newtypeSubjectRulesReviewStatus :: Newtype SubjectRulesReviewSta
 derive instance genericSubjectRulesReviewStatus :: Generic SubjectRulesReviewStatus _
 instance showSubjectRulesReviewStatus :: Show SubjectRulesReviewStatus where show a = genericShow a
 instance decodeSubjectRulesReviewStatus :: Decode SubjectRulesReviewStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               evaluationError <- readProp "evaluationError" a >>= decode
+               incomplete <- readProp "incomplete" a >>= decode
+               nonResourceRules <- readProp "nonResourceRules" a >>= decode
+               resourceRules <- readProp "resourceRules" a >>= decode
+               pure $ SubjectRulesReviewStatus { evaluationError, incomplete, nonResourceRules, resourceRules }
 instance encodeSubjectRulesReviewStatus :: Encode SubjectRulesReviewStatus where
-  encode a = genericEncode jsonOptions a
+  encode (SubjectRulesReviewStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "evaluationError" (encode a.evaluationError)
+               , Tuple "incomplete" (encode a.incomplete)
+               , Tuple "nonResourceRules" (encode a.nonResourceRules)
+               , Tuple "resourceRules" (encode a.resourceRules) ]
+
 
 instance defaultSubjectRulesReviewStatus :: Default SubjectRulesReviewStatus where
   default = SubjectRulesReviewStatus

@@ -3,13 +3,17 @@ module Kubernetes.Api.ExtensionsV1Beta1.Ingress where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedIngressOptions :: Newtype Delet
 derive instance genericDeleteCollectionNamespacedIngressOptions :: Generic DeleteCollectionNamespacedIngressOptions _
 instance showDeleteCollectionNamespacedIngressOptions :: Show DeleteCollectionNamespacedIngressOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedIngressOptions :: Decode DeleteCollectionNamespacedIngressOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedIngressOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedIngressOptions :: Encode DeleteCollectionNamespacedIngressOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedIngressOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedIngressOptions :: Default DeleteCollectionNamespacedIngressOptions where
   default = DeleteCollectionNamespacedIngressOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedIngressOptions :: Newtype DeleteNamespace
 derive instance genericDeleteNamespacedIngressOptions :: Generic DeleteNamespacedIngressOptions _
 instance showDeleteNamespacedIngressOptions :: Show DeleteNamespacedIngressOptions where show a = genericShow a
 instance decodeDeleteNamespacedIngressOptions :: Decode DeleteNamespacedIngressOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedIngressOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedIngressOptions :: Encode DeleteNamespacedIngressOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedIngressOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedIngressOptions :: Default DeleteNamespacedIngressOptions where
   default = DeleteNamespacedIngressOptions
@@ -132,9 +162,27 @@ derive instance newtypeListNamespacedIngressOptions :: Newtype ListNamespacedIng
 derive instance genericListNamespacedIngressOptions :: Generic ListNamespacedIngressOptions _
 instance showListNamespacedIngressOptions :: Show ListNamespacedIngressOptions where show a = genericShow a
 instance decodeListNamespacedIngressOptions :: Decode ListNamespacedIngressOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedIngressOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedIngressOptions :: Encode ListNamespacedIngressOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedIngressOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedIngressOptions :: Default ListNamespacedIngressOptions where
   default = ListNamespacedIngressOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedIngressOptions :: Newtype ReadNamespacedIng
 derive instance genericReadNamespacedIngressOptions :: Generic ReadNamespacedIngressOptions _
 instance showReadNamespacedIngressOptions :: Show ReadNamespacedIngressOptions where show a = genericShow a
 instance decodeReadNamespacedIngressOptions :: Decode ReadNamespacedIngressOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedIngressOptions { exact, export }
 instance encodeReadNamespacedIngressOptions :: Encode ReadNamespacedIngressOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedIngressOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedIngressOptions :: Default ReadNamespacedIngressOptions where
   default = ReadNamespacedIngressOptions

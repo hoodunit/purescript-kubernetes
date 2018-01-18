@@ -3,17 +3,20 @@ module Kubernetes.Api.AdmissionRegistrationV1Alpha1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -35,9 +38,15 @@ derive instance newtypeInitializer :: Newtype Initializer _
 derive instance genericInitializer :: Generic Initializer _
 instance showInitializer :: Show Initializer where show a = genericShow a
 instance decodeInitializer :: Decode Initializer where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               rules <- readProp "rules" a >>= decode
+               pure $ Initializer { name, rules }
 instance encodeInitializer :: Encode Initializer where
-  encode a = genericEncode jsonOptions a
+  encode (Initializer a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "rules" (encode a.rules) ]
+
 
 instance defaultInitializer :: Default Initializer where
   default = Initializer
@@ -61,9 +70,19 @@ derive instance newtypeInitializerConfiguration :: Newtype InitializerConfigurat
 derive instance genericInitializerConfiguration :: Generic InitializerConfiguration _
 instance showInitializerConfiguration :: Show InitializerConfiguration where show a = genericShow a
 instance decodeInitializerConfiguration :: Decode InitializerConfiguration where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               initializers <- readProp "initializers" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ InitializerConfiguration { apiVersion, initializers, kind, metadata }
 instance encodeInitializerConfiguration :: Encode InitializerConfiguration where
-  encode a = genericEncode jsonOptions a
+  encode (InitializerConfiguration a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "initializers" (encode a.initializers)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultInitializerConfiguration :: Default InitializerConfiguration where
   default = InitializerConfiguration
@@ -89,9 +108,19 @@ derive instance newtypeInitializerConfigurationList :: Newtype InitializerConfig
 derive instance genericInitializerConfigurationList :: Generic InitializerConfigurationList _
 instance showInitializerConfigurationList :: Show InitializerConfigurationList where show a = genericShow a
 instance decodeInitializerConfigurationList :: Decode InitializerConfigurationList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ InitializerConfigurationList { apiVersion, items, kind, metadata }
 instance encodeInitializerConfigurationList :: Encode InitializerConfigurationList where
-  encode a = genericEncode jsonOptions a
+  encode (InitializerConfigurationList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultInitializerConfigurationList :: Default InitializerConfigurationList where
   default = InitializerConfigurationList
@@ -121,9 +150,17 @@ derive instance newtypeRule :: Newtype Rule _
 derive instance genericRule :: Generic Rule _
 instance showRule :: Show Rule where show a = genericShow a
 instance decodeRule :: Decode Rule where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiGroups <- readProp "apiGroups" a >>= decode
+               apiVersions <- readProp "apiVersions" a >>= decode
+               resources <- readProp "resources" a >>= decode
+               pure $ Rule { apiGroups, apiVersions, resources }
 instance encodeRule :: Encode Rule where
-  encode a = genericEncode jsonOptions a
+  encode (Rule a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiGroups" (encode a.apiGroups)
+               , Tuple "apiVersions" (encode a.apiVersions)
+               , Tuple "resources" (encode a.resources) ]
+
 
 instance defaultRule :: Default Rule where
   default = Rule

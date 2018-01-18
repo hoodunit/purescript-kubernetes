@@ -122,12 +122,15 @@ sharedImports moduleNs moduleName deps =
   , "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
   , "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
   , "Data.Foreign.Generic.Types (Options)"
+  , "Data.Foreign.Index (readProp)"
   , "Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))"
   , "Data.Generic.Rep (class Generic)"
   , "Data.Generic.Rep.Show (genericShow)"
   , "Data.Maybe (Maybe(Just,Nothing))"
   , "Data.Newtype (class Newtype)"
   , "Data.StrMap (StrMap)"
+  , "Data.StrMap as StrMap"
+  , "Data.Tuple (Tuple(Tuple))"
   , "Kubernetes.Default (class Default)"
   , "Kubernetes.Json (jsonOptions)" ] <> depImports
   where

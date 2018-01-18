@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.ReplicationController where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedReplicationControllerOptions ::
 derive instance genericDeleteCollectionNamespacedReplicationControllerOptions :: Generic DeleteCollectionNamespacedReplicationControllerOptions _
 instance showDeleteCollectionNamespacedReplicationControllerOptions :: Show DeleteCollectionNamespacedReplicationControllerOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedReplicationControllerOptions :: Decode DeleteCollectionNamespacedReplicationControllerOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedReplicationControllerOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedReplicationControllerOptions :: Encode DeleteCollectionNamespacedReplicationControllerOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedReplicationControllerOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedReplicationControllerOptions :: Default DeleteCollectionNamespacedReplicationControllerOptions where
   default = DeleteCollectionNamespacedReplicationControllerOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedReplicationControllerOptions :: Newtype D
 derive instance genericDeleteNamespacedReplicationControllerOptions :: Generic DeleteNamespacedReplicationControllerOptions _
 instance showDeleteNamespacedReplicationControllerOptions :: Show DeleteNamespacedReplicationControllerOptions where show a = genericShow a
 instance decodeDeleteNamespacedReplicationControllerOptions :: Decode DeleteNamespacedReplicationControllerOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedReplicationControllerOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedReplicationControllerOptions :: Encode DeleteNamespacedReplicationControllerOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedReplicationControllerOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedReplicationControllerOptions :: Default DeleteNamespacedReplicationControllerOptions where
   default = DeleteNamespacedReplicationControllerOptions
@@ -126,9 +156,27 @@ derive instance newtypeListNamespacedReplicationControllerOptions :: Newtype Lis
 derive instance genericListNamespacedReplicationControllerOptions :: Generic ListNamespacedReplicationControllerOptions _
 instance showListNamespacedReplicationControllerOptions :: Show ListNamespacedReplicationControllerOptions where show a = genericShow a
 instance decodeListNamespacedReplicationControllerOptions :: Decode ListNamespacedReplicationControllerOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedReplicationControllerOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedReplicationControllerOptions :: Encode ListNamespacedReplicationControllerOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedReplicationControllerOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedReplicationControllerOptions :: Default ListNamespacedReplicationControllerOptions where
   default = ListNamespacedReplicationControllerOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedReplicationControllerOptions :: Newtype Rea
 derive instance genericReadNamespacedReplicationControllerOptions :: Generic ReadNamespacedReplicationControllerOptions _
 instance showReadNamespacedReplicationControllerOptions :: Show ReadNamespacedReplicationControllerOptions where show a = genericShow a
 instance decodeReadNamespacedReplicationControllerOptions :: Decode ReadNamespacedReplicationControllerOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedReplicationControllerOptions { exact, export }
 instance encodeReadNamespacedReplicationControllerOptions :: Encode ReadNamespacedReplicationControllerOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedReplicationControllerOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedReplicationControllerOptions :: Default ReadNamespacedReplicationControllerOptions where
   default = ReadNamespacedReplicationControllerOptions

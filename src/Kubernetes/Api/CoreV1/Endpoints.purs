@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.Endpoints where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedEndpointsOptions :: Newtype Del
 derive instance genericDeleteCollectionNamespacedEndpointsOptions :: Generic DeleteCollectionNamespacedEndpointsOptions _
 instance showDeleteCollectionNamespacedEndpointsOptions :: Show DeleteCollectionNamespacedEndpointsOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedEndpointsOptions :: Decode DeleteCollectionNamespacedEndpointsOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedEndpointsOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedEndpointsOptions :: Encode DeleteCollectionNamespacedEndpointsOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedEndpointsOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedEndpointsOptions :: Default DeleteCollectionNamespacedEndpointsOptions where
   default = DeleteCollectionNamespacedEndpointsOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedEndpointsOptions :: Newtype DeleteNamespa
 derive instance genericDeleteNamespacedEndpointsOptions :: Generic DeleteNamespacedEndpointsOptions _
 instance showDeleteNamespacedEndpointsOptions :: Show DeleteNamespacedEndpointsOptions where show a = genericShow a
 instance decodeDeleteNamespacedEndpointsOptions :: Decode DeleteNamespacedEndpointsOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedEndpointsOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedEndpointsOptions :: Encode DeleteNamespacedEndpointsOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedEndpointsOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedEndpointsOptions :: Default DeleteNamespacedEndpointsOptions where
   default = DeleteNamespacedEndpointsOptions
@@ -132,9 +162,27 @@ derive instance newtypeListNamespacedEndpointsOptions :: Newtype ListNamespacedE
 derive instance genericListNamespacedEndpointsOptions :: Generic ListNamespacedEndpointsOptions _
 instance showListNamespacedEndpointsOptions :: Show ListNamespacedEndpointsOptions where show a = genericShow a
 instance decodeListNamespacedEndpointsOptions :: Decode ListNamespacedEndpointsOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedEndpointsOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedEndpointsOptions :: Encode ListNamespacedEndpointsOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedEndpointsOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedEndpointsOptions :: Default ListNamespacedEndpointsOptions where
   default = ListNamespacedEndpointsOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedEndpointsOptions :: Newtype ReadNamespacedE
 derive instance genericReadNamespacedEndpointsOptions :: Generic ReadNamespacedEndpointsOptions _
 instance showReadNamespacedEndpointsOptions :: Show ReadNamespacedEndpointsOptions where show a = genericShow a
 instance decodeReadNamespacedEndpointsOptions :: Decode ReadNamespacedEndpointsOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedEndpointsOptions { exact, export }
 instance encodeReadNamespacedEndpointsOptions :: Encode ReadNamespacedEndpointsOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedEndpointsOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedEndpointsOptions :: Default ReadNamespacedEndpointsOptions where
   default = ReadNamespacedEndpointsOptions

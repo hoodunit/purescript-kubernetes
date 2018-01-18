@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.Secret where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedSecretOptions :: Newtype Delete
 derive instance genericDeleteCollectionNamespacedSecretOptions :: Generic DeleteCollectionNamespacedSecretOptions _
 instance showDeleteCollectionNamespacedSecretOptions :: Show DeleteCollectionNamespacedSecretOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedSecretOptions :: Decode DeleteCollectionNamespacedSecretOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedSecretOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedSecretOptions :: Encode DeleteCollectionNamespacedSecretOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedSecretOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedSecretOptions :: Default DeleteCollectionNamespacedSecretOptions where
   default = DeleteCollectionNamespacedSecretOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedSecretOptions :: Newtype DeleteNamespaced
 derive instance genericDeleteNamespacedSecretOptions :: Generic DeleteNamespacedSecretOptions _
 instance showDeleteNamespacedSecretOptions :: Show DeleteNamespacedSecretOptions where show a = genericShow a
 instance decodeDeleteNamespacedSecretOptions :: Decode DeleteNamespacedSecretOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedSecretOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedSecretOptions :: Encode DeleteNamespacedSecretOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedSecretOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedSecretOptions :: Default DeleteNamespacedSecretOptions where
   default = DeleteNamespacedSecretOptions
@@ -126,9 +156,27 @@ derive instance newtypeListNamespacedSecretOptions :: Newtype ListNamespacedSecr
 derive instance genericListNamespacedSecretOptions :: Generic ListNamespacedSecretOptions _
 instance showListNamespacedSecretOptions :: Show ListNamespacedSecretOptions where show a = genericShow a
 instance decodeListNamespacedSecretOptions :: Decode ListNamespacedSecretOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedSecretOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedSecretOptions :: Encode ListNamespacedSecretOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedSecretOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedSecretOptions :: Default ListNamespacedSecretOptions where
   default = ListNamespacedSecretOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedSecretOptions :: Newtype ReadNamespacedSecr
 derive instance genericReadNamespacedSecretOptions :: Generic ReadNamespacedSecretOptions _
 instance showReadNamespacedSecretOptions :: Show ReadNamespacedSecretOptions where show a = genericShow a
 instance decodeReadNamespacedSecretOptions :: Decode ReadNamespacedSecretOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedSecretOptions { exact, export }
 instance encodeReadNamespacedSecretOptions :: Encode ReadNamespacedSecretOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedSecretOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedSecretOptions :: Default ReadNamespacedSecretOptions where
   default = ReadNamespacedSecretOptions

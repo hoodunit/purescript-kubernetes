@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.LimitRange where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedLimitRangeOptions :: Newtype De
 derive instance genericDeleteCollectionNamespacedLimitRangeOptions :: Generic DeleteCollectionNamespacedLimitRangeOptions _
 instance showDeleteCollectionNamespacedLimitRangeOptions :: Show DeleteCollectionNamespacedLimitRangeOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedLimitRangeOptions :: Decode DeleteCollectionNamespacedLimitRangeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedLimitRangeOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedLimitRangeOptions :: Encode DeleteCollectionNamespacedLimitRangeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedLimitRangeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedLimitRangeOptions :: Default DeleteCollectionNamespacedLimitRangeOptions where
   default = DeleteCollectionNamespacedLimitRangeOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedLimitRangeOptions :: Newtype DeleteNamesp
 derive instance genericDeleteNamespacedLimitRangeOptions :: Generic DeleteNamespacedLimitRangeOptions _
 instance showDeleteNamespacedLimitRangeOptions :: Show DeleteNamespacedLimitRangeOptions where show a = genericShow a
 instance decodeDeleteNamespacedLimitRangeOptions :: Decode DeleteNamespacedLimitRangeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedLimitRangeOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedLimitRangeOptions :: Encode DeleteNamespacedLimitRangeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedLimitRangeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedLimitRangeOptions :: Default DeleteNamespacedLimitRangeOptions where
   default = DeleteNamespacedLimitRangeOptions
@@ -132,9 +162,27 @@ derive instance newtypeListNamespacedLimitRangeOptions :: Newtype ListNamespaced
 derive instance genericListNamespacedLimitRangeOptions :: Generic ListNamespacedLimitRangeOptions _
 instance showListNamespacedLimitRangeOptions :: Show ListNamespacedLimitRangeOptions where show a = genericShow a
 instance decodeListNamespacedLimitRangeOptions :: Decode ListNamespacedLimitRangeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedLimitRangeOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedLimitRangeOptions :: Encode ListNamespacedLimitRangeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedLimitRangeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedLimitRangeOptions :: Default ListNamespacedLimitRangeOptions where
   default = ListNamespacedLimitRangeOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedLimitRangeOptions :: Newtype ReadNamespaced
 derive instance genericReadNamespacedLimitRangeOptions :: Generic ReadNamespacedLimitRangeOptions _
 instance showReadNamespacedLimitRangeOptions :: Show ReadNamespacedLimitRangeOptions where show a = genericShow a
 instance decodeReadNamespacedLimitRangeOptions :: Decode ReadNamespacedLimitRangeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedLimitRangeOptions { exact, export }
 instance encodeReadNamespacedLimitRangeOptions :: Encode ReadNamespacedLimitRangeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedLimitRangeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedLimitRangeOptions :: Default ReadNamespacedLimitRangeOptions where
   default = ReadNamespacedLimitRangeOptions

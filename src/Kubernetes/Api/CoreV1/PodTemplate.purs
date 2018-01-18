@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.PodTemplate where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedPodTemplateOptions :: Newtype D
 derive instance genericDeleteCollectionNamespacedPodTemplateOptions :: Generic DeleteCollectionNamespacedPodTemplateOptions _
 instance showDeleteCollectionNamespacedPodTemplateOptions :: Show DeleteCollectionNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedPodTemplateOptions :: Decode DeleteCollectionNamespacedPodTemplateOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedPodTemplateOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedPodTemplateOptions :: Encode DeleteCollectionNamespacedPodTemplateOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedPodTemplateOptions :: Default DeleteCollectionNamespacedPodTemplateOptions where
   default = DeleteCollectionNamespacedPodTemplateOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedPodTemplateOptions :: Newtype DeleteNames
 derive instance genericDeleteNamespacedPodTemplateOptions :: Generic DeleteNamespacedPodTemplateOptions _
 instance showDeleteNamespacedPodTemplateOptions :: Show DeleteNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeDeleteNamespacedPodTemplateOptions :: Decode DeleteNamespacedPodTemplateOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedPodTemplateOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedPodTemplateOptions :: Encode DeleteNamespacedPodTemplateOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedPodTemplateOptions :: Default DeleteNamespacedPodTemplateOptions where
   default = DeleteNamespacedPodTemplateOptions
@@ -126,9 +156,27 @@ derive instance newtypeListNamespacedPodTemplateOptions :: Newtype ListNamespace
 derive instance genericListNamespacedPodTemplateOptions :: Generic ListNamespacedPodTemplateOptions _
 instance showListNamespacedPodTemplateOptions :: Show ListNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeListNamespacedPodTemplateOptions :: Decode ListNamespacedPodTemplateOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedPodTemplateOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedPodTemplateOptions :: Encode ListNamespacedPodTemplateOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedPodTemplateOptions :: Default ListNamespacedPodTemplateOptions where
   default = ListNamespacedPodTemplateOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedPodTemplateOptions :: Newtype ReadNamespace
 derive instance genericReadNamespacedPodTemplateOptions :: Generic ReadNamespacedPodTemplateOptions _
 instance showReadNamespacedPodTemplateOptions :: Show ReadNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeReadNamespacedPodTemplateOptions :: Decode ReadNamespacedPodTemplateOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedPodTemplateOptions { exact, export }
 instance encodeReadNamespacedPodTemplateOptions :: Encode ReadNamespacedPodTemplateOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedPodTemplateOptions :: Default ReadNamespacedPodTemplateOptions where
   default = ReadNamespacedPodTemplateOptions

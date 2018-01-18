@@ -35,7 +35,7 @@ emitDeclaration (NewtypeDecl (ObjectType {qualifiedName, description, fields})) 
     "  { " <> fieldDecls <>
     " }" <>
     "\n\n" <> deriveNewtype name <>
-    "\n" <> genericTypeClassBoilerplate name <>
+    "\n" <> typeClassBoilerplate name fieldNames <>
     "\n\n" <> defaultInstance name fieldNames
   where
     docs = objectDocs description fields
@@ -169,6 +169,35 @@ formatDescription (Just d) = "-- | " <> fixNewlines d <> "\n"
 
 deriveNewtype :: String -> String
 deriveNewtype name = "derive instance newtype" <> name <> " :: Newtype " <> name <> " _"
+
+typeClassBoilerplate :: String -> Array String -> String
+typeClassBoilerplate name fieldNames = 
+  "derive instance generic" <> name <> " :: Generic " <> name <> " _" <> "\n" <>
+  "instance show" <> name <> " :: Show " <> name <> " where show a = genericShow a" <> "\n" <>
+  decodeInstance name fieldNames <>
+  encodeInstance name fieldNames
+  
+decodeInstance :: String -> Array String -> String
+decodeInstance name fieldNames = 
+  "instance decode" <> name <> " :: Decode " <> name <> " where\n" <>
+  "  decode a = do" <> decodeFields <> "\n" <>
+  "               pure $ " <> name <> " { " <> fields <> " }\n"
+  where
+    fieldPrefix = "\n               "
+    decodeFields = fieldPrefix <> (String.joinWith fieldPrefix $ decodeField <$> fieldNames)
+    fields = String.joinWith ", " fieldNames
+    decodeField f = f <> " <- readProp \"" <> f <> "\" a >>= decode"
+  
+encodeInstance :: String -> Array String -> String
+encodeInstance name fieldNames = 
+  "instance encode" <> name <> " :: Encode " <> name <> " where\n" <>
+  "  encode (" <> name <> " a) = encode $ StrMap.fromFoldable $\n" <>
+  "               [ " <> encodeFields fieldNames <> " ]\n"
+  where
+    fieldSep = "\n               , "
+    encodeFields = String.joinWith fieldSep <<< map encodeField
+    fields = String.joinWith ", " fieldNames
+    encodeField f = "Tuple \"" <> f <> "\" (encode a." <> f <> ")"
 
 genericTypeClassBoilerplate :: String -> String
 genericTypeClassBoilerplate name = 

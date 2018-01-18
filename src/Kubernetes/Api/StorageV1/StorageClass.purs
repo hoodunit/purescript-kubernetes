@@ -3,13 +3,17 @@ module Kubernetes.Api.StorageV1.StorageClass where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionStorageClassOptions :: Newtype DeleteColl
 derive instance genericDeleteCollectionStorageClassOptions :: Generic DeleteCollectionStorageClassOptions _
 instance showDeleteCollectionStorageClassOptions :: Show DeleteCollectionStorageClassOptions where show a = genericShow a
 instance decodeDeleteCollectionStorageClassOptions :: Decode DeleteCollectionStorageClassOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionStorageClassOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionStorageClassOptions :: Encode DeleteCollectionStorageClassOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionStorageClassOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionStorageClassOptions :: Default DeleteCollectionStorageClassOptions where
   default = DeleteCollectionStorageClassOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteStorageClassOptions :: Newtype DeleteStorageClassOp
 derive instance genericDeleteStorageClassOptions :: Generic DeleteStorageClassOptions _
 instance showDeleteStorageClassOptions :: Show DeleteStorageClassOptions where show a = genericShow a
 instance decodeDeleteStorageClassOptions :: Decode DeleteStorageClassOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteStorageClassOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteStorageClassOptions :: Encode DeleteStorageClassOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteStorageClassOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteStorageClassOptions :: Default DeleteStorageClassOptions where
   default = DeleteStorageClassOptions
@@ -126,9 +156,27 @@ derive instance newtypeListStorageClassOptions :: Newtype ListStorageClassOption
 derive instance genericListStorageClassOptions :: Generic ListStorageClassOptions _
 instance showListStorageClassOptions :: Show ListStorageClassOptions where show a = genericShow a
 instance decodeListStorageClassOptions :: Decode ListStorageClassOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListStorageClassOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListStorageClassOptions :: Encode ListStorageClassOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListStorageClassOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListStorageClassOptions :: Default ListStorageClassOptions where
   default = ListStorageClassOptions
@@ -158,9 +206,15 @@ derive instance newtypeReadStorageClassOptions :: Newtype ReadStorageClassOption
 derive instance genericReadStorageClassOptions :: Generic ReadStorageClassOptions _
 instance showReadStorageClassOptions :: Show ReadStorageClassOptions where show a = genericShow a
 instance decodeReadStorageClassOptions :: Decode ReadStorageClassOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadStorageClassOptions { exact, export }
 instance encodeReadStorageClassOptions :: Encode ReadStorageClassOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadStorageClassOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadStorageClassOptions :: Default ReadStorageClassOptions where
   default = ReadStorageClassOptions

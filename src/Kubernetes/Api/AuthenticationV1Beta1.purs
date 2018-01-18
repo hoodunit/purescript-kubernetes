@@ -3,17 +3,20 @@ module Kubernetes.Api.AuthenticationV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -41,9 +44,21 @@ derive instance newtypeTokenReview :: Newtype TokenReview _
 derive instance genericTokenReview :: Generic TokenReview _
 instance showTokenReview :: Show TokenReview where show a = genericShow a
 instance decodeTokenReview :: Decode TokenReview where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               spec <- readProp "spec" a >>= decode
+               status <- readProp "status" a >>= decode
+               pure $ TokenReview { apiVersion, kind, metadata, spec, status }
 instance encodeTokenReview :: Encode TokenReview where
-  encode a = genericEncode jsonOptions a
+  encode (TokenReview a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "spec" (encode a.spec)
+               , Tuple "status" (encode a.status) ]
+
 
 instance defaultTokenReview :: Default TokenReview where
   default = TokenReview
@@ -64,9 +79,13 @@ derive instance newtypeTokenReviewSpec :: Newtype TokenReviewSpec _
 derive instance genericTokenReviewSpec :: Generic TokenReviewSpec _
 instance showTokenReviewSpec :: Show TokenReviewSpec where show a = genericShow a
 instance decodeTokenReviewSpec :: Decode TokenReviewSpec where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               token <- readProp "token" a >>= decode
+               pure $ TokenReviewSpec { token }
 instance encodeTokenReviewSpec :: Encode TokenReviewSpec where
-  encode a = genericEncode jsonOptions a
+  encode (TokenReviewSpec a) = encode $ StrMap.fromFoldable $
+               [ Tuple "token" (encode a.token) ]
+
 
 instance defaultTokenReviewSpec :: Default TokenReviewSpec where
   default = TokenReviewSpec
@@ -87,9 +106,17 @@ derive instance newtypeTokenReviewStatus :: Newtype TokenReviewStatus _
 derive instance genericTokenReviewStatus :: Generic TokenReviewStatus _
 instance showTokenReviewStatus :: Show TokenReviewStatus where show a = genericShow a
 instance decodeTokenReviewStatus :: Decode TokenReviewStatus where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               authenticated <- readProp "authenticated" a >>= decode
+               error <- readProp "error" a >>= decode
+               user <- readProp "user" a >>= decode
+               pure $ TokenReviewStatus { authenticated, error, user }
 instance encodeTokenReviewStatus :: Encode TokenReviewStatus where
-  encode a = genericEncode jsonOptions a
+  encode (TokenReviewStatus a) = encode $ StrMap.fromFoldable $
+               [ Tuple "authenticated" (encode a.authenticated)
+               , Tuple "error" (encode a.error)
+               , Tuple "user" (encode a.user) ]
+
 
 instance defaultTokenReviewStatus :: Default TokenReviewStatus where
   default = TokenReviewStatus
@@ -114,9 +141,19 @@ derive instance newtypeUserInfo :: Newtype UserInfo _
 derive instance genericUserInfo :: Generic UserInfo _
 instance showUserInfo :: Show UserInfo where show a = genericShow a
 instance decodeUserInfo :: Decode UserInfo where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               extra <- readProp "extra" a >>= decode
+               groups <- readProp "groups" a >>= decode
+               uid <- readProp "uid" a >>= decode
+               username <- readProp "username" a >>= decode
+               pure $ UserInfo { extra, groups, uid, username }
 instance encodeUserInfo :: Encode UserInfo where
-  encode a = genericEncode jsonOptions a
+  encode (UserInfo a) = encode $ StrMap.fromFoldable $
+               [ Tuple "extra" (encode a.extra)
+               , Tuple "groups" (encode a.groups)
+               , Tuple "uid" (encode a.uid)
+               , Tuple "username" (encode a.username) ]
+
 
 instance defaultUserInfo :: Default UserInfo where
   default = UserInfo

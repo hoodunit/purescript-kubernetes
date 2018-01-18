@@ -3,13 +3,17 @@ module Kubernetes.Api.AdmissionRegistrationV1Beta1.MutatingWebhookConfiguration 
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionMutatingWebhookConfigurationOptions :: Ne
 derive instance genericDeleteCollectionMutatingWebhookConfigurationOptions :: Generic DeleteCollectionMutatingWebhookConfigurationOptions _
 instance showDeleteCollectionMutatingWebhookConfigurationOptions :: Show DeleteCollectionMutatingWebhookConfigurationOptions where show a = genericShow a
 instance decodeDeleteCollectionMutatingWebhookConfigurationOptions :: Decode DeleteCollectionMutatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionMutatingWebhookConfigurationOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionMutatingWebhookConfigurationOptions :: Encode DeleteCollectionMutatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionMutatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionMutatingWebhookConfigurationOptions :: Default DeleteCollectionMutatingWebhookConfigurationOptions where
   default = DeleteCollectionMutatingWebhookConfigurationOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteMutatingWebhookConfigurationOptions :: Newtype Dele
 derive instance genericDeleteMutatingWebhookConfigurationOptions :: Generic DeleteMutatingWebhookConfigurationOptions _
 instance showDeleteMutatingWebhookConfigurationOptions :: Show DeleteMutatingWebhookConfigurationOptions where show a = genericShow a
 instance decodeDeleteMutatingWebhookConfigurationOptions :: Decode DeleteMutatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteMutatingWebhookConfigurationOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteMutatingWebhookConfigurationOptions :: Encode DeleteMutatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteMutatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteMutatingWebhookConfigurationOptions :: Default DeleteMutatingWebhookConfigurationOptions where
   default = DeleteMutatingWebhookConfigurationOptions
@@ -126,9 +156,27 @@ derive instance newtypeListMutatingWebhookConfigurationOptions :: Newtype ListMu
 derive instance genericListMutatingWebhookConfigurationOptions :: Generic ListMutatingWebhookConfigurationOptions _
 instance showListMutatingWebhookConfigurationOptions :: Show ListMutatingWebhookConfigurationOptions where show a = genericShow a
 instance decodeListMutatingWebhookConfigurationOptions :: Decode ListMutatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListMutatingWebhookConfigurationOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListMutatingWebhookConfigurationOptions :: Encode ListMutatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListMutatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListMutatingWebhookConfigurationOptions :: Default ListMutatingWebhookConfigurationOptions where
   default = ListMutatingWebhookConfigurationOptions
@@ -158,9 +206,15 @@ derive instance newtypeReadMutatingWebhookConfigurationOptions :: Newtype ReadMu
 derive instance genericReadMutatingWebhookConfigurationOptions :: Generic ReadMutatingWebhookConfigurationOptions _
 instance showReadMutatingWebhookConfigurationOptions :: Show ReadMutatingWebhookConfigurationOptions where show a = genericShow a
 instance decodeReadMutatingWebhookConfigurationOptions :: Decode ReadMutatingWebhookConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadMutatingWebhookConfigurationOptions { exact, export }
 instance encodeReadMutatingWebhookConfigurationOptions :: Encode ReadMutatingWebhookConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadMutatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadMutatingWebhookConfigurationOptions :: Default ReadMutatingWebhookConfigurationOptions where
   default = ReadMutatingWebhookConfigurationOptions

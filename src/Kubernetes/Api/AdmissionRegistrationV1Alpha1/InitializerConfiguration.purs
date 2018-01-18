@@ -3,13 +3,17 @@ module Kubernetes.Api.AdmissionRegistrationV1Alpha1.InitializerConfiguration whe
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionInitializerConfigurationOptions :: Newtyp
 derive instance genericDeleteCollectionInitializerConfigurationOptions :: Generic DeleteCollectionInitializerConfigurationOptions _
 instance showDeleteCollectionInitializerConfigurationOptions :: Show DeleteCollectionInitializerConfigurationOptions where show a = genericShow a
 instance decodeDeleteCollectionInitializerConfigurationOptions :: Decode DeleteCollectionInitializerConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionInitializerConfigurationOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionInitializerConfigurationOptions :: Encode DeleteCollectionInitializerConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionInitializerConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionInitializerConfigurationOptions :: Default DeleteCollectionInitializerConfigurationOptions where
   default = DeleteCollectionInitializerConfigurationOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteInitializerConfigurationOptions :: Newtype DeleteIn
 derive instance genericDeleteInitializerConfigurationOptions :: Generic DeleteInitializerConfigurationOptions _
 instance showDeleteInitializerConfigurationOptions :: Show DeleteInitializerConfigurationOptions where show a = genericShow a
 instance decodeDeleteInitializerConfigurationOptions :: Decode DeleteInitializerConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteInitializerConfigurationOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteInitializerConfigurationOptions :: Encode DeleteInitializerConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteInitializerConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteInitializerConfigurationOptions :: Default DeleteInitializerConfigurationOptions where
   default = DeleteInitializerConfigurationOptions
@@ -126,9 +156,27 @@ derive instance newtypeListInitializerConfigurationOptions :: Newtype ListInitia
 derive instance genericListInitializerConfigurationOptions :: Generic ListInitializerConfigurationOptions _
 instance showListInitializerConfigurationOptions :: Show ListInitializerConfigurationOptions where show a = genericShow a
 instance decodeListInitializerConfigurationOptions :: Decode ListInitializerConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListInitializerConfigurationOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListInitializerConfigurationOptions :: Encode ListInitializerConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListInitializerConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListInitializerConfigurationOptions :: Default ListInitializerConfigurationOptions where
   default = ListInitializerConfigurationOptions
@@ -158,9 +206,15 @@ derive instance newtypeReadInitializerConfigurationOptions :: Newtype ReadInitia
 derive instance genericReadInitializerConfigurationOptions :: Generic ReadInitializerConfigurationOptions _
 instance showReadInitializerConfigurationOptions :: Show ReadInitializerConfigurationOptions where show a = genericShow a
 instance decodeReadInitializerConfigurationOptions :: Decode ReadInitializerConfigurationOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadInitializerConfigurationOptions { exact, export }
 instance encodeReadInitializerConfigurationOptions :: Encode ReadInitializerConfigurationOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadInitializerConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadInitializerConfigurationOptions :: Default ReadInitializerConfigurationOptions where
   default = ReadInitializerConfigurationOptions

@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.ResourceQuota where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -50,9 +54,27 @@ derive instance newtypeDeleteCollectionNamespacedResourceQuotaOptions :: Newtype
 derive instance genericDeleteCollectionNamespacedResourceQuotaOptions :: Generic DeleteCollectionNamespacedResourceQuotaOptions _
 instance showDeleteCollectionNamespacedResourceQuotaOptions :: Show DeleteCollectionNamespacedResourceQuotaOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedResourceQuotaOptions :: Decode DeleteCollectionNamespacedResourceQuotaOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNamespacedResourceQuotaOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedResourceQuotaOptions :: Encode DeleteCollectionNamespacedResourceQuotaOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNamespacedResourceQuotaOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNamespacedResourceQuotaOptions :: Default DeleteCollectionNamespacedResourceQuotaOptions where
   default = DeleteCollectionNamespacedResourceQuotaOptions
@@ -84,9 +106,17 @@ derive instance newtypeDeleteNamespacedResourceQuotaOptions :: Newtype DeleteNam
 derive instance genericDeleteNamespacedResourceQuotaOptions :: Generic DeleteNamespacedResourceQuotaOptions _
 instance showDeleteNamespacedResourceQuotaOptions :: Show DeleteNamespacedResourceQuotaOptions where show a = genericShow a
 instance decodeDeleteNamespacedResourceQuotaOptions :: Decode DeleteNamespacedResourceQuotaOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNamespacedResourceQuotaOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedResourceQuotaOptions :: Encode DeleteNamespacedResourceQuotaOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNamespacedResourceQuotaOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNamespacedResourceQuotaOptions :: Default DeleteNamespacedResourceQuotaOptions where
   default = DeleteNamespacedResourceQuotaOptions
@@ -126,9 +156,27 @@ derive instance newtypeListNamespacedResourceQuotaOptions :: Newtype ListNamespa
 derive instance genericListNamespacedResourceQuotaOptions :: Generic ListNamespacedResourceQuotaOptions _
 instance showListNamespacedResourceQuotaOptions :: Show ListNamespacedResourceQuotaOptions where show a = genericShow a
 instance decodeListNamespacedResourceQuotaOptions :: Decode ListNamespacedResourceQuotaOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNamespacedResourceQuotaOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedResourceQuotaOptions :: Encode ListNamespacedResourceQuotaOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNamespacedResourceQuotaOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNamespacedResourceQuotaOptions :: Default ListNamespacedResourceQuotaOptions where
   default = ListNamespacedResourceQuotaOptions
@@ -164,9 +212,15 @@ derive instance newtypeReadNamespacedResourceQuotaOptions :: Newtype ReadNamespa
 derive instance genericReadNamespacedResourceQuotaOptions :: Generic ReadNamespacedResourceQuotaOptions _
 instance showReadNamespacedResourceQuotaOptions :: Show ReadNamespacedResourceQuotaOptions where show a = genericShow a
 instance decodeReadNamespacedResourceQuotaOptions :: Decode ReadNamespacedResourceQuotaOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNamespacedResourceQuotaOptions { exact, export }
 instance encodeReadNamespacedResourceQuotaOptions :: Encode ReadNamespacedResourceQuotaOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNamespacedResourceQuotaOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNamespacedResourceQuotaOptions :: Default ReadNamespacedResourceQuotaOptions where
   default = ReadNamespacedResourceQuotaOptions

@@ -3,13 +3,17 @@ module Kubernetes.Api.CoreV1.Node where
 import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
+import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -122,9 +126,27 @@ derive instance newtypeDeleteCollectionNodeOptions :: Newtype DeleteCollectionNo
 derive instance genericDeleteCollectionNodeOptions :: Generic DeleteCollectionNodeOptions _
 instance showDeleteCollectionNodeOptions :: Show DeleteCollectionNodeOptions where show a = genericShow a
 instance decodeDeleteCollectionNodeOptions :: Decode DeleteCollectionNodeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ DeleteCollectionNodeOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNodeOptions :: Encode DeleteCollectionNodeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteCollectionNodeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultDeleteCollectionNodeOptions :: Default DeleteCollectionNodeOptions where
   default = DeleteCollectionNodeOptions
@@ -156,9 +178,17 @@ derive instance newtypeDeleteNodeOptions :: Newtype DeleteNodeOptions _
 derive instance genericDeleteNodeOptions :: Generic DeleteNodeOptions _
 instance showDeleteNodeOptions :: Show DeleteNodeOptions where show a = genericShow a
 instance decodeDeleteNodeOptions :: Decode DeleteNodeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
+               orphanDependents <- readProp "orphanDependents" a >>= decode
+               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               pure $ DeleteNodeOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNodeOptions :: Encode DeleteNodeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (DeleteNodeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encode a.orphanDependents)
+               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+
 
 instance defaultDeleteNodeOptions :: Default DeleteNodeOptions where
   default = DeleteNodeOptions
@@ -198,9 +228,27 @@ derive instance newtypeListNodeOptions :: Newtype ListNodeOptions _
 derive instance genericListNodeOptions :: Generic ListNodeOptions _
 instance showListNodeOptions :: Show ListNodeOptions where show a = genericShow a
 instance decodeListNodeOptions :: Decode ListNodeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               continue <- readProp "continue" a >>= decode
+               fieldSelector <- readProp "fieldSelector" a >>= decode
+               includeUninitialized <- readProp "includeUninitialized" a >>= decode
+               labelSelector <- readProp "labelSelector" a >>= decode
+               limit <- readProp "limit" a >>= decode
+               resourceVersion <- readProp "resourceVersion" a >>= decode
+               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               watch <- readProp "watch" a >>= decode
+               pure $ ListNodeOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNodeOptions :: Encode ListNodeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ListNodeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "continue" (encode a.continue)
+               , Tuple "fieldSelector" (encode a.fieldSelector)
+               , Tuple "includeUninitialized" (encode a.includeUninitialized)
+               , Tuple "labelSelector" (encode a.labelSelector)
+               , Tuple "limit" (encode a.limit)
+               , Tuple "resourceVersion" (encode a.resourceVersion)
+               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
+               , Tuple "watch" (encode a.watch) ]
+
 
 instance defaultListNodeOptions :: Default ListNodeOptions where
   default = ListNodeOptions
@@ -302,9 +350,15 @@ derive instance newtypeReadNodeOptions :: Newtype ReadNodeOptions _
 derive instance genericReadNodeOptions :: Generic ReadNodeOptions _
 instance showReadNodeOptions :: Show ReadNodeOptions where show a = genericShow a
 instance decodeReadNodeOptions :: Decode ReadNodeOptions where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               exact <- readProp "exact" a >>= decode
+               export <- readProp "export" a >>= decode
+               pure $ ReadNodeOptions { exact, export }
 instance encodeReadNodeOptions :: Encode ReadNodeOptions where
-  encode a = genericEncode jsonOptions a
+  encode (ReadNodeOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "exact" (encode a.exact)
+               , Tuple "export" (encode a.export) ]
+
 
 instance defaultReadNodeOptions :: Default ReadNodeOptions where
   default = ReadNodeOptions

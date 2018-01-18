@@ -3,17 +3,20 @@ module Kubernetes.Api.AdmissionRegistrationV1Beta1 where
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode)
 import Data.Foreign.Class (class Decode, class Encode, decode, encode)
+import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
+import Data.Foreign.Index (readProp)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
+import Data.StrMap as StrMap
+import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
@@ -39,9 +42,19 @@ derive instance newtypeMutatingWebhookConfiguration :: Newtype MutatingWebhookCo
 derive instance genericMutatingWebhookConfiguration :: Generic MutatingWebhookConfiguration _
 instance showMutatingWebhookConfiguration :: Show MutatingWebhookConfiguration where show a = genericShow a
 instance decodeMutatingWebhookConfiguration :: Decode MutatingWebhookConfiguration where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               webhooks <- readProp "webhooks" a >>= decode
+               pure $ MutatingWebhookConfiguration { apiVersion, kind, metadata, webhooks }
 instance encodeMutatingWebhookConfiguration :: Encode MutatingWebhookConfiguration where
-  encode a = genericEncode jsonOptions a
+  encode (MutatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "webhooks" (encode a.webhooks) ]
+
 
 instance defaultMutatingWebhookConfiguration :: Default MutatingWebhookConfiguration where
   default = MutatingWebhookConfiguration
@@ -67,9 +80,19 @@ derive instance newtypeMutatingWebhookConfigurationList :: Newtype MutatingWebho
 derive instance genericMutatingWebhookConfigurationList :: Generic MutatingWebhookConfigurationList _
 instance showMutatingWebhookConfigurationList :: Show MutatingWebhookConfigurationList where show a = genericShow a
 instance decodeMutatingWebhookConfigurationList :: Decode MutatingWebhookConfigurationList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ MutatingWebhookConfigurationList { apiVersion, items, kind, metadata }
 instance encodeMutatingWebhookConfigurationList :: Encode MutatingWebhookConfigurationList where
-  encode a = genericEncode jsonOptions a
+  encode (MutatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultMutatingWebhookConfigurationList :: Default MutatingWebhookConfigurationList where
   default = MutatingWebhookConfigurationList
@@ -101,9 +124,19 @@ derive instance newtypeRuleWithOperations :: Newtype RuleWithOperations _
 derive instance genericRuleWithOperations :: Generic RuleWithOperations _
 instance showRuleWithOperations :: Show RuleWithOperations where show a = genericShow a
 instance decodeRuleWithOperations :: Decode RuleWithOperations where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiGroups <- readProp "apiGroups" a >>= decode
+               apiVersions <- readProp "apiVersions" a >>= decode
+               operations <- readProp "operations" a >>= decode
+               resources <- readProp "resources" a >>= decode
+               pure $ RuleWithOperations { apiGroups, apiVersions, operations, resources }
 instance encodeRuleWithOperations :: Encode RuleWithOperations where
-  encode a = genericEncode jsonOptions a
+  encode (RuleWithOperations a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiGroups" (encode a.apiGroups)
+               , Tuple "apiVersions" (encode a.apiVersions)
+               , Tuple "operations" (encode a.operations)
+               , Tuple "resources" (encode a.resources) ]
+
 
 instance defaultRuleWithOperations :: Default RuleWithOperations where
   default = RuleWithOperations
@@ -127,9 +160,17 @@ derive instance newtypeServiceReference :: Newtype ServiceReference _
 derive instance genericServiceReference :: Generic ServiceReference _
 instance showServiceReference :: Show ServiceReference where show a = genericShow a
 instance decodeServiceReference :: Decode ServiceReference where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               name <- readProp "name" a >>= decode
+               namespace <- readProp "namespace" a >>= decode
+               path <- readProp "path" a >>= decode
+               pure $ ServiceReference { name, namespace, path }
 instance encodeServiceReference :: Encode ServiceReference where
-  encode a = genericEncode jsonOptions a
+  encode (ServiceReference a) = encode $ StrMap.fromFoldable $
+               [ Tuple "name" (encode a.name)
+               , Tuple "namespace" (encode a.namespace)
+               , Tuple "path" (encode a.path) ]
+
 
 instance defaultServiceReference :: Default ServiceReference where
   default = ServiceReference
@@ -154,9 +195,19 @@ derive instance newtypeValidatingWebhookConfiguration :: Newtype ValidatingWebho
 derive instance genericValidatingWebhookConfiguration :: Generic ValidatingWebhookConfiguration _
 instance showValidatingWebhookConfiguration :: Show ValidatingWebhookConfiguration where show a = genericShow a
 instance decodeValidatingWebhookConfiguration :: Decode ValidatingWebhookConfiguration where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               webhooks <- readProp "webhooks" a >>= decode
+               pure $ ValidatingWebhookConfiguration { apiVersion, kind, metadata, webhooks }
 instance encodeValidatingWebhookConfiguration :: Encode ValidatingWebhookConfiguration where
-  encode a = genericEncode jsonOptions a
+  encode (ValidatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata)
+               , Tuple "webhooks" (encode a.webhooks) ]
+
 
 instance defaultValidatingWebhookConfiguration :: Default ValidatingWebhookConfiguration where
   default = ValidatingWebhookConfiguration
@@ -182,9 +233,19 @@ derive instance newtypeValidatingWebhookConfigurationList :: Newtype ValidatingW
 derive instance genericValidatingWebhookConfigurationList :: Generic ValidatingWebhookConfigurationList _
 instance showValidatingWebhookConfigurationList :: Show ValidatingWebhookConfigurationList where show a = genericShow a
 instance decodeValidatingWebhookConfigurationList :: Decode ValidatingWebhookConfigurationList where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               apiVersion <- readProp "apiVersion" a >>= decode
+               items <- readProp "items" a >>= decode
+               kind <- readProp "kind" a >>= decode
+               metadata <- readProp "metadata" a >>= decode
+               pure $ ValidatingWebhookConfigurationList { apiVersion, items, kind, metadata }
 instance encodeValidatingWebhookConfigurationList :: Encode ValidatingWebhookConfigurationList where
-  encode a = genericEncode jsonOptions a
+  encode (ValidatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
+               [ Tuple "apiVersion" (encode a.apiVersion)
+               , Tuple "items" (encode a.items)
+               , Tuple "kind" (encode a.kind)
+               , Tuple "metadata" (encode a.metadata) ]
+
 
 instance defaultValidatingWebhookConfigurationList :: Default ValidatingWebhookConfigurationList where
   default = ValidatingWebhookConfigurationList
@@ -242,9 +303,21 @@ derive instance newtypeWebhook :: Newtype Webhook _
 derive instance genericWebhook :: Generic Webhook _
 instance showWebhook :: Show Webhook where show a = genericShow a
 instance decodeWebhook :: Decode Webhook where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               clientConfig <- readProp "clientConfig" a >>= decode
+               failurePolicy <- readProp "failurePolicy" a >>= decode
+               name <- readProp "name" a >>= decode
+               namespaceSelector <- readProp "namespaceSelector" a >>= decode
+               rules <- readProp "rules" a >>= decode
+               pure $ Webhook { clientConfig, failurePolicy, name, namespaceSelector, rules }
 instance encodeWebhook :: Encode Webhook where
-  encode a = genericEncode jsonOptions a
+  encode (Webhook a) = encode $ StrMap.fromFoldable $
+               [ Tuple "clientConfig" (encode a.clientConfig)
+               , Tuple "failurePolicy" (encode a.failurePolicy)
+               , Tuple "name" (encode a.name)
+               , Tuple "namespaceSelector" (encode a.namespaceSelector)
+               , Tuple "rules" (encode a.rules) ]
+
 
 instance defaultWebhook :: Default Webhook where
   default = Webhook
@@ -283,9 +356,17 @@ derive instance newtypeWebhookClientConfig :: Newtype WebhookClientConfig _
 derive instance genericWebhookClientConfig :: Generic WebhookClientConfig _
 instance showWebhookClientConfig :: Show WebhookClientConfig where show a = genericShow a
 instance decodeWebhookClientConfig :: Decode WebhookClientConfig where
-  decode a = genericDecode jsonOptions a 
+  decode a = do
+               caBundle <- readProp "caBundle" a >>= decode
+               service <- readProp "service" a >>= decode
+               url <- readProp "url" a >>= decode
+               pure $ WebhookClientConfig { caBundle, service, url }
 instance encodeWebhookClientConfig :: Encode WebhookClientConfig where
-  encode a = genericEncode jsonOptions a
+  encode (WebhookClientConfig a) = encode $ StrMap.fromFoldable $
+               [ Tuple "caBundle" (encode a.caBundle)
+               , Tuple "service" (encode a.service)
+               , Tuple "url" (encode a.url) ]
+
 
 instance defaultWebhookClientConfig :: Default WebhookClientConfig where
   default = WebhookClientConfig
