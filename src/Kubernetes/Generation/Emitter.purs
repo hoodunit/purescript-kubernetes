@@ -35,7 +35,7 @@ emitDeclaration (NewtypeDecl (ObjectType {qualifiedName, description, fields})) 
     "  { " <> fieldDecls <>
     " }" <>
     "\n\n" <> deriveNewtype name <>
-    "\n" <> typeClassBoilerplate name <>
+    "\n" <> genericTypeClassBoilerplate name <>
     "\n\n" <> defaultInstance name fieldNames
   where
     docs = objectDocs description fields
@@ -68,7 +68,7 @@ emitDeclaration (AliasType {qualifiedName, description, innerType}) =
   docs <>
     "newtype " <> name <> " = " <> name <> " " <> emitTypeDecl innerType <>
     "\n\n" <> deriveNewtype name <>
-    "\n" <> typeClassBoilerplate name
+    "\n" <> genericTypeClassBoilerplate name
   where
     docs = formatDescription description
     name = typeUnqualifiedName qualifiedName
@@ -170,8 +170,8 @@ formatDescription (Just d) = "-- | " <> fixNewlines d <> "\n"
 deriveNewtype :: String -> String
 deriveNewtype name = "derive instance newtype" <> name <> " :: Newtype " <> name <> " _"
 
-typeClassBoilerplate :: String -> String
-typeClassBoilerplate name = 
+genericTypeClassBoilerplate :: String -> String
+genericTypeClassBoilerplate name = 
   "derive instance generic" <> name <> " :: Generic " <> name <> " _" <> "\n" <>
   "instance show" <> name <> " :: Show " <> name <> " where show a = genericShow a" <> "\n" <>
   "instance decode" <> name <> " :: Decode " <> name <> " where\n" <>
