@@ -20,21 +20,17 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
 -- | - `webhooks`: Webhooks is a list of webhooks and the affected resources and operations.
 newtype MutatingWebhookConfiguration = MutatingWebhookConfiguration
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , webhooks :: (Maybe (Array Webhook)) }
 
 derive instance newtypeMutatingWebhookConfiguration :: Newtype MutatingWebhookConfiguration _
@@ -42,37 +38,31 @@ derive instance genericMutatingWebhookConfiguration :: Generic MutatingWebhookCo
 instance showMutatingWebhookConfiguration :: Show MutatingWebhookConfiguration where show a = genericShow a
 instance decodeMutatingWebhookConfiguration :: Decode MutatingWebhookConfiguration where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "admissionregistration.k8s.io/v1beta1" a
+               assertPropEq "kind" "MutatingWebhookConfiguration" a
                metadata <- decodeMaybe "metadata" a
                webhooks <- decodeMaybe "webhooks" a
-               pure $ MutatingWebhookConfiguration { apiVersion, kind, metadata, webhooks }
+               pure $ MutatingWebhookConfiguration { metadata, webhooks }
 instance encodeMutatingWebhookConfiguration :: Encode MutatingWebhookConfiguration where
   encode (MutatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
+               , Tuple "kind" (encode "MutatingWebhookConfiguration")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "webhooks" (encodeMaybe a.webhooks) ]
 
 
 instance defaultMutatingWebhookConfiguration :: Default MutatingWebhookConfiguration where
   default = MutatingWebhookConfiguration
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , webhooks: Nothing }
 
 -- | MutatingWebhookConfigurationList is a list of MutatingWebhookConfiguration.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of MutatingWebhookConfiguration.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype MutatingWebhookConfigurationList = MutatingWebhookConfigurationList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array MutatingWebhookConfiguration))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array MutatingWebhookConfiguration))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeMutatingWebhookConfigurationList :: Newtype MutatingWebhookConfigurationList _
@@ -80,24 +70,22 @@ derive instance genericMutatingWebhookConfigurationList :: Generic MutatingWebho
 instance showMutatingWebhookConfigurationList :: Show MutatingWebhookConfigurationList where show a = genericShow a
 instance decodeMutatingWebhookConfigurationList :: Decode MutatingWebhookConfigurationList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "admissionregistration.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "MutatingWebhookConfigurationList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ MutatingWebhookConfigurationList { apiVersion, items, kind, metadata }
+               pure $ MutatingWebhookConfigurationList { items, metadata }
 instance encodeMutatingWebhookConfigurationList :: Encode MutatingWebhookConfigurationList where
   encode (MutatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "MutatingWebhookConfigurationList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultMutatingWebhookConfigurationList :: Default MutatingWebhookConfigurationList where
   default = MutatingWebhookConfigurationList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | RuleWithOperations is a tuple of Operations and Resources. It is recommended to make sure that all the tuple expansions are valid.
@@ -180,14 +168,10 @@ instance defaultServiceReference :: Default ServiceReference where
 -- | ValidatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and object without changing it.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
 -- | - `webhooks`: Webhooks is a list of webhooks and the affected resources and operations.
 newtype ValidatingWebhookConfiguration = ValidatingWebhookConfiguration
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , webhooks :: (Maybe (Array Webhook)) }
 
 derive instance newtypeValidatingWebhookConfiguration :: Newtype ValidatingWebhookConfiguration _
@@ -195,37 +179,31 @@ derive instance genericValidatingWebhookConfiguration :: Generic ValidatingWebho
 instance showValidatingWebhookConfiguration :: Show ValidatingWebhookConfiguration where show a = genericShow a
 instance decodeValidatingWebhookConfiguration :: Decode ValidatingWebhookConfiguration where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "admissionregistration.k8s.io/v1beta1" a
+               assertPropEq "kind" "ValidatingWebhookConfiguration" a
                metadata <- decodeMaybe "metadata" a
                webhooks <- decodeMaybe "webhooks" a
-               pure $ ValidatingWebhookConfiguration { apiVersion, kind, metadata, webhooks }
+               pure $ ValidatingWebhookConfiguration { metadata, webhooks }
 instance encodeValidatingWebhookConfiguration :: Encode ValidatingWebhookConfiguration where
   encode (ValidatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
+               , Tuple "kind" (encode "ValidatingWebhookConfiguration")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "webhooks" (encodeMaybe a.webhooks) ]
 
 
 instance defaultValidatingWebhookConfiguration :: Default ValidatingWebhookConfiguration where
   default = ValidatingWebhookConfiguration
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , webhooks: Nothing }
 
 -- | ValidatingWebhookConfigurationList is a list of ValidatingWebhookConfiguration.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of ValidatingWebhookConfiguration.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ValidatingWebhookConfigurationList = ValidatingWebhookConfigurationList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ValidatingWebhookConfiguration))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ValidatingWebhookConfiguration))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeValidatingWebhookConfigurationList :: Newtype ValidatingWebhookConfigurationList _
@@ -233,24 +211,22 @@ derive instance genericValidatingWebhookConfigurationList :: Generic ValidatingW
 instance showValidatingWebhookConfigurationList :: Show ValidatingWebhookConfigurationList where show a = genericShow a
 instance decodeValidatingWebhookConfigurationList :: Decode ValidatingWebhookConfigurationList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "admissionregistration.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ValidatingWebhookConfigurationList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ValidatingWebhookConfigurationList { apiVersion, items, kind, metadata }
+               pure $ ValidatingWebhookConfigurationList { items, metadata }
 instance encodeValidatingWebhookConfigurationList :: Encode ValidatingWebhookConfigurationList where
   encode (ValidatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ValidatingWebhookConfigurationList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultValidatingWebhookConfigurationList :: Default ValidatingWebhookConfigurationList where
   default = ValidatingWebhookConfigurationList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | Webhook describes an admission webhook and the resources and operations it applies to.

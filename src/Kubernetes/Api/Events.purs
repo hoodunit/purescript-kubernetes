@@ -21,21 +21,20 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | Event is a report of an event somewhere in the cluster. It generally denotes some state change in the system.
 -- |
 -- | Fields:
+-- | - `_type`: Type of this event (Normal, Warning), new types could be added in the future.
 -- | - `action`: What action was taken/failed regarding to the regarding object.
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `deprecatedCount`: Deprecated field assuring backward compatibility with core.v1 Event type
 -- | - `deprecatedFirstTimestamp`: Deprecated field assuring backward compatibility with core.v1 Event type
 -- | - `deprecatedLastTimestamp`: Deprecated field assuring backward compatibility with core.v1 Event type
 -- | - `deprecatedSource`: Deprecated field assuring backward compatibility with core.v1 Event type
 -- | - `eventTime`: Required. Time when this Event was first observed.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `note`: Optional. A human-readable description of the status of this operation. Maximal length of the note is 1kB, but libraries should be prepared to handle values up to 64kB.
 -- | - `reason`: Why the action was taken.
@@ -44,17 +43,14 @@ import Prelude
 -- | - `reportingController`: Name of the controller that emitted this Event, e.g. `kubernetes.io/kubelet`.
 -- | - `reportingInstance`: ID of the controller instance, e.g. `kubelet-xyzf`.
 -- | - `series`: Data about the Event series this event represents or nil if it's a singleton Event.
--- | - `_type`: Type of this event (Normal, Warning), new types could be added in the future.
 newtype Event = Event
   { _type :: (Maybe String)
   , action :: (Maybe String)
-  , apiVersion :: (Maybe String)
   , deprecatedCount :: (Maybe Int)
   , deprecatedFirstTimestamp :: (Maybe MetaV1.Time)
   , deprecatedLastTimestamp :: (Maybe MetaV1.Time)
   , deprecatedSource :: (Maybe CoreV1.EventSource)
   , eventTime :: (Maybe MetaV1.MicroTime)
-  , kind :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta)
   , note :: (Maybe String)
   , reason :: (Maybe String)
@@ -71,13 +67,13 @@ instance decodeEvent :: Decode Event where
   decode a = do
                _type <- decodeMaybe "_type" a
                action <- decodeMaybe "action" a
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "events.k8s.io/v1beta1" a
                deprecatedCount <- decodeMaybe "deprecatedCount" a
                deprecatedFirstTimestamp <- decodeMaybe "deprecatedFirstTimestamp" a
                deprecatedLastTimestamp <- decodeMaybe "deprecatedLastTimestamp" a
                deprecatedSource <- decodeMaybe "deprecatedSource" a
                eventTime <- decodeMaybe "eventTime" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "Event" a
                metadata <- decodeMaybe "metadata" a
                note <- decodeMaybe "note" a
                reason <- decodeMaybe "reason" a
@@ -86,18 +82,18 @@ instance decodeEvent :: Decode Event where
                reportingController <- decodeMaybe "reportingController" a
                reportingInstance <- decodeMaybe "reportingInstance" a
                series <- decodeMaybe "series" a
-               pure $ Event { _type, action, apiVersion, deprecatedCount, deprecatedFirstTimestamp, deprecatedLastTimestamp, deprecatedSource, eventTime, kind, metadata, note, reason, regarding, related, reportingController, reportingInstance, series }
+               pure $ Event { _type, action, deprecatedCount, deprecatedFirstTimestamp, deprecatedLastTimestamp, deprecatedSource, eventTime, metadata, note, reason, regarding, related, reportingController, reportingInstance, series }
 instance encodeEvent :: Encode Event where
   encode (Event a) = encode $ StrMap.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "action" (encodeMaybe a.action)
-               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "apiVersion" (encode "events.k8s.io/v1beta1")
                , Tuple "deprecatedCount" (encodeMaybe a.deprecatedCount)
                , Tuple "deprecatedFirstTimestamp" (encodeMaybe a.deprecatedFirstTimestamp)
                , Tuple "deprecatedLastTimestamp" (encodeMaybe a.deprecatedLastTimestamp)
                , Tuple "deprecatedSource" (encodeMaybe a.deprecatedSource)
                , Tuple "eventTime" (encodeMaybe a.eventTime)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "Event")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "note" (encodeMaybe a.note)
                , Tuple "reason" (encodeMaybe a.reason)
@@ -112,13 +108,11 @@ instance defaultEvent :: Default Event where
   default = Event
     { _type: Nothing
     , action: Nothing
-    , apiVersion: Nothing
     , deprecatedCount: Nothing
     , deprecatedFirstTimestamp: Nothing
     , deprecatedLastTimestamp: Nothing
     , deprecatedSource: Nothing
     , eventTime: Nothing
-    , kind: Nothing
     , metadata: Nothing
     , note: Nothing
     , reason: Nothing
@@ -131,14 +125,10 @@ instance defaultEvent :: Default Event where
 -- | EventList is a list of Event objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of schema objects.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype EventList = EventList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Event))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Event))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeEventList :: Newtype EventList _
@@ -146,24 +136,22 @@ derive instance genericEventList :: Generic EventList _
 instance showEventList :: Show EventList where show a = genericShow a
 instance decodeEventList :: Decode EventList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "events.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "EventList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ EventList { apiVersion, items, kind, metadata }
+               pure $ EventList { items, metadata }
 instance encodeEventList :: Encode EventList where
   encode (EventList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "events.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "EventList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEventList :: Default EventList where
   default = EventList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | EventSeries contain information on series of events, i.e. thing that was/is happening continously for some time.

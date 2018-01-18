@@ -20,22 +20,18 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | LocalSubjectAccessReview checks whether or not a user or group can perform an action in a given namespace. Having a namespace scoped resource makes it much easier to grant namespace scoped policy that includes permissions checking.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`: Spec holds information about the request being evaluated.  spec.namespace must be equal to the namespace you made the request against.  If empty, it is defaulted.
 -- | - `status`: Status is filled in by the server and indicates whether the request is allowed or not
 newtype LocalSubjectAccessReview = LocalSubjectAccessReview
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe SubjectAccessReviewSpec)
   , status :: (Maybe SubjectAccessReviewStatus) }
 
@@ -44,16 +40,16 @@ derive instance genericLocalSubjectAccessReview :: Generic LocalSubjectAccessRev
 instance showLocalSubjectAccessReview :: Show LocalSubjectAccessReview where show a = genericShow a
 instance decodeLocalSubjectAccessReview :: Decode LocalSubjectAccessReview where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "authorization.k8s.io/v1" a
+               assertPropEq "kind" "LocalSubjectAccessReview" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ LocalSubjectAccessReview { apiVersion, kind, metadata, spec, status }
+               pure $ LocalSubjectAccessReview { metadata, spec, status }
 instance encodeLocalSubjectAccessReview :: Encode LocalSubjectAccessReview where
   encode (LocalSubjectAccessReview a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "authorization.k8s.io/v1")
+               , Tuple "kind" (encode "LocalSubjectAccessReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -61,9 +57,7 @@ instance encodeLocalSubjectAccessReview :: Encode LocalSubjectAccessReview where
 
 instance defaultLocalSubjectAccessReview :: Default LocalSubjectAccessReview where
   default = LocalSubjectAccessReview
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
@@ -218,15 +212,11 @@ instance defaultResourceRule :: Default ResourceRule where
 -- | SelfSubjectAccessReview checks whether or the current user can perform an action.  Not filling in a spec.namespace means "in all namespaces".  Self is a special case, because users should always be able to check whether they can perform an action
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`: Spec holds information about the request being evaluated.  user and groups must be empty
 -- | - `status`: Status is filled in by the server and indicates whether the request is allowed or not
 newtype SelfSubjectAccessReview = SelfSubjectAccessReview
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe SelfSubjectAccessReviewSpec)
   , status :: (Maybe SubjectAccessReviewStatus) }
 
@@ -235,16 +225,16 @@ derive instance genericSelfSubjectAccessReview :: Generic SelfSubjectAccessRevie
 instance showSelfSubjectAccessReview :: Show SelfSubjectAccessReview where show a = genericShow a
 instance decodeSelfSubjectAccessReview :: Decode SelfSubjectAccessReview where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "authorization.k8s.io/v1" a
+               assertPropEq "kind" "SelfSubjectAccessReview" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ SelfSubjectAccessReview { apiVersion, kind, metadata, spec, status }
+               pure $ SelfSubjectAccessReview { metadata, spec, status }
 instance encodeSelfSubjectAccessReview :: Encode SelfSubjectAccessReview where
   encode (SelfSubjectAccessReview a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "authorization.k8s.io/v1")
+               , Tuple "kind" (encode "SelfSubjectAccessReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -252,9 +242,7 @@ instance encodeSelfSubjectAccessReview :: Encode SelfSubjectAccessReview where
 
 instance defaultSelfSubjectAccessReview :: Default SelfSubjectAccessReview where
   default = SelfSubjectAccessReview
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
@@ -289,15 +277,11 @@ instance defaultSelfSubjectAccessReviewSpec :: Default SelfSubjectAccessReviewSp
 -- | SelfSubjectRulesReview enumerates the set of actions the current user can perform within a namespace. The returned list of actions may be incomplete depending on the server's authorization mode, and any errors experienced during the evaluation. SelfSubjectRulesReview should be used by UIs to show/hide actions, or to quickly let an end user reason about their permissions. It should NOT Be used by external systems to drive authorization decisions as this raises confused deputy, cache lifetime/revocation, and correctness concerns. SubjectAccessReview, and LocalAccessReview are the correct way to defer authorization decisions to the API server.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`: Spec holds information about the request being evaluated.
 -- | - `status`: Status is filled in by the server and indicates the set of actions a user can perform.
 newtype SelfSubjectRulesReview = SelfSubjectRulesReview
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe SelfSubjectRulesReviewSpec)
   , status :: (Maybe SubjectRulesReviewStatus) }
 
@@ -306,16 +290,16 @@ derive instance genericSelfSubjectRulesReview :: Generic SelfSubjectRulesReview 
 instance showSelfSubjectRulesReview :: Show SelfSubjectRulesReview where show a = genericShow a
 instance decodeSelfSubjectRulesReview :: Decode SelfSubjectRulesReview where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "authorization.k8s.io/v1" a
+               assertPropEq "kind" "SelfSubjectRulesReview" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ SelfSubjectRulesReview { apiVersion, kind, metadata, spec, status }
+               pure $ SelfSubjectRulesReview { metadata, spec, status }
 instance encodeSelfSubjectRulesReview :: Encode SelfSubjectRulesReview where
   encode (SelfSubjectRulesReview a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "authorization.k8s.io/v1")
+               , Tuple "kind" (encode "SelfSubjectRulesReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -323,9 +307,7 @@ instance encodeSelfSubjectRulesReview :: Encode SelfSubjectRulesReview where
 
 instance defaultSelfSubjectRulesReview :: Default SelfSubjectRulesReview where
   default = SelfSubjectRulesReview
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
@@ -353,15 +335,11 @@ instance defaultSelfSubjectRulesReviewSpec :: Default SelfSubjectRulesReviewSpec
 -- | SubjectAccessReview checks whether or not a user or group can perform an action.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`: Spec holds information about the request being evaluated
 -- | - `status`: Status is filled in by the server and indicates whether the request is allowed or not
 newtype SubjectAccessReview = SubjectAccessReview
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe SubjectAccessReviewSpec)
   , status :: (Maybe SubjectAccessReviewStatus) }
 
@@ -370,16 +348,16 @@ derive instance genericSubjectAccessReview :: Generic SubjectAccessReview _
 instance showSubjectAccessReview :: Show SubjectAccessReview where show a = genericShow a
 instance decodeSubjectAccessReview :: Decode SubjectAccessReview where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "authorization.k8s.io/v1" a
+               assertPropEq "kind" "SubjectAccessReview" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ SubjectAccessReview { apiVersion, kind, metadata, spec, status }
+               pure $ SubjectAccessReview { metadata, spec, status }
 instance encodeSubjectAccessReview :: Encode SubjectAccessReview where
   encode (SubjectAccessReview a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "authorization.k8s.io/v1")
+               , Tuple "kind" (encode "SubjectAccessReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -387,9 +365,7 @@ instance encodeSubjectAccessReview :: Encode SubjectAccessReview where
 
 instance defaultSubjectAccessReview :: Default SubjectAccessReview where
   default = SubjectAccessReview
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 

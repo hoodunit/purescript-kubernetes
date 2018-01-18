@@ -23,22 +23,18 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | ControllerRevision implements an immutable snapshot of state data. Clients are responsible for serializing and deserializing the objects that contain their internal state. Once a ControllerRevision has been successfully created, it can not be updated. The API Server will fail validation of all requests that attempt to mutate the Data field. ControllerRevisions may, however, be deleted. Note that, due to its use by both the DaemonSet and StatefulSet controllers for update and rollback, this object is beta. However, it may be subject to name and representation changes in future releases, and clients should not depend on its stability. It is primarily for internal use by controllers.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `_data`: Data is the serialized representation of the state.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `revision`: Revision indicates the revision of the state represented by Data.
 newtype ControllerRevision = ControllerRevision
   { _data :: (Maybe Runtime.RawExtension)
-  , apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta)
   , revision :: (Maybe Int) }
 
@@ -48,16 +44,16 @@ instance showControllerRevision :: Show ControllerRevision where show a = generi
 instance decodeControllerRevision :: Decode ControllerRevision where
   decode a = do
                _data <- decodeMaybe "_data" a
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "apps/v1" a
+               assertPropEq "kind" "ControllerRevision" a
                metadata <- decodeMaybe "metadata" a
                revision <- decodeMaybe "revision" a
-               pure $ ControllerRevision { _data, apiVersion, kind, metadata, revision }
+               pure $ ControllerRevision { _data, metadata, revision }
 instance encodeControllerRevision :: Encode ControllerRevision where
   encode (ControllerRevision a) = encode $ StrMap.fromFoldable $
                [ Tuple "_data" (encodeMaybe a._data)
-               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "apiVersion" (encode "apps/v1")
+               , Tuple "kind" (encode "ControllerRevision")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "revision" (encodeMaybe a.revision) ]
 
@@ -65,22 +61,16 @@ instance encodeControllerRevision :: Encode ControllerRevision where
 instance defaultControllerRevision :: Default ControllerRevision where
   default = ControllerRevision
     { _data: Nothing
-    , apiVersion: Nothing
-    , kind: Nothing
     , metadata: Nothing
     , revision: Nothing }
 
 -- | ControllerRevisionList is a resource containing a list of ControllerRevision objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is the list of ControllerRevisions
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ControllerRevisionList = ControllerRevisionList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ControllerRevision))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ControllerRevision))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeControllerRevisionList :: Newtype ControllerRevisionList _
@@ -88,38 +78,32 @@ derive instance genericControllerRevisionList :: Generic ControllerRevisionList 
 instance showControllerRevisionList :: Show ControllerRevisionList where show a = genericShow a
 instance decodeControllerRevisionList :: Decode ControllerRevisionList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "apps/v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ControllerRevisionList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ControllerRevisionList { apiVersion, items, kind, metadata }
+               pure $ ControllerRevisionList { items, metadata }
 instance encodeControllerRevisionList :: Encode ControllerRevisionList where
   encode (ControllerRevisionList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "apps/v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ControllerRevisionList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultControllerRevisionList :: Default ControllerRevisionList where
   default = ControllerRevisionList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | DaemonSet represents the configuration of a daemon set.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: The desired behavior of this daemon set. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: The current status of this daemon set. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype DaemonSet = DaemonSet
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe DaemonSetSpec)
   , status :: (Maybe DaemonSetStatus) }
 
@@ -128,16 +112,16 @@ derive instance genericDaemonSet :: Generic DaemonSet _
 instance showDaemonSet :: Show DaemonSet where show a = genericShow a
 instance decodeDaemonSet :: Decode DaemonSet where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "apps/v1" a
+               assertPropEq "kind" "DaemonSet" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ DaemonSet { apiVersion, kind, metadata, spec, status }
+               pure $ DaemonSet { metadata, spec, status }
 instance encodeDaemonSet :: Encode DaemonSet where
   encode (DaemonSet a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "apps/v1")
+               , Tuple "kind" (encode "DaemonSet")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -145,20 +129,18 @@ instance encodeDaemonSet :: Encode DaemonSet where
 
 instance defaultDaemonSet :: Default DaemonSet where
   default = DaemonSet
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | DaemonSetCondition describes the state of a DaemonSet at a certain point.
 -- |
 -- | Fields:
+-- | - `_type`: Type of DaemonSet condition.
 -- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
 -- | - `message`: A human readable message indicating details about the transition.
 -- | - `reason`: The reason for the condition's last transition.
 -- | - `status`: Status of the condition, one of True, False, Unknown.
--- | - `_type`: Type of DaemonSet condition.
 newtype DaemonSetCondition = DaemonSetCondition
   { _type :: (Maybe String)
   , lastTransitionTime :: (Maybe MetaV1.Time)
@@ -197,14 +179,10 @@ instance defaultDaemonSetCondition :: Default DaemonSetCondition where
 -- | DaemonSetList is a collection of daemon sets.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: A list of daemon sets.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype DaemonSetList = DaemonSetList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array DaemonSet))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array DaemonSet))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeDaemonSetList :: Newtype DaemonSetList _
@@ -212,24 +190,22 @@ derive instance genericDaemonSetList :: Generic DaemonSetList _
 instance showDaemonSetList :: Show DaemonSetList where show a = genericShow a
 instance decodeDaemonSetList :: Decode DaemonSetList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "apps/v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "DaemonSetList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ DaemonSetList { apiVersion, items, kind, metadata }
+               pure $ DaemonSetList { items, metadata }
 instance encodeDaemonSetList :: Encode DaemonSetList where
   encode (DaemonSetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "apps/v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "DaemonSetList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultDaemonSetList :: Default DaemonSetList where
   default = DaemonSetList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | DaemonSetSpec is the specification of a daemon set.
@@ -346,8 +322,8 @@ instance defaultDaemonSetStatus :: Default DaemonSetStatus where
 -- | DaemonSetUpdateStrategy is a struct used to control the update strategy for a DaemonSet.
 -- |
 -- | Fields:
--- | - `rollingUpdate`: Rolling update config params. Present only if type = "RollingUpdate".
 -- | - `_type`: Type of daemon set update. Can be "RollingUpdate" or "OnDelete". Default is RollingUpdate.
+-- | - `rollingUpdate`: Rolling update config params. Present only if type = "RollingUpdate".
 newtype DaemonSetUpdateStrategy = DaemonSetUpdateStrategy
   { _type :: (Maybe String)
   , rollingUpdate :: (Maybe RollingUpdateDaemonSet) }
@@ -374,15 +350,11 @@ instance defaultDaemonSetUpdateStrategy :: Default DaemonSetUpdateStrategy where
 -- | Deployment enables declarative updates for Pods and ReplicaSets.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object metadata.
 -- | - `spec`: Specification of the desired behavior of the Deployment.
 -- | - `status`: Most recently observed status of the Deployment.
 newtype Deployment = Deployment
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe DeploymentSpec)
   , status :: (Maybe DeploymentStatus) }
 
@@ -391,16 +363,16 @@ derive instance genericDeployment :: Generic Deployment _
 instance showDeployment :: Show Deployment where show a = genericShow a
 instance decodeDeployment :: Decode Deployment where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "apps/v1" a
+               assertPropEq "kind" "Deployment" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ Deployment { apiVersion, kind, metadata, spec, status }
+               pure $ Deployment { metadata, spec, status }
 instance encodeDeployment :: Encode Deployment where
   encode (Deployment a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "apps/v1")
+               , Tuple "kind" (encode "Deployment")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -408,21 +380,19 @@ instance encodeDeployment :: Encode Deployment where
 
 instance defaultDeployment :: Default Deployment where
   default = Deployment
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | DeploymentCondition describes the state of a deployment at a certain point.
 -- |
 -- | Fields:
+-- | - `_type`: Type of deployment condition.
 -- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
 -- | - `lastUpdateTime`: The last time this condition was updated.
 -- | - `message`: A human readable message indicating details about the transition.
 -- | - `reason`: The reason for the condition's last transition.
 -- | - `status`: Status of the condition, one of True, False, Unknown.
--- | - `_type`: Type of deployment condition.
 newtype DeploymentCondition = DeploymentCondition
   { _type :: (Maybe String)
   , lastTransitionTime :: (Maybe MetaV1.Time)
@@ -465,14 +435,10 @@ instance defaultDeploymentCondition :: Default DeploymentCondition where
 -- | DeploymentList is a list of Deployments.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is the list of Deployments.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata.
 newtype DeploymentList = DeploymentList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Deployment))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Deployment))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeDeploymentList :: Newtype DeploymentList _
@@ -480,24 +446,22 @@ derive instance genericDeploymentList :: Generic DeploymentList _
 instance showDeploymentList :: Show DeploymentList where show a = genericShow a
 instance decodeDeploymentList :: Decode DeploymentList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "apps/v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "DeploymentList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ DeploymentList { apiVersion, items, kind, metadata }
+               pure $ DeploymentList { items, metadata }
 instance encodeDeploymentList :: Encode DeploymentList where
   encode (DeploymentList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "apps/v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "DeploymentList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultDeploymentList :: Default DeploymentList where
   default = DeploymentList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | DeploymentSpec is the specification of the desired behavior of the Deployment.
@@ -619,8 +583,8 @@ instance defaultDeploymentStatus :: Default DeploymentStatus where
 -- | DeploymentStrategy describes how to replace existing pods with new ones.
 -- |
 -- | Fields:
--- | - `rollingUpdate`: Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate.
 -- | - `_type`: Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+-- | - `rollingUpdate`: Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate.
 newtype DeploymentStrategy = DeploymentStrategy
   { _type :: (Maybe String)
   , rollingUpdate :: (Maybe RollingUpdateDeployment) }
@@ -647,15 +611,11 @@ instance defaultDeploymentStrategy :: Default DeploymentStrategy where
 -- | ReplicaSet ensures that a specified number of pod replicas are running at any given time.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: If the Labels of a ReplicaSet are empty, they are defaulted to be the same as the Pod(s) that the ReplicaSet manages. Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the specification of the desired behavior of the ReplicaSet. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Status is the most recently observed status of the ReplicaSet. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ReplicaSet = ReplicaSet
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe ReplicaSetSpec)
   , status :: (Maybe ReplicaSetStatus) }
 
@@ -664,16 +624,16 @@ derive instance genericReplicaSet :: Generic ReplicaSet _
 instance showReplicaSet :: Show ReplicaSet where show a = genericShow a
 instance decodeReplicaSet :: Decode ReplicaSet where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "apps/v1" a
+               assertPropEq "kind" "ReplicaSet" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ ReplicaSet { apiVersion, kind, metadata, spec, status }
+               pure $ ReplicaSet { metadata, spec, status }
 instance encodeReplicaSet :: Encode ReplicaSet where
   encode (ReplicaSet a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "apps/v1")
+               , Tuple "kind" (encode "ReplicaSet")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -681,20 +641,18 @@ instance encodeReplicaSet :: Encode ReplicaSet where
 
 instance defaultReplicaSet :: Default ReplicaSet where
   default = ReplicaSet
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | ReplicaSetCondition describes the state of a replica set at a certain point.
 -- |
 -- | Fields:
+-- | - `_type`: Type of replica set condition.
 -- | - `lastTransitionTime`: The last time the condition transitioned from one status to another.
 -- | - `message`: A human readable message indicating details about the transition.
 -- | - `reason`: The reason for the condition's last transition.
 -- | - `status`: Status of the condition, one of True, False, Unknown.
--- | - `_type`: Type of replica set condition.
 newtype ReplicaSetCondition = ReplicaSetCondition
   { _type :: (Maybe String)
   , lastTransitionTime :: (Maybe MetaV1.Time)
@@ -733,14 +691,10 @@ instance defaultReplicaSetCondition :: Default ReplicaSetCondition where
 -- | ReplicaSetList is a collection of ReplicaSets.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of ReplicaSets. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ReplicaSetList = ReplicaSetList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ReplicaSet))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ReplicaSet))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeReplicaSetList :: Newtype ReplicaSetList _
@@ -748,24 +702,22 @@ derive instance genericReplicaSetList :: Generic ReplicaSetList _
 instance showReplicaSetList :: Show ReplicaSetList where show a = genericShow a
 instance decodeReplicaSetList :: Decode ReplicaSetList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "apps/v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ReplicaSetList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ReplicaSetList { apiVersion, items, kind, metadata }
+               pure $ ReplicaSetList { items, metadata }
 instance encodeReplicaSetList :: Encode ReplicaSetList where
   encode (ReplicaSetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "apps/v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ReplicaSetList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultReplicaSetList :: Default ReplicaSetList where
   default = ReplicaSetList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | ReplicaSetSpec is the specification of a ReplicaSet.
@@ -934,15 +886,11 @@ instance defaultRollingUpdateStatefulSetStrategy :: Default RollingUpdateStatefu
 -- | The StatefulSet guarantees that a given network identity will always map to the same storage identity.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`: Spec defines the desired identities of pods in this set.
 -- | - `status`: Status is the current status of Pods in this StatefulSet. This data may be out of date by some window of time.
 newtype StatefulSet = StatefulSet
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe StatefulSetSpec)
   , status :: (Maybe StatefulSetStatus) }
 
@@ -951,16 +899,16 @@ derive instance genericStatefulSet :: Generic StatefulSet _
 instance showStatefulSet :: Show StatefulSet where show a = genericShow a
 instance decodeStatefulSet :: Decode StatefulSet where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "apps/v1" a
+               assertPropEq "kind" "StatefulSet" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ StatefulSet { apiVersion, kind, metadata, spec, status }
+               pure $ StatefulSet { metadata, spec, status }
 instance encodeStatefulSet :: Encode StatefulSet where
   encode (StatefulSet a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "apps/v1")
+               , Tuple "kind" (encode "StatefulSet")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -968,20 +916,18 @@ instance encodeStatefulSet :: Encode StatefulSet where
 
 instance defaultStatefulSet :: Default StatefulSet where
   default = StatefulSet
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | StatefulSetCondition describes the state of a statefulset at a certain point.
 -- |
 -- | Fields:
+-- | - `_type`: Type of statefulset condition.
 -- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
 -- | - `message`: A human readable message indicating details about the transition.
 -- | - `reason`: The reason for the condition's last transition.
 -- | - `status`: Status of the condition, one of True, False, Unknown.
--- | - `_type`: Type of statefulset condition.
 newtype StatefulSetCondition = StatefulSetCondition
   { _type :: (Maybe String)
   , lastTransitionTime :: (Maybe MetaV1.Time)
@@ -1020,14 +966,10 @@ instance defaultStatefulSetCondition :: Default StatefulSetCondition where
 -- | StatefulSetList is a collection of StatefulSets.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 newtype StatefulSetList = StatefulSetList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array StatefulSet))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array StatefulSet))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeStatefulSetList :: Newtype StatefulSetList _
@@ -1035,24 +977,22 @@ derive instance genericStatefulSetList :: Generic StatefulSetList _
 instance showStatefulSetList :: Show StatefulSetList where show a = genericShow a
 instance decodeStatefulSetList :: Decode StatefulSetList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "apps/v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "StatefulSetList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ StatefulSetList { apiVersion, items, kind, metadata }
+               pure $ StatefulSetList { items, metadata }
 instance encodeStatefulSetList :: Encode StatefulSetList where
   encode (StatefulSetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "apps/v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "StatefulSetList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultStatefulSetList :: Default StatefulSetList where
   default = StatefulSetList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | A StatefulSetSpec is the specification of a StatefulSet.
@@ -1179,8 +1119,8 @@ instance defaultStatefulSetStatus :: Default StatefulSetStatus where
 -- | StatefulSetUpdateStrategy indicates the strategy that the StatefulSet controller will use to perform updates. It includes any additional parameters necessary to perform the update for the indicated strategy.
 -- |
 -- | Fields:
--- | - `rollingUpdate`: RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
 -- | - `_type`: Type indicates the type of the StatefulSetUpdateStrategy. Default is RollingUpdate.
+-- | - `rollingUpdate`: RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
 newtype StatefulSetUpdateStrategy = StatefulSetUpdateStrategy
   { _type :: (Maybe String)
   , rollingUpdate :: (Maybe RollingUpdateStatefulSetStrategy) }

@@ -20,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -29,15 +29,11 @@ import Prelude
 -- | VolumeAttachment objects are non-namespaced.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired attach/detach volume behavior. Populated by the Kubernetes system.
 -- | - `status`: Status of the VolumeAttachment request. Populated by the entity completing the attach or detach operation, i.e. the external-attacher.
 newtype VolumeAttachment = VolumeAttachment
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe VolumeAttachmentSpec)
   , status :: (Maybe VolumeAttachmentStatus) }
 
@@ -46,16 +42,16 @@ derive instance genericVolumeAttachment :: Generic VolumeAttachment _
 instance showVolumeAttachment :: Show VolumeAttachment where show a = genericShow a
 instance decodeVolumeAttachment :: Decode VolumeAttachment where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "storage.k8s.io/v1alpha1" a
+               assertPropEq "kind" "VolumeAttachment" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ VolumeAttachment { apiVersion, kind, metadata, spec, status }
+               pure $ VolumeAttachment { metadata, spec, status }
 instance encodeVolumeAttachment :: Encode VolumeAttachment where
   encode (VolumeAttachment a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "storage.k8s.io/v1alpha1")
+               , Tuple "kind" (encode "VolumeAttachment")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -63,23 +59,17 @@ instance encodeVolumeAttachment :: Encode VolumeAttachment where
 
 instance defaultVolumeAttachment :: Default VolumeAttachment where
   default = VolumeAttachment
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | VolumeAttachmentList is a collection of VolumeAttachment objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is the list of VolumeAttachments
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype VolumeAttachmentList = VolumeAttachmentList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array VolumeAttachment))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array VolumeAttachment))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeVolumeAttachmentList :: Newtype VolumeAttachmentList _
@@ -87,24 +77,22 @@ derive instance genericVolumeAttachmentList :: Generic VolumeAttachmentList _
 instance showVolumeAttachmentList :: Show VolumeAttachmentList where show a = genericShow a
 instance decodeVolumeAttachmentList :: Decode VolumeAttachmentList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "storage.k8s.io/v1alpha1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "VolumeAttachmentList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ VolumeAttachmentList { apiVersion, items, kind, metadata }
+               pure $ VolumeAttachmentList { items, metadata }
 instance encodeVolumeAttachmentList :: Encode VolumeAttachmentList where
   encode (VolumeAttachmentList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "storage.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "VolumeAttachmentList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultVolumeAttachmentList :: Default VolumeAttachmentList where
   default = VolumeAttachmentList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | VolumeAttachmentSource represents a volume that should be attached. Right now only PersistenVolumes can be attached via external attacher, in future we may allow also inline volumes in pods. Exactly one member can be set.

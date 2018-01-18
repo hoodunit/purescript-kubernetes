@@ -4,11 +4,12 @@ import Kubernetes.Generation.AST
 import Prelude
 
 import Data.Array as Array
-import Data.Foldable (fold)
+import Data.Foldable (any, fold)
 import Data.List.NonEmpty as NonEmpty
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), isJust, maybe)
 import Data.Newtype (unwrap)
 import Data.String as String
+import Debug.Trace as Debug
 import Kubernetes.Generation.Names (lowercaseFirstChar, startsWith, startsWithUpperCase, typeUnqualifiedName)
 import Partial.Unsafe (unsafeCrashWith)
 
@@ -29,20 +30,27 @@ emitOptionalField {name, innerType} =
     sanitizedName = if startsWithUpperCase name then "\"" <> name <> "\"" else name
 
 emitDeclaration :: Partial => Declaration -> String
-emitDeclaration (NewtypeDecl (ObjectType {qualifiedName, description, fields})) =
-  docs <>
+emitDeclaration (NewtypeDecl (ObjectType {description, fields, groupVersionKind, qualifiedName})) =
+  objectDocs description usedFields <>
     "newtype " <> name <> " = " <> name <> "\n" <>
-    "  { " <> fieldDecls <>
+    "  { " <> emitFields usedFields <>
     " }" <>
     "\n\n" <> deriveNewtype name <>
-    "\n" <> typeClassBoilerplate name fieldNames <>
-    "\n\n" <> defaultInstance name fieldNames
+    "\n" <> typeClassBoilerplate qualifiedName (_.name <$> allFields) kind version <>
+    "\n\n" <> defaultInstance name (_.name <$> usedFields)
   where
-    docs = objectDocs description fields
-    sortedFields = Array.sortWith (_.name) fields
-    fieldDecls = String.joinWith "\n  , " (emitOptionalField <$> sortedFields)
-    fieldNames = _.name <$> sortedFields
     name = typeUnqualifiedName qualifiedName
+    kind = (unwrap >>> _.kind) <$> (Array.head groupVersionKind)
+    version = (unwrap >>> parseVersion) <$> (Array.head groupVersionKind)
+    parseVersion {group, version} | String.null group = version
+    parseVersion {group, version} = group <> "/" <> version
+    allFields = Array.sortWith _.name fields
+    usedFields = dropUnused allFields
+    
+    dropUnused = Array.filter (not isUnused <<< _.name)
+    isUnused = ((const $ isJust kind) && eq "kind")
+               || ((const $ isJust version) && eq "apiVersion")
+    emitFields = String.joinWith "\n  , " <<< map emitOptionalField
 emitDeclaration (RecordDecl (ObjectType {qualifiedName, description, fields})) =
   docs <>
     "type " <> name <> " =\n" <>
@@ -170,34 +178,54 @@ formatDescription (Just d) = "-- | " <> fixNewlines d <> "\n"
 deriveNewtype :: String -> String
 deriveNewtype name = "derive instance newtype" <> name <> " :: Newtype " <> name <> " _"
 
-typeClassBoilerplate :: String -> Array String -> String
-typeClassBoilerplate name fieldNames = 
+typeClassBoilerplate :: String -> Array String -> Maybe String -> Maybe String -> String
+typeClassBoilerplate qualifiedName fieldNames kind version = 
   "derive instance generic" <> name <> " :: Generic " <> name <> " _" <> "\n" <>
   "instance show" <> name <> " :: Show " <> name <> " where show a = genericShow a" <> "\n" <>
-  decodeInstance name fieldNames <>
-  encodeInstance name fieldNames
+  decodeInstance qualifiedName fieldNames kind version <>
+  encodeInstance qualifiedName fieldNames kind version
+  where
+    name = typeUnqualifiedName qualifiedName
   
-decodeInstance :: String -> Array String -> String
-decodeInstance name fieldNames = 
+decodeInstance :: String -> Array String -> Maybe String -> Maybe String -> String
+decodeInstance qualifiedName fieldNames kind version = 
   "instance decode" <> name <> " :: Decode " <> name <> " where\n" <>
   "  decode a = do" <> decodeFields <> "\n" <>
   "               pure $ " <> name <> " { " <> fields <> " }\n"
   where
+    name = typeUnqualifiedName qualifiedName
     fieldPrefix = "\n               "
     decodeFields = fieldPrefix <> (String.joinWith fieldPrefix $ decodeField <$> fieldNames)
-    fields = String.joinWith ", " fieldNames
-    decodeField f = f <> " <- decodeMaybe \"" <> f <> "\" a"
+    fields = (String.joinWith ", " <<< Array.filter (not isUnused)) fieldNames
+    isUnused = ((const $ isJust kind) && eq "kind")
+      || ((const $ isJust version) && eq "apiVersion")
+    decodeField "apiVersion" = case version of
+      Just v -> "assertPropEq \"apiVersion\" \"" <> v <> "\" a"
+      Nothing -> decodeNormalField "apiVersion"
+    decodeField "kind" = case kind of
+      Just k -> "assertPropEq \"kind\" \"" <> k <> "\" a"
+      Nothing -> decodeNormalField "kind"
+    decodeField f = decodeNormalField f
+    decodeNormalField f = f <> " <- decodeMaybe \"" <> f <> "\" a"
   
-encodeInstance :: String -> Array String -> String
-encodeInstance name fieldNames = 
+encodeInstance :: String -> Array String -> Maybe String -> Maybe String -> String
+encodeInstance qualifiedName fieldNames kind version = 
   "instance encode" <> name <> " :: Encode " <> name <> " where\n" <>
   "  encode (" <> name <> " a) = encode $ StrMap.fromFoldable $\n" <>
   "               [ " <> encodeFields fieldNames <> " ]\n"
   where
+    name = typeUnqualifiedName qualifiedName
     fieldSep = "\n               , "
     encodeFields = String.joinWith fieldSep <<< map encodeField
     fields = String.joinWith ", " fieldNames
-    encodeField f = "Tuple \"" <> f <> "\" (encodeMaybe a." <> f <> ")"
+    encodeField "apiVersion" = case version of
+      Just v -> "Tuple \"apiVersion\" (encode \"" <> v <> "\")"
+      Nothing -> encodeNormalField "apiVersion"
+    encodeField "kind" = case kind of
+      Just k -> "Tuple \"kind\" (encode \"" <> k <> "\")"
+      Nothing -> encodeNormalField "kind"
+    encodeField f = encodeNormalField f
+    encodeNormalField f = "Tuple \"" <> f <> "\" (encodeMaybe a." <> f <> ")"
 
 genericTypeClassBoilerplate :: String -> String
 genericTypeClassBoilerplate name = 

@@ -5,6 +5,7 @@ import Prelude
 import Data.List.NonEmpty (NonEmptyList(..))
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
+import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
 
 type ApiAst =
   { modules :: Array ApiModule }
@@ -63,6 +64,7 @@ declarationName (Endpoint {name}) = name
 
 newtype ObjectType = ObjectType
   { description :: Maybe String
+  , groupVersionKind :: Array GroupVersionKind
   , qualifiedName :: String
   , fields :: Array OptionalField }
 derive instance newtypeObjectType :: Newtype ObjectType _

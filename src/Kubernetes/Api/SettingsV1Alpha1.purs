@@ -21,21 +21,17 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | PodPreset is a policy resource that defines additional runtime requirements for a Pod.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`
 newtype PodPreset = PodPreset
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe PodPresetSpec) }
 
 derive instance newtypePodPreset :: Newtype PodPreset _
@@ -43,37 +39,31 @@ derive instance genericPodPreset :: Generic PodPreset _
 instance showPodPreset :: Show PodPreset where show a = genericShow a
 instance decodePodPreset :: Decode PodPreset where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "settings.k8s.io/v1alpha1" a
+               assertPropEq "kind" "PodPreset" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
-               pure $ PodPreset { apiVersion, kind, metadata, spec }
+               pure $ PodPreset { metadata, spec }
 instance encodePodPreset :: Encode PodPreset where
   encode (PodPreset a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "settings.k8s.io/v1alpha1")
+               , Tuple "kind" (encode "PodPreset")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultPodPreset :: Default PodPreset where
   default = PodPreset
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing }
 
 -- | PodPresetList is a list of PodPreset objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of schema objects.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype PodPresetList = PodPresetList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array PodPreset))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array PodPreset))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodPresetList :: Newtype PodPresetList _
@@ -81,24 +71,22 @@ derive instance genericPodPresetList :: Generic PodPresetList _
 instance showPodPresetList :: Show PodPresetList where show a = genericShow a
 instance decodePodPresetList :: Decode PodPresetList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "settings.k8s.io/v1alpha1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "PodPresetList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ PodPresetList { apiVersion, items, kind, metadata }
+               pure $ PodPresetList { items, metadata }
 instance encodePodPresetList :: Encode PodPresetList where
   encode (PodPresetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "settings.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "PodPresetList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodPresetList :: Default PodPresetList where
   default = PodPresetList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | PodPresetSpec is a description of a pod preset.

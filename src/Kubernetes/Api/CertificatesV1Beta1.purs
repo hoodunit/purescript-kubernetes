@@ -20,22 +20,18 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | Describes a certificate signing request
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`: The certificate request itself and any additional information.
 -- | - `status`: Derived information about the request.
 newtype CertificateSigningRequest = CertificateSigningRequest
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe CertificateSigningRequestSpec)
   , status :: (Maybe CertificateSigningRequestStatus) }
 
@@ -44,16 +40,16 @@ derive instance genericCertificateSigningRequest :: Generic CertificateSigningRe
 instance showCertificateSigningRequest :: Show CertificateSigningRequest where show a = genericShow a
 instance decodeCertificateSigningRequest :: Decode CertificateSigningRequest where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "certificates.k8s.io/v1beta1" a
+               assertPropEq "kind" "CertificateSigningRequest" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ CertificateSigningRequest { apiVersion, kind, metadata, spec, status }
+               pure $ CertificateSigningRequest { metadata, spec, status }
 instance encodeCertificateSigningRequest :: Encode CertificateSigningRequest where
   encode (CertificateSigningRequest a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "certificates.k8s.io/v1beta1")
+               , Tuple "kind" (encode "CertificateSigningRequest")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -61,17 +57,15 @@ instance encodeCertificateSigningRequest :: Encode CertificateSigningRequest whe
 
 instance defaultCertificateSigningRequest :: Default CertificateSigningRequest where
   default = CertificateSigningRequest
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | Fields:
+-- | - `_type`: request approval state, currently Approved or Denied.
 -- | - `lastUpdateTime`: timestamp for the last update to this condition
 -- | - `message`: human readable message with details about the request state
 -- | - `reason`: brief reason for the request state
--- | - `_type`: request approval state, currently Approved or Denied.
 newtype CertificateSigningRequestCondition = CertificateSigningRequestCondition
   { _type :: (Maybe String)
   , lastUpdateTime :: (Maybe MetaV1.Time)
@@ -104,14 +98,10 @@ instance defaultCertificateSigningRequestCondition :: Default CertificateSigning
     , reason: Nothing }
 
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 newtype CertificateSigningRequestList = CertificateSigningRequestList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array CertificateSigningRequest))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array CertificateSigningRequest))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeCertificateSigningRequestList :: Newtype CertificateSigningRequestList _
@@ -119,24 +109,22 @@ derive instance genericCertificateSigningRequestList :: Generic CertificateSigni
 instance showCertificateSigningRequestList :: Show CertificateSigningRequestList where show a = genericShow a
 instance decodeCertificateSigningRequestList :: Decode CertificateSigningRequestList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "certificates.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "CertificateSigningRequestList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ CertificateSigningRequestList { apiVersion, items, kind, metadata }
+               pure $ CertificateSigningRequestList { items, metadata }
 instance encodeCertificateSigningRequestList :: Encode CertificateSigningRequestList where
   encode (CertificateSigningRequestList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "certificates.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "CertificateSigningRequestList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultCertificateSigningRequestList :: Default CertificateSigningRequestList where
   default = CertificateSigningRequestList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | This information is immutable after the request is created. Only the Request and Usages fields can be set on creation, other fields are derived by Kubernetes and cannot be modified by users.

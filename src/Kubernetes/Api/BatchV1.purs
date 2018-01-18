@@ -21,22 +21,18 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | Job represents the configuration of a single job.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired behavior of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Current status of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Job = Job
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe JobSpec)
   , status :: (Maybe JobStatus) }
 
@@ -45,16 +41,16 @@ derive instance genericJob :: Generic Job _
 instance showJob :: Show Job where show a = genericShow a
 instance decodeJob :: Decode Job where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "batch/v1" a
+               assertPropEq "kind" "Job" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ Job { apiVersion, kind, metadata, spec, status }
+               pure $ Job { metadata, spec, status }
 instance encodeJob :: Encode Job where
   encode (Job a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "batch/v1")
+               , Tuple "kind" (encode "Job")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -62,21 +58,19 @@ instance encodeJob :: Encode Job where
 
 instance defaultJob :: Default Job where
   default = Job
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | JobCondition describes current state of a job.
 -- |
 -- | Fields:
+-- | - `_type`: Type of job condition, Complete or Failed.
 -- | - `lastProbeTime`: Last time the condition was checked.
 -- | - `lastTransitionTime`: Last time the condition transit from one status to another.
 -- | - `message`: Human readable message indicating details about last transition.
 -- | - `reason`: (brief) reason for the condition's last transition.
 -- | - `status`: Status of the condition, one of True, False, Unknown.
--- | - `_type`: Type of job condition, Complete or Failed.
 newtype JobCondition = JobCondition
   { _type :: (Maybe String)
   , lastProbeTime :: (Maybe MetaV1.Time)
@@ -119,14 +113,10 @@ instance defaultJobCondition :: Default JobCondition where
 -- | JobList is a collection of jobs.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: items is the list of Jobs.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype JobList = JobList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Job))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Job))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeJobList :: Newtype JobList _
@@ -134,24 +124,22 @@ derive instance genericJobList :: Generic JobList _
 instance showJobList :: Show JobList where show a = genericShow a
 instance decodeJobList :: Decode JobList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "batch/v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "JobList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ JobList { apiVersion, items, kind, metadata }
+               pure $ JobList { items, metadata }
 instance encodeJobList :: Encode JobList where
   encode (JobList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "batch/v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "JobList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultJobList :: Default JobList where
   default = JobList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | JobSpec describes how the job execution will look like.

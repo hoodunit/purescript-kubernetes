@@ -20,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -68,11 +68,11 @@ instance defaultAPIService :: Default APIService where
     , status: Nothing }
 
 -- | Fields:
+-- | - `_type`: Type is the type of the condition.
 -- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
 -- | - `message`: Human-readable message indicating details about last transition.
 -- | - `reason`: Unique, one-word, CamelCase reason for the condition's last transition.
 -- | - `status`: Status is the status of the condition. Can be True, False, Unknown.
--- | - `_type`: Type is the type of the condition.
 newtype APIServiceCondition = APIServiceCondition
   { _type :: (Maybe String)
   , lastTransitionTime :: (Maybe MetaV1.Time)

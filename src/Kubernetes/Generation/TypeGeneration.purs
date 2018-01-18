@@ -30,18 +30,18 @@ type GeneratedSchema =
   { output :: AST.Declaration, lenses :: Array String }
 
 generateTypeForSchema :: Partial => String -> String -> Schema -> Maybe GeneratedSchema
-generateTypeForSchema mod qualifiedName (Schema {description, properties: (NullOrUndefined (Just properties))}) =
+generateTypeForSchema mod qualifiedName (Schema {description, properties: (NullOrUndefined (Just properties)), "x-kubernetes-group-version-kind": (NullOrUndefined groupVersionKind)}) =
   Just {output, lenses: fst <$> sortedFields}
   where
     output = AST.NewtypeDecl $ AST.ObjectType
       { description: unwrap description
+      , groupVersionKind: fromMaybe [] groupVersionKind
       , qualifiedName
-      , fields: genField <$> sortedFields }
-    sortedFields = properties
-      # StrMap.toUnfoldable
-      # Array.sortWith fst
-      # map (lmap jsonFieldToPsField)
-    genField t@(Tuple name _) = generateField mod t
+      , fields: generateField mod <$> sortedFields }
+    sortedFields = sortFields properties
+    sortFields = StrMap.toUnfoldable
+      >>> Array.sortWith fst
+      >>> map (lmap jsonFieldToPsField)
 generateTypeForSchema mod qualifiedName (Schema {description, oneOf: NullOrUndefined (Just schemas)}) =
   Just {output, lenses: []}
   where
@@ -131,7 +131,7 @@ sharedImports moduleNs moduleName deps =
   , "Data.StrMap as StrMap"
   , "Data.Tuple (Tuple(Tuple))"
   , "Kubernetes.Default (class Default)"
-  , "Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
+  , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
   where
     depImports = mkImport <$> deps
     moduleAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable

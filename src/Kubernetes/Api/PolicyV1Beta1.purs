@@ -21,21 +21,17 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | Eviction evicts a pod from its node subject to certain policies and safety constraints. This is a subresource of Pod.  A request to cause such an eviction is created by POSTing to .../pods/<pod name>/evictions.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `deleteOptions`: DeleteOptions may be provided
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: ObjectMeta describes the pod that is being evicted.
 newtype Eviction = Eviction
-  { apiVersion :: (Maybe String)
-  , deleteOptions :: (Maybe MetaV1.DeleteOptions)
-  , kind :: (Maybe String)
+  { deleteOptions :: (Maybe MetaV1.DeleteOptions)
   , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeEviction :: Newtype Eviction _
@@ -43,38 +39,32 @@ derive instance genericEviction :: Generic Eviction _
 instance showEviction :: Show Eviction where show a = genericShow a
 instance decodeEviction :: Decode Eviction where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "policy/v1beta1" a
                deleteOptions <- decodeMaybe "deleteOptions" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "Eviction" a
                metadata <- decodeMaybe "metadata" a
-               pure $ Eviction { apiVersion, deleteOptions, kind, metadata }
+               pure $ Eviction { deleteOptions, metadata }
 instance encodeEviction :: Encode Eviction where
   encode (Eviction a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "policy/v1beta1")
                , Tuple "deleteOptions" (encodeMaybe a.deleteOptions)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "Eviction")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEviction :: Default Eviction where
   default = Eviction
-    { apiVersion: Nothing
-    , deleteOptions: Nothing
-    , kind: Nothing
+    { deleteOptions: Nothing
     , metadata: Nothing }
 
 -- | PodDisruptionBudget is an object to define the max disruption that can be caused to a collection of pods
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 -- | - `spec`: Specification of the desired behavior of the PodDisruptionBudget.
 -- | - `status`: Most recently observed status of the PodDisruptionBudget.
 newtype PodDisruptionBudget = PodDisruptionBudget
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe PodDisruptionBudgetSpec)
   , status :: (Maybe PodDisruptionBudgetStatus) }
 
@@ -83,16 +73,16 @@ derive instance genericPodDisruptionBudget :: Generic PodDisruptionBudget _
 instance showPodDisruptionBudget :: Show PodDisruptionBudget where show a = genericShow a
 instance decodePodDisruptionBudget :: Decode PodDisruptionBudget where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "policy/v1beta1" a
+               assertPropEq "kind" "PodDisruptionBudget" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ PodDisruptionBudget { apiVersion, kind, metadata, spec, status }
+               pure $ PodDisruptionBudget { metadata, spec, status }
 instance encodePodDisruptionBudget :: Encode PodDisruptionBudget where
   encode (PodDisruptionBudget a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "policy/v1beta1")
+               , Tuple "kind" (encode "PodDisruptionBudget")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -100,23 +90,17 @@ instance encodePodDisruptionBudget :: Encode PodDisruptionBudget where
 
 instance defaultPodDisruptionBudget :: Default PodDisruptionBudget where
   default = PodDisruptionBudget
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | PodDisruptionBudgetList is a collection of PodDisruptionBudgets.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 newtype PodDisruptionBudgetList = PodDisruptionBudgetList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array PodDisruptionBudget))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array PodDisruptionBudget))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodDisruptionBudgetList :: Newtype PodDisruptionBudgetList _
@@ -124,24 +108,22 @@ derive instance genericPodDisruptionBudgetList :: Generic PodDisruptionBudgetLis
 instance showPodDisruptionBudgetList :: Show PodDisruptionBudgetList where show a = genericShow a
 instance decodePodDisruptionBudgetList :: Decode PodDisruptionBudgetList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "policy/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "PodDisruptionBudgetList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ PodDisruptionBudgetList { apiVersion, items, kind, metadata }
+               pure $ PodDisruptionBudgetList { items, metadata }
 instance encodePodDisruptionBudgetList :: Encode PodDisruptionBudgetList where
   encode (PodDisruptionBudgetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "policy/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "PodDisruptionBudgetList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodDisruptionBudgetList :: Default PodDisruptionBudgetList where
   default = PodDisruptionBudgetList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | PodDisruptionBudgetSpec is a description of a PodDisruptionBudget.

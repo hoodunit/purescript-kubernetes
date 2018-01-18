@@ -21,7 +21,7 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -56,14 +56,10 @@ instance defaultIPBlock :: Default IPBlock where
 -- | NetworkPolicy describes what network traffic is allowed for a set of Pods
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired behavior for this NetworkPolicy.
 newtype NetworkPolicy = NetworkPolicy
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe NetworkPolicySpec) }
 
 derive instance newtypeNetworkPolicy :: Newtype NetworkPolicy _
@@ -71,24 +67,22 @@ derive instance genericNetworkPolicy :: Generic NetworkPolicy _
 instance showNetworkPolicy :: Show NetworkPolicy where show a = genericShow a
 instance decodeNetworkPolicy :: Decode NetworkPolicy where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "networking.k8s.io/v1" a
+               assertPropEq "kind" "NetworkPolicy" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
-               pure $ NetworkPolicy { apiVersion, kind, metadata, spec }
+               pure $ NetworkPolicy { metadata, spec }
 instance encodeNetworkPolicy :: Encode NetworkPolicy where
   encode (NetworkPolicy a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "networking.k8s.io/v1")
+               , Tuple "kind" (encode "NetworkPolicy")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultNetworkPolicy :: Default NetworkPolicy where
   default = NetworkPolicy
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing }
 
 -- | NetworkPolicyEgressRule describes a particular set of traffic that is allowed out of pods matched by a NetworkPolicySpec's podSelector. The traffic must match both ports and to. This type is beta-level in 1.8
@@ -150,14 +144,10 @@ instance defaultNetworkPolicyIngressRule :: Default NetworkPolicyIngressRule whe
 -- | NetworkPolicyList is a list of NetworkPolicy objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of schema objects.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype NetworkPolicyList = NetworkPolicyList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array NetworkPolicy))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array NetworkPolicy))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeNetworkPolicyList :: Newtype NetworkPolicyList _
@@ -165,24 +155,22 @@ derive instance genericNetworkPolicyList :: Generic NetworkPolicyList _
 instance showNetworkPolicyList :: Show NetworkPolicyList where show a = genericShow a
 instance decodeNetworkPolicyList :: Decode NetworkPolicyList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "networking.k8s.io/v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "NetworkPolicyList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ NetworkPolicyList { apiVersion, items, kind, metadata }
+               pure $ NetworkPolicyList { items, metadata }
 instance encodeNetworkPolicyList :: Encode NetworkPolicyList where
   encode (NetworkPolicyList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "networking.k8s.io/v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "NetworkPolicyList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultNetworkPolicyList :: Default NetworkPolicyList where
   default = NetworkPolicyList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | NetworkPolicyPeer describes a peer to allow traffic from. Exactly one of its fields must be specified.

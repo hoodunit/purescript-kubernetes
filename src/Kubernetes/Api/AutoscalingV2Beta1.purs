@@ -21,7 +21,7 @@ import Kubernetes.Api.Resource as Resource
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -61,15 +61,11 @@ instance defaultCrossVersionObjectReference :: Default CrossVersionObjectReferen
 -- | HorizontalPodAutoscaler is the configuration for a horizontal pod autoscaler, which automatically manages the replica count of any resource implementing the scale subresource based on the metrics specified.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: metadata is the standard object metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: spec is the specification for the behaviour of the autoscaler. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status.
 -- | - `status`: status is the current information about the autoscaler.
 newtype HorizontalPodAutoscaler = HorizontalPodAutoscaler
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe HorizontalPodAutoscalerSpec)
   , status :: (Maybe HorizontalPodAutoscalerStatus) }
 
@@ -78,16 +74,16 @@ derive instance genericHorizontalPodAutoscaler :: Generic HorizontalPodAutoscale
 instance showHorizontalPodAutoscaler :: Show HorizontalPodAutoscaler where show a = genericShow a
 instance decodeHorizontalPodAutoscaler :: Decode HorizontalPodAutoscaler where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "autoscaling/v2beta1" a
+               assertPropEq "kind" "HorizontalPodAutoscaler" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ HorizontalPodAutoscaler { apiVersion, kind, metadata, spec, status }
+               pure $ HorizontalPodAutoscaler { metadata, spec, status }
 instance encodeHorizontalPodAutoscaler :: Encode HorizontalPodAutoscaler where
   encode (HorizontalPodAutoscaler a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "autoscaling/v2beta1")
+               , Tuple "kind" (encode "HorizontalPodAutoscaler")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -95,20 +91,18 @@ instance encodeHorizontalPodAutoscaler :: Encode HorizontalPodAutoscaler where
 
 instance defaultHorizontalPodAutoscaler :: Default HorizontalPodAutoscaler where
   default = HorizontalPodAutoscaler
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | HorizontalPodAutoscalerCondition describes the state of a HorizontalPodAutoscaler at a certain point.
 -- |
 -- | Fields:
+-- | - `_type`: type describes the current condition
 -- | - `lastTransitionTime`: lastTransitionTime is the last time the condition transitioned from one status to another
 -- | - `message`: message is a human-readable explanation containing details about the transition
 -- | - `reason`: reason is the reason for the condition's last transition.
 -- | - `status`: status is the status of the condition (True, False, Unknown)
--- | - `_type`: type describes the current condition
 newtype HorizontalPodAutoscalerCondition = HorizontalPodAutoscalerCondition
   { _type :: (Maybe String)
   , lastTransitionTime :: (Maybe MetaV1.Time)
@@ -147,14 +141,10 @@ instance defaultHorizontalPodAutoscalerCondition :: Default HorizontalPodAutosca
 -- | HorizontalPodAutoscaler is a list of horizontal pod autoscaler objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: items is the list of horizontal pod autoscaler objects.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: metadata is the standard list metadata.
 newtype HorizontalPodAutoscalerList = HorizontalPodAutoscalerList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array HorizontalPodAutoscaler))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array HorizontalPodAutoscaler))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeHorizontalPodAutoscalerList :: Newtype HorizontalPodAutoscalerList _
@@ -162,24 +152,22 @@ derive instance genericHorizontalPodAutoscalerList :: Generic HorizontalPodAutos
 instance showHorizontalPodAutoscalerList :: Show HorizontalPodAutoscalerList where show a = genericShow a
 instance decodeHorizontalPodAutoscalerList :: Decode HorizontalPodAutoscalerList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "autoscaling/v2beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "HorizontalPodAutoscalerList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ HorizontalPodAutoscalerList { apiVersion, items, kind, metadata }
+               pure $ HorizontalPodAutoscalerList { items, metadata }
 instance encodeHorizontalPodAutoscalerList :: Encode HorizontalPodAutoscalerList where
   encode (HorizontalPodAutoscalerList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "autoscaling/v2beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "HorizontalPodAutoscalerList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultHorizontalPodAutoscalerList :: Default HorizontalPodAutoscalerList where
   default = HorizontalPodAutoscalerList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | HorizontalPodAutoscalerSpec describes the desired functionality of the HorizontalPodAutoscaler.
@@ -271,10 +259,10 @@ instance defaultHorizontalPodAutoscalerStatus :: Default HorizontalPodAutoscaler
 -- | MetricSpec specifies how to scale based on a single metric (only `type` and one other matching field should be set at once).
 -- |
 -- | Fields:
+-- | - `_type`: type is the type of metric source.  It should be one of "Object", "Pods" or "Resource", each mapping to a matching field in the object.
 -- | - `object`: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
 -- | - `pods`: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
 -- | - `resource`: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
--- | - `_type`: type is the type of metric source.  It should be one of "Object", "Pods" or "Resource", each mapping to a matching field in the object.
 newtype MetricSpec = MetricSpec
   { _type :: (Maybe String)
   , object :: (Maybe ObjectMetricSource)
@@ -309,10 +297,10 @@ instance defaultMetricSpec :: Default MetricSpec where
 -- | MetricStatus describes the last-read state of a single metric.
 -- |
 -- | Fields:
+-- | - `_type`: type is the type of metric source.  It will be one of "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
 -- | - `object`: object refers to a metric describing a single kubernetes object (for example, hits-per-second on an Ingress object).
 -- | - `pods`: pods refers to a metric describing each pod in the current scale target (for example, transactions-processed-per-second).  The values will be averaged together before being compared to the target value.
 -- | - `resource`: resource refers to a resource metric (such as those specified in requests and limits) known to Kubernetes describing each pod in the current scale target (e.g. CPU or memory). Such metrics are built in to Kubernetes, and have special scaling options on top of those available to normal per-pod metrics using the "pods" source.
--- | - `_type`: type is the type of metric source.  It will be one of "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
 newtype MetricStatus = MetricStatus
   { _type :: (Maybe String)
   , object :: (Maybe ObjectMetricStatus)

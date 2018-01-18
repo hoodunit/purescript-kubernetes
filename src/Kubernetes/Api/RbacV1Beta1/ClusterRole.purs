@@ -17,7 +17,7 @@ import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.RbacV1Beta1 as RbacV1Beta1
 

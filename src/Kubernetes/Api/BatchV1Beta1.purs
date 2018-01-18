@@ -22,22 +22,18 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
 -- | CronJob represents the configuration of a single cron job.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired behavior of a cron job, including the schedule. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Current status of a cron job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype CronJob = CronJob
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe CronJobSpec)
   , status :: (Maybe CronJobStatus) }
 
@@ -46,16 +42,16 @@ derive instance genericCronJob :: Generic CronJob _
 instance showCronJob :: Show CronJob where show a = genericShow a
 instance decodeCronJob :: Decode CronJob where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "batch/v1beta1" a
+               assertPropEq "kind" "CronJob" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ CronJob { apiVersion, kind, metadata, spec, status }
+               pure $ CronJob { metadata, spec, status }
 instance encodeCronJob :: Encode CronJob where
   encode (CronJob a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "batch/v1beta1")
+               , Tuple "kind" (encode "CronJob")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -63,23 +59,17 @@ instance encodeCronJob :: Encode CronJob where
 
 instance defaultCronJob :: Default CronJob where
   default = CronJob
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | CronJobList is a collection of cron jobs.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: items is the list of CronJobs.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype CronJobList = CronJobList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array CronJob))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array CronJob))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeCronJobList :: Newtype CronJobList _
@@ -87,24 +77,22 @@ derive instance genericCronJobList :: Generic CronJobList _
 instance showCronJobList :: Show CronJobList where show a = genericShow a
 instance decodeCronJobList :: Decode CronJobList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "batch/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "CronJobList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ CronJobList { apiVersion, items, kind, metadata }
+               pure $ CronJobList { items, metadata }
 instance encodeCronJobList :: Encode CronJobList where
   encode (CronJobList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "batch/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "CronJobList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultCronJobList :: Default CronJobList where
   default = CronJobList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | CronJobSpec describes how the job execution will look like and when it will actually run.

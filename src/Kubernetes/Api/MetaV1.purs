@@ -14,22 +14,18 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.Runtime as Runtime
 
 -- | APIGroup contains the name, the supported versions, and the preferred version of a group.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `name`: name is the name of the group.
 -- | - `preferredVersion`: preferredVersion is the version preferred by the API server, which probably is the storage version.
 -- | - `serverAddressByClientCIDRs`: a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
 -- | - `versions`: versions are the versions supported in this group.
 newtype APIGroup = APIGroup
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , name :: (Maybe String)
+  { name :: (Maybe String)
   , preferredVersion :: (Maybe GroupVersionForDiscovery)
   , serverAddressByClientCIDRs :: (Maybe (Array ServerAddressByClientCIDR))
   , versions :: (Maybe (Array GroupVersionForDiscovery)) }
@@ -39,17 +35,17 @@ derive instance genericAPIGroup :: Generic APIGroup _
 instance showAPIGroup :: Show APIGroup where show a = genericShow a
 instance decodeAPIGroup :: Decode APIGroup where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "APIGroup" a
                name <- decodeMaybe "name" a
                preferredVersion <- decodeMaybe "preferredVersion" a
                serverAddressByClientCIDRs <- decodeMaybe "serverAddressByClientCIDRs" a
                versions <- decodeMaybe "versions" a
-               pure $ APIGroup { apiVersion, kind, name, preferredVersion, serverAddressByClientCIDRs, versions }
+               pure $ APIGroup { name, preferredVersion, serverAddressByClientCIDRs, versions }
 instance encodeAPIGroup :: Encode APIGroup where
   encode (APIGroup a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "APIGroup")
                , Tuple "name" (encodeMaybe a.name)
                , Tuple "preferredVersion" (encodeMaybe a.preferredVersion)
                , Tuple "serverAddressByClientCIDRs" (encodeMaybe a.serverAddressByClientCIDRs)
@@ -58,9 +54,7 @@ instance encodeAPIGroup :: Encode APIGroup where
 
 instance defaultAPIGroup :: Default APIGroup where
   default = APIGroup
-    { apiVersion: Nothing
-    , kind: Nothing
-    , name: Nothing
+    { name: Nothing
     , preferredVersion: Nothing
     , serverAddressByClientCIDRs: Nothing
     , versions: Nothing }
@@ -68,35 +62,29 @@ instance defaultAPIGroup :: Default APIGroup where
 -- | APIGroupList is a list of APIGroup, to allow clients to discover the API at /apis.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `groups`: groups is a list of APIGroup.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype APIGroupList = APIGroupList
-  { apiVersion :: (Maybe String)
-  , groups :: (Maybe (Array APIGroup))
-  , kind :: (Maybe String) }
+  { groups :: (Maybe (Array APIGroup)) }
 
 derive instance newtypeAPIGroupList :: Newtype APIGroupList _
 derive instance genericAPIGroupList :: Generic APIGroupList _
 instance showAPIGroupList :: Show APIGroupList where show a = genericShow a
 instance decodeAPIGroupList :: Decode APIGroupList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                groups <- decodeMaybe "groups" a
-               kind <- decodeMaybe "kind" a
-               pure $ APIGroupList { apiVersion, groups, kind }
+               assertPropEq "kind" "APIGroupList" a
+               pure $ APIGroupList { groups }
 instance encodeAPIGroupList :: Encode APIGroupList where
   encode (APIGroupList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "groups" (encodeMaybe a.groups)
-               , Tuple "kind" (encodeMaybe a.kind) ]
+               , Tuple "kind" (encode "APIGroupList") ]
 
 
 instance defaultAPIGroupList :: Default APIGroupList where
   default = APIGroupList
-    { apiVersion: Nothing
-    , groups: Nothing
-    , kind: Nothing }
+    { groups: Nothing }
 
 -- | APIResource specifies the name of a resource and whether it is namespaced.
 -- |
@@ -164,14 +152,10 @@ instance defaultAPIResource :: Default APIResource where
 -- | APIResourceList is a list of APIResource, it is used to expose the name of the resources supported in a specific group and version, and if the resource is namespaced.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `groupVersion`: groupVersion is the group and version this APIResourceList is for.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `resources`: resources contains the name of the resources and if they are namespaced.
 newtype APIResourceList = APIResourceList
-  { apiVersion :: (Maybe String)
-  , groupVersion :: (Maybe String)
-  , kind :: (Maybe String)
+  { groupVersion :: (Maybe String)
   , resources :: (Maybe (Array APIResource)) }
 
 derive instance newtypeAPIResourceList :: Newtype APIResourceList _
@@ -179,37 +163,31 @@ derive instance genericAPIResourceList :: Generic APIResourceList _
 instance showAPIResourceList :: Show APIResourceList where show a = genericShow a
 instance decodeAPIResourceList :: Decode APIResourceList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                groupVersion <- decodeMaybe "groupVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "APIResourceList" a
                resources <- decodeMaybe "resources" a
-               pure $ APIResourceList { apiVersion, groupVersion, kind, resources }
+               pure $ APIResourceList { groupVersion, resources }
 instance encodeAPIResourceList :: Encode APIResourceList where
   encode (APIResourceList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "groupVersion" (encodeMaybe a.groupVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "APIResourceList")
                , Tuple "resources" (encodeMaybe a.resources) ]
 
 
 instance defaultAPIResourceList :: Default APIResourceList where
   default = APIResourceList
-    { apiVersion: Nothing
-    , groupVersion: Nothing
-    , kind: Nothing
+    { groupVersion: Nothing
     , resources: Nothing }
 
 -- | APIVersions lists the versions that are available, to allow clients to discover the API at /api, which is the root path of the legacy v1 API.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `serverAddressByClientCIDRs`: a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
 -- | - `versions`: versions are the api versions that are available.
 newtype APIVersions = APIVersions
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , serverAddressByClientCIDRs :: (Maybe (Array ServerAddressByClientCIDR))
+  { serverAddressByClientCIDRs :: (Maybe (Array ServerAddressByClientCIDR))
   , versions :: (Maybe (Array String)) }
 
 derive instance newtypeAPIVersions :: Newtype APIVersions _
@@ -217,39 +195,33 @@ derive instance genericAPIVersions :: Generic APIVersions _
 instance showAPIVersions :: Show APIVersions where show a = genericShow a
 instance decodeAPIVersions :: Decode APIVersions where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "APIVersions" a
                serverAddressByClientCIDRs <- decodeMaybe "serverAddressByClientCIDRs" a
                versions <- decodeMaybe "versions" a
-               pure $ APIVersions { apiVersion, kind, serverAddressByClientCIDRs, versions }
+               pure $ APIVersions { serverAddressByClientCIDRs, versions }
 instance encodeAPIVersions :: Encode APIVersions where
   encode (APIVersions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "APIVersions")
                , Tuple "serverAddressByClientCIDRs" (encodeMaybe a.serverAddressByClientCIDRs)
                , Tuple "versions" (encodeMaybe a.versions) ]
 
 
 instance defaultAPIVersions :: Default APIVersions where
   default = APIVersions
-    { apiVersion: Nothing
-    , kind: Nothing
-    , serverAddressByClientCIDRs: Nothing
+    { serverAddressByClientCIDRs: Nothing
     , versions: Nothing }
 
 -- | DeleteOptions may be provided when deleting an API object.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `preconditions`: Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteOptions = DeleteOptions
-  { apiVersion :: (Maybe String)
-  , gracePeriodSeconds :: (Maybe Int)
-  , kind :: (Maybe String)
+  { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , preconditions :: (Maybe Preconditions)
   , propagationPolicy :: (Maybe String) }
@@ -259,18 +231,18 @@ derive instance genericDeleteOptions :: Generic DeleteOptions _
 instance showDeleteOptions :: Show DeleteOptions where show a = genericShow a
 instance decodeDeleteOptions :: Decode DeleteOptions where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "DeleteOptions" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                preconditions <- decodeMaybe "preconditions" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteOptions { apiVersion, gracePeriodSeconds, kind, orphanDependents, preconditions, propagationPolicy }
+               pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, preconditions, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
   encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "DeleteOptions")
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "preconditions" (encodeMaybe a.preconditions)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -278,9 +250,7 @@ instance encodeDeleteOptions :: Encode DeleteOptions where
 
 instance defaultDeleteOptions :: Default DeleteOptions where
   default = DeleteOptions
-    { apiVersion: Nothing
-    , gracePeriodSeconds: Nothing
-    , kind: Nothing
+    { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , preconditions: Nothing
     , propagationPolicy: Nothing }
@@ -684,19 +654,15 @@ instance defaultServerAddressByClientCIDR :: Default ServerAddressByClientCIDR w
 -- | Status is a return value for calls that don't return other objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `code`: Suggested HTTP return code for this status, 0 if not set.
 -- | - `details`: Extended data associated with the reason.  Each reason may define its own extended details. This field is optional and the data returned is not guaranteed to conform to any schema except that defined by the reason type.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `message`: A human-readable description of the status of this operation.
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `reason`: A machine-readable description of why this operation is in the "Failure" status. If this value is empty there is no information available. A Reason clarifies an HTTP status code but does not override it.
 -- | - `status`: Status of the operation. One of: "Success" or "Failure". More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Status = Status
-  { apiVersion :: (Maybe String)
-  , code :: (Maybe Int)
+  { code :: (Maybe Int)
   , details :: (Maybe StatusDetails)
-  , kind :: (Maybe String)
   , message :: (Maybe String)
   , metadata :: (Maybe ListMeta)
   , reason :: (Maybe String)
@@ -707,21 +673,21 @@ derive instance genericStatus :: Generic Status _
 instance showStatus :: Show Status where show a = genericShow a
 instance decodeStatus :: Decode Status where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                code <- decodeMaybe "code" a
                details <- decodeMaybe "details" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "Status" a
                message <- decodeMaybe "message" a
                metadata <- decodeMaybe "metadata" a
                reason <- decodeMaybe "reason" a
                status <- decodeMaybe "status" a
-               pure $ Status { apiVersion, code, details, kind, message, metadata, reason, status }
+               pure $ Status { code, details, message, metadata, reason, status }
 instance encodeStatus :: Encode Status where
   encode (Status a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "code" (encodeMaybe a.code)
                , Tuple "details" (encodeMaybe a.details)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "Status")
                , Tuple "message" (encodeMaybe a.message)
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "reason" (encodeMaybe a.reason)
@@ -730,10 +696,8 @@ instance encodeStatus :: Encode Status where
 
 instance defaultStatus :: Default Status where
   default = Status
-    { apiVersion: Nothing
-    , code: Nothing
+    { code: Nothing
     , details: Nothing
-    , kind: Nothing
     , message: Nothing
     , metadata: Nothing
     , reason: Nothing
@@ -837,12 +801,12 @@ instance encodeTime :: Encode Time where
 -- | Event represents a single event to a watched resource.
 -- |
 -- | Fields:
+-- | - `_type`
 -- | - `object`: Object is:
 -- |     * If Type is Added or Modified: the new state of the object.
 -- |     * If Type is Deleted: the state of the object immediately before deletion.
 -- |     * If Type is Error: *Status is recommended; other types may make sense
 -- |       depending on context.
--- | - `_type`
 newtype WatchEvent = WatchEvent
   { _type :: (Maybe String)
   , object :: (Maybe Runtime.RawExtension) }

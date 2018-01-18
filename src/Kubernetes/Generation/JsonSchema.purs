@@ -10,7 +10,7 @@ import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Maybe (Maybe(..))
 import Data.StrMap (StrMap)
 import Debug.Trace as Debug
-import Kubernetes.SchemaExtensions (KubernetesGroupVersionKind)
+import Kubernetes.SchemaExtensions (GroupVersionKind)
 import Simple.JSON (class ReadForeign)
 
 newtype Schema = Schema
@@ -23,7 +23,7 @@ newtype Schema = Schema
   , properties :: NullOrUndefined (StrMap Schema)
   , ref :: NullOrUndefined String
   , required :: NullOrUndefined (Array String)
-  , "x-kubernetes-group-version-kind" :: NullOrUndefined KubernetesGroupVersionKind }
+  , "x-kubernetes-group-version-kind" :: NullOrUndefined (Array GroupVersionKind) }
 instance readForeignSchema :: ReadForeign Schema where
   readImpl = decode
 instance decodeSchema :: Decode Schema where

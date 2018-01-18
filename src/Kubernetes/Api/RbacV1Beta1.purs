@@ -20,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -51,14 +51,10 @@ instance defaultAggregationRule :: Default AggregationRule where
 -- |
 -- | Fields:
 -- | - `aggregationRule`: AggregationRule is an optional field that describes how to build the Rules for this ClusterRole. If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be stomped by the controller.
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 -- | - `rules`: Rules holds all the PolicyRules for this ClusterRole
 newtype ClusterRole = ClusterRole
   { aggregationRule :: (Maybe AggregationRule)
-  , apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta)
   , rules :: (Maybe (Array PolicyRule)) }
 
@@ -68,16 +64,16 @@ instance showClusterRole :: Show ClusterRole where show a = genericShow a
 instance decodeClusterRole :: Decode ClusterRole where
   decode a = do
                aggregationRule <- decodeMaybe "aggregationRule" a
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
+               assertPropEq "kind" "ClusterRole" a
                metadata <- decodeMaybe "metadata" a
                rules <- decodeMaybe "rules" a
-               pure $ ClusterRole { aggregationRule, apiVersion, kind, metadata, rules }
+               pure $ ClusterRole { aggregationRule, metadata, rules }
 instance encodeClusterRole :: Encode ClusterRole where
   encode (ClusterRole a) = encode $ StrMap.fromFoldable $
                [ Tuple "aggregationRule" (encodeMaybe a.aggregationRule)
-               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
+               , Tuple "kind" (encode "ClusterRole")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "rules" (encodeMaybe a.rules) ]
 
@@ -85,23 +81,17 @@ instance encodeClusterRole :: Encode ClusterRole where
 instance defaultClusterRole :: Default ClusterRole where
   default = ClusterRole
     { aggregationRule: Nothing
-    , apiVersion: Nothing
-    , kind: Nothing
     , metadata: Nothing
     , rules: Nothing }
 
 -- | ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace, and adds who information via Subject.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 -- | - `roleRef`: RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
 -- | - `subjects`: Subjects holds references to the objects the role applies to.
 newtype ClusterRoleBinding = ClusterRoleBinding
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , roleRef :: (Maybe RoleRef)
   , subjects :: (Maybe (Array Subject)) }
 
@@ -110,16 +100,16 @@ derive instance genericClusterRoleBinding :: Generic ClusterRoleBinding _
 instance showClusterRoleBinding :: Show ClusterRoleBinding where show a = genericShow a
 instance decodeClusterRoleBinding :: Decode ClusterRoleBinding where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
+               assertPropEq "kind" "ClusterRoleBinding" a
                metadata <- decodeMaybe "metadata" a
                roleRef <- decodeMaybe "roleRef" a
                subjects <- decodeMaybe "subjects" a
-               pure $ ClusterRoleBinding { apiVersion, kind, metadata, roleRef, subjects }
+               pure $ ClusterRoleBinding { metadata, roleRef, subjects }
 instance encodeClusterRoleBinding :: Encode ClusterRoleBinding where
   encode (ClusterRoleBinding a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
+               , Tuple "kind" (encode "ClusterRoleBinding")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "roleRef" (encodeMaybe a.roleRef)
                , Tuple "subjects" (encodeMaybe a.subjects) ]
@@ -127,23 +117,17 @@ instance encodeClusterRoleBinding :: Encode ClusterRoleBinding where
 
 instance defaultClusterRoleBinding :: Default ClusterRoleBinding where
   default = ClusterRoleBinding
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , roleRef: Nothing
     , subjects: Nothing }
 
 -- | ClusterRoleBindingList is a collection of ClusterRoleBindings
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of ClusterRoleBindings
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype ClusterRoleBindingList = ClusterRoleBindingList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ClusterRoleBinding))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ClusterRoleBinding))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeClusterRoleBindingList :: Newtype ClusterRoleBindingList _
@@ -151,37 +135,31 @@ derive instance genericClusterRoleBindingList :: Generic ClusterRoleBindingList 
 instance showClusterRoleBindingList :: Show ClusterRoleBindingList where show a = genericShow a
 instance decodeClusterRoleBindingList :: Decode ClusterRoleBindingList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ClusterRoleBindingList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ClusterRoleBindingList { apiVersion, items, kind, metadata }
+               pure $ ClusterRoleBindingList { items, metadata }
 instance encodeClusterRoleBindingList :: Encode ClusterRoleBindingList where
   encode (ClusterRoleBindingList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ClusterRoleBindingList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultClusterRoleBindingList :: Default ClusterRoleBindingList where
   default = ClusterRoleBindingList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | ClusterRoleList is a collection of ClusterRoles
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of ClusterRoles
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype ClusterRoleList = ClusterRoleList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ClusterRole))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ClusterRole))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeClusterRoleList :: Newtype ClusterRoleList _
@@ -189,24 +167,22 @@ derive instance genericClusterRoleList :: Generic ClusterRoleList _
 instance showClusterRoleList :: Show ClusterRoleList where show a = genericShow a
 instance decodeClusterRoleList :: Decode ClusterRoleList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ClusterRoleList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ClusterRoleList { apiVersion, items, kind, metadata }
+               pure $ ClusterRoleList { items, metadata }
 instance encodeClusterRoleList :: Encode ClusterRoleList where
   encode (ClusterRoleList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ClusterRoleList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultClusterRoleList :: Default ClusterRoleList where
   default = ClusterRoleList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | PolicyRule holds information that describes a policy rule, but does not contain information about who the rule applies to or which namespace the rule applies to.
@@ -255,14 +231,10 @@ instance defaultPolicyRule :: Default PolicyRule where
 -- | Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 -- | - `rules`: Rules holds all the PolicyRules for this Role
 newtype Role = Role
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , rules :: (Maybe (Array PolicyRule)) }
 
 derive instance newtypeRole :: Newtype Role _
@@ -270,38 +242,32 @@ derive instance genericRole :: Generic Role _
 instance showRole :: Show Role where show a = genericShow a
 instance decodeRole :: Decode Role where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
+               assertPropEq "kind" "Role" a
                metadata <- decodeMaybe "metadata" a
                rules <- decodeMaybe "rules" a
-               pure $ Role { apiVersion, kind, metadata, rules }
+               pure $ Role { metadata, rules }
 instance encodeRole :: Encode Role where
   encode (Role a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
+               , Tuple "kind" (encode "Role")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "rules" (encodeMaybe a.rules) ]
 
 
 instance defaultRole :: Default Role where
   default = Role
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , rules: Nothing }
 
 -- | RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace. It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given namespace only have effect in that namespace.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 -- | - `roleRef`: RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
 -- | - `subjects`: Subjects holds references to the objects the role applies to.
 newtype RoleBinding = RoleBinding
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , roleRef :: (Maybe RoleRef)
   , subjects :: (Maybe (Array Subject)) }
 
@@ -310,16 +276,16 @@ derive instance genericRoleBinding :: Generic RoleBinding _
 instance showRoleBinding :: Show RoleBinding where show a = genericShow a
 instance decodeRoleBinding :: Decode RoleBinding where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
+               assertPropEq "kind" "RoleBinding" a
                metadata <- decodeMaybe "metadata" a
                roleRef <- decodeMaybe "roleRef" a
                subjects <- decodeMaybe "subjects" a
-               pure $ RoleBinding { apiVersion, kind, metadata, roleRef, subjects }
+               pure $ RoleBinding { metadata, roleRef, subjects }
 instance encodeRoleBinding :: Encode RoleBinding where
   encode (RoleBinding a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
+               , Tuple "kind" (encode "RoleBinding")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "roleRef" (encodeMaybe a.roleRef)
                , Tuple "subjects" (encodeMaybe a.subjects) ]
@@ -327,23 +293,17 @@ instance encodeRoleBinding :: Encode RoleBinding where
 
 instance defaultRoleBinding :: Default RoleBinding where
   default = RoleBinding
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , roleRef: Nothing
     , subjects: Nothing }
 
 -- | RoleBindingList is a collection of RoleBindings
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of RoleBindings
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype RoleBindingList = RoleBindingList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array RoleBinding))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array RoleBinding))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeRoleBindingList :: Newtype RoleBindingList _
@@ -351,37 +311,31 @@ derive instance genericRoleBindingList :: Generic RoleBindingList _
 instance showRoleBindingList :: Show RoleBindingList where show a = genericShow a
 instance decodeRoleBindingList :: Decode RoleBindingList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "RoleBindingList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ RoleBindingList { apiVersion, items, kind, metadata }
+               pure $ RoleBindingList { items, metadata }
 instance encodeRoleBindingList :: Encode RoleBindingList where
   encode (RoleBindingList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "RoleBindingList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultRoleBindingList :: Default RoleBindingList where
   default = RoleBindingList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | RoleList is a collection of Roles
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of Roles
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype RoleList = RoleList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Role))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Role))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeRoleList :: Newtype RoleList _
@@ -389,24 +343,22 @@ derive instance genericRoleList :: Generic RoleList _
 instance showRoleList :: Show RoleList where show a = genericShow a
 instance decodeRoleList :: Decode RoleList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "rbac.authorization.k8s.io/v1beta1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "RoleList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ RoleList { apiVersion, items, kind, metadata }
+               pure $ RoleList { items, metadata }
 instance encodeRoleList :: Encode RoleList where
   encode (RoleList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "RoleList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultRoleList :: Default RoleList where
   default = RoleList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | RoleRef contains information that points to the role being used

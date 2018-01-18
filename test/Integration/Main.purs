@@ -49,8 +49,6 @@ import Node.Process as Process
 echoDeployment :: Deployment
 echoDeployment =
   (default :: Deployment)
-    # _apiVersion ?~ "extensions/v1beta1"
-    # _kind ?~ "Deployment"
     # _metadata ?~ (default
       # _labels ?~ (StrMap.fromFoldable
         [ Tuple "service" "echoserver" ])
@@ -79,8 +77,6 @@ echoDeployment =
 echoService :: Service
 echoService =
   default
-    # _apiVersion ?~ "v1"
-    # _kind ?~ "Service"
     # _metadata ?~ (default
       # _labels ?~ (StrMap.fromFoldable
         [ Tuple "service" "echoserver" ])
@@ -96,16 +92,12 @@ echoService =
 
 testNamespace :: Namespace
 testNamespace = default
-  # _apiVersion ?~ "v1"
-  # _kind ?~ "Namespace"
   # _metadata ?~ (default # _name ?~ "test")
 
 -- Example: Without lenses there is a lot of boilerplate
 testNamespace2 :: Namespace
 testNamespace2 = default # (\(Namespace n) -> Namespace $ n
-    { apiVersion = Just "v1"
-    , kind = Just "v1"
-    , metadata = Just $
+    { metadata = Just $
         default # (\(MetaV1.ObjectMeta m) -> MetaV1.ObjectMeta $ m
           { name = Just "test" }) })
  

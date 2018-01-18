@@ -10,7 +10,7 @@ import Data.Maybe (Maybe)
 import Data.StrMap (StrMap)
 import Data.Symbol (SProxy(..))
 import Kubernetes.Generation.JsonSchema (Schema)
-import Kubernetes.SchemaExtensions (KubernetesGroupVersionKind(..))
+import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
 
 type Swagger =
   { paths :: StrMap PathItem
@@ -62,7 +62,7 @@ type Operation =
   , schemes :: NullOrUndefined (Array String)
   , tags :: NullOrUndefined (Array String)
   , "x-kubernetes-action" :: NullOrUndefined String
-  , "x-kubernetes-group-version-kind" :: NullOrUndefined KubernetesGroupVersionKind }
+  , "x-kubernetes-group-version-kind" :: NullOrUndefined GroupVersionKind }
     
 _consumes :: L.Lens' Operation (Maybe (Array String))
 _consumes = prop (SProxy :: SProxy "consumes") <<< _Newtype

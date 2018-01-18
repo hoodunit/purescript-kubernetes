@@ -27,7 +27,7 @@ import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag,
 import Kubernetes.Generation.PathParsing as PathParsing
 import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Swagger, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
 import Kubernetes.Generation.TypeGeneration (generateApiTypes)
-import Kubernetes.SchemaExtensions (KubernetesGroupVersionKind(..))
+import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
 import Partial.Unsafe (unsafeCrashWith, unsafePartial)
 import Simple.JSON (writeJSON)
     
@@ -138,7 +138,7 @@ mkModule moduleNs moduleName decls =
     , "Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)"
     , "Kubernetes.Config (Config)"
     , "Kubernetes.Default (class Default)"
-    , "Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
+    , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
   , declarations: (mapDeclRefs fixRefName) <$> decls }
   where
     depImports = decls >>= declRefs
@@ -243,7 +243,7 @@ generateOperation (Tuple name op) = unsafeCrashWith $ "Could not parse operation
 
 parseModuleName :: Partial => Operation -> AST.ApiModuleName
 parseModuleName op@{"x-kubernetes-group-version-kind":
-                    NullOrUndefined (Just (KubernetesGroupVersionKind v))} =
+                    NullOrUndefined (Just (GroupVersionKind v))} =
   case apiModuleFromGroupVersion v of
     Just name -> name
     Nothing -> unsafeCrashWith $ "Could not parse module name from group version: " <>
@@ -278,7 +278,11 @@ parseOperationParams _ {parameters: NullOrUndefined Nothing} = Nothing
 parseOperationParams name {parameters: NullOrUndefined (Just params)} =
   if Array.null fields
      then Nothing
-     else Just $ AST.ObjectType { description: Nothing, qualifiedName: name, fields }
+     else Just $ AST.ObjectType $
+       { description: Nothing
+       , groupVersionKind: []
+       , qualifiedName: name
+       , fields }
   where fields = Array.catMaybes (parseParam <$> params)
 
 parseParam :: Partial => Param -> Maybe AST.OptionalField

@@ -22,7 +22,7 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -249,14 +249,10 @@ instance defaultAzureFileVolumeSource :: Default AzureFileVolumeSource where
 -- | Binding ties one object to another; for example, a pod is bound to a node by a scheduler. Deprecated in 1.7, please use the bindings subresource of pods instead.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `target`: The target object that you want to bind to the standard object.
 newtype Binding = Binding
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , target :: (Maybe ObjectReference) }
 
 derive instance newtypeBinding :: Newtype Binding _
@@ -264,24 +260,22 @@ derive instance genericBinding :: Generic Binding _
 instance showBinding :: Show Binding where show a = genericShow a
 instance decodeBinding :: Decode Binding where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "Binding" a
                metadata <- decodeMaybe "metadata" a
                target <- decodeMaybe "target" a
-               pure $ Binding { apiVersion, kind, metadata, target }
+               pure $ Binding { metadata, target }
 instance encodeBinding :: Encode Binding where
   encode (Binding a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "Binding")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "target" (encodeMaybe a.target) ]
 
 
 instance defaultBinding :: Default Binding where
   default = Binding
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , target: Nothing }
 
 -- | Represents storage that is managed by an external CSI volume driver
@@ -500,10 +494,10 @@ instance defaultClientIPConfig :: Default ClientIPConfig where
 -- | Information about the condition of a component.
 -- |
 -- | Fields:
+-- | - `_type`: Type of condition for a component. Valid value: "Healthy"
 -- | - `error`: Condition error code for a component. For example, a health check error code.
 -- | - `message`: Message about the condition for a component. For example, information about a health check.
 -- | - `status`: Status of the condition for a component. Valid values for "Healthy": "True", "False", or "Unknown".
--- | - `_type`: Type of condition for a component. Valid value: "Healthy"
 newtype ComponentCondition = ComponentCondition
   { _type :: (Maybe String)
   , error :: (Maybe String)
@@ -538,14 +532,10 @@ instance defaultComponentCondition :: Default ComponentCondition where
 -- | ComponentStatus (and ComponentStatusList) holds the cluster validation info.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `conditions`: List of component conditions observed
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ComponentStatus = ComponentStatus
-  { apiVersion :: (Maybe String)
-  , conditions :: (Maybe (Array ComponentCondition))
-  , kind :: (Maybe String)
+  { conditions :: (Maybe (Array ComponentCondition))
   , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeComponentStatus :: Newtype ComponentStatus _
@@ -553,37 +543,31 @@ derive instance genericComponentStatus :: Generic ComponentStatus _
 instance showComponentStatus :: Show ComponentStatus where show a = genericShow a
 instance decodeComponentStatus :: Decode ComponentStatus where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                conditions <- decodeMaybe "conditions" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ComponentStatus" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ComponentStatus { apiVersion, conditions, kind, metadata }
+               pure $ ComponentStatus { conditions, metadata }
 instance encodeComponentStatus :: Encode ComponentStatus where
   encode (ComponentStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "conditions" (encodeMaybe a.conditions)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ComponentStatus")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultComponentStatus :: Default ComponentStatus where
   default = ComponentStatus
-    { apiVersion: Nothing
-    , conditions: Nothing
-    , kind: Nothing
+    { conditions: Nothing
     , metadata: Nothing }
 
 -- | Status of all the conditions for the component as a list of ComponentStatus objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of ComponentStatus objects.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ComponentStatusList = ComponentStatusList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ComponentStatus))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ComponentStatus))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeComponentStatusList :: Newtype ComponentStatusList _
@@ -591,37 +575,31 @@ derive instance genericComponentStatusList :: Generic ComponentStatusList _
 instance showComponentStatusList :: Show ComponentStatusList where show a = genericShow a
 instance decodeComponentStatusList :: Decode ComponentStatusList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ComponentStatusList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ComponentStatusList { apiVersion, items, kind, metadata }
+               pure $ ComponentStatusList { items, metadata }
 instance encodeComponentStatusList :: Encode ComponentStatusList where
   encode (ComponentStatusList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ComponentStatusList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultComponentStatusList :: Default ComponentStatusList where
   default = ComponentStatusList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | ConfigMap holds configuration data for pods to consume.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `_data`: Data contains the configuration data. Each key must consist of alphanumeric characters, '-', '_' or '.'.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ConfigMap = ConfigMap
   { _data :: (Maybe (StrMap String))
-  , apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeConfigMap :: Newtype ConfigMap _
@@ -630,23 +608,21 @@ instance showConfigMap :: Show ConfigMap where show a = genericShow a
 instance decodeConfigMap :: Decode ConfigMap where
   decode a = do
                _data <- decodeMaybe "_data" a
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "ConfigMap" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ConfigMap { _data, apiVersion, kind, metadata }
+               pure $ ConfigMap { _data, metadata }
 instance encodeConfigMap :: Encode ConfigMap where
   encode (ConfigMap a) = encode $ StrMap.fromFoldable $
                [ Tuple "_data" (encodeMaybe a._data)
-               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "ConfigMap")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultConfigMap :: Default ConfigMap where
   default = ConfigMap
     { _data: Nothing
-    , apiVersion: Nothing
-    , kind: Nothing
     , metadata: Nothing }
 
 -- | ConfigMapEnvSource selects a ConfigMap to populate the environment variables with.
@@ -715,14 +691,10 @@ instance defaultConfigMapKeySelector :: Default ConfigMapKeySelector where
 -- | ConfigMapList is a resource containing a list of ConfigMap objects.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is the list of ConfigMaps.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ConfigMapList = ConfigMapList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ConfigMap))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ConfigMap))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeConfigMapList :: Newtype ConfigMapList _
@@ -730,24 +702,22 @@ derive instance genericConfigMapList :: Generic ConfigMapList _
 instance showConfigMapList :: Show ConfigMapList where show a = genericShow a
 instance decodeConfigMapList :: Decode ConfigMapList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ConfigMapList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ConfigMapList { apiVersion, items, kind, metadata }
+               pure $ ConfigMapList { items, metadata }
 instance encodeConfigMapList :: Encode ConfigMapList where
   encode (ConfigMapList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ConfigMapList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultConfigMapList :: Default ConfigMapList where
   default = ConfigMapList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | Adapts a ConfigMap into a projected volume.
@@ -1479,14 +1449,10 @@ instance defaultEndpointSubset :: Default EndpointSubset where
 -- |  ]
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `subsets`: The set of all endpoints is the union of all subsets. Addresses are placed into subsets according to the IPs they share. A single address with multiple ports, some of which are ready and some of which are not (because they come from different containers) will result in the address being displayed in different subsets for the different ports. No address will appear in both Addresses and NotReadyAddresses in the same subset. Sets of addresses and ports that comprise a service.
 newtype Endpoints = Endpoints
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , subsets :: (Maybe (Array EndpointSubset)) }
 
 derive instance newtypeEndpoints :: Newtype Endpoints _
@@ -1494,37 +1460,31 @@ derive instance genericEndpoints :: Generic Endpoints _
 instance showEndpoints :: Show Endpoints where show a = genericShow a
 instance decodeEndpoints :: Decode Endpoints where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "Endpoints" a
                metadata <- decodeMaybe "metadata" a
                subsets <- decodeMaybe "subsets" a
-               pure $ Endpoints { apiVersion, kind, metadata, subsets }
+               pure $ Endpoints { metadata, subsets }
 instance encodeEndpoints :: Encode Endpoints where
   encode (Endpoints a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "Endpoints")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "subsets" (encodeMaybe a.subsets) ]
 
 
 instance defaultEndpoints :: Default Endpoints where
   default = Endpoints
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , subsets: Nothing }
 
 -- | EndpointsList is a list of endpoints.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of endpoints.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype EndpointsList = EndpointsList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Endpoints))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Endpoints))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeEndpointsList :: Newtype EndpointsList _
@@ -1532,24 +1492,22 @@ derive instance genericEndpointsList :: Generic EndpointsList _
 instance showEndpointsList :: Show EndpointsList where show a = genericShow a
 instance decodeEndpointsList :: Decode EndpointsList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "EndpointsList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ EndpointsList { apiVersion, items, kind, metadata }
+               pure $ EndpointsList { items, metadata }
 instance encodeEndpointsList :: Encode EndpointsList where
   encode (EndpointsList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "EndpointsList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEndpointsList :: Default EndpointsList where
   default = EndpointsList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | EnvFromSource represents the source of a set of ConfigMaps
@@ -1659,13 +1617,12 @@ instance defaultEnvVarSource :: Default EnvVarSource where
 -- | Event is a report of an event somewhere in the cluster.
 -- |
 -- | Fields:
+-- | - `_type`: Type of this event (Normal, Warning), new types could be added in the future
 -- | - `action`: What action was taken/failed regarding to the Regarding object.
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `count`: The number of times this event has occurred.
 -- | - `eventTime`: Time when this Event was first observed.
 -- | - `firstTimestamp`: The time at which the event was first recorded. (Time of server receipt is in TypeMeta.)
 -- | - `involvedObject`: The object that this event is about.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `lastTimestamp`: The time at which the most recent occurrence of this event was recorded.
 -- | - `message`: A human-readable description of the status of this operation.
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
@@ -1675,16 +1632,13 @@ instance defaultEnvVarSource :: Default EnvVarSource where
 -- | - `reportingInstance`: ID of the controller instance, e.g. `kubelet-xyzf`.
 -- | - `series`: Data about the Event series this event represents or nil if it's a singleton Event.
 -- | - `source`: The component reporting this event. Should be a short machine understandable string.
--- | - `_type`: Type of this event (Normal, Warning), new types could be added in the future
 newtype Event = Event
   { _type :: (Maybe String)
   , action :: (Maybe String)
-  , apiVersion :: (Maybe String)
   , count :: (Maybe Int)
   , eventTime :: (Maybe MetaV1.MicroTime)
   , firstTimestamp :: (Maybe MetaV1.Time)
   , involvedObject :: (Maybe ObjectReference)
-  , kind :: (Maybe String)
   , lastTimestamp :: (Maybe MetaV1.Time)
   , message :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta)
@@ -1702,12 +1656,12 @@ instance decodeEvent :: Decode Event where
   decode a = do
                _type <- decodeMaybe "_type" a
                action <- decodeMaybe "action" a
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                count <- decodeMaybe "count" a
                eventTime <- decodeMaybe "eventTime" a
                firstTimestamp <- decodeMaybe "firstTimestamp" a
                involvedObject <- decodeMaybe "involvedObject" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "Event" a
                lastTimestamp <- decodeMaybe "lastTimestamp" a
                message <- decodeMaybe "message" a
                metadata <- decodeMaybe "metadata" a
@@ -1717,17 +1671,17 @@ instance decodeEvent :: Decode Event where
                reportingInstance <- decodeMaybe "reportingInstance" a
                series <- decodeMaybe "series" a
                source <- decodeMaybe "source" a
-               pure $ Event { _type, action, apiVersion, count, eventTime, firstTimestamp, involvedObject, kind, lastTimestamp, message, metadata, reason, related, reportingComponent, reportingInstance, series, source }
+               pure $ Event { _type, action, count, eventTime, firstTimestamp, involvedObject, lastTimestamp, message, metadata, reason, related, reportingComponent, reportingInstance, series, source }
 instance encodeEvent :: Encode Event where
   encode (Event a) = encode $ StrMap.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "action" (encodeMaybe a.action)
-               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "apiVersion" (encode "v1")
                , Tuple "count" (encodeMaybe a.count)
                , Tuple "eventTime" (encodeMaybe a.eventTime)
                , Tuple "firstTimestamp" (encodeMaybe a.firstTimestamp)
                , Tuple "involvedObject" (encodeMaybe a.involvedObject)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "Event")
                , Tuple "lastTimestamp" (encodeMaybe a.lastTimestamp)
                , Tuple "message" (encodeMaybe a.message)
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -1743,12 +1697,10 @@ instance defaultEvent :: Default Event where
   default = Event
     { _type: Nothing
     , action: Nothing
-    , apiVersion: Nothing
     , count: Nothing
     , eventTime: Nothing
     , firstTimestamp: Nothing
     , involvedObject: Nothing
-    , kind: Nothing
     , lastTimestamp: Nothing
     , message: Nothing
     , metadata: Nothing
@@ -1762,14 +1714,10 @@ instance defaultEvent :: Default Event where
 -- | EventList is a list of events.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of events
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype EventList = EventList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Event))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Event))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeEventList :: Newtype EventList _
@@ -1777,24 +1725,22 @@ derive instance genericEventList :: Generic EventList _
 instance showEventList :: Show EventList where show a = genericShow a
 instance decodeEventList :: Decode EventList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "EventList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ EventList { apiVersion, items, kind, metadata }
+               pure $ EventList { items, metadata }
 instance encodeEventList :: Encode EventList where
   encode (EventList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "EventList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEventList :: Default EventList where
   default = EventList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | EventSeries contain information on series of events, i.e. thing that was/is happening continously for some time.
@@ -2279,8 +2225,8 @@ instance defaultHostAlias :: Default HostAlias where
 -- | Represents a host path mapped into a pod. Host path volumes do not support ownership management or SELinux relabeling.
 -- |
 -- | Fields:
--- | - `path`: Path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
 -- | - `_type`: Type for HostPath Volume Defaults to "" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+-- | - `path`: Path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
 newtype HostPathVolumeSource = HostPathVolumeSource
   { _type :: (Maybe String)
   , path :: (Maybe String) }
@@ -2514,14 +2460,10 @@ instance defaultLifecycle :: Default Lifecycle where
 -- | LimitRange sets resource usage limits for each kind of resource in a Namespace.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the limits enforced. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype LimitRange = LimitRange
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe LimitRangeSpec) }
 
 derive instance newtypeLimitRange :: Newtype LimitRange _
@@ -2529,35 +2471,33 @@ derive instance genericLimitRange :: Generic LimitRange _
 instance showLimitRange :: Show LimitRange where show a = genericShow a
 instance decodeLimitRange :: Decode LimitRange where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "LimitRange" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
-               pure $ LimitRange { apiVersion, kind, metadata, spec }
+               pure $ LimitRange { metadata, spec }
 instance encodeLimitRange :: Encode LimitRange where
   encode (LimitRange a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "LimitRange")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultLimitRange :: Default LimitRange where
   default = LimitRange
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing }
 
 -- | LimitRangeItem defines a min/max usage limit for any resource that matches on kind.
 -- |
 -- | Fields:
 -- | - `_default`: Default resource requirement limit value by resource name if resource limit is omitted.
+-- | - `_type`: Type of resource that this limit applies to.
 -- | - `defaultRequest`: DefaultRequest is the default resource requirement request value by resource name if resource request is omitted.
 -- | - `max`: Max usage constraints on this kind by resource name.
 -- | - `maxLimitRequestRatio`: MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
 -- | - `min`: Min usage constraints on this kind by resource name.
--- | - `_type`: Type of resource that this limit applies to.
 newtype LimitRangeItem = LimitRangeItem
   { _default :: (Maybe (StrMap Resource.Quantity))
   , _type :: (Maybe String)
@@ -2600,14 +2540,10 @@ instance defaultLimitRangeItem :: Default LimitRangeItem where
 -- | LimitRangeList is a list of LimitRange items.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of LimitRange objects. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype LimitRangeList = LimitRangeList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array LimitRange))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array LimitRange))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeLimitRangeList :: Newtype LimitRangeList _
@@ -2615,24 +2551,22 @@ derive instance genericLimitRangeList :: Generic LimitRangeList _
 instance showLimitRangeList :: Show LimitRangeList where show a = genericShow a
 instance decodeLimitRangeList :: Decode LimitRangeList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "LimitRangeList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ LimitRangeList { apiVersion, items, kind, metadata }
+               pure $ LimitRangeList { items, metadata }
 instance encodeLimitRangeList :: Encode LimitRangeList where
   encode (LimitRangeList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "LimitRangeList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultLimitRangeList :: Default LimitRangeList where
   default = LimitRangeList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | LimitRangeSpec defines a min/max usage limit for resources that match on kind.
@@ -2791,15 +2725,11 @@ instance defaultNFSVolumeSource :: Default NFSVolumeSource where
 -- | Namespace provides a scope for Names. Use of multiple namespaces is optional.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the behavior of the Namespace. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Status describes the current status of a Namespace. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Namespace = Namespace
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe NamespaceSpec)
   , status :: (Maybe NamespaceStatus) }
 
@@ -2808,16 +2738,16 @@ derive instance genericNamespace :: Generic Namespace _
 instance showNamespace :: Show Namespace where show a = genericShow a
 instance decodeNamespace :: Decode Namespace where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "Namespace" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ Namespace { apiVersion, kind, metadata, spec, status }
+               pure $ Namespace { metadata, spec, status }
 instance encodeNamespace :: Encode Namespace where
   encode (Namespace a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "Namespace")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -2825,23 +2755,17 @@ instance encodeNamespace :: Encode Namespace where
 
 instance defaultNamespace :: Default Namespace where
   default = Namespace
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | NamespaceList is a list of Namespaces.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is the list of Namespace objects in the list. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NamespaceList = NamespaceList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Namespace))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Namespace))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeNamespaceList :: Newtype NamespaceList _
@@ -2849,24 +2773,22 @@ derive instance genericNamespaceList :: Generic NamespaceList _
 instance showNamespaceList :: Show NamespaceList where show a = genericShow a
 instance decodeNamespaceList :: Decode NamespaceList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "NamespaceList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ NamespaceList { apiVersion, items, kind, metadata }
+               pure $ NamespaceList { items, metadata }
 instance encodeNamespaceList :: Encode NamespaceList where
   encode (NamespaceList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "NamespaceList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultNamespaceList :: Default NamespaceList where
   default = NamespaceList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | NamespaceSpec describes the attributes on a Namespace.
@@ -2918,15 +2840,11 @@ instance defaultNamespaceStatus :: Default NamespaceStatus where
 -- | Node is a worker node in Kubernetes. Each node will have a unique identifier in the cache (i.e. in etcd).
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the behavior of a node. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Most recently observed status of the node. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Node = Node
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe NodeSpec)
   , status :: (Maybe NodeStatus) }
 
@@ -2935,16 +2853,16 @@ derive instance genericNode :: Generic Node _
 instance showNode :: Show Node where show a = genericShow a
 instance decodeNode :: Decode Node where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "Node" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ Node { apiVersion, kind, metadata, spec, status }
+               pure $ Node { metadata, spec, status }
 instance encodeNode :: Encode Node where
   encode (Node a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "Node")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -2952,17 +2870,15 @@ instance encodeNode :: Encode Node where
 
 instance defaultNode :: Default Node where
   default = Node
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | NodeAddress contains information for the node's address.
 -- |
 -- | Fields:
--- | - `address`: The node address.
 -- | - `_type`: Node address type, one of Hostname, ExternalIP or InternalIP.
+-- | - `address`: The node address.
 newtype NodeAddress = NodeAddress
   { _type :: (Maybe String)
   , address :: (Maybe String) }
@@ -3017,12 +2933,12 @@ instance defaultNodeAffinity :: Default NodeAffinity where
 -- | NodeCondition contains condition information for a node.
 -- |
 -- | Fields:
+-- | - `_type`: Type of node condition.
 -- | - `lastHeartbeatTime`: Last time we got an update on a given condition.
 -- | - `lastTransitionTime`: Last time the condition transit from one status to another.
 -- | - `message`: Human readable message indicating details about last transition.
 -- | - `reason`: (brief) reason for the condition's last transition.
 -- | - `status`: Status of the condition, one of True, False, Unknown.
--- | - `_type`: Type of node condition.
 newtype NodeCondition = NodeCondition
   { _type :: (Maybe String)
   , lastHeartbeatTime :: (Maybe MetaV1.Time)
@@ -3065,35 +2981,29 @@ instance defaultNodeCondition :: Default NodeCondition where
 -- | NodeConfigSource specifies a source of node configuration. Exactly one subfield (excluding metadata) must be non-nil.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `configMapRef`
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NodeConfigSource = NodeConfigSource
-  { apiVersion :: (Maybe String)
-  , configMapRef :: (Maybe ObjectReference)
-  , kind :: (Maybe String) }
+  { configMapRef :: (Maybe ObjectReference) }
 
 derive instance newtypeNodeConfigSource :: Newtype NodeConfigSource _
 derive instance genericNodeConfigSource :: Generic NodeConfigSource _
 instance showNodeConfigSource :: Show NodeConfigSource where show a = genericShow a
 instance decodeNodeConfigSource :: Decode NodeConfigSource where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                configMapRef <- decodeMaybe "configMapRef" a
-               kind <- decodeMaybe "kind" a
-               pure $ NodeConfigSource { apiVersion, configMapRef, kind }
+               assertPropEq "kind" "NodeConfigSource" a
+               pure $ NodeConfigSource { configMapRef }
 instance encodeNodeConfigSource :: Encode NodeConfigSource where
   encode (NodeConfigSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "configMapRef" (encodeMaybe a.configMapRef)
-               , Tuple "kind" (encodeMaybe a.kind) ]
+               , Tuple "kind" (encode "NodeConfigSource") ]
 
 
 instance defaultNodeConfigSource :: Default NodeConfigSource where
   default = NodeConfigSource
-    { apiVersion: Nothing
-    , configMapRef: Nothing
-    , kind: Nothing }
+    { configMapRef: Nothing }
 
 -- | NodeDaemonEndpoints lists ports opened by daemons running on the Node.
 -- |
@@ -3121,14 +3031,10 @@ instance defaultNodeDaemonEndpoints :: Default NodeDaemonEndpoints where
 -- | NodeList is the whole list of all Nodes which have been registered with master.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of nodes
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NodeList = NodeList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Node))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Node))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeNodeList :: Newtype NodeList _
@@ -3136,24 +3042,22 @@ derive instance genericNodeList :: Generic NodeList _
 instance showNodeList :: Show NodeList where show a = genericShow a
 instance decodeNodeList :: Decode NodeList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "NodeList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ NodeList { apiVersion, items, kind, metadata }
+               pure $ NodeList { items, metadata }
 instance encodeNodeList :: Encode NodeList where
   encode (NodeList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "NodeList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultNodeList :: Default NodeList where
   default = NodeList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | A node selector represents the union of the results of one or more label queries over a set of nodes; that is, it represents the OR of the selectors represented by the node selector terms.
@@ -3503,15 +3407,11 @@ instance defaultObjectReference :: Default ObjectReference where
 -- | PersistentVolume (PV) is a storage resource provisioned by an administrator. It is analogous to a node. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines a specification of a persistent volume owned by the cluster. Provisioned by an administrator. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
 -- | - `status`: Status represents the current information/status for the persistent volume. Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
 newtype PersistentVolume = PersistentVolume
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe PersistentVolumeSpec)
   , status :: (Maybe PersistentVolumeStatus) }
 
@@ -3520,16 +3420,16 @@ derive instance genericPersistentVolume :: Generic PersistentVolume _
 instance showPersistentVolume :: Show PersistentVolume where show a = genericShow a
 instance decodePersistentVolume :: Decode PersistentVolume where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "PersistentVolume" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ PersistentVolume { apiVersion, kind, metadata, spec, status }
+               pure $ PersistentVolume { metadata, spec, status }
 instance encodePersistentVolume :: Encode PersistentVolume where
   encode (PersistentVolume a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "PersistentVolume")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -3537,24 +3437,18 @@ instance encodePersistentVolume :: Encode PersistentVolume where
 
 instance defaultPersistentVolume :: Default PersistentVolume where
   default = PersistentVolume
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | PersistentVolumeClaim is a user's request for and claim to a persistent volume
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 -- | - `status`: Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 newtype PersistentVolumeClaim = PersistentVolumeClaim
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe PersistentVolumeClaimSpec)
   , status :: (Maybe PersistentVolumeClaimStatus) }
 
@@ -3563,16 +3457,16 @@ derive instance genericPersistentVolumeClaim :: Generic PersistentVolumeClaim _
 instance showPersistentVolumeClaim :: Show PersistentVolumeClaim where show a = genericShow a
 instance decodePersistentVolumeClaim :: Decode PersistentVolumeClaim where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "PersistentVolumeClaim" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ PersistentVolumeClaim { apiVersion, kind, metadata, spec, status }
+               pure $ PersistentVolumeClaim { metadata, spec, status }
 instance encodePersistentVolumeClaim :: Encode PersistentVolumeClaim where
   encode (PersistentVolumeClaim a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "PersistentVolumeClaim")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -3580,21 +3474,19 @@ instance encodePersistentVolumeClaim :: Encode PersistentVolumeClaim where
 
 instance defaultPersistentVolumeClaim :: Default PersistentVolumeClaim where
   default = PersistentVolumeClaim
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | PersistentVolumeClaimCondition contails details about state of pvc
 -- |
 -- | Fields:
+-- | - `_type`
 -- | - `lastProbeTime`: Last time we probed the condition.
 -- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
 -- | - `message`: Human-readable message indicating details about last transition.
 -- | - `reason`: Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports "ResizeStarted" that means the underlying persistent volume is being resized.
 -- | - `status`
--- | - `_type`
 newtype PersistentVolumeClaimCondition = PersistentVolumeClaimCondition
   { _type :: (Maybe String)
   , lastProbeTime :: (Maybe MetaV1.Time)
@@ -3637,14 +3529,10 @@ instance defaultPersistentVolumeClaimCondition :: Default PersistentVolumeClaimC
 -- | PersistentVolumeClaimList is a list of PersistentVolumeClaim items.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: A list of persistent volume claims. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PersistentVolumeClaimList = PersistentVolumeClaimList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array PersistentVolumeClaim))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array PersistentVolumeClaim))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePersistentVolumeClaimList :: Newtype PersistentVolumeClaimList _
@@ -3652,24 +3540,22 @@ derive instance genericPersistentVolumeClaimList :: Generic PersistentVolumeClai
 instance showPersistentVolumeClaimList :: Show PersistentVolumeClaimList where show a = genericShow a
 instance decodePersistentVolumeClaimList :: Decode PersistentVolumeClaimList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "PersistentVolumeClaimList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ PersistentVolumeClaimList { apiVersion, items, kind, metadata }
+               pure $ PersistentVolumeClaimList { items, metadata }
 instance encodePersistentVolumeClaimList :: Encode PersistentVolumeClaimList where
   encode (PersistentVolumeClaimList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "PersistentVolumeClaimList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPersistentVolumeClaimList :: Default PersistentVolumeClaimList where
   default = PersistentVolumeClaimList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | PersistentVolumeClaimSpec describes the common attributes of storage devices and allows a Source for provider-specific attributes
@@ -3789,14 +3675,10 @@ instance defaultPersistentVolumeClaimVolumeSource :: Default PersistentVolumeCla
 -- | PersistentVolumeList is a list of PersistentVolume items.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of persistent volumes. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PersistentVolumeList = PersistentVolumeList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array PersistentVolume))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array PersistentVolume))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePersistentVolumeList :: Newtype PersistentVolumeList _
@@ -3804,24 +3686,22 @@ derive instance genericPersistentVolumeList :: Generic PersistentVolumeList _
 instance showPersistentVolumeList :: Show PersistentVolumeList where show a = genericShow a
 instance decodePersistentVolumeList :: Decode PersistentVolumeList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "PersistentVolumeList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ PersistentVolumeList { apiVersion, items, kind, metadata }
+               pure $ PersistentVolumeList { items, metadata }
 instance encodePersistentVolumeList :: Encode PersistentVolumeList where
   encode (PersistentVolumeList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "PersistentVolumeList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPersistentVolumeList :: Default PersistentVolumeList where
   default = PersistentVolumeList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | PersistentVolumeSpec is the specification of a persistent volume.
@@ -4051,15 +3931,11 @@ instance defaultPhotonPersistentDiskVolumeSource :: Default PhotonPersistentDisk
 -- | Pod is a collection of containers that can run on a host. This resource is created by clients and scheduled onto hosts.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Most recently observed status of the pod. This data may not be up to date. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Pod = Pod
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe PodSpec)
   , status :: (Maybe PodStatus) }
 
@@ -4068,16 +3944,16 @@ derive instance genericPod :: Generic Pod _
 instance showPod :: Show Pod where show a = genericShow a
 instance decodePod :: Decode Pod where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "Pod" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ Pod { apiVersion, kind, metadata, spec, status }
+               pure $ Pod { metadata, spec, status }
 instance encodePod :: Encode Pod where
   encode (Pod a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "Pod")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -4085,9 +3961,7 @@ instance encodePod :: Encode Pod where
 
 instance defaultPod :: Default Pod where
   default = Pod
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
@@ -4183,12 +4057,12 @@ instance defaultPodAntiAffinity :: Default PodAntiAffinity where
 -- | PodCondition contains details for the current condition of this pod.
 -- |
 -- | Fields:
+-- | - `_type`: Type is the type of the condition. Currently only Ready. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
 -- | - `lastProbeTime`: Last time we probed the condition.
 -- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
 -- | - `message`: Human-readable message indicating details about last transition.
 -- | - `reason`: Unique, one-word, CamelCase reason for the condition's last transition.
 -- | - `status`: Status is the status of the condition. Can be True, False, Unknown. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
--- | - `_type`: Type is the type of the condition. Currently only Ready. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
 newtype PodCondition = PodCondition
   { _type :: (Maybe String)
   , lastProbeTime :: (Maybe MetaV1.Time)
@@ -4292,14 +4166,10 @@ instance defaultPodDNSConfigOption :: Default PodDNSConfigOption where
 -- | PodList is a list of Pods.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of pods. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PodList = PodList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Pod))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Pod))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodList :: Newtype PodList _
@@ -4307,24 +4177,22 @@ derive instance genericPodList :: Generic PodList _
 instance showPodList :: Show PodList where show a = genericShow a
 instance decodePodList :: Decode PodList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "PodList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ PodList { apiVersion, items, kind, metadata }
+               pure $ PodList { items, metadata }
 instance encodePodList :: Encode PodList where
   encode (PodList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "PodList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodList :: Default PodList where
   default = PodList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | PodSecurityContext holds pod-level security attributes and common container settings. Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.
@@ -4593,14 +4461,10 @@ instance defaultPodStatus :: Default PodStatus where
 -- | PodTemplate describes a template for creating copies of a predefined pod.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `template`: Template defines the pods that will be created from this pod template. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype PodTemplate = PodTemplate
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , template :: (Maybe PodTemplateSpec) }
 
 derive instance newtypePodTemplate :: Newtype PodTemplate _
@@ -4608,37 +4472,31 @@ derive instance genericPodTemplate :: Generic PodTemplate _
 instance showPodTemplate :: Show PodTemplate where show a = genericShow a
 instance decodePodTemplate :: Decode PodTemplate where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "PodTemplate" a
                metadata <- decodeMaybe "metadata" a
                template <- decodeMaybe "template" a
-               pure $ PodTemplate { apiVersion, kind, metadata, template }
+               pure $ PodTemplate { metadata, template }
 instance encodePodTemplate :: Encode PodTemplate where
   encode (PodTemplate a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "PodTemplate")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "template" (encodeMaybe a.template) ]
 
 
 instance defaultPodTemplate :: Default PodTemplate where
   default = PodTemplate
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , template: Nothing }
 
 -- | PodTemplateList is a list of PodTemplates.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of pod templates
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PodTemplateList = PodTemplateList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array PodTemplate))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array PodTemplate))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodTemplateList :: Newtype PodTemplateList _
@@ -4646,24 +4504,22 @@ derive instance genericPodTemplateList :: Generic PodTemplateList _
 instance showPodTemplateList :: Show PodTemplateList where show a = genericShow a
 instance decodePodTemplateList :: Decode PodTemplateList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "PodTemplateList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ PodTemplateList { apiVersion, items, kind, metadata }
+               pure $ PodTemplateList { items, metadata }
 instance encodePodTemplateList :: Encode PodTemplateList where
   encode (PodTemplateList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "PodTemplateList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodTemplateList :: Default PodTemplateList where
   default = PodTemplateList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | PodTemplateSpec describes the data a pod should have when created from a template
@@ -5003,15 +4859,11 @@ instance defaultRBDVolumeSource :: Default RBDVolumeSource where
 -- | ReplicationController represents the configuration of a replication controller.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: If the Labels of a ReplicationController are empty, they are defaulted to be the same as the Pod(s) that the replication controller manages. Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the specification of the desired behavior of the replication controller. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Status is the most recently observed status of the replication controller. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ReplicationController = ReplicationController
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe ReplicationControllerSpec)
   , status :: (Maybe ReplicationControllerStatus) }
 
@@ -5020,16 +4872,16 @@ derive instance genericReplicationController :: Generic ReplicationController _
 instance showReplicationController :: Show ReplicationController where show a = genericShow a
 instance decodeReplicationController :: Decode ReplicationController where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "ReplicationController" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ ReplicationController { apiVersion, kind, metadata, spec, status }
+               pure $ ReplicationController { metadata, spec, status }
 instance encodeReplicationController :: Encode ReplicationController where
   encode (ReplicationController a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "ReplicationController")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -5037,20 +4889,18 @@ instance encodeReplicationController :: Encode ReplicationController where
 
 instance defaultReplicationController :: Default ReplicationController where
   default = ReplicationController
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | ReplicationControllerCondition describes the state of a replication controller at a certain point.
 -- |
 -- | Fields:
+-- | - `_type`: Type of replication controller condition.
 -- | - `lastTransitionTime`: The last time the condition transitioned from one status to another.
 -- | - `message`: A human readable message indicating details about the transition.
 -- | - `reason`: The reason for the condition's last transition.
 -- | - `status`: Status of the condition, one of True, False, Unknown.
--- | - `_type`: Type of replication controller condition.
 newtype ReplicationControllerCondition = ReplicationControllerCondition
   { _type :: (Maybe String)
   , lastTransitionTime :: (Maybe MetaV1.Time)
@@ -5089,14 +4939,10 @@ instance defaultReplicationControllerCondition :: Default ReplicationControllerC
 -- | ReplicationControllerList is a collection of replication controllers.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of replication controllers. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ReplicationControllerList = ReplicationControllerList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ReplicationController))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ReplicationController))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeReplicationControllerList :: Newtype ReplicationControllerList _
@@ -5104,24 +4950,22 @@ derive instance genericReplicationControllerList :: Generic ReplicationControlle
 instance showReplicationControllerList :: Show ReplicationControllerList where show a = genericShow a
 instance decodeReplicationControllerList :: Decode ReplicationControllerList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ReplicationControllerList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ReplicationControllerList { apiVersion, items, kind, metadata }
+               pure $ ReplicationControllerList { items, metadata }
 instance encodeReplicationControllerList :: Encode ReplicationControllerList where
   encode (ReplicationControllerList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ReplicationControllerList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultReplicationControllerList :: Default ReplicationControllerList where
   default = ReplicationControllerList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | ReplicationControllerSpec is the specification of a replication controller.
@@ -5246,15 +5090,11 @@ instance defaultResourceFieldSelector :: Default ResourceFieldSelector where
 -- | ResourceQuota sets aggregate quota restrictions enforced per namespace
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the desired quota. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Status defines the actual enforced quota and its current usage. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ResourceQuota = ResourceQuota
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe ResourceQuotaSpec)
   , status :: (Maybe ResourceQuotaStatus) }
 
@@ -5263,16 +5103,16 @@ derive instance genericResourceQuota :: Generic ResourceQuota _
 instance showResourceQuota :: Show ResourceQuota where show a = genericShow a
 instance decodeResourceQuota :: Decode ResourceQuota where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "ResourceQuota" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ ResourceQuota { apiVersion, kind, metadata, spec, status }
+               pure $ ResourceQuota { metadata, spec, status }
 instance encodeResourceQuota :: Encode ResourceQuota where
   encode (ResourceQuota a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "ResourceQuota")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -5280,23 +5120,17 @@ instance encodeResourceQuota :: Encode ResourceQuota where
 
 instance defaultResourceQuota :: Default ResourceQuota where
   default = ResourceQuota
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | ResourceQuotaList is a list of ResourceQuota items.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of ResourceQuota objects. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ResourceQuotaList = ResourceQuotaList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ResourceQuota))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ResourceQuota))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeResourceQuotaList :: Newtype ResourceQuotaList _
@@ -5304,24 +5138,22 @@ derive instance genericResourceQuotaList :: Generic ResourceQuotaList _
 instance showResourceQuotaList :: Show ResourceQuotaList where show a = genericShow a
 instance decodeResourceQuotaList :: Decode ResourceQuotaList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ResourceQuotaList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ResourceQuotaList { apiVersion, items, kind, metadata }
+               pure $ ResourceQuotaList { items, metadata }
 instance encodeResourceQuotaList :: Encode ResourceQuotaList where
   encode (ResourceQuotaList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ResourceQuotaList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultResourceQuotaList :: Default ResourceQuotaList where
   default = ResourceQuotaList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | ResourceQuotaSpec defines the desired hard limits to enforce for Quota.
@@ -5411,9 +5243,9 @@ instance defaultResourceRequirements :: Default ResourceRequirements where
 -- | SELinuxOptions are the labels to be applied to the container
 -- |
 -- | Fields:
+-- | - `_type`: Type is a SELinux type label that applies to the container.
 -- | - `level`: Level is SELinux level label that applies to the container.
 -- | - `role`: Role is a SELinux role label that applies to the container.
--- | - `_type`: Type is a SELinux type label that applies to the container.
 -- | - `user`: User is a SELinux user label that applies to the container.
 newtype SELinuxOptions = SELinuxOptions
   { _type :: (Maybe String)
@@ -5585,17 +5417,13 @@ instance defaultScaleIOVolumeSource :: Default ScaleIOVolumeSource where
 -- | Secret holds secret data of a certain type. The total bytes of the values in the Data field must be less than MaxSecretSize bytes.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `_data`: Data contains the secret data. Each key must consist of alphanumeric characters, '-', '_' or '.'. The serialized form of the secret data is a base64 encoded string, representing the arbitrary (possibly non-string) data value here. Described in https://tools.ietf.org/html/rfc4648#section-4
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+-- | - `_type`: Used to facilitate programmatic handling of secret data.
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `stringData`: stringData allows specifying non-binary secret data in string form. It is provided as a write-only convenience method. All keys and values are merged into the data field on write, overwriting any existing values. It is never output when reading from the API.
--- | - `_type`: Used to facilitate programmatic handling of secret data.
 newtype Secret = Secret
   { _data :: (Maybe (StrMap String))
   , _type :: (Maybe String)
-  , apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta)
   , stringData :: (Maybe (StrMap String)) }
 
@@ -5606,17 +5434,17 @@ instance decodeSecret :: Decode Secret where
   decode a = do
                _data <- decodeMaybe "_data" a
                _type <- decodeMaybe "_type" a
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "Secret" a
                metadata <- decodeMaybe "metadata" a
                stringData <- decodeMaybe "stringData" a
-               pure $ Secret { _data, _type, apiVersion, kind, metadata, stringData }
+               pure $ Secret { _data, _type, metadata, stringData }
 instance encodeSecret :: Encode Secret where
   encode (Secret a) = encode $ StrMap.fromFoldable $
                [ Tuple "_data" (encodeMaybe a._data)
                , Tuple "_type" (encodeMaybe a._type)
-               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "Secret")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "stringData" (encodeMaybe a.stringData) ]
 
@@ -5625,8 +5453,6 @@ instance defaultSecret :: Default Secret where
   default = Secret
     { _data: Nothing
     , _type: Nothing
-    , apiVersion: Nothing
-    , kind: Nothing
     , metadata: Nothing
     , stringData: Nothing }
 
@@ -5696,14 +5522,10 @@ instance defaultSecretKeySelector :: Default SecretKeySelector where
 -- | SecretList is a list of Secret.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: Items is a list of secret objects. More info: https://kubernetes.io/docs/concepts/configuration/secret
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype SecretList = SecretList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Secret))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Secret))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeSecretList :: Newtype SecretList _
@@ -5711,24 +5533,22 @@ derive instance genericSecretList :: Generic SecretList _
 instance showSecretList :: Show SecretList where show a = genericShow a
 instance decodeSecretList :: Decode SecretList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "SecretList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ SecretList { apiVersion, items, kind, metadata }
+               pure $ SecretList { items, metadata }
 instance encodeSecretList :: Encode SecretList where
   encode (SecretList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "SecretList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultSecretList :: Default SecretList where
   default = SecretList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | Adapts a secret into a projected volume.
@@ -5890,15 +5710,11 @@ instance defaultSecurityContext :: Default SecurityContext where
 -- | Service is a named abstraction of software service (for example, mysql) consisting of local port (for example 3306) that the proxy listens on, and the selector that determines which pods will answer requests sent through the proxy.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the behavior of a service. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Most recently observed status of the service. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Service = Service
-  { apiVersion :: (Maybe String)
-  , kind :: (Maybe String)
-  , metadata :: (Maybe MetaV1.ObjectMeta)
+  { metadata :: (Maybe MetaV1.ObjectMeta)
   , spec :: (Maybe ServiceSpec)
   , status :: (Maybe ServiceStatus) }
 
@@ -5907,16 +5723,16 @@ derive instance genericService :: Generic Service _
 instance showService :: Show Service where show a = genericShow a
 instance decodeService :: Decode Service where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "apiVersion" "v1" a
+               assertPropEq "kind" "Service" a
                metadata <- decodeMaybe "metadata" a
                spec <- decodeMaybe "spec" a
                status <- decodeMaybe "status" a
-               pure $ Service { apiVersion, kind, metadata, spec, status }
+               pure $ Service { metadata, spec, status }
 instance encodeService :: Encode Service where
   encode (Service a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
-               , Tuple "kind" (encodeMaybe a.kind)
+               [ Tuple "apiVersion" (encode "v1")
+               , Tuple "kind" (encode "Service")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec)
                , Tuple "status" (encodeMaybe a.status) ]
@@ -5924,26 +5740,20 @@ instance encodeService :: Encode Service where
 
 instance defaultService :: Default Service where
   default = Service
-    { apiVersion: Nothing
-    , kind: Nothing
-    , metadata: Nothing
+    { metadata: Nothing
     , spec: Nothing
     , status: Nothing }
 
 -- | ServiceAccount binds together: * a name, understood by users, and perhaps by peripheral systems, for an identity * a principal that can be authenticated and authorized * a set of secrets
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `automountServiceAccountToken`: AutomountServiceAccountToken indicates whether pods running as this service account should have an API token automatically mounted. Can be overridden at the pod level.
 -- | - `imagePullSecrets`: ImagePullSecrets is a list of references to secrets in the same namespace to use for pulling any images in pods that reference this ServiceAccount. ImagePullSecrets are distinct from Secrets because Secrets can be mounted in the pod, but ImagePullSecrets are only accessed by the kubelet. More info: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `secrets`: Secrets is the list of secrets allowed to be used by pods running using this ServiceAccount. More info: https://kubernetes.io/docs/concepts/configuration/secret
 newtype ServiceAccount = ServiceAccount
-  { apiVersion :: (Maybe String)
-  , automountServiceAccountToken :: (Maybe Boolean)
+  { automountServiceAccountToken :: (Maybe Boolean)
   , imagePullSecrets :: (Maybe (Array LocalObjectReference))
-  , kind :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta)
   , secrets :: (Maybe (Array ObjectReference)) }
 
@@ -5952,43 +5762,37 @@ derive instance genericServiceAccount :: Generic ServiceAccount _
 instance showServiceAccount :: Show ServiceAccount where show a = genericShow a
 instance decodeServiceAccount :: Decode ServiceAccount where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                automountServiceAccountToken <- decodeMaybe "automountServiceAccountToken" a
                imagePullSecrets <- decodeMaybe "imagePullSecrets" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ServiceAccount" a
                metadata <- decodeMaybe "metadata" a
                secrets <- decodeMaybe "secrets" a
-               pure $ ServiceAccount { apiVersion, automountServiceAccountToken, imagePullSecrets, kind, metadata, secrets }
+               pure $ ServiceAccount { automountServiceAccountToken, imagePullSecrets, metadata, secrets }
 instance encodeServiceAccount :: Encode ServiceAccount where
   encode (ServiceAccount a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "automountServiceAccountToken" (encodeMaybe a.automountServiceAccountToken)
                , Tuple "imagePullSecrets" (encodeMaybe a.imagePullSecrets)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ServiceAccount")
                , Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "secrets" (encodeMaybe a.secrets) ]
 
 
 instance defaultServiceAccount :: Default ServiceAccount where
   default = ServiceAccount
-    { apiVersion: Nothing
-    , automountServiceAccountToken: Nothing
+    { automountServiceAccountToken: Nothing
     , imagePullSecrets: Nothing
-    , kind: Nothing
     , metadata: Nothing
     , secrets: Nothing }
 
 -- | ServiceAccountList is a list of ServiceAccount objects
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of ServiceAccounts. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ServiceAccountList = ServiceAccountList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array ServiceAccount))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array ServiceAccount))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeServiceAccountList :: Newtype ServiceAccountList _
@@ -5996,37 +5800,31 @@ derive instance genericServiceAccountList :: Generic ServiceAccountList _
 instance showServiceAccountList :: Show ServiceAccountList where show a = genericShow a
 instance decodeServiceAccountList :: Decode ServiceAccountList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ServiceAccountList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ServiceAccountList { apiVersion, items, kind, metadata }
+               pure $ ServiceAccountList { items, metadata }
 instance encodeServiceAccountList :: Encode ServiceAccountList where
   encode (ServiceAccountList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ServiceAccountList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultServiceAccountList :: Default ServiceAccountList where
   default = ServiceAccountList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | ServiceList holds a list of services.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of services
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ServiceList = ServiceList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array Service))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array Service))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeServiceList :: Newtype ServiceList _
@@ -6034,24 +5832,22 @@ derive instance genericServiceList :: Generic ServiceList _
 instance showServiceList :: Show ServiceList where show a = genericShow a
 instance decodeServiceList :: Decode ServiceList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "v1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "ServiceList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ ServiceList { apiVersion, items, kind, metadata }
+               pure $ ServiceList { items, metadata }
 instance encodeServiceList :: Encode ServiceList where
   encode (ServiceList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "ServiceList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultServiceList :: Default ServiceList where
   default = ServiceList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | ServicePort contains information on service's port.
@@ -6100,6 +5896,7 @@ instance defaultServicePort :: Default ServicePort where
 -- | ServiceSpec describes the attributes that a user creates on a service.
 -- |
 -- | Fields:
+-- | - `_type`: type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. "ExternalName" maps to the specified externalName. "ClusterIP" allocates a cluster-internal IP address for load-balancing to endpoints. Endpoints are determined by the selector or if that is not specified, by manual construction of an Endpoints object. If clusterIP is "None", no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a stable IP. "NodePort" builds on ClusterIP and allocates a port on every node which routes to the clusterIP. "LoadBalancer" builds on NodePort and creates an external load-balancer (if supported in the current cloud) which routes to the clusterIP. More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types
 -- | - `clusterIP`: clusterIP is the IP address of the service and is usually assigned randomly by the master. If an address is specified manually and is not in use by others, it will be allocated to the service; otherwise, creation of the service will fail. This field can not be changed through updates. Valid values are "None", empty string (""), or a valid IP address. "None" can be specified for headless services when proxying is not required. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 -- | - `externalIPs`: externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service.  These IPs are not managed by Kubernetes.  The user is responsible for ensuring that traffic arrives at a node with this IP.  A common example is external load-balancers that are not part of the Kubernetes system.
 -- | - `externalName`: externalName is the external reference that kubedns or equivalent will return as a CNAME record for this service. No proxying will be involved. Must be a valid RFC-1123 hostname (https://tools.ietf.org/html/rfc1123) and requires Type to be ExternalName.
@@ -6112,7 +5909,6 @@ instance defaultServicePort :: Default ServicePort where
 -- | - `selector`: Route service traffic to pods with label keys and values matching this selector. If empty or not present, the service is assumed to have an external process managing its endpoints, which Kubernetes will not modify. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/
 -- | - `sessionAffinity`: Supports "ClientIP" and "None". Used to maintain session affinity. Enable client IP based session affinity. Must be ClientIP or None. Defaults to None. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
 -- | - `sessionAffinityConfig`: sessionAffinityConfig contains the configurations of session affinity.
--- | - `_type`: type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. "ExternalName" maps to the specified externalName. "ClusterIP" allocates a cluster-internal IP address for load-balancing to endpoints. Endpoints are determined by the selector or if that is not specified, by manual construction of an Endpoints object. If clusterIP is "None", no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a stable IP. "NodePort" builds on ClusterIP and allocates a port on every node which routes to the clusterIP. "LoadBalancer" builds on NodePort and creates an external load-balancer (if supported in the current cloud) which routes to the clusterIP. More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types
 newtype ServiceSpec = ServiceSpec
   { _type :: (Maybe String)
   , clusterIP :: (Maybe String)

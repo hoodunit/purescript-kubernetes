@@ -20,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
+import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -55,14 +55,10 @@ instance defaultInitializer :: Default Initializer where
 -- | InitializerConfiguration describes the configuration of initializers.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `initializers`: Initializers is a list of resources and their default initializers Order-sensitive. When merging multiple InitializerConfigurations, we sort the initializers from different InitializerConfigurations by the name of the InitializerConfigurations; the order of the initializers from the same InitializerConfiguration is preserved.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
 newtype InitializerConfiguration = InitializerConfiguration
-  { apiVersion :: (Maybe String)
-  , initializers :: (Maybe (Array Initializer))
-  , kind :: (Maybe String)
+  { initializers :: (Maybe (Array Initializer))
   , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeInitializerConfiguration :: Newtype InitializerConfiguration _
@@ -70,37 +66,31 @@ derive instance genericInitializerConfiguration :: Generic InitializerConfigurat
 instance showInitializerConfiguration :: Show InitializerConfiguration where show a = genericShow a
 instance decodeInitializerConfiguration :: Decode InitializerConfiguration where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "admissionregistration.k8s.io/v1alpha1" a
                initializers <- decodeMaybe "initializers" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "InitializerConfiguration" a
                metadata <- decodeMaybe "metadata" a
-               pure $ InitializerConfiguration { apiVersion, initializers, kind, metadata }
+               pure $ InitializerConfiguration { initializers, metadata }
 instance encodeInitializerConfiguration :: Encode InitializerConfiguration where
   encode (InitializerConfiguration a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1alpha1")
                , Tuple "initializers" (encodeMaybe a.initializers)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "InitializerConfiguration")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultInitializerConfiguration :: Default InitializerConfiguration where
   default = InitializerConfiguration
-    { apiVersion: Nothing
-    , initializers: Nothing
-    , kind: Nothing
+    { initializers: Nothing
     , metadata: Nothing }
 
 -- | InitializerConfigurationList is a list of InitializerConfiguration.
 -- |
 -- | Fields:
--- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
 -- | - `items`: List of InitializerConfiguration.
--- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype InitializerConfigurationList = InitializerConfigurationList
-  { apiVersion :: (Maybe String)
-  , items :: (Maybe (Array InitializerConfiguration))
-  , kind :: (Maybe String)
+  { items :: (Maybe (Array InitializerConfiguration))
   , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeInitializerConfigurationList :: Newtype InitializerConfigurationList _
@@ -108,24 +98,22 @@ derive instance genericInitializerConfigurationList :: Generic InitializerConfig
 instance showInitializerConfigurationList :: Show InitializerConfigurationList where show a = genericShow a
 instance decodeInitializerConfigurationList :: Decode InitializerConfigurationList where
   decode a = do
-               apiVersion <- decodeMaybe "apiVersion" a
+               assertPropEq "apiVersion" "admissionregistration.k8s.io/v1alpha1" a
                items <- decodeMaybe "items" a
-               kind <- decodeMaybe "kind" a
+               assertPropEq "kind" "InitializerConfigurationList" a
                metadata <- decodeMaybe "metadata" a
-               pure $ InitializerConfigurationList { apiVersion, items, kind, metadata }
+               pure $ InitializerConfigurationList { items, metadata }
 instance encodeInitializerConfigurationList :: Encode InitializerConfigurationList where
   encode (InitializerConfigurationList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
-               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "kind" (encode "InitializerConfigurationList")
                , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultInitializerConfigurationList :: Default InitializerConfigurationList where
   default = InitializerConfigurationList
-    { apiVersion: Nothing
-    , items: Nothing
-    , kind: Nothing
+    { items: Nothing
     , metadata: Nothing }
 
 -- | Rule is a tuple of APIGroups, APIVersion, and Resources.It is recommended to make sure that all the tuple expansions are valid.
