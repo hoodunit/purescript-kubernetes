@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -21,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -33,35 +32,35 @@ import Prelude
 -- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
 -- | - `webhooks`: Webhooks is a list of webhooks and the affected resources and operations.
 newtype MutatingWebhookConfiguration = MutatingWebhookConfiguration
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , webhooks :: (NullOrUndefined (Array Webhook)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , webhooks :: (Maybe (Array Webhook)) }
 
 derive instance newtypeMutatingWebhookConfiguration :: Newtype MutatingWebhookConfiguration _
 derive instance genericMutatingWebhookConfiguration :: Generic MutatingWebhookConfiguration _
 instance showMutatingWebhookConfiguration :: Show MutatingWebhookConfiguration where show a = genericShow a
 instance decodeMutatingWebhookConfiguration :: Decode MutatingWebhookConfiguration where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               webhooks <- readProp "webhooks" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               webhooks <- decodeMaybe "webhooks" a
                pure $ MutatingWebhookConfiguration { apiVersion, kind, metadata, webhooks }
 instance encodeMutatingWebhookConfiguration :: Encode MutatingWebhookConfiguration where
   encode (MutatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "webhooks" (encode a.webhooks) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "webhooks" (encodeMaybe a.webhooks) ]
 
 
 instance defaultMutatingWebhookConfiguration :: Default MutatingWebhookConfiguration where
   default = MutatingWebhookConfiguration
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , webhooks: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , webhooks: Nothing }
 
 -- | MutatingWebhookConfigurationList is a list of MutatingWebhookConfiguration.
 -- |
@@ -71,35 +70,35 @@ instance defaultMutatingWebhookConfiguration :: Default MutatingWebhookConfigura
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype MutatingWebhookConfigurationList = MutatingWebhookConfigurationList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array MutatingWebhookConfiguration))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array MutatingWebhookConfiguration))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeMutatingWebhookConfigurationList :: Newtype MutatingWebhookConfigurationList _
 derive instance genericMutatingWebhookConfigurationList :: Generic MutatingWebhookConfigurationList _
 instance showMutatingWebhookConfigurationList :: Show MutatingWebhookConfigurationList where show a = genericShow a
 instance decodeMutatingWebhookConfigurationList :: Decode MutatingWebhookConfigurationList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ MutatingWebhookConfigurationList { apiVersion, items, kind, metadata }
 instance encodeMutatingWebhookConfigurationList :: Encode MutatingWebhookConfigurationList where
   encode (MutatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultMutatingWebhookConfigurationList :: Default MutatingWebhookConfigurationList where
   default = MutatingWebhookConfigurationList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | RuleWithOperations is a tuple of Operations and Resources. It is recommended to make sure that all the tuple expansions are valid.
 -- |
@@ -115,35 +114,35 @@ instance defaultMutatingWebhookConfigurationList :: Default MutatingWebhookConfi
 -- |    
 -- |    Depending on the enclosing object, subresources might not be allowed. Required.
 newtype RuleWithOperations = RuleWithOperations
-  { apiGroups :: (NullOrUndefined (Array String))
-  , apiVersions :: (NullOrUndefined (Array String))
-  , operations :: (NullOrUndefined (Array String))
-  , resources :: (NullOrUndefined (Array String)) }
+  { apiGroups :: (Maybe (Array String))
+  , apiVersions :: (Maybe (Array String))
+  , operations :: (Maybe (Array String))
+  , resources :: (Maybe (Array String)) }
 
 derive instance newtypeRuleWithOperations :: Newtype RuleWithOperations _
 derive instance genericRuleWithOperations :: Generic RuleWithOperations _
 instance showRuleWithOperations :: Show RuleWithOperations where show a = genericShow a
 instance decodeRuleWithOperations :: Decode RuleWithOperations where
   decode a = do
-               apiGroups <- readProp "apiGroups" a >>= decode
-               apiVersions <- readProp "apiVersions" a >>= decode
-               operations <- readProp "operations" a >>= decode
-               resources <- readProp "resources" a >>= decode
+               apiGroups <- decodeMaybe "apiGroups" a
+               apiVersions <- decodeMaybe "apiVersions" a
+               operations <- decodeMaybe "operations" a
+               resources <- decodeMaybe "resources" a
                pure $ RuleWithOperations { apiGroups, apiVersions, operations, resources }
 instance encodeRuleWithOperations :: Encode RuleWithOperations where
   encode (RuleWithOperations a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiGroups" (encode a.apiGroups)
-               , Tuple "apiVersions" (encode a.apiVersions)
-               , Tuple "operations" (encode a.operations)
-               , Tuple "resources" (encode a.resources) ]
+               [ Tuple "apiGroups" (encodeMaybe a.apiGroups)
+               , Tuple "apiVersions" (encodeMaybe a.apiVersions)
+               , Tuple "operations" (encodeMaybe a.operations)
+               , Tuple "resources" (encodeMaybe a.resources) ]
 
 
 instance defaultRuleWithOperations :: Default RuleWithOperations where
   default = RuleWithOperations
-    { apiGroups: NullOrUndefined Nothing
-    , apiVersions: NullOrUndefined Nothing
-    , operations: NullOrUndefined Nothing
-    , resources: NullOrUndefined Nothing }
+    { apiGroups: Nothing
+    , apiVersions: Nothing
+    , operations: Nothing
+    , resources: Nothing }
 
 -- | ServiceReference holds a reference to Service.legacy.k8s.io
 -- |
@@ -152,31 +151,31 @@ instance defaultRuleWithOperations :: Default RuleWithOperations where
 -- | - `namespace`: `namespace` is the namespace of the service. Required
 -- | - `path`: `path` is an optional URL path which will be sent in any request to this service.
 newtype ServiceReference = ServiceReference
-  { name :: (NullOrUndefined String)
-  , namespace :: (NullOrUndefined String)
-  , path :: (NullOrUndefined String) }
+  { name :: (Maybe String)
+  , namespace :: (Maybe String)
+  , path :: (Maybe String) }
 
 derive instance newtypeServiceReference :: Newtype ServiceReference _
 derive instance genericServiceReference :: Generic ServiceReference _
 instance showServiceReference :: Show ServiceReference where show a = genericShow a
 instance decodeServiceReference :: Decode ServiceReference where
   decode a = do
-               name <- readProp "name" a >>= decode
-               namespace <- readProp "namespace" a >>= decode
-               path <- readProp "path" a >>= decode
+               name <- decodeMaybe "name" a
+               namespace <- decodeMaybe "namespace" a
+               path <- decodeMaybe "path" a
                pure $ ServiceReference { name, namespace, path }
 instance encodeServiceReference :: Encode ServiceReference where
   encode (ServiceReference a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "namespace" (encode a.namespace)
-               , Tuple "path" (encode a.path) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespace" (encodeMaybe a.namespace)
+               , Tuple "path" (encodeMaybe a.path) ]
 
 
 instance defaultServiceReference :: Default ServiceReference where
   default = ServiceReference
-    { name: NullOrUndefined Nothing
-    , namespace: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing }
+    { name: Nothing
+    , namespace: Nothing
+    , path: Nothing }
 
 -- | ValidatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and object without changing it.
 -- |
@@ -186,35 +185,35 @@ instance defaultServiceReference :: Default ServiceReference where
 -- | - `metadata`: Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
 -- | - `webhooks`: Webhooks is a list of webhooks and the affected resources and operations.
 newtype ValidatingWebhookConfiguration = ValidatingWebhookConfiguration
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , webhooks :: (NullOrUndefined (Array Webhook)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , webhooks :: (Maybe (Array Webhook)) }
 
 derive instance newtypeValidatingWebhookConfiguration :: Newtype ValidatingWebhookConfiguration _
 derive instance genericValidatingWebhookConfiguration :: Generic ValidatingWebhookConfiguration _
 instance showValidatingWebhookConfiguration :: Show ValidatingWebhookConfiguration where show a = genericShow a
 instance decodeValidatingWebhookConfiguration :: Decode ValidatingWebhookConfiguration where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               webhooks <- readProp "webhooks" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               webhooks <- decodeMaybe "webhooks" a
                pure $ ValidatingWebhookConfiguration { apiVersion, kind, metadata, webhooks }
 instance encodeValidatingWebhookConfiguration :: Encode ValidatingWebhookConfiguration where
   encode (ValidatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "webhooks" (encode a.webhooks) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "webhooks" (encodeMaybe a.webhooks) ]
 
 
 instance defaultValidatingWebhookConfiguration :: Default ValidatingWebhookConfiguration where
   default = ValidatingWebhookConfiguration
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , webhooks: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , webhooks: Nothing }
 
 -- | ValidatingWebhookConfigurationList is a list of ValidatingWebhookConfiguration.
 -- |
@@ -224,35 +223,35 @@ instance defaultValidatingWebhookConfiguration :: Default ValidatingWebhookConfi
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ValidatingWebhookConfigurationList = ValidatingWebhookConfigurationList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ValidatingWebhookConfiguration))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ValidatingWebhookConfiguration))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeValidatingWebhookConfigurationList :: Newtype ValidatingWebhookConfigurationList _
 derive instance genericValidatingWebhookConfigurationList :: Generic ValidatingWebhookConfigurationList _
 instance showValidatingWebhookConfigurationList :: Show ValidatingWebhookConfigurationList where show a = genericShow a
 instance decodeValidatingWebhookConfigurationList :: Decode ValidatingWebhookConfigurationList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ValidatingWebhookConfigurationList { apiVersion, items, kind, metadata }
 instance encodeValidatingWebhookConfigurationList :: Encode ValidatingWebhookConfigurationList where
   encode (ValidatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultValidatingWebhookConfigurationList :: Default ValidatingWebhookConfigurationList where
   default = ValidatingWebhookConfigurationList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | Webhook describes an admission webhook and the resources and operations it applies to.
 -- |
@@ -293,39 +292,39 @@ instance defaultValidatingWebhookConfigurationList :: Default ValidatingWebhookC
 -- |    Default to the empty LabelSelector, which matches everything.
 -- | - `rules`: Rules describes what operations on what resources/subresources the webhook cares about. The webhook cares about an operation if it matches _any_ Rule.
 newtype Webhook = Webhook
-  { clientConfig :: (NullOrUndefined WebhookClientConfig)
-  , failurePolicy :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , namespaceSelector :: (NullOrUndefined MetaV1.LabelSelector)
-  , rules :: (NullOrUndefined (Array RuleWithOperations)) }
+  { clientConfig :: (Maybe WebhookClientConfig)
+  , failurePolicy :: (Maybe String)
+  , name :: (Maybe String)
+  , namespaceSelector :: (Maybe MetaV1.LabelSelector)
+  , rules :: (Maybe (Array RuleWithOperations)) }
 
 derive instance newtypeWebhook :: Newtype Webhook _
 derive instance genericWebhook :: Generic Webhook _
 instance showWebhook :: Show Webhook where show a = genericShow a
 instance decodeWebhook :: Decode Webhook where
   decode a = do
-               clientConfig <- readProp "clientConfig" a >>= decode
-               failurePolicy <- readProp "failurePolicy" a >>= decode
-               name <- readProp "name" a >>= decode
-               namespaceSelector <- readProp "namespaceSelector" a >>= decode
-               rules <- readProp "rules" a >>= decode
+               clientConfig <- decodeMaybe "clientConfig" a
+               failurePolicy <- decodeMaybe "failurePolicy" a
+               name <- decodeMaybe "name" a
+               namespaceSelector <- decodeMaybe "namespaceSelector" a
+               rules <- decodeMaybe "rules" a
                pure $ Webhook { clientConfig, failurePolicy, name, namespaceSelector, rules }
 instance encodeWebhook :: Encode Webhook where
   encode (Webhook a) = encode $ StrMap.fromFoldable $
-               [ Tuple "clientConfig" (encode a.clientConfig)
-               , Tuple "failurePolicy" (encode a.failurePolicy)
-               , Tuple "name" (encode a.name)
-               , Tuple "namespaceSelector" (encode a.namespaceSelector)
-               , Tuple "rules" (encode a.rules) ]
+               [ Tuple "clientConfig" (encodeMaybe a.clientConfig)
+               , Tuple "failurePolicy" (encodeMaybe a.failurePolicy)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespaceSelector" (encodeMaybe a.namespaceSelector)
+               , Tuple "rules" (encodeMaybe a.rules) ]
 
 
 instance defaultWebhook :: Default Webhook where
   default = Webhook
-    { clientConfig: NullOrUndefined Nothing
-    , failurePolicy: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , namespaceSelector: NullOrUndefined Nothing
-    , rules: NullOrUndefined Nothing }
+    { clientConfig: Nothing
+    , failurePolicy: Nothing
+    , name: Nothing
+    , namespaceSelector: Nothing
+    , rules: Nothing }
 
 -- | WebhookClientConfig contains the information to make a TLS connection with the webhook
 -- |
@@ -348,31 +347,31 @@ instance defaultWebhook :: Default Webhook where
 -- |    
 -- |    Attempting to use a user or basic auth e.g. "user:password@" is not allowed. Fragments ("#...") and query parameters ("?...") are not allowed, either.
 newtype WebhookClientConfig = WebhookClientConfig
-  { caBundle :: (NullOrUndefined String)
-  , service :: (NullOrUndefined ServiceReference)
-  , url :: (NullOrUndefined String) }
+  { caBundle :: (Maybe String)
+  , service :: (Maybe ServiceReference)
+  , url :: (Maybe String) }
 
 derive instance newtypeWebhookClientConfig :: Newtype WebhookClientConfig _
 derive instance genericWebhookClientConfig :: Generic WebhookClientConfig _
 instance showWebhookClientConfig :: Show WebhookClientConfig where show a = genericShow a
 instance decodeWebhookClientConfig :: Decode WebhookClientConfig where
   decode a = do
-               caBundle <- readProp "caBundle" a >>= decode
-               service <- readProp "service" a >>= decode
-               url <- readProp "url" a >>= decode
+               caBundle <- decodeMaybe "caBundle" a
+               service <- decodeMaybe "service" a
+               url <- decodeMaybe "url" a
                pure $ WebhookClientConfig { caBundle, service, url }
 instance encodeWebhookClientConfig :: Encode WebhookClientConfig where
   encode (WebhookClientConfig a) = encode $ StrMap.fromFoldable $
-               [ Tuple "caBundle" (encode a.caBundle)
-               , Tuple "service" (encode a.service)
-               , Tuple "url" (encode a.url) ]
+               [ Tuple "caBundle" (encodeMaybe a.caBundle)
+               , Tuple "service" (encodeMaybe a.service)
+               , Tuple "url" (encodeMaybe a.url) ]
 
 
 instance defaultWebhookClientConfig :: Default WebhookClientConfig where
   default = WebhookClientConfig
-    { caBundle: NullOrUndefined Nothing
-    , service: NullOrUndefined Nothing
-    , url: NullOrUndefined Nothing }
+    { caBundle: Nothing
+    , service: Nothing
+    , url: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

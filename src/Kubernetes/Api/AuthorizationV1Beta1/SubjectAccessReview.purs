@@ -6,7 +6,6 @@ import Data.Either (Either(Left,Right))
 import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -18,7 +17,7 @@ import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.AuthorizationV1Beta1 as AuthorizationV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 

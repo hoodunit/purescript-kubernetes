@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -21,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -34,39 +33,39 @@ import Prelude
 -- | - `spec`: Spec contains information for locating and communicating with a server
 -- | - `status`: Status contains derived information about an API server
 newtype APIService = APIService
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined APIServiceSpec)
-  , status :: (NullOrUndefined APIServiceStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe APIServiceSpec)
+  , status :: (Maybe APIServiceStatus) }
 
 derive instance newtypeAPIService :: Newtype APIService _
 derive instance genericAPIService :: Generic APIService _
 instance showAPIService :: Show APIService where show a = genericShow a
 instance decodeAPIService :: Decode APIService where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ APIService { apiVersion, kind, metadata, spec, status }
 instance encodeAPIService :: Encode APIService where
   encode (APIService a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultAPIService :: Default APIService where
   default = APIService
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | Fields:
 -- | - `lastTransitionTime`: Last time the condition transitioned from one status to another.
@@ -75,39 +74,39 @@ instance defaultAPIService :: Default APIService where
 -- | - `status`: Status is the status of the condition. Can be True, False, Unknown.
 -- | - `_type`: Type is the type of the condition.
 newtype APIServiceCondition = APIServiceCondition
-  { _type :: (NullOrUndefined String)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeAPIServiceCondition :: Newtype APIServiceCondition _
 derive instance genericAPIServiceCondition :: Generic APIServiceCondition _
 instance showAPIServiceCondition :: Show APIServiceCondition where show a = genericShow a
 instance decodeAPIServiceCondition :: Decode APIServiceCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ APIServiceCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeAPIServiceCondition :: Encode APIServiceCondition where
   encode (APIServiceCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultAPIServiceCondition :: Default APIServiceCondition where
   default = APIServiceCondition
-    { _type: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastTransitionTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | APIServiceList is a list of APIService objects.
 -- |
@@ -117,35 +116,35 @@ instance defaultAPIServiceCondition :: Default APIServiceCondition where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 newtype APIServiceList = APIServiceList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array APIService))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array APIService))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeAPIServiceList :: Newtype APIServiceList _
 derive instance genericAPIServiceList :: Generic APIServiceList _
 instance showAPIServiceList :: Show APIServiceList where show a = genericShow a
 instance decodeAPIServiceList :: Decode APIServiceList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ APIServiceList { apiVersion, items, kind, metadata }
 instance encodeAPIServiceList :: Encode APIServiceList where
   encode (APIServiceList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultAPIServiceList :: Default APIServiceList where
   default = APIServiceList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | APIServiceSpec contains information for locating and communicating with a server. Only https is supported, though you are able to disable certificate verification.
 -- |
@@ -158,70 +157,70 @@ instance defaultAPIServiceList :: Default APIServiceList where
 -- | - `version`: Version is the API version this server hosts.  For example, "v1"
 -- | - `versionPriority`: VersionPriority controls the ordering of this API version inside of its group.  Must be greater than zero. The primary sort is based on VersionPriority, ordered highest to lowest (20 before 10). The secondary sort is based on the alphabetical comparison of the name of the object.  (v1.bar before v1.foo) Since it's inside of a group, the number can be small, probably in the 10s.
 newtype APIServiceSpec = APIServiceSpec
-  { caBundle :: (NullOrUndefined String)
-  , group :: (NullOrUndefined String)
-  , groupPriorityMinimum :: (NullOrUndefined Int)
-  , insecureSkipTLSVerify :: (NullOrUndefined Boolean)
-  , service :: (NullOrUndefined ServiceReference)
-  , version :: (NullOrUndefined String)
-  , versionPriority :: (NullOrUndefined Int) }
+  { caBundle :: (Maybe String)
+  , group :: (Maybe String)
+  , groupPriorityMinimum :: (Maybe Int)
+  , insecureSkipTLSVerify :: (Maybe Boolean)
+  , service :: (Maybe ServiceReference)
+  , version :: (Maybe String)
+  , versionPriority :: (Maybe Int) }
 
 derive instance newtypeAPIServiceSpec :: Newtype APIServiceSpec _
 derive instance genericAPIServiceSpec :: Generic APIServiceSpec _
 instance showAPIServiceSpec :: Show APIServiceSpec where show a = genericShow a
 instance decodeAPIServiceSpec :: Decode APIServiceSpec where
   decode a = do
-               caBundle <- readProp "caBundle" a >>= decode
-               group <- readProp "group" a >>= decode
-               groupPriorityMinimum <- readProp "groupPriorityMinimum" a >>= decode
-               insecureSkipTLSVerify <- readProp "insecureSkipTLSVerify" a >>= decode
-               service <- readProp "service" a >>= decode
-               version <- readProp "version" a >>= decode
-               versionPriority <- readProp "versionPriority" a >>= decode
+               caBundle <- decodeMaybe "caBundle" a
+               group <- decodeMaybe "group" a
+               groupPriorityMinimum <- decodeMaybe "groupPriorityMinimum" a
+               insecureSkipTLSVerify <- decodeMaybe "insecureSkipTLSVerify" a
+               service <- decodeMaybe "service" a
+               version <- decodeMaybe "version" a
+               versionPriority <- decodeMaybe "versionPriority" a
                pure $ APIServiceSpec { caBundle, group, groupPriorityMinimum, insecureSkipTLSVerify, service, version, versionPriority }
 instance encodeAPIServiceSpec :: Encode APIServiceSpec where
   encode (APIServiceSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "caBundle" (encode a.caBundle)
-               , Tuple "group" (encode a.group)
-               , Tuple "groupPriorityMinimum" (encode a.groupPriorityMinimum)
-               , Tuple "insecureSkipTLSVerify" (encode a.insecureSkipTLSVerify)
-               , Tuple "service" (encode a.service)
-               , Tuple "version" (encode a.version)
-               , Tuple "versionPriority" (encode a.versionPriority) ]
+               [ Tuple "caBundle" (encodeMaybe a.caBundle)
+               , Tuple "group" (encodeMaybe a.group)
+               , Tuple "groupPriorityMinimum" (encodeMaybe a.groupPriorityMinimum)
+               , Tuple "insecureSkipTLSVerify" (encodeMaybe a.insecureSkipTLSVerify)
+               , Tuple "service" (encodeMaybe a.service)
+               , Tuple "version" (encodeMaybe a.version)
+               , Tuple "versionPriority" (encodeMaybe a.versionPriority) ]
 
 
 instance defaultAPIServiceSpec :: Default APIServiceSpec where
   default = APIServiceSpec
-    { caBundle: NullOrUndefined Nothing
-    , group: NullOrUndefined Nothing
-    , groupPriorityMinimum: NullOrUndefined Nothing
-    , insecureSkipTLSVerify: NullOrUndefined Nothing
-    , service: NullOrUndefined Nothing
-    , version: NullOrUndefined Nothing
-    , versionPriority: NullOrUndefined Nothing }
+    { caBundle: Nothing
+    , group: Nothing
+    , groupPriorityMinimum: Nothing
+    , insecureSkipTLSVerify: Nothing
+    , service: Nothing
+    , version: Nothing
+    , versionPriority: Nothing }
 
 -- | APIServiceStatus contains derived information about an API server
 -- |
 -- | Fields:
 -- | - `conditions`: Current service state of apiService.
 newtype APIServiceStatus = APIServiceStatus
-  { conditions :: (NullOrUndefined (Array APIServiceCondition)) }
+  { conditions :: (Maybe (Array APIServiceCondition)) }
 
 derive instance newtypeAPIServiceStatus :: Newtype APIServiceStatus _
 derive instance genericAPIServiceStatus :: Generic APIServiceStatus _
 instance showAPIServiceStatus :: Show APIServiceStatus where show a = genericShow a
 instance decodeAPIServiceStatus :: Decode APIServiceStatus where
   decode a = do
-               conditions <- readProp "conditions" a >>= decode
+               conditions <- decodeMaybe "conditions" a
                pure $ APIServiceStatus { conditions }
 instance encodeAPIServiceStatus :: Encode APIServiceStatus where
   encode (APIServiceStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "conditions" (encode a.conditions) ]
+               [ Tuple "conditions" (encodeMaybe a.conditions) ]
 
 
 instance defaultAPIServiceStatus :: Default APIServiceStatus where
   default = APIServiceStatus
-    { conditions: NullOrUndefined Nothing }
+    { conditions: Nothing }
 
 -- | ServiceReference holds a reference to Service.legacy.k8s.io
 -- |
@@ -229,27 +228,27 @@ instance defaultAPIServiceStatus :: Default APIServiceStatus where
 -- | - `name`: Name is the name of the service
 -- | - `namespace`: Namespace is the namespace of the service
 newtype ServiceReference = ServiceReference
-  { name :: (NullOrUndefined String)
-  , namespace :: (NullOrUndefined String) }
+  { name :: (Maybe String)
+  , namespace :: (Maybe String) }
 
 derive instance newtypeServiceReference :: Newtype ServiceReference _
 derive instance genericServiceReference :: Generic ServiceReference _
 instance showServiceReference :: Show ServiceReference where show a = genericShow a
 instance decodeServiceReference :: Decode ServiceReference where
   decode a = do
-               name <- readProp "name" a >>= decode
-               namespace <- readProp "namespace" a >>= decode
+               name <- decodeMaybe "name" a
+               namespace <- decodeMaybe "namespace" a
                pure $ ServiceReference { name, namespace }
 instance encodeServiceReference :: Encode ServiceReference where
   encode (ServiceReference a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "namespace" (encode a.namespace) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespace" (encodeMaybe a.namespace) ]
 
 
 instance defaultServiceReference :: Default ServiceReference where
   default = ServiceReference
-    { name: NullOrUndefined Nothing
-    , namespace: NullOrUndefined Nothing }
+    { name: Nothing
+    , namespace: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

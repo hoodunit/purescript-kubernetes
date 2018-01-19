@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -22,7 +21,7 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -34,35 +33,35 @@ import Prelude
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: ObjectMeta describes the pod that is being evicted.
 newtype Eviction = Eviction
-  { apiVersion :: (NullOrUndefined String)
-  , deleteOptions :: (NullOrUndefined MetaV1.DeleteOptions)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta) }
+  { apiVersion :: (Maybe String)
+  , deleteOptions :: (Maybe MetaV1.DeleteOptions)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeEviction :: Newtype Eviction _
 derive instance genericEviction :: Generic Eviction _
 instance showEviction :: Show Eviction where show a = genericShow a
 instance decodeEviction :: Decode Eviction where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               deleteOptions <- readProp "deleteOptions" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               deleteOptions <- decodeMaybe "deleteOptions" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ Eviction { apiVersion, deleteOptions, kind, metadata }
 instance encodeEviction :: Encode Eviction where
   encode (Eviction a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "deleteOptions" (encode a.deleteOptions)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "deleteOptions" (encodeMaybe a.deleteOptions)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEviction :: Default Eviction where
   default = Eviction
-    { apiVersion: NullOrUndefined Nothing
-    , deleteOptions: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , deleteOptions: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PodDisruptionBudget is an object to define the max disruption that can be caused to a collection of pods
 -- |
@@ -73,39 +72,39 @@ instance defaultEviction :: Default Eviction where
 -- | - `spec`: Specification of the desired behavior of the PodDisruptionBudget.
 -- | - `status`: Most recently observed status of the PodDisruptionBudget.
 newtype PodDisruptionBudget = PodDisruptionBudget
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined PodDisruptionBudgetSpec)
-  , status :: (NullOrUndefined PodDisruptionBudgetStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe PodDisruptionBudgetSpec)
+  , status :: (Maybe PodDisruptionBudgetStatus) }
 
 derive instance newtypePodDisruptionBudget :: Newtype PodDisruptionBudget _
 derive instance genericPodDisruptionBudget :: Generic PodDisruptionBudget _
 instance showPodDisruptionBudget :: Show PodDisruptionBudget where show a = genericShow a
 instance decodePodDisruptionBudget :: Decode PodDisruptionBudget where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ PodDisruptionBudget { apiVersion, kind, metadata, spec, status }
 instance encodePodDisruptionBudget :: Encode PodDisruptionBudget where
   encode (PodDisruptionBudget a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultPodDisruptionBudget :: Default PodDisruptionBudget where
   default = PodDisruptionBudget
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | PodDisruptionBudgetList is a collection of PodDisruptionBudgets.
 -- |
@@ -115,35 +114,35 @@ instance defaultPodDisruptionBudget :: Default PodDisruptionBudget where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 newtype PodDisruptionBudgetList = PodDisruptionBudgetList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PodDisruptionBudget))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array PodDisruptionBudget))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodDisruptionBudgetList :: Newtype PodDisruptionBudgetList _
 derive instance genericPodDisruptionBudgetList :: Generic PodDisruptionBudgetList _
 instance showPodDisruptionBudgetList :: Show PodDisruptionBudgetList where show a = genericShow a
 instance decodePodDisruptionBudgetList :: Decode PodDisruptionBudgetList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ PodDisruptionBudgetList { apiVersion, items, kind, metadata }
 instance encodePodDisruptionBudgetList :: Encode PodDisruptionBudgetList where
   encode (PodDisruptionBudgetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodDisruptionBudgetList :: Default PodDisruptionBudgetList where
   default = PodDisruptionBudgetList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PodDisruptionBudgetSpec is a description of a PodDisruptionBudget.
 -- |
@@ -152,31 +151,31 @@ instance defaultPodDisruptionBudgetList :: Default PodDisruptionBudgetList where
 -- | - `minAvailable`: An eviction is allowed if at least "minAvailable" pods selected by "selector" will still be available after the eviction, i.e. even in the absence of the evicted pod.  So for example you can prevent all voluntary evictions by specifying "100%".
 -- | - `selector`: Label query over pods whose evictions are managed by the disruption budget.
 newtype PodDisruptionBudgetSpec = PodDisruptionBudgetSpec
-  { maxUnavailable :: (NullOrUndefined Util.IntOrString)
-  , minAvailable :: (NullOrUndefined Util.IntOrString)
-  , selector :: (NullOrUndefined MetaV1.LabelSelector) }
+  { maxUnavailable :: (Maybe Util.IntOrString)
+  , minAvailable :: (Maybe Util.IntOrString)
+  , selector :: (Maybe MetaV1.LabelSelector) }
 
 derive instance newtypePodDisruptionBudgetSpec :: Newtype PodDisruptionBudgetSpec _
 derive instance genericPodDisruptionBudgetSpec :: Generic PodDisruptionBudgetSpec _
 instance showPodDisruptionBudgetSpec :: Show PodDisruptionBudgetSpec where show a = genericShow a
 instance decodePodDisruptionBudgetSpec :: Decode PodDisruptionBudgetSpec where
   decode a = do
-               maxUnavailable <- readProp "maxUnavailable" a >>= decode
-               minAvailable <- readProp "minAvailable" a >>= decode
-               selector <- readProp "selector" a >>= decode
+               maxUnavailable <- decodeMaybe "maxUnavailable" a
+               minAvailable <- decodeMaybe "minAvailable" a
+               selector <- decodeMaybe "selector" a
                pure $ PodDisruptionBudgetSpec { maxUnavailable, minAvailable, selector }
 instance encodePodDisruptionBudgetSpec :: Encode PodDisruptionBudgetSpec where
   encode (PodDisruptionBudgetSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "maxUnavailable" (encode a.maxUnavailable)
-               , Tuple "minAvailable" (encode a.minAvailable)
-               , Tuple "selector" (encode a.selector) ]
+               [ Tuple "maxUnavailable" (encodeMaybe a.maxUnavailable)
+               , Tuple "minAvailable" (encodeMaybe a.minAvailable)
+               , Tuple "selector" (encodeMaybe a.selector) ]
 
 
 instance defaultPodDisruptionBudgetSpec :: Default PodDisruptionBudgetSpec where
   default = PodDisruptionBudgetSpec
-    { maxUnavailable: NullOrUndefined Nothing
-    , minAvailable: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing }
+    { maxUnavailable: Nothing
+    , minAvailable: Nothing
+    , selector: Nothing }
 
 -- | PodDisruptionBudgetStatus represents information about the status of a PodDisruptionBudget. Status may trail the actual state of a system.
 -- |
@@ -188,43 +187,43 @@ instance defaultPodDisruptionBudgetSpec :: Default PodDisruptionBudgetSpec where
 -- | - `expectedPods`: total number of pods counted by this disruption budget
 -- | - `observedGeneration`: Most recent generation observed when updating this PDB status. PodDisruptionsAllowed and other status informatio is valid only if observedGeneration equals to PDB's object generation.
 newtype PodDisruptionBudgetStatus = PodDisruptionBudgetStatus
-  { currentHealthy :: (NullOrUndefined Int)
-  , desiredHealthy :: (NullOrUndefined Int)
-  , disruptedPods :: (NullOrUndefined (StrMap MetaV1.Time))
-  , disruptionsAllowed :: (NullOrUndefined Int)
-  , expectedPods :: (NullOrUndefined Int)
-  , observedGeneration :: (NullOrUndefined Int) }
+  { currentHealthy :: (Maybe Int)
+  , desiredHealthy :: (Maybe Int)
+  , disruptedPods :: (Maybe (StrMap MetaV1.Time))
+  , disruptionsAllowed :: (Maybe Int)
+  , expectedPods :: (Maybe Int)
+  , observedGeneration :: (Maybe Int) }
 
 derive instance newtypePodDisruptionBudgetStatus :: Newtype PodDisruptionBudgetStatus _
 derive instance genericPodDisruptionBudgetStatus :: Generic PodDisruptionBudgetStatus _
 instance showPodDisruptionBudgetStatus :: Show PodDisruptionBudgetStatus where show a = genericShow a
 instance decodePodDisruptionBudgetStatus :: Decode PodDisruptionBudgetStatus where
   decode a = do
-               currentHealthy <- readProp "currentHealthy" a >>= decode
-               desiredHealthy <- readProp "desiredHealthy" a >>= decode
-               disruptedPods <- readProp "disruptedPods" a >>= decode
-               disruptionsAllowed <- readProp "disruptionsAllowed" a >>= decode
-               expectedPods <- readProp "expectedPods" a >>= decode
-               observedGeneration <- readProp "observedGeneration" a >>= decode
+               currentHealthy <- decodeMaybe "currentHealthy" a
+               desiredHealthy <- decodeMaybe "desiredHealthy" a
+               disruptedPods <- decodeMaybe "disruptedPods" a
+               disruptionsAllowed <- decodeMaybe "disruptionsAllowed" a
+               expectedPods <- decodeMaybe "expectedPods" a
+               observedGeneration <- decodeMaybe "observedGeneration" a
                pure $ PodDisruptionBudgetStatus { currentHealthy, desiredHealthy, disruptedPods, disruptionsAllowed, expectedPods, observedGeneration }
 instance encodePodDisruptionBudgetStatus :: Encode PodDisruptionBudgetStatus where
   encode (PodDisruptionBudgetStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "currentHealthy" (encode a.currentHealthy)
-               , Tuple "desiredHealthy" (encode a.desiredHealthy)
-               , Tuple "disruptedPods" (encode a.disruptedPods)
-               , Tuple "disruptionsAllowed" (encode a.disruptionsAllowed)
-               , Tuple "expectedPods" (encode a.expectedPods)
-               , Tuple "observedGeneration" (encode a.observedGeneration) ]
+               [ Tuple "currentHealthy" (encodeMaybe a.currentHealthy)
+               , Tuple "desiredHealthy" (encodeMaybe a.desiredHealthy)
+               , Tuple "disruptedPods" (encodeMaybe a.disruptedPods)
+               , Tuple "disruptionsAllowed" (encodeMaybe a.disruptionsAllowed)
+               , Tuple "expectedPods" (encodeMaybe a.expectedPods)
+               , Tuple "observedGeneration" (encodeMaybe a.observedGeneration) ]
 
 
 instance defaultPodDisruptionBudgetStatus :: Default PodDisruptionBudgetStatus where
   default = PodDisruptionBudgetStatus
-    { currentHealthy: NullOrUndefined Nothing
-    , desiredHealthy: NullOrUndefined Nothing
-    , disruptedPods: NullOrUndefined Nothing
-    , disruptionsAllowed: NullOrUndefined Nothing
-    , expectedPods: NullOrUndefined Nothing
-    , observedGeneration: NullOrUndefined Nothing }
+    { currentHealthy: Nothing
+    , desiredHealthy: Nothing
+    , disruptedPods: Nothing
+    , disruptionsAllowed: Nothing
+    , expectedPods: Nothing
+    , observedGeneration: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

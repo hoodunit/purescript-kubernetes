@@ -6,7 +6,6 @@ import Data.Either (Either(Left,Right))
 import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -18,7 +17,7 @@ import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
@@ -41,51 +40,51 @@ createNamespacedPodTemplate cfg namespace body = makeRequest (post cfg url (Just
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedPodTemplateOptions = DeleteCollectionNamespacedPodTemplateOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeDeleteCollectionNamespacedPodTemplateOptions :: Newtype DeleteCollectionNamespacedPodTemplateOptions _
 derive instance genericDeleteCollectionNamespacedPodTemplateOptions :: Generic DeleteCollectionNamespacedPodTemplateOptions _
 instance showDeleteCollectionNamespacedPodTemplateOptions :: Show DeleteCollectionNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedPodTemplateOptions :: Decode DeleteCollectionNamespacedPodTemplateOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionNamespacedPodTemplateOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedPodTemplateOptions :: Encode DeleteCollectionNamespacedPodTemplateOptions where
   encode (DeleteCollectionNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultDeleteCollectionNamespacedPodTemplateOptions :: Default DeleteCollectionNamespacedPodTemplateOptions where
   default = DeleteCollectionNamespacedPodTemplateOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | delete collection of PodTemplate
 deleteCollectionNamespacedPodTemplate :: forall e. Config -> String -> DeleteCollectionNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -98,31 +97,31 @@ deleteCollectionNamespacedPodTemplate cfg namespace options = makeRequest (delet
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedPodTemplateOptions = DeleteNamespacedPodTemplateOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
+  { gracePeriodSeconds :: (Maybe Int)
+  , orphanDependents :: (Maybe Boolean)
+  , propagationPolicy :: (Maybe String) }
 
 derive instance newtypeDeleteNamespacedPodTemplateOptions :: Newtype DeleteNamespacedPodTemplateOptions _
 derive instance genericDeleteNamespacedPodTemplateOptions :: Generic DeleteNamespacedPodTemplateOptions _
 instance showDeleteNamespacedPodTemplateOptions :: Show DeleteNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeDeleteNamespacedPodTemplateOptions :: Decode DeleteNamespacedPodTemplateOptions where
   decode a = do
-               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
-               orphanDependents <- readProp "orphanDependents" a >>= decode
-               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteNamespacedPodTemplateOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedPodTemplateOptions :: Encode DeleteNamespacedPodTemplateOptions where
   encode (DeleteNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
-               , Tuple "orphanDependents" (encode a.orphanDependents)
-               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
 instance defaultDeleteNamespacedPodTemplateOptions :: Default DeleteNamespacedPodTemplateOptions where
   default = DeleteNamespacedPodTemplateOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
+    { gracePeriodSeconds: Nothing
+    , orphanDependents: Nothing
+    , propagationPolicy: Nothing }
 
 -- | delete a PodTemplate
 deleteNamespacedPodTemplate :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -143,51 +142,51 @@ deleteNamespacedPodTemplate cfg namespace name body options = makeRequest (delet
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedPodTemplateOptions = ListNamespacedPodTemplateOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeListNamespacedPodTemplateOptions :: Newtype ListNamespacedPodTemplateOptions _
 derive instance genericListNamespacedPodTemplateOptions :: Generic ListNamespacedPodTemplateOptions _
 instance showListNamespacedPodTemplateOptions :: Show ListNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeListNamespacedPodTemplateOptions :: Decode ListNamespacedPodTemplateOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ ListNamespacedPodTemplateOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedPodTemplateOptions :: Encode ListNamespacedPodTemplateOptions where
   encode (ListNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultListNamespacedPodTemplateOptions :: Default ListNamespacedPodTemplateOptions where
   default = ListNamespacedPodTemplateOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | list or watch objects of kind PodTemplate
 listNamespacedPodTemplate :: forall e. Config -> String -> ListNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.PodTemplateList)
@@ -205,27 +204,27 @@ listPodTemplateForAllNamespaces cfg = makeRequest (get cfg url Nothing)
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedPodTemplateOptions = ReadNamespacedPodTemplateOptions
-  { exact :: (NullOrUndefined Boolean)
-  , export :: (NullOrUndefined Boolean) }
+  { exact :: (Maybe Boolean)
+  , export :: (Maybe Boolean) }
 
 derive instance newtypeReadNamespacedPodTemplateOptions :: Newtype ReadNamespacedPodTemplateOptions _
 derive instance genericReadNamespacedPodTemplateOptions :: Generic ReadNamespacedPodTemplateOptions _
 instance showReadNamespacedPodTemplateOptions :: Show ReadNamespacedPodTemplateOptions where show a = genericShow a
 instance decodeReadNamespacedPodTemplateOptions :: Decode ReadNamespacedPodTemplateOptions where
   decode a = do
-               exact <- readProp "exact" a >>= decode
-               export <- readProp "export" a >>= decode
+               exact <- decodeMaybe "exact" a
+               export <- decodeMaybe "export" a
                pure $ ReadNamespacedPodTemplateOptions { exact, export }
 instance encodeReadNamespacedPodTemplateOptions :: Encode ReadNamespacedPodTemplateOptions where
   encode (ReadNamespacedPodTemplateOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "exact" (encode a.exact)
-               , Tuple "export" (encode a.export) ]
+               [ Tuple "exact" (encodeMaybe a.exact)
+               , Tuple "export" (encodeMaybe a.export) ]
 
 
 instance defaultReadNamespacedPodTemplateOptions :: Default ReadNamespacedPodTemplateOptions where
   default = ReadNamespacedPodTemplateOptions
-    { exact: NullOrUndefined Nothing
-    , export: NullOrUndefined Nothing }
+    { exact: Nothing
+    , export: Nothing }
 
 -- | read the specified PodTemplate
 readNamespacedPodTemplate :: forall e. Config -> String -> String -> ReadNamespacedPodTemplateOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.PodTemplate)

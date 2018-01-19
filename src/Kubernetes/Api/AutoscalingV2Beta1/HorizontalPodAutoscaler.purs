@@ -6,7 +6,6 @@ import Data.Either (Either(Left,Right))
 import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -18,7 +17,7 @@ import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.AutoscalingV2Beta1 as AutoscalingV2Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
@@ -41,51 +40,51 @@ createNamespacedHorizontalPodAutoscaler cfg namespace body = makeRequest (post c
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Newtype DeleteCollectionNamespacedHorizontalPodAutoscalerOptions _
 derive instance genericDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Generic DeleteCollectionNamespacedHorizontalPodAutoscalerOptions _
 instance showDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Show DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
 instance decodeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Decode DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionNamespacedHorizontalPodAutoscalerOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Encode DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
   encode (DeleteCollectionNamespacedHorizontalPodAutoscalerOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultDeleteCollectionNamespacedHorizontalPodAutoscalerOptions :: Default DeleteCollectionNamespacedHorizontalPodAutoscalerOptions where
   default = DeleteCollectionNamespacedHorizontalPodAutoscalerOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | delete collection of HorizontalPodAutoscaler
 deleteCollectionNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> DeleteCollectionNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -98,31 +97,31 @@ deleteCollectionNamespacedHorizontalPodAutoscaler cfg namespace options = makeRe
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteNamespacedHorizontalPodAutoscalerOptions = DeleteNamespacedHorizontalPodAutoscalerOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
+  { gracePeriodSeconds :: (Maybe Int)
+  , orphanDependents :: (Maybe Boolean)
+  , propagationPolicy :: (Maybe String) }
 
 derive instance newtypeDeleteNamespacedHorizontalPodAutoscalerOptions :: Newtype DeleteNamespacedHorizontalPodAutoscalerOptions _
 derive instance genericDeleteNamespacedHorizontalPodAutoscalerOptions :: Generic DeleteNamespacedHorizontalPodAutoscalerOptions _
 instance showDeleteNamespacedHorizontalPodAutoscalerOptions :: Show DeleteNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
 instance decodeDeleteNamespacedHorizontalPodAutoscalerOptions :: Decode DeleteNamespacedHorizontalPodAutoscalerOptions where
   decode a = do
-               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
-               orphanDependents <- readProp "orphanDependents" a >>= decode
-               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteNamespacedHorizontalPodAutoscalerOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedHorizontalPodAutoscalerOptions :: Encode DeleteNamespacedHorizontalPodAutoscalerOptions where
   encode (DeleteNamespacedHorizontalPodAutoscalerOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
-               , Tuple "orphanDependents" (encode a.orphanDependents)
-               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
 instance defaultDeleteNamespacedHorizontalPodAutoscalerOptions :: Default DeleteNamespacedHorizontalPodAutoscalerOptions where
   default = DeleteNamespacedHorizontalPodAutoscalerOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
+    { gracePeriodSeconds: Nothing
+    , orphanDependents: Nothing
+    , propagationPolicy: Nothing }
 
 -- | delete a HorizontalPodAutoscaler
 deleteNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -149,51 +148,51 @@ listHorizontalPodAutoscalerForAllNamespaces cfg = makeRequest (get cfg url Nothi
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListNamespacedHorizontalPodAutoscalerOptions = ListNamespacedHorizontalPodAutoscalerOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeListNamespacedHorizontalPodAutoscalerOptions :: Newtype ListNamespacedHorizontalPodAutoscalerOptions _
 derive instance genericListNamespacedHorizontalPodAutoscalerOptions :: Generic ListNamespacedHorizontalPodAutoscalerOptions _
 instance showListNamespacedHorizontalPodAutoscalerOptions :: Show ListNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
 instance decodeListNamespacedHorizontalPodAutoscalerOptions :: Decode ListNamespacedHorizontalPodAutoscalerOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ ListNamespacedHorizontalPodAutoscalerOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedHorizontalPodAutoscalerOptions :: Encode ListNamespacedHorizontalPodAutoscalerOptions where
   encode (ListNamespacedHorizontalPodAutoscalerOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultListNamespacedHorizontalPodAutoscalerOptions :: Default ListNamespacedHorizontalPodAutoscalerOptions where
   default = ListNamespacedHorizontalPodAutoscalerOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | list or watch objects of kind HorizontalPodAutoscaler
 listNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> ListNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AutoscalingV2Beta1.HorizontalPodAutoscalerList)
@@ -205,27 +204,27 @@ listNamespacedHorizontalPodAutoscaler cfg namespace options = makeRequest (get c
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadNamespacedHorizontalPodAutoscalerOptions = ReadNamespacedHorizontalPodAutoscalerOptions
-  { exact :: (NullOrUndefined Boolean)
-  , export :: (NullOrUndefined Boolean) }
+  { exact :: (Maybe Boolean)
+  , export :: (Maybe Boolean) }
 
 derive instance newtypeReadNamespacedHorizontalPodAutoscalerOptions :: Newtype ReadNamespacedHorizontalPodAutoscalerOptions _
 derive instance genericReadNamespacedHorizontalPodAutoscalerOptions :: Generic ReadNamespacedHorizontalPodAutoscalerOptions _
 instance showReadNamespacedHorizontalPodAutoscalerOptions :: Show ReadNamespacedHorizontalPodAutoscalerOptions where show a = genericShow a
 instance decodeReadNamespacedHorizontalPodAutoscalerOptions :: Decode ReadNamespacedHorizontalPodAutoscalerOptions where
   decode a = do
-               exact <- readProp "exact" a >>= decode
-               export <- readProp "export" a >>= decode
+               exact <- decodeMaybe "exact" a
+               export <- decodeMaybe "export" a
                pure $ ReadNamespacedHorizontalPodAutoscalerOptions { exact, export }
 instance encodeReadNamespacedHorizontalPodAutoscalerOptions :: Encode ReadNamespacedHorizontalPodAutoscalerOptions where
   encode (ReadNamespacedHorizontalPodAutoscalerOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "exact" (encode a.exact)
-               , Tuple "export" (encode a.export) ]
+               [ Tuple "exact" (encodeMaybe a.exact)
+               , Tuple "export" (encodeMaybe a.export) ]
 
 
 instance defaultReadNamespacedHorizontalPodAutoscalerOptions :: Default ReadNamespacedHorizontalPodAutoscalerOptions where
   default = ReadNamespacedHorizontalPodAutoscalerOptions
-    { exact: NullOrUndefined Nothing
-    , export: NullOrUndefined Nothing }
+    { exact: Nothing
+    , export: Nothing }
 
 -- | read the specified HorizontalPodAutoscaler
 readNamespacedHorizontalPodAutoscaler :: forall e. Config -> String -> String -> ReadNamespacedHorizontalPodAutoscalerOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AutoscalingV2Beta1.HorizontalPodAutoscaler)

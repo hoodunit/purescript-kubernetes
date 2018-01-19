@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -22,7 +21,7 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -32,27 +31,27 @@ import Prelude
 -- | - `cidr`: CIDR is a string representing the IP Block Valid examples are "192.168.1.1/24"
 -- | - `except`: Except is a slice of CIDRs that should not be included within an IP Block Valid examples are "192.168.1.1/24" Except values will be rejected if they are outside the CIDR range
 newtype IPBlock = IPBlock
-  { cidr :: (NullOrUndefined String)
-  , except :: (NullOrUndefined (Array String)) }
+  { cidr :: (Maybe String)
+  , except :: (Maybe (Array String)) }
 
 derive instance newtypeIPBlock :: Newtype IPBlock _
 derive instance genericIPBlock :: Generic IPBlock _
 instance showIPBlock :: Show IPBlock where show a = genericShow a
 instance decodeIPBlock :: Decode IPBlock where
   decode a = do
-               cidr <- readProp "cidr" a >>= decode
-               except <- readProp "except" a >>= decode
+               cidr <- decodeMaybe "cidr" a
+               except <- decodeMaybe "except" a
                pure $ IPBlock { cidr, except }
 instance encodeIPBlock :: Encode IPBlock where
   encode (IPBlock a) = encode $ StrMap.fromFoldable $
-               [ Tuple "cidr" (encode a.cidr)
-               , Tuple "except" (encode a.except) ]
+               [ Tuple "cidr" (encodeMaybe a.cidr)
+               , Tuple "except" (encodeMaybe a.except) ]
 
 
 instance defaultIPBlock :: Default IPBlock where
   default = IPBlock
-    { cidr: NullOrUndefined Nothing
-    , except: NullOrUndefined Nothing }
+    { cidr: Nothing
+    , except: Nothing }
 
 -- | NetworkPolicy describes what network traffic is allowed for a set of Pods
 -- |
@@ -62,35 +61,35 @@ instance defaultIPBlock :: Default IPBlock where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired behavior for this NetworkPolicy.
 newtype NetworkPolicy = NetworkPolicy
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined NetworkPolicySpec) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe NetworkPolicySpec) }
 
 derive instance newtypeNetworkPolicy :: Newtype NetworkPolicy _
 derive instance genericNetworkPolicy :: Generic NetworkPolicy _
 instance showNetworkPolicy :: Show NetworkPolicy where show a = genericShow a
 instance decodeNetworkPolicy :: Decode NetworkPolicy where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
                pure $ NetworkPolicy { apiVersion, kind, metadata, spec }
 instance encodeNetworkPolicy :: Encode NetworkPolicy where
   encode (NetworkPolicy a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultNetworkPolicy :: Default NetworkPolicy where
   default = NetworkPolicy
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing }
 
 -- | NetworkPolicyEgressRule describes a particular set of traffic that is allowed out of pods matched by a NetworkPolicySpec's podSelector. The traffic must match both ports and to. This type is beta-level in 1.8
 -- |
@@ -98,27 +97,27 @@ instance defaultNetworkPolicy :: Default NetworkPolicy where
 -- | - `ports`: List of destination ports for outgoing traffic. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
 -- | - `to`: List of destinations for outgoing traffic of pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all destinations (traffic not restricted by destination). If this field is present and contains at least one item, this rule allows traffic only if the traffic matches at least one item in the to list.
 newtype NetworkPolicyEgressRule = NetworkPolicyEgressRule
-  { ports :: (NullOrUndefined (Array NetworkPolicyPort))
-  , to :: (NullOrUndefined (Array NetworkPolicyPeer)) }
+  { ports :: (Maybe (Array NetworkPolicyPort))
+  , to :: (Maybe (Array NetworkPolicyPeer)) }
 
 derive instance newtypeNetworkPolicyEgressRule :: Newtype NetworkPolicyEgressRule _
 derive instance genericNetworkPolicyEgressRule :: Generic NetworkPolicyEgressRule _
 instance showNetworkPolicyEgressRule :: Show NetworkPolicyEgressRule where show a = genericShow a
 instance decodeNetworkPolicyEgressRule :: Decode NetworkPolicyEgressRule where
   decode a = do
-               ports <- readProp "ports" a >>= decode
-               to <- readProp "to" a >>= decode
+               ports <- decodeMaybe "ports" a
+               to <- decodeMaybe "to" a
                pure $ NetworkPolicyEgressRule { ports, to }
 instance encodeNetworkPolicyEgressRule :: Encode NetworkPolicyEgressRule where
   encode (NetworkPolicyEgressRule a) = encode $ StrMap.fromFoldable $
-               [ Tuple "ports" (encode a.ports)
-               , Tuple "to" (encode a.to) ]
+               [ Tuple "ports" (encodeMaybe a.ports)
+               , Tuple "to" (encodeMaybe a.to) ]
 
 
 instance defaultNetworkPolicyEgressRule :: Default NetworkPolicyEgressRule where
   default = NetworkPolicyEgressRule
-    { ports: NullOrUndefined Nothing
-    , to: NullOrUndefined Nothing }
+    { ports: Nothing
+    , to: Nothing }
 
 -- | NetworkPolicyIngressRule describes a particular set of traffic that is allowed to the pods matched by a NetworkPolicySpec's podSelector. The traffic must match both ports and from.
 -- |
@@ -126,27 +125,27 @@ instance defaultNetworkPolicyEgressRule :: Default NetworkPolicyEgressRule where
 -- | - `from`: List of sources which should be able to access the pods selected for this rule. Items in this list are combined using a logical OR operation. If this field is empty or missing, this rule matches all sources (traffic not restricted by source). If this field is present and contains at least on item, this rule allows traffic only if the traffic matches at least one item in the from list.
 -- | - `ports`: List of ports which should be made accessible on the pods selected for this rule. Each item in this list is combined using a logical OR. If this field is empty or missing, this rule matches all ports (traffic not restricted by port). If this field is present and contains at least one item, then this rule allows traffic only if the traffic matches at least one port in the list.
 newtype NetworkPolicyIngressRule = NetworkPolicyIngressRule
-  { from :: (NullOrUndefined (Array NetworkPolicyPeer))
-  , ports :: (NullOrUndefined (Array NetworkPolicyPort)) }
+  { from :: (Maybe (Array NetworkPolicyPeer))
+  , ports :: (Maybe (Array NetworkPolicyPort)) }
 
 derive instance newtypeNetworkPolicyIngressRule :: Newtype NetworkPolicyIngressRule _
 derive instance genericNetworkPolicyIngressRule :: Generic NetworkPolicyIngressRule _
 instance showNetworkPolicyIngressRule :: Show NetworkPolicyIngressRule where show a = genericShow a
 instance decodeNetworkPolicyIngressRule :: Decode NetworkPolicyIngressRule where
   decode a = do
-               from <- readProp "from" a >>= decode
-               ports <- readProp "ports" a >>= decode
+               from <- decodeMaybe "from" a
+               ports <- decodeMaybe "ports" a
                pure $ NetworkPolicyIngressRule { from, ports }
 instance encodeNetworkPolicyIngressRule :: Encode NetworkPolicyIngressRule where
   encode (NetworkPolicyIngressRule a) = encode $ StrMap.fromFoldable $
-               [ Tuple "from" (encode a.from)
-               , Tuple "ports" (encode a.ports) ]
+               [ Tuple "from" (encodeMaybe a.from)
+               , Tuple "ports" (encodeMaybe a.ports) ]
 
 
 instance defaultNetworkPolicyIngressRule :: Default NetworkPolicyIngressRule where
   default = NetworkPolicyIngressRule
-    { from: NullOrUndefined Nothing
-    , ports: NullOrUndefined Nothing }
+    { from: Nothing
+    , ports: Nothing }
 
 -- | NetworkPolicyList is a list of NetworkPolicy objects.
 -- |
@@ -156,35 +155,35 @@ instance defaultNetworkPolicyIngressRule :: Default NetworkPolicyIngressRule whe
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype NetworkPolicyList = NetworkPolicyList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array NetworkPolicy))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array NetworkPolicy))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeNetworkPolicyList :: Newtype NetworkPolicyList _
 derive instance genericNetworkPolicyList :: Generic NetworkPolicyList _
 instance showNetworkPolicyList :: Show NetworkPolicyList where show a = genericShow a
 instance decodeNetworkPolicyList :: Decode NetworkPolicyList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ NetworkPolicyList { apiVersion, items, kind, metadata }
 instance encodeNetworkPolicyList :: Encode NetworkPolicyList where
   encode (NetworkPolicyList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultNetworkPolicyList :: Default NetworkPolicyList where
   default = NetworkPolicyList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | NetworkPolicyPeer describes a peer to allow traffic from. Exactly one of its fields must be specified.
 -- |
@@ -193,31 +192,31 @@ instance defaultNetworkPolicyList :: Default NetworkPolicyList where
 -- | - `namespaceSelector`: Selects Namespaces using cluster scoped-labels. This matches all pods in all namespaces selected by this label selector. This field follows standard label selector semantics. If present but empty, this selector selects all namespaces.
 -- | - `podSelector`: This is a label selector which selects Pods in this namespace. This field follows standard label selector semantics. If present but empty, this selector selects all pods in this namespace.
 newtype NetworkPolicyPeer = NetworkPolicyPeer
-  { ipBlock :: (NullOrUndefined IPBlock)
-  , namespaceSelector :: (NullOrUndefined MetaV1.LabelSelector)
-  , podSelector :: (NullOrUndefined MetaV1.LabelSelector) }
+  { ipBlock :: (Maybe IPBlock)
+  , namespaceSelector :: (Maybe MetaV1.LabelSelector)
+  , podSelector :: (Maybe MetaV1.LabelSelector) }
 
 derive instance newtypeNetworkPolicyPeer :: Newtype NetworkPolicyPeer _
 derive instance genericNetworkPolicyPeer :: Generic NetworkPolicyPeer _
 instance showNetworkPolicyPeer :: Show NetworkPolicyPeer where show a = genericShow a
 instance decodeNetworkPolicyPeer :: Decode NetworkPolicyPeer where
   decode a = do
-               ipBlock <- readProp "ipBlock" a >>= decode
-               namespaceSelector <- readProp "namespaceSelector" a >>= decode
-               podSelector <- readProp "podSelector" a >>= decode
+               ipBlock <- decodeMaybe "ipBlock" a
+               namespaceSelector <- decodeMaybe "namespaceSelector" a
+               podSelector <- decodeMaybe "podSelector" a
                pure $ NetworkPolicyPeer { ipBlock, namespaceSelector, podSelector }
 instance encodeNetworkPolicyPeer :: Encode NetworkPolicyPeer where
   encode (NetworkPolicyPeer a) = encode $ StrMap.fromFoldable $
-               [ Tuple "ipBlock" (encode a.ipBlock)
-               , Tuple "namespaceSelector" (encode a.namespaceSelector)
-               , Tuple "podSelector" (encode a.podSelector) ]
+               [ Tuple "ipBlock" (encodeMaybe a.ipBlock)
+               , Tuple "namespaceSelector" (encodeMaybe a.namespaceSelector)
+               , Tuple "podSelector" (encodeMaybe a.podSelector) ]
 
 
 instance defaultNetworkPolicyPeer :: Default NetworkPolicyPeer where
   default = NetworkPolicyPeer
-    { ipBlock: NullOrUndefined Nothing
-    , namespaceSelector: NullOrUndefined Nothing
-    , podSelector: NullOrUndefined Nothing }
+    { ipBlock: Nothing
+    , namespaceSelector: Nothing
+    , podSelector: Nothing }
 
 -- | NetworkPolicyPort describes a port to allow traffic on
 -- |
@@ -225,27 +224,27 @@ instance defaultNetworkPolicyPeer :: Default NetworkPolicyPeer where
 -- | - `port`: The port on the given protocol. This can either be a numerical or named port on a pod. If this field is not provided, this matches all port names and numbers.
 -- | - `protocol`: The protocol (TCP or UDP) which traffic must match. If not specified, this field defaults to TCP.
 newtype NetworkPolicyPort = NetworkPolicyPort
-  { port :: (NullOrUndefined Util.IntOrString)
-  , protocol :: (NullOrUndefined String) }
+  { port :: (Maybe Util.IntOrString)
+  , protocol :: (Maybe String) }
 
 derive instance newtypeNetworkPolicyPort :: Newtype NetworkPolicyPort _
 derive instance genericNetworkPolicyPort :: Generic NetworkPolicyPort _
 instance showNetworkPolicyPort :: Show NetworkPolicyPort where show a = genericShow a
 instance decodeNetworkPolicyPort :: Decode NetworkPolicyPort where
   decode a = do
-               port <- readProp "port" a >>= decode
-               protocol <- readProp "protocol" a >>= decode
+               port <- decodeMaybe "port" a
+               protocol <- decodeMaybe "protocol" a
                pure $ NetworkPolicyPort { port, protocol }
 instance encodeNetworkPolicyPort :: Encode NetworkPolicyPort where
   encode (NetworkPolicyPort a) = encode $ StrMap.fromFoldable $
-               [ Tuple "port" (encode a.port)
-               , Tuple "protocol" (encode a.protocol) ]
+               [ Tuple "port" (encodeMaybe a.port)
+               , Tuple "protocol" (encodeMaybe a.protocol) ]
 
 
 instance defaultNetworkPolicyPort :: Default NetworkPolicyPort where
   default = NetworkPolicyPort
-    { port: NullOrUndefined Nothing
-    , protocol: NullOrUndefined Nothing }
+    { port: Nothing
+    , protocol: Nothing }
 
 -- | NetworkPolicySpec provides the specification of a NetworkPolicy
 -- |
@@ -255,35 +254,35 @@ instance defaultNetworkPolicyPort :: Default NetworkPolicyPort where
 -- | - `podSelector`: Selects the pods to which this NetworkPolicy object applies. The array of ingress rules is applied to any pods selected by this field. Multiple network policies can select the same set of pods. In this case, the ingress rules for each are combined additively. This field is NOT optional and follows standard label selector semantics. An empty podSelector matches all pods in this namespace.
 -- | - `policyTypes`: List of rule types that the NetworkPolicy relates to. Valid options are Ingress, Egress, or Ingress,Egress. If this field is not specified, it will default based on the existence of Ingress or Egress rules; policies that contain an Egress section are assumed to affect Egress, and all policies (whether or not they contain an Ingress section) are assumed to affect Ingress. If you want to write an egress-only policy, you must explicitly specify policyTypes [ "Egress" ]. Likewise, if you want to write a policy that specifies that no egress is allowed, you must specify a policyTypes value that include "Egress" (since such a policy would not include an Egress section and would otherwise default to just [ "Ingress" ]). This field is beta-level in 1.8
 newtype NetworkPolicySpec = NetworkPolicySpec
-  { egress :: (NullOrUndefined (Array NetworkPolicyEgressRule))
-  , ingress :: (NullOrUndefined (Array NetworkPolicyIngressRule))
-  , podSelector :: (NullOrUndefined MetaV1.LabelSelector)
-  , policyTypes :: (NullOrUndefined (Array String)) }
+  { egress :: (Maybe (Array NetworkPolicyEgressRule))
+  , ingress :: (Maybe (Array NetworkPolicyIngressRule))
+  , podSelector :: (Maybe MetaV1.LabelSelector)
+  , policyTypes :: (Maybe (Array String)) }
 
 derive instance newtypeNetworkPolicySpec :: Newtype NetworkPolicySpec _
 derive instance genericNetworkPolicySpec :: Generic NetworkPolicySpec _
 instance showNetworkPolicySpec :: Show NetworkPolicySpec where show a = genericShow a
 instance decodeNetworkPolicySpec :: Decode NetworkPolicySpec where
   decode a = do
-               egress <- readProp "egress" a >>= decode
-               ingress <- readProp "ingress" a >>= decode
-               podSelector <- readProp "podSelector" a >>= decode
-               policyTypes <- readProp "policyTypes" a >>= decode
+               egress <- decodeMaybe "egress" a
+               ingress <- decodeMaybe "ingress" a
+               podSelector <- decodeMaybe "podSelector" a
+               policyTypes <- decodeMaybe "policyTypes" a
                pure $ NetworkPolicySpec { egress, ingress, podSelector, policyTypes }
 instance encodeNetworkPolicySpec :: Encode NetworkPolicySpec where
   encode (NetworkPolicySpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "egress" (encode a.egress)
-               , Tuple "ingress" (encode a.ingress)
-               , Tuple "podSelector" (encode a.podSelector)
-               , Tuple "policyTypes" (encode a.policyTypes) ]
+               [ Tuple "egress" (encodeMaybe a.egress)
+               , Tuple "ingress" (encodeMaybe a.ingress)
+               , Tuple "podSelector" (encodeMaybe a.podSelector)
+               , Tuple "policyTypes" (encodeMaybe a.policyTypes) ]
 
 
 instance defaultNetworkPolicySpec :: Default NetworkPolicySpec where
   default = NetworkPolicySpec
-    { egress: NullOrUndefined Nothing
-    , ingress: NullOrUndefined Nothing
-    , podSelector: NullOrUndefined Nothing
-    , policyTypes: NullOrUndefined Nothing }
+    { egress: Nothing
+    , ingress: Nothing
+    , podSelector: Nothing
+    , policyTypes: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

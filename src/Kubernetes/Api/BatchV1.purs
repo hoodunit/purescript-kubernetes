@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -22,7 +21,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -35,39 +34,39 @@ import Prelude
 -- | - `spec`: Specification of the desired behavior of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Current status of a job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Job = Job
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined JobSpec)
-  , status :: (NullOrUndefined JobStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe JobSpec)
+  , status :: (Maybe JobStatus) }
 
 derive instance newtypeJob :: Newtype Job _
 derive instance genericJob :: Generic Job _
 instance showJob :: Show Job where show a = genericShow a
 instance decodeJob :: Decode Job where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ Job { apiVersion, kind, metadata, spec, status }
 instance encodeJob :: Encode Job where
   encode (Job a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultJob :: Default Job where
   default = Job
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | JobCondition describes current state of a job.
 -- |
@@ -79,43 +78,43 @@ instance defaultJob :: Default Job where
 -- | - `status`: Status of the condition, one of True, False, Unknown.
 -- | - `_type`: Type of job condition, Complete or Failed.
 newtype JobCondition = JobCondition
-  { _type :: (NullOrUndefined String)
-  , lastProbeTime :: (NullOrUndefined MetaV1.Time)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastProbeTime :: (Maybe MetaV1.Time)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeJobCondition :: Newtype JobCondition _
 derive instance genericJobCondition :: Generic JobCondition _
 instance showJobCondition :: Show JobCondition where show a = genericShow a
 instance decodeJobCondition :: Decode JobCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastProbeTime <- readProp "lastProbeTime" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastProbeTime <- decodeMaybe "lastProbeTime" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ JobCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodeJobCondition :: Encode JobCondition where
   encode (JobCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastProbeTime" (encode a.lastProbeTime)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastProbeTime" (encodeMaybe a.lastProbeTime)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultJobCondition :: Default JobCondition where
   default = JobCondition
-    { _type: NullOrUndefined Nothing
-    , lastProbeTime: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastProbeTime: Nothing
+    , lastTransitionTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | JobList is a collection of jobs.
 -- |
@@ -125,35 +124,35 @@ instance defaultJobCondition :: Default JobCondition where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype JobList = JobList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Job))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Job))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeJobList :: Newtype JobList _
 derive instance genericJobList :: Generic JobList _
 instance showJobList :: Show JobList where show a = genericShow a
 instance decodeJobList :: Decode JobList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ JobList { apiVersion, items, kind, metadata }
 instance encodeJobList :: Encode JobList where
   encode (JobList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultJobList :: Default JobList where
   default = JobList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | JobSpec describes how the job execution will look like.
 -- |
@@ -166,47 +165,47 @@ instance defaultJobList :: Default JobList where
 -- | - `selector`: A label query over pods that should match the pod count. Normally, the system sets this field for you. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 -- | - `template`: Describes the pod that will be created when executing a job. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
 newtype JobSpec = JobSpec
-  { activeDeadlineSeconds :: (NullOrUndefined Int)
-  , backoffLimit :: (NullOrUndefined Int)
-  , completions :: (NullOrUndefined Int)
-  , manualSelector :: (NullOrUndefined Boolean)
-  , parallelism :: (NullOrUndefined Int)
-  , selector :: (NullOrUndefined MetaV1.LabelSelector)
-  , template :: (NullOrUndefined CoreV1.PodTemplateSpec) }
+  { activeDeadlineSeconds :: (Maybe Int)
+  , backoffLimit :: (Maybe Int)
+  , completions :: (Maybe Int)
+  , manualSelector :: (Maybe Boolean)
+  , parallelism :: (Maybe Int)
+  , selector :: (Maybe MetaV1.LabelSelector)
+  , template :: (Maybe CoreV1.PodTemplateSpec) }
 
 derive instance newtypeJobSpec :: Newtype JobSpec _
 derive instance genericJobSpec :: Generic JobSpec _
 instance showJobSpec :: Show JobSpec where show a = genericShow a
 instance decodeJobSpec :: Decode JobSpec where
   decode a = do
-               activeDeadlineSeconds <- readProp "activeDeadlineSeconds" a >>= decode
-               backoffLimit <- readProp "backoffLimit" a >>= decode
-               completions <- readProp "completions" a >>= decode
-               manualSelector <- readProp "manualSelector" a >>= decode
-               parallelism <- readProp "parallelism" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               template <- readProp "template" a >>= decode
+               activeDeadlineSeconds <- decodeMaybe "activeDeadlineSeconds" a
+               backoffLimit <- decodeMaybe "backoffLimit" a
+               completions <- decodeMaybe "completions" a
+               manualSelector <- decodeMaybe "manualSelector" a
+               parallelism <- decodeMaybe "parallelism" a
+               selector <- decodeMaybe "selector" a
+               template <- decodeMaybe "template" a
                pure $ JobSpec { activeDeadlineSeconds, backoffLimit, completions, manualSelector, parallelism, selector, template }
 instance encodeJobSpec :: Encode JobSpec where
   encode (JobSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "activeDeadlineSeconds" (encode a.activeDeadlineSeconds)
-               , Tuple "backoffLimit" (encode a.backoffLimit)
-               , Tuple "completions" (encode a.completions)
-               , Tuple "manualSelector" (encode a.manualSelector)
-               , Tuple "parallelism" (encode a.parallelism)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "template" (encode a.template) ]
+               [ Tuple "activeDeadlineSeconds" (encodeMaybe a.activeDeadlineSeconds)
+               , Tuple "backoffLimit" (encodeMaybe a.backoffLimit)
+               , Tuple "completions" (encodeMaybe a.completions)
+               , Tuple "manualSelector" (encodeMaybe a.manualSelector)
+               , Tuple "parallelism" (encodeMaybe a.parallelism)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "template" (encodeMaybe a.template) ]
 
 
 instance defaultJobSpec :: Default JobSpec where
   default = JobSpec
-    { activeDeadlineSeconds: NullOrUndefined Nothing
-    , backoffLimit: NullOrUndefined Nothing
-    , completions: NullOrUndefined Nothing
-    , manualSelector: NullOrUndefined Nothing
-    , parallelism: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , template: NullOrUndefined Nothing }
+    { activeDeadlineSeconds: Nothing
+    , backoffLimit: Nothing
+    , completions: Nothing
+    , manualSelector: Nothing
+    , parallelism: Nothing
+    , selector: Nothing
+    , template: Nothing }
 
 -- | JobStatus represents the current state of a Job.
 -- |
@@ -218,43 +217,43 @@ instance defaultJobSpec :: Default JobSpec where
 -- | - `startTime`: Represents time when the job was acknowledged by the job controller. It is not guaranteed to be set in happens-before order across separate operations. It is represented in RFC3339 form and is in UTC.
 -- | - `succeeded`: The number of pods which reached phase Succeeded.
 newtype JobStatus = JobStatus
-  { active :: (NullOrUndefined Int)
-  , completionTime :: (NullOrUndefined MetaV1.Time)
-  , conditions :: (NullOrUndefined (Array JobCondition))
-  , failed :: (NullOrUndefined Int)
-  , startTime :: (NullOrUndefined MetaV1.Time)
-  , succeeded :: (NullOrUndefined Int) }
+  { active :: (Maybe Int)
+  , completionTime :: (Maybe MetaV1.Time)
+  , conditions :: (Maybe (Array JobCondition))
+  , failed :: (Maybe Int)
+  , startTime :: (Maybe MetaV1.Time)
+  , succeeded :: (Maybe Int) }
 
 derive instance newtypeJobStatus :: Newtype JobStatus _
 derive instance genericJobStatus :: Generic JobStatus _
 instance showJobStatus :: Show JobStatus where show a = genericShow a
 instance decodeJobStatus :: Decode JobStatus where
   decode a = do
-               active <- readProp "active" a >>= decode
-               completionTime <- readProp "completionTime" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
-               failed <- readProp "failed" a >>= decode
-               startTime <- readProp "startTime" a >>= decode
-               succeeded <- readProp "succeeded" a >>= decode
+               active <- decodeMaybe "active" a
+               completionTime <- decodeMaybe "completionTime" a
+               conditions <- decodeMaybe "conditions" a
+               failed <- decodeMaybe "failed" a
+               startTime <- decodeMaybe "startTime" a
+               succeeded <- decodeMaybe "succeeded" a
                pure $ JobStatus { active, completionTime, conditions, failed, startTime, succeeded }
 instance encodeJobStatus :: Encode JobStatus where
   encode (JobStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "active" (encode a.active)
-               , Tuple "completionTime" (encode a.completionTime)
-               , Tuple "conditions" (encode a.conditions)
-               , Tuple "failed" (encode a.failed)
-               , Tuple "startTime" (encode a.startTime)
-               , Tuple "succeeded" (encode a.succeeded) ]
+               [ Tuple "active" (encodeMaybe a.active)
+               , Tuple "completionTime" (encodeMaybe a.completionTime)
+               , Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "failed" (encodeMaybe a.failed)
+               , Tuple "startTime" (encodeMaybe a.startTime)
+               , Tuple "succeeded" (encodeMaybe a.succeeded) ]
 
 
 instance defaultJobStatus :: Default JobStatus where
   default = JobStatus
-    { active: NullOrUndefined Nothing
-    , completionTime: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing
-    , failed: NullOrUndefined Nothing
-    , startTime: NullOrUndefined Nothing
-    , succeeded: NullOrUndefined Nothing }
+    { active: Nothing
+    , completionTime: Nothing
+    , conditions: Nothing
+    , failed: Nothing
+    , startTime: Nothing
+    , succeeded: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

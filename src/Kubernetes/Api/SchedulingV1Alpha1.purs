@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -21,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -35,43 +34,43 @@ import Prelude
 -- | - `metadata`: Standard object's metadata. More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#metadata
 -- | - `value`: The value of this priority class. This is the actual priority that pods receive when they have the name of this class in their pod spec.
 newtype PriorityClass = PriorityClass
-  { apiVersion :: (NullOrUndefined String)
-  , description :: (NullOrUndefined String)
-  , globalDefault :: (NullOrUndefined Boolean)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , value :: (NullOrUndefined Int) }
+  { apiVersion :: (Maybe String)
+  , description :: (Maybe String)
+  , globalDefault :: (Maybe Boolean)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , value :: (Maybe Int) }
 
 derive instance newtypePriorityClass :: Newtype PriorityClass _
 derive instance genericPriorityClass :: Generic PriorityClass _
 instance showPriorityClass :: Show PriorityClass where show a = genericShow a
 instance decodePriorityClass :: Decode PriorityClass where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               description <- readProp "description" a >>= decode
-               globalDefault <- readProp "globalDefault" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               value <- readProp "value" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               description <- decodeMaybe "description" a
+               globalDefault <- decodeMaybe "globalDefault" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               value <- decodeMaybe "value" a
                pure $ PriorityClass { apiVersion, description, globalDefault, kind, metadata, value }
 instance encodePriorityClass :: Encode PriorityClass where
   encode (PriorityClass a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "description" (encode a.description)
-               , Tuple "globalDefault" (encode a.globalDefault)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "value" (encode a.value) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "description" (encodeMaybe a.description)
+               , Tuple "globalDefault" (encodeMaybe a.globalDefault)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "value" (encodeMaybe a.value) ]
 
 
 instance defaultPriorityClass :: Default PriorityClass where
   default = PriorityClass
-    { apiVersion: NullOrUndefined Nothing
-    , description: NullOrUndefined Nothing
-    , globalDefault: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , value: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , description: Nothing
+    , globalDefault: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , value: Nothing }
 
 -- | PriorityClassList is a collection of priority classes.
 -- |
@@ -81,35 +80,35 @@ instance defaultPriorityClass :: Default PriorityClass where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#metadata
 newtype PriorityClassList = PriorityClassList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PriorityClass))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array PriorityClass))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePriorityClassList :: Newtype PriorityClassList _
 derive instance genericPriorityClassList :: Generic PriorityClassList _
 instance showPriorityClassList :: Show PriorityClassList where show a = genericShow a
 instance decodePriorityClassList :: Decode PriorityClassList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ PriorityClassList { apiVersion, items, kind, metadata }
 instance encodePriorityClassList :: Encode PriorityClassList where
   encode (PriorityClassList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPriorityClassList :: Default PriorityClassList where
   default = PriorityClassList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

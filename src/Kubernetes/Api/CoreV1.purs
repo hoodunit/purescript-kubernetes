@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -23,7 +22,7 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -37,35 +36,35 @@ import Prelude
 -- | - `readOnly`: Specify "true" to force and set the ReadOnly property in VolumeMounts to "true". If omitted, the default is "false". More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
 -- | - `volumeID`: Unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore
 newtype AWSElasticBlockStoreVolumeSource = AWSElasticBlockStoreVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , partition :: (NullOrUndefined Int)
-  , readOnly :: (NullOrUndefined Boolean)
-  , volumeID :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , partition :: (Maybe Int)
+  , readOnly :: (Maybe Boolean)
+  , volumeID :: (Maybe String) }
 
 derive instance newtypeAWSElasticBlockStoreVolumeSource :: Newtype AWSElasticBlockStoreVolumeSource _
 derive instance genericAWSElasticBlockStoreVolumeSource :: Generic AWSElasticBlockStoreVolumeSource _
 instance showAWSElasticBlockStoreVolumeSource :: Show AWSElasticBlockStoreVolumeSource where show a = genericShow a
 instance decodeAWSElasticBlockStoreVolumeSource :: Decode AWSElasticBlockStoreVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               partition <- readProp "partition" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               volumeID <- readProp "volumeID" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               partition <- decodeMaybe "partition" a
+               readOnly <- decodeMaybe "readOnly" a
+               volumeID <- decodeMaybe "volumeID" a
                pure $ AWSElasticBlockStoreVolumeSource { fsType, partition, readOnly, volumeID }
 instance encodeAWSElasticBlockStoreVolumeSource :: Encode AWSElasticBlockStoreVolumeSource where
   encode (AWSElasticBlockStoreVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "partition" (encode a.partition)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "volumeID" (encode a.volumeID) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "partition" (encodeMaybe a.partition)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "volumeID" (encodeMaybe a.volumeID) ]
 
 
 instance defaultAWSElasticBlockStoreVolumeSource :: Default AWSElasticBlockStoreVolumeSource where
   default = AWSElasticBlockStoreVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , partition: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , volumeID: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , partition: Nothing
+    , readOnly: Nothing
+    , volumeID: Nothing }
 
 -- | Affinity is a group of affinity scheduling rules.
 -- |
@@ -74,31 +73,31 @@ instance defaultAWSElasticBlockStoreVolumeSource :: Default AWSElasticBlockStore
 -- | - `podAffinity`: Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s)).
 -- | - `podAntiAffinity`: Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
 newtype Affinity = Affinity
-  { nodeAffinity :: (NullOrUndefined NodeAffinity)
-  , podAffinity :: (NullOrUndefined PodAffinity)
-  , podAntiAffinity :: (NullOrUndefined PodAntiAffinity) }
+  { nodeAffinity :: (Maybe NodeAffinity)
+  , podAffinity :: (Maybe PodAffinity)
+  , podAntiAffinity :: (Maybe PodAntiAffinity) }
 
 derive instance newtypeAffinity :: Newtype Affinity _
 derive instance genericAffinity :: Generic Affinity _
 instance showAffinity :: Show Affinity where show a = genericShow a
 instance decodeAffinity :: Decode Affinity where
   decode a = do
-               nodeAffinity <- readProp "nodeAffinity" a >>= decode
-               podAffinity <- readProp "podAffinity" a >>= decode
-               podAntiAffinity <- readProp "podAntiAffinity" a >>= decode
+               nodeAffinity <- decodeMaybe "nodeAffinity" a
+               podAffinity <- decodeMaybe "podAffinity" a
+               podAntiAffinity <- decodeMaybe "podAntiAffinity" a
                pure $ Affinity { nodeAffinity, podAffinity, podAntiAffinity }
 instance encodeAffinity :: Encode Affinity where
   encode (Affinity a) = encode $ StrMap.fromFoldable $
-               [ Tuple "nodeAffinity" (encode a.nodeAffinity)
-               , Tuple "podAffinity" (encode a.podAffinity)
-               , Tuple "podAntiAffinity" (encode a.podAntiAffinity) ]
+               [ Tuple "nodeAffinity" (encodeMaybe a.nodeAffinity)
+               , Tuple "podAffinity" (encodeMaybe a.podAffinity)
+               , Tuple "podAntiAffinity" (encodeMaybe a.podAntiAffinity) ]
 
 
 instance defaultAffinity :: Default Affinity where
   default = Affinity
-    { nodeAffinity: NullOrUndefined Nothing
-    , podAffinity: NullOrUndefined Nothing
-    , podAntiAffinity: NullOrUndefined Nothing }
+    { nodeAffinity: Nothing
+    , podAffinity: Nothing
+    , podAntiAffinity: Nothing }
 
 -- | AttachedVolume describes a volume attached to a node
 -- |
@@ -106,27 +105,27 @@ instance defaultAffinity :: Default Affinity where
 -- | - `devicePath`: DevicePath represents the device path where the volume should be available
 -- | - `name`: Name of the attached volume
 newtype AttachedVolume = AttachedVolume
-  { devicePath :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String) }
+  { devicePath :: (Maybe String)
+  , name :: (Maybe String) }
 
 derive instance newtypeAttachedVolume :: Newtype AttachedVolume _
 derive instance genericAttachedVolume :: Generic AttachedVolume _
 instance showAttachedVolume :: Show AttachedVolume where show a = genericShow a
 instance decodeAttachedVolume :: Decode AttachedVolume where
   decode a = do
-               devicePath <- readProp "devicePath" a >>= decode
-               name <- readProp "name" a >>= decode
+               devicePath <- decodeMaybe "devicePath" a
+               name <- decodeMaybe "name" a
                pure $ AttachedVolume { devicePath, name }
 instance encodeAttachedVolume :: Encode AttachedVolume where
   encode (AttachedVolume a) = encode $ StrMap.fromFoldable $
-               [ Tuple "devicePath" (encode a.devicePath)
-               , Tuple "name" (encode a.name) ]
+               [ Tuple "devicePath" (encodeMaybe a.devicePath)
+               , Tuple "name" (encodeMaybe a.name) ]
 
 
 instance defaultAttachedVolume :: Default AttachedVolume where
   default = AttachedVolume
-    { devicePath: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing }
+    { devicePath: Nothing
+    , name: Nothing }
 
 -- | AzureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
 -- |
@@ -138,43 +137,43 @@ instance defaultAttachedVolume :: Default AttachedVolume where
 -- | - `kind`: Expected values Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared
 -- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
 newtype AzureDiskVolumeSource = AzureDiskVolumeSource
-  { cachingMode :: (NullOrUndefined String)
-  , diskName :: (NullOrUndefined String)
-  , diskURI :: (NullOrUndefined String)
-  , fsType :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean) }
+  { cachingMode :: (Maybe String)
+  , diskName :: (Maybe String)
+  , diskURI :: (Maybe String)
+  , fsType :: (Maybe String)
+  , kind :: (Maybe String)
+  , readOnly :: (Maybe Boolean) }
 
 derive instance newtypeAzureDiskVolumeSource :: Newtype AzureDiskVolumeSource _
 derive instance genericAzureDiskVolumeSource :: Generic AzureDiskVolumeSource _
 instance showAzureDiskVolumeSource :: Show AzureDiskVolumeSource where show a = genericShow a
 instance decodeAzureDiskVolumeSource :: Decode AzureDiskVolumeSource where
   decode a = do
-               cachingMode <- readProp "cachingMode" a >>= decode
-               diskName <- readProp "diskName" a >>= decode
-               diskURI <- readProp "diskURI" a >>= decode
-               fsType <- readProp "fsType" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
+               cachingMode <- decodeMaybe "cachingMode" a
+               diskName <- decodeMaybe "diskName" a
+               diskURI <- decodeMaybe "diskURI" a
+               fsType <- decodeMaybe "fsType" a
+               kind <- decodeMaybe "kind" a
+               readOnly <- decodeMaybe "readOnly" a
                pure $ AzureDiskVolumeSource { cachingMode, diskName, diskURI, fsType, kind, readOnly }
 instance encodeAzureDiskVolumeSource :: Encode AzureDiskVolumeSource where
   encode (AzureDiskVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "cachingMode" (encode a.cachingMode)
-               , Tuple "diskName" (encode a.diskName)
-               , Tuple "diskURI" (encode a.diskURI)
-               , Tuple "fsType" (encode a.fsType)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "readOnly" (encode a.readOnly) ]
+               [ Tuple "cachingMode" (encodeMaybe a.cachingMode)
+               , Tuple "diskName" (encodeMaybe a.diskName)
+               , Tuple "diskURI" (encodeMaybe a.diskURI)
+               , Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "readOnly" (encodeMaybe a.readOnly) ]
 
 
 instance defaultAzureDiskVolumeSource :: Default AzureDiskVolumeSource where
   default = AzureDiskVolumeSource
-    { cachingMode: NullOrUndefined Nothing
-    , diskName: NullOrUndefined Nothing
-    , diskURI: NullOrUndefined Nothing
-    , fsType: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing }
+    { cachingMode: Nothing
+    , diskName: Nothing
+    , diskURI: Nothing
+    , fsType: Nothing
+    , kind: Nothing
+    , readOnly: Nothing }
 
 -- | AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
 -- |
@@ -184,35 +183,35 @@ instance defaultAzureDiskVolumeSource :: Default AzureDiskVolumeSource where
 -- | - `secretNamespace`: the namespace of the secret that contains Azure Storage Account Name and Key default is the same as the Pod
 -- | - `shareName`: Share Name
 newtype AzureFilePersistentVolumeSource = AzureFilePersistentVolumeSource
-  { readOnly :: (NullOrUndefined Boolean)
-  , secretName :: (NullOrUndefined String)
-  , secretNamespace :: (NullOrUndefined String)
-  , shareName :: (NullOrUndefined String) }
+  { readOnly :: (Maybe Boolean)
+  , secretName :: (Maybe String)
+  , secretNamespace :: (Maybe String)
+  , shareName :: (Maybe String) }
 
 derive instance newtypeAzureFilePersistentVolumeSource :: Newtype AzureFilePersistentVolumeSource _
 derive instance genericAzureFilePersistentVolumeSource :: Generic AzureFilePersistentVolumeSource _
 instance showAzureFilePersistentVolumeSource :: Show AzureFilePersistentVolumeSource where show a = genericShow a
 instance decodeAzureFilePersistentVolumeSource :: Decode AzureFilePersistentVolumeSource where
   decode a = do
-               readOnly <- readProp "readOnly" a >>= decode
-               secretName <- readProp "secretName" a >>= decode
-               secretNamespace <- readProp "secretNamespace" a >>= decode
-               shareName <- readProp "shareName" a >>= decode
+               readOnly <- decodeMaybe "readOnly" a
+               secretName <- decodeMaybe "secretName" a
+               secretNamespace <- decodeMaybe "secretNamespace" a
+               shareName <- decodeMaybe "shareName" a
                pure $ AzureFilePersistentVolumeSource { readOnly, secretName, secretNamespace, shareName }
 instance encodeAzureFilePersistentVolumeSource :: Encode AzureFilePersistentVolumeSource where
   encode (AzureFilePersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretName" (encode a.secretName)
-               , Tuple "secretNamespace" (encode a.secretNamespace)
-               , Tuple "shareName" (encode a.shareName) ]
+               [ Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretName" (encodeMaybe a.secretName)
+               , Tuple "secretNamespace" (encodeMaybe a.secretNamespace)
+               , Tuple "shareName" (encodeMaybe a.shareName) ]
 
 
 instance defaultAzureFilePersistentVolumeSource :: Default AzureFilePersistentVolumeSource where
   default = AzureFilePersistentVolumeSource
-    { readOnly: NullOrUndefined Nothing
-    , secretName: NullOrUndefined Nothing
-    , secretNamespace: NullOrUndefined Nothing
-    , shareName: NullOrUndefined Nothing }
+    { readOnly: Nothing
+    , secretName: Nothing
+    , secretNamespace: Nothing
+    , shareName: Nothing }
 
 -- | AzureFile represents an Azure File Service mount on the host and bind mount to the pod.
 -- |
@@ -221,31 +220,31 @@ instance defaultAzureFilePersistentVolumeSource :: Default AzureFilePersistentVo
 -- | - `secretName`: the name of secret that contains Azure Storage Account Name and Key
 -- | - `shareName`: Share Name
 newtype AzureFileVolumeSource = AzureFileVolumeSource
-  { readOnly :: (NullOrUndefined Boolean)
-  , secretName :: (NullOrUndefined String)
-  , shareName :: (NullOrUndefined String) }
+  { readOnly :: (Maybe Boolean)
+  , secretName :: (Maybe String)
+  , shareName :: (Maybe String) }
 
 derive instance newtypeAzureFileVolumeSource :: Newtype AzureFileVolumeSource _
 derive instance genericAzureFileVolumeSource :: Generic AzureFileVolumeSource _
 instance showAzureFileVolumeSource :: Show AzureFileVolumeSource where show a = genericShow a
 instance decodeAzureFileVolumeSource :: Decode AzureFileVolumeSource where
   decode a = do
-               readOnly <- readProp "readOnly" a >>= decode
-               secretName <- readProp "secretName" a >>= decode
-               shareName <- readProp "shareName" a >>= decode
+               readOnly <- decodeMaybe "readOnly" a
+               secretName <- decodeMaybe "secretName" a
+               shareName <- decodeMaybe "shareName" a
                pure $ AzureFileVolumeSource { readOnly, secretName, shareName }
 instance encodeAzureFileVolumeSource :: Encode AzureFileVolumeSource where
   encode (AzureFileVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretName" (encode a.secretName)
-               , Tuple "shareName" (encode a.shareName) ]
+               [ Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretName" (encodeMaybe a.secretName)
+               , Tuple "shareName" (encodeMaybe a.shareName) ]
 
 
 instance defaultAzureFileVolumeSource :: Default AzureFileVolumeSource where
   default = AzureFileVolumeSource
-    { readOnly: NullOrUndefined Nothing
-    , secretName: NullOrUndefined Nothing
-    , shareName: NullOrUndefined Nothing }
+    { readOnly: Nothing
+    , secretName: Nothing
+    , shareName: Nothing }
 
 -- | Binding ties one object to another; for example, a pod is bound to a node by a scheduler. Deprecated in 1.7, please use the bindings subresource of pods instead.
 -- |
@@ -255,35 +254,35 @@ instance defaultAzureFileVolumeSource :: Default AzureFileVolumeSource where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `target`: The target object that you want to bind to the standard object.
 newtype Binding = Binding
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , target :: (NullOrUndefined ObjectReference) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , target :: (Maybe ObjectReference) }
 
 derive instance newtypeBinding :: Newtype Binding _
 derive instance genericBinding :: Generic Binding _
 instance showBinding :: Show Binding where show a = genericShow a
 instance decodeBinding :: Decode Binding where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               target <- readProp "target" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               target <- decodeMaybe "target" a
                pure $ Binding { apiVersion, kind, metadata, target }
 instance encodeBinding :: Encode Binding where
   encode (Binding a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "target" (encode a.target) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "target" (encodeMaybe a.target) ]
 
 
 instance defaultBinding :: Default Binding where
   default = Binding
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , target: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , target: Nothing }
 
 -- | Represents storage that is managed by an external CSI volume driver
 -- |
@@ -292,31 +291,31 @@ instance defaultBinding :: Default Binding where
 -- | - `readOnly`: Optional: The value to pass to ControllerPublishVolumeRequest. Defaults to false (read/write).
 -- | - `volumeHandle`: VolumeHandle is the unique volume name returned by the CSI volume plugin’s CreateVolume to refer to the volume on all subsequent calls. Required.
 newtype CSIPersistentVolumeSource = CSIPersistentVolumeSource
-  { driver :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , volumeHandle :: (NullOrUndefined String) }
+  { driver :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , volumeHandle :: (Maybe String) }
 
 derive instance newtypeCSIPersistentVolumeSource :: Newtype CSIPersistentVolumeSource _
 derive instance genericCSIPersistentVolumeSource :: Generic CSIPersistentVolumeSource _
 instance showCSIPersistentVolumeSource :: Show CSIPersistentVolumeSource where show a = genericShow a
 instance decodeCSIPersistentVolumeSource :: Decode CSIPersistentVolumeSource where
   decode a = do
-               driver <- readProp "driver" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               volumeHandle <- readProp "volumeHandle" a >>= decode
+               driver <- decodeMaybe "driver" a
+               readOnly <- decodeMaybe "readOnly" a
+               volumeHandle <- decodeMaybe "volumeHandle" a
                pure $ CSIPersistentVolumeSource { driver, readOnly, volumeHandle }
 instance encodeCSIPersistentVolumeSource :: Encode CSIPersistentVolumeSource where
   encode (CSIPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "driver" (encode a.driver)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "volumeHandle" (encode a.volumeHandle) ]
+               [ Tuple "driver" (encodeMaybe a.driver)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "volumeHandle" (encodeMaybe a.volumeHandle) ]
 
 
 instance defaultCSIPersistentVolumeSource :: Default CSIPersistentVolumeSource where
   default = CSIPersistentVolumeSource
-    { driver: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , volumeHandle: NullOrUndefined Nothing }
+    { driver: Nothing
+    , readOnly: Nothing
+    , volumeHandle: Nothing }
 
 -- | Adds and removes POSIX capabilities from running containers.
 -- |
@@ -324,27 +323,27 @@ instance defaultCSIPersistentVolumeSource :: Default CSIPersistentVolumeSource w
 -- | - `add`: Added capabilities
 -- | - `drop`: Removed capabilities
 newtype Capabilities = Capabilities
-  { add :: (NullOrUndefined (Array String))
-  , drop :: (NullOrUndefined (Array String)) }
+  { add :: (Maybe (Array String))
+  , drop :: (Maybe (Array String)) }
 
 derive instance newtypeCapabilities :: Newtype Capabilities _
 derive instance genericCapabilities :: Generic Capabilities _
 instance showCapabilities :: Show Capabilities where show a = genericShow a
 instance decodeCapabilities :: Decode Capabilities where
   decode a = do
-               add <- readProp "add" a >>= decode
-               drop <- readProp "drop" a >>= decode
+               add <- decodeMaybe "add" a
+               drop <- decodeMaybe "drop" a
                pure $ Capabilities { add, drop }
 instance encodeCapabilities :: Encode Capabilities where
   encode (Capabilities a) = encode $ StrMap.fromFoldable $
-               [ Tuple "add" (encode a.add)
-               , Tuple "drop" (encode a.drop) ]
+               [ Tuple "add" (encodeMaybe a.add)
+               , Tuple "drop" (encodeMaybe a.drop) ]
 
 
 instance defaultCapabilities :: Default Capabilities where
   default = Capabilities
-    { add: NullOrUndefined Nothing
-    , drop: NullOrUndefined Nothing }
+    { add: Nothing
+    , drop: Nothing }
 
 -- | Represents a Ceph Filesystem mount that lasts the lifetime of a pod Cephfs volumes do not support ownership management or SELinux relabeling.
 -- |
@@ -356,43 +355,43 @@ instance defaultCapabilities :: Default Capabilities where
 -- | - `secretRef`: Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
 -- | - `user`: Optional: User is the rados user name, default is admin More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
 newtype CephFSPersistentVolumeSource = CephFSPersistentVolumeSource
-  { monitors :: (NullOrUndefined (Array String))
-  , path :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretFile :: (NullOrUndefined String)
-  , secretRef :: (NullOrUndefined SecretReference)
-  , user :: (NullOrUndefined String) }
+  { monitors :: (Maybe (Array String))
+  , path :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretFile :: (Maybe String)
+  , secretRef :: (Maybe SecretReference)
+  , user :: (Maybe String) }
 
 derive instance newtypeCephFSPersistentVolumeSource :: Newtype CephFSPersistentVolumeSource _
 derive instance genericCephFSPersistentVolumeSource :: Generic CephFSPersistentVolumeSource _
 instance showCephFSPersistentVolumeSource :: Show CephFSPersistentVolumeSource where show a = genericShow a
 instance decodeCephFSPersistentVolumeSource :: Decode CephFSPersistentVolumeSource where
   decode a = do
-               monitors <- readProp "monitors" a >>= decode
-               path <- readProp "path" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretFile <- readProp "secretFile" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               user <- readProp "user" a >>= decode
+               monitors <- decodeMaybe "monitors" a
+               path <- decodeMaybe "path" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretFile <- decodeMaybe "secretFile" a
+               secretRef <- decodeMaybe "secretRef" a
+               user <- decodeMaybe "user" a
                pure $ CephFSPersistentVolumeSource { monitors, path, readOnly, secretFile, secretRef, user }
 instance encodeCephFSPersistentVolumeSource :: Encode CephFSPersistentVolumeSource where
   encode (CephFSPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "monitors" (encode a.monitors)
-               , Tuple "path" (encode a.path)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretFile" (encode a.secretFile)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "user" (encode a.user) ]
+               [ Tuple "monitors" (encodeMaybe a.monitors)
+               , Tuple "path" (encodeMaybe a.path)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretFile" (encodeMaybe a.secretFile)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "user" (encodeMaybe a.user) ]
 
 
 instance defaultCephFSPersistentVolumeSource :: Default CephFSPersistentVolumeSource where
   default = CephFSPersistentVolumeSource
-    { monitors: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretFile: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , user: NullOrUndefined Nothing }
+    { monitors: Nothing
+    , path: Nothing
+    , readOnly: Nothing
+    , secretFile: Nothing
+    , secretRef: Nothing
+    , user: Nothing }
 
 -- | Represents a Ceph Filesystem mount that lasts the lifetime of a pod Cephfs volumes do not support ownership management or SELinux relabeling.
 -- |
@@ -404,43 +403,43 @@ instance defaultCephFSPersistentVolumeSource :: Default CephFSPersistentVolumeSo
 -- | - `secretRef`: Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
 -- | - `user`: Optional: User is the rados user name, default is admin More info: https://releases.k8s.io/HEAD/examples/volumes/cephfs/README.md#how-to-use-it
 newtype CephFSVolumeSource = CephFSVolumeSource
-  { monitors :: (NullOrUndefined (Array String))
-  , path :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretFile :: (NullOrUndefined String)
-  , secretRef :: (NullOrUndefined LocalObjectReference)
-  , user :: (NullOrUndefined String) }
+  { monitors :: (Maybe (Array String))
+  , path :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretFile :: (Maybe String)
+  , secretRef :: (Maybe LocalObjectReference)
+  , user :: (Maybe String) }
 
 derive instance newtypeCephFSVolumeSource :: Newtype CephFSVolumeSource _
 derive instance genericCephFSVolumeSource :: Generic CephFSVolumeSource _
 instance showCephFSVolumeSource :: Show CephFSVolumeSource where show a = genericShow a
 instance decodeCephFSVolumeSource :: Decode CephFSVolumeSource where
   decode a = do
-               monitors <- readProp "monitors" a >>= decode
-               path <- readProp "path" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretFile <- readProp "secretFile" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               user <- readProp "user" a >>= decode
+               monitors <- decodeMaybe "monitors" a
+               path <- decodeMaybe "path" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretFile <- decodeMaybe "secretFile" a
+               secretRef <- decodeMaybe "secretRef" a
+               user <- decodeMaybe "user" a
                pure $ CephFSVolumeSource { monitors, path, readOnly, secretFile, secretRef, user }
 instance encodeCephFSVolumeSource :: Encode CephFSVolumeSource where
   encode (CephFSVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "monitors" (encode a.monitors)
-               , Tuple "path" (encode a.path)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretFile" (encode a.secretFile)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "user" (encode a.user) ]
+               [ Tuple "monitors" (encodeMaybe a.monitors)
+               , Tuple "path" (encodeMaybe a.path)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretFile" (encodeMaybe a.secretFile)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "user" (encodeMaybe a.user) ]
 
 
 instance defaultCephFSVolumeSource :: Default CephFSVolumeSource where
   default = CephFSVolumeSource
-    { monitors: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretFile: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , user: NullOrUndefined Nothing }
+    { monitors: Nothing
+    , path: Nothing
+    , readOnly: Nothing
+    , secretFile: Nothing
+    , secretRef: Nothing
+    , user: Nothing }
 
 -- | Represents a cinder volume resource in Openstack. A Cinder volume must exist before mounting to a container. The volume must also be in the same region as the kubelet. Cinder volumes support ownership management and SELinux relabeling.
 -- |
@@ -449,54 +448,54 @@ instance defaultCephFSVolumeSource :: Default CephFSVolumeSource where
 -- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://releases.k8s.io/HEAD/examples/mysql-cinder-pd/README.md
 -- | - `volumeID`: volume id used to identify the volume in cinder More info: https://releases.k8s.io/HEAD/examples/mysql-cinder-pd/README.md
 newtype CinderVolumeSource = CinderVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , volumeID :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , volumeID :: (Maybe String) }
 
 derive instance newtypeCinderVolumeSource :: Newtype CinderVolumeSource _
 derive instance genericCinderVolumeSource :: Generic CinderVolumeSource _
 instance showCinderVolumeSource :: Show CinderVolumeSource where show a = genericShow a
 instance decodeCinderVolumeSource :: Decode CinderVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               volumeID <- readProp "volumeID" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               readOnly <- decodeMaybe "readOnly" a
+               volumeID <- decodeMaybe "volumeID" a
                pure $ CinderVolumeSource { fsType, readOnly, volumeID }
 instance encodeCinderVolumeSource :: Encode CinderVolumeSource where
   encode (CinderVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "volumeID" (encode a.volumeID) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "volumeID" (encodeMaybe a.volumeID) ]
 
 
 instance defaultCinderVolumeSource :: Default CinderVolumeSource where
   default = CinderVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , volumeID: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , readOnly: Nothing
+    , volumeID: Nothing }
 
 -- | ClientIPConfig represents the configurations of Client IP based session affinity.
 -- |
 -- | Fields:
 -- | - `timeoutSeconds`: timeoutSeconds specifies the seconds of ClientIP type session sticky time. The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP". Default value is 10800(for 3 hours).
 newtype ClientIPConfig = ClientIPConfig
-  { timeoutSeconds :: (NullOrUndefined Int) }
+  { timeoutSeconds :: (Maybe Int) }
 
 derive instance newtypeClientIPConfig :: Newtype ClientIPConfig _
 derive instance genericClientIPConfig :: Generic ClientIPConfig _
 instance showClientIPConfig :: Show ClientIPConfig where show a = genericShow a
 instance decodeClientIPConfig :: Decode ClientIPConfig where
   decode a = do
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                pure $ ClientIPConfig { timeoutSeconds }
 instance encodeClientIPConfig :: Encode ClientIPConfig where
   encode (ClientIPConfig a) = encode $ StrMap.fromFoldable $
-               [ Tuple "timeoutSeconds" (encode a.timeoutSeconds) ]
+               [ Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds) ]
 
 
 instance defaultClientIPConfig :: Default ClientIPConfig where
   default = ClientIPConfig
-    { timeoutSeconds: NullOrUndefined Nothing }
+    { timeoutSeconds: Nothing }
 
 -- | Information about the condition of a component.
 -- |
@@ -506,35 +505,35 @@ instance defaultClientIPConfig :: Default ClientIPConfig where
 -- | - `status`: Status of the condition for a component. Valid values for "Healthy": "True", "False", or "Unknown".
 -- | - `_type`: Type of condition for a component. Valid value: "Healthy"
 newtype ComponentCondition = ComponentCondition
-  { _type :: (NullOrUndefined String)
-  , error :: (NullOrUndefined String)
-  , message :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , error :: (Maybe String)
+  , message :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeComponentCondition :: Newtype ComponentCondition _
 derive instance genericComponentCondition :: Generic ComponentCondition _
 instance showComponentCondition :: Show ComponentCondition where show a = genericShow a
 instance decodeComponentCondition :: Decode ComponentCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               error <- readProp "error" a >>= decode
-               message <- readProp "message" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               error <- decodeMaybe "error" a
+               message <- decodeMaybe "message" a
+               status <- decodeMaybe "status" a
                pure $ ComponentCondition { _type, error, message, status }
 instance encodeComponentCondition :: Encode ComponentCondition where
   encode (ComponentCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "error" (encode a.error)
-               , Tuple "message" (encode a.message)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "error" (encodeMaybe a.error)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultComponentCondition :: Default ComponentCondition where
   default = ComponentCondition
-    { _type: NullOrUndefined Nothing
-    , error: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , error: Nothing
+    , message: Nothing
+    , status: Nothing }
 
 -- | ComponentStatus (and ComponentStatusList) holds the cluster validation info.
 -- |
@@ -544,35 +543,35 @@ instance defaultComponentCondition :: Default ComponentCondition where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ComponentStatus = ComponentStatus
-  { apiVersion :: (NullOrUndefined String)
-  , conditions :: (NullOrUndefined (Array ComponentCondition))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta) }
+  { apiVersion :: (Maybe String)
+  , conditions :: (Maybe (Array ComponentCondition))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeComponentStatus :: Newtype ComponentStatus _
 derive instance genericComponentStatus :: Generic ComponentStatus _
 instance showComponentStatus :: Show ComponentStatus where show a = genericShow a
 instance decodeComponentStatus :: Decode ComponentStatus where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               conditions <- decodeMaybe "conditions" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ComponentStatus { apiVersion, conditions, kind, metadata }
 instance encodeComponentStatus :: Encode ComponentStatus where
   encode (ComponentStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "conditions" (encode a.conditions)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultComponentStatus :: Default ComponentStatus where
   default = ComponentStatus
-    { apiVersion: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , conditions: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | Status of all the conditions for the component as a list of ComponentStatus objects.
 -- |
@@ -582,35 +581,35 @@ instance defaultComponentStatus :: Default ComponentStatus where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ComponentStatusList = ComponentStatusList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ComponentStatus))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ComponentStatus))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeComponentStatusList :: Newtype ComponentStatusList _
 derive instance genericComponentStatusList :: Generic ComponentStatusList _
 instance showComponentStatusList :: Show ComponentStatusList where show a = genericShow a
 instance decodeComponentStatusList :: Decode ComponentStatusList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ComponentStatusList { apiVersion, items, kind, metadata }
 instance encodeComponentStatusList :: Encode ComponentStatusList where
   encode (ComponentStatusList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultComponentStatusList :: Default ComponentStatusList where
   default = ComponentStatusList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | ConfigMap holds configuration data for pods to consume.
 -- |
@@ -620,35 +619,35 @@ instance defaultComponentStatusList :: Default ComponentStatusList where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ConfigMap = ConfigMap
-  { _data :: (NullOrUndefined (StrMap String))
-  , apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta) }
+  { _data :: (Maybe (StrMap String))
+  , apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeConfigMap :: Newtype ConfigMap _
 derive instance genericConfigMap :: Generic ConfigMap _
 instance showConfigMap :: Show ConfigMap where show a = genericShow a
 instance decodeConfigMap :: Decode ConfigMap where
   decode a = do
-               _data <- readProp "_data" a >>= decode
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               _data <- decodeMaybe "_data" a
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ConfigMap { _data, apiVersion, kind, metadata }
 instance encodeConfigMap :: Encode ConfigMap where
   encode (ConfigMap a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_data" (encode a._data)
-               , Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "_data" (encodeMaybe a._data)
+               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultConfigMap :: Default ConfigMap where
   default = ConfigMap
-    { _data: NullOrUndefined Nothing
-    , apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { _data: Nothing
+    , apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | ConfigMapEnvSource selects a ConfigMap to populate the environment variables with.
 -- | 
@@ -658,27 +657,27 @@ instance defaultConfigMap :: Default ConfigMap where
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 -- | - `optional`: Specify whether the ConfigMap must be defined
 newtype ConfigMapEnvSource = ConfigMapEnvSource
-  { name :: (NullOrUndefined String)
-  , optional :: (NullOrUndefined Boolean) }
+  { name :: (Maybe String)
+  , optional :: (Maybe Boolean) }
 
 derive instance newtypeConfigMapEnvSource :: Newtype ConfigMapEnvSource _
 derive instance genericConfigMapEnvSource :: Generic ConfigMapEnvSource _
 instance showConfigMapEnvSource :: Show ConfigMapEnvSource where show a = genericShow a
 instance decodeConfigMapEnvSource :: Decode ConfigMapEnvSource where
   decode a = do
-               name <- readProp "name" a >>= decode
-               optional <- readProp "optional" a >>= decode
+               name <- decodeMaybe "name" a
+               optional <- decodeMaybe "optional" a
                pure $ ConfigMapEnvSource { name, optional }
 instance encodeConfigMapEnvSource :: Encode ConfigMapEnvSource where
   encode (ConfigMapEnvSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "optional" (encode a.optional) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "optional" (encodeMaybe a.optional) ]
 
 
 instance defaultConfigMapEnvSource :: Default ConfigMapEnvSource where
   default = ConfigMapEnvSource
-    { name: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing }
+    { name: Nothing
+    , optional: Nothing }
 
 -- | Selects a key from a ConfigMap.
 -- |
@@ -687,31 +686,31 @@ instance defaultConfigMapEnvSource :: Default ConfigMapEnvSource where
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 -- | - `optional`: Specify whether the ConfigMap or it's key must be defined
 newtype ConfigMapKeySelector = ConfigMapKeySelector
-  { key :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , optional :: (NullOrUndefined Boolean) }
+  { key :: (Maybe String)
+  , name :: (Maybe String)
+  , optional :: (Maybe Boolean) }
 
 derive instance newtypeConfigMapKeySelector :: Newtype ConfigMapKeySelector _
 derive instance genericConfigMapKeySelector :: Generic ConfigMapKeySelector _
 instance showConfigMapKeySelector :: Show ConfigMapKeySelector where show a = genericShow a
 instance decodeConfigMapKeySelector :: Decode ConfigMapKeySelector where
   decode a = do
-               key <- readProp "key" a >>= decode
-               name <- readProp "name" a >>= decode
-               optional <- readProp "optional" a >>= decode
+               key <- decodeMaybe "key" a
+               name <- decodeMaybe "name" a
+               optional <- decodeMaybe "optional" a
                pure $ ConfigMapKeySelector { key, name, optional }
 instance encodeConfigMapKeySelector :: Encode ConfigMapKeySelector where
   encode (ConfigMapKeySelector a) = encode $ StrMap.fromFoldable $
-               [ Tuple "key" (encode a.key)
-               , Tuple "name" (encode a.name)
-               , Tuple "optional" (encode a.optional) ]
+               [ Tuple "key" (encodeMaybe a.key)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "optional" (encodeMaybe a.optional) ]
 
 
 instance defaultConfigMapKeySelector :: Default ConfigMapKeySelector where
   default = ConfigMapKeySelector
-    { key: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing }
+    { key: Nothing
+    , name: Nothing
+    , optional: Nothing }
 
 -- | ConfigMapList is a resource containing a list of ConfigMap objects.
 -- |
@@ -721,35 +720,35 @@ instance defaultConfigMapKeySelector :: Default ConfigMapKeySelector where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ConfigMapList = ConfigMapList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ConfigMap))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ConfigMap))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeConfigMapList :: Newtype ConfigMapList _
 derive instance genericConfigMapList :: Generic ConfigMapList _
 instance showConfigMapList :: Show ConfigMapList where show a = genericShow a
 instance decodeConfigMapList :: Decode ConfigMapList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ConfigMapList { apiVersion, items, kind, metadata }
 instance encodeConfigMapList :: Encode ConfigMapList where
   encode (ConfigMapList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultConfigMapList :: Default ConfigMapList where
   default = ConfigMapList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | Adapts a ConfigMap into a projected volume.
 -- | 
@@ -760,31 +759,31 @@ instance defaultConfigMapList :: Default ConfigMapList where
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 -- | - `optional`: Specify whether the ConfigMap or it's keys must be defined
 newtype ConfigMapProjection = ConfigMapProjection
-  { items :: (NullOrUndefined (Array KeyToPath))
-  , name :: (NullOrUndefined String)
-  , optional :: (NullOrUndefined Boolean) }
+  { items :: (Maybe (Array KeyToPath))
+  , name :: (Maybe String)
+  , optional :: (Maybe Boolean) }
 
 derive instance newtypeConfigMapProjection :: Newtype ConfigMapProjection _
 derive instance genericConfigMapProjection :: Generic ConfigMapProjection _
 instance showConfigMapProjection :: Show ConfigMapProjection where show a = genericShow a
 instance decodeConfigMapProjection :: Decode ConfigMapProjection where
   decode a = do
-               items <- readProp "items" a >>= decode
-               name <- readProp "name" a >>= decode
-               optional <- readProp "optional" a >>= decode
+               items <- decodeMaybe "items" a
+               name <- decodeMaybe "name" a
+               optional <- decodeMaybe "optional" a
                pure $ ConfigMapProjection { items, name, optional }
 instance encodeConfigMapProjection :: Encode ConfigMapProjection where
   encode (ConfigMapProjection a) = encode $ StrMap.fromFoldable $
-               [ Tuple "items" (encode a.items)
-               , Tuple "name" (encode a.name)
-               , Tuple "optional" (encode a.optional) ]
+               [ Tuple "items" (encodeMaybe a.items)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "optional" (encodeMaybe a.optional) ]
 
 
 instance defaultConfigMapProjection :: Default ConfigMapProjection where
   default = ConfigMapProjection
-    { items: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing }
+    { items: Nothing
+    , name: Nothing
+    , optional: Nothing }
 
 -- | Adapts a ConfigMap into a volume.
 -- | 
@@ -796,35 +795,35 @@ instance defaultConfigMapProjection :: Default ConfigMapProjection where
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 -- | - `optional`: Specify whether the ConfigMap or it's keys must be defined
 newtype ConfigMapVolumeSource = ConfigMapVolumeSource
-  { defaultMode :: (NullOrUndefined Int)
-  , items :: (NullOrUndefined (Array KeyToPath))
-  , name :: (NullOrUndefined String)
-  , optional :: (NullOrUndefined Boolean) }
+  { defaultMode :: (Maybe Int)
+  , items :: (Maybe (Array KeyToPath))
+  , name :: (Maybe String)
+  , optional :: (Maybe Boolean) }
 
 derive instance newtypeConfigMapVolumeSource :: Newtype ConfigMapVolumeSource _
 derive instance genericConfigMapVolumeSource :: Generic ConfigMapVolumeSource _
 instance showConfigMapVolumeSource :: Show ConfigMapVolumeSource where show a = genericShow a
 instance decodeConfigMapVolumeSource :: Decode ConfigMapVolumeSource where
   decode a = do
-               defaultMode <- readProp "defaultMode" a >>= decode
-               items <- readProp "items" a >>= decode
-               name <- readProp "name" a >>= decode
-               optional <- readProp "optional" a >>= decode
+               defaultMode <- decodeMaybe "defaultMode" a
+               items <- decodeMaybe "items" a
+               name <- decodeMaybe "name" a
+               optional <- decodeMaybe "optional" a
                pure $ ConfigMapVolumeSource { defaultMode, items, name, optional }
 instance encodeConfigMapVolumeSource :: Encode ConfigMapVolumeSource where
   encode (ConfigMapVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "defaultMode" (encode a.defaultMode)
-               , Tuple "items" (encode a.items)
-               , Tuple "name" (encode a.name)
-               , Tuple "optional" (encode a.optional) ]
+               [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "optional" (encodeMaybe a.optional) ]
 
 
 instance defaultConfigMapVolumeSource :: Default ConfigMapVolumeSource where
   default = ConfigMapVolumeSource
-    { defaultMode: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing }
+    { defaultMode: Nothing
+    , items: Nothing
+    , name: Nothing
+    , optional: Nothing }
 
 -- | A single application container that you want to run within a pod.
 -- |
@@ -851,103 +850,103 @@ instance defaultConfigMapVolumeSource :: Default ConfigMapVolumeSource where
 -- | - `volumeMounts`: Pod volumes to mount into the container's filesystem. Cannot be updated.
 -- | - `workingDir`: Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated.
 newtype Container = Container
-  { args :: (NullOrUndefined (Array String))
-  , command :: (NullOrUndefined (Array String))
-  , env :: (NullOrUndefined (Array EnvVar))
-  , envFrom :: (NullOrUndefined (Array EnvFromSource))
-  , image :: (NullOrUndefined String)
-  , imagePullPolicy :: (NullOrUndefined String)
-  , lifecycle :: (NullOrUndefined Lifecycle)
-  , livenessProbe :: (NullOrUndefined Probe)
-  , name :: (NullOrUndefined String)
-  , ports :: (NullOrUndefined (Array ContainerPort))
-  , readinessProbe :: (NullOrUndefined Probe)
-  , resources :: (NullOrUndefined ResourceRequirements)
-  , securityContext :: (NullOrUndefined SecurityContext)
-  , stdin :: (NullOrUndefined Boolean)
-  , stdinOnce :: (NullOrUndefined Boolean)
-  , terminationMessagePath :: (NullOrUndefined String)
-  , terminationMessagePolicy :: (NullOrUndefined String)
-  , tty :: (NullOrUndefined Boolean)
-  , volumeDevices :: (NullOrUndefined (Array VolumeDevice))
-  , volumeMounts :: (NullOrUndefined (Array VolumeMount))
-  , workingDir :: (NullOrUndefined String) }
+  { args :: (Maybe (Array String))
+  , command :: (Maybe (Array String))
+  , env :: (Maybe (Array EnvVar))
+  , envFrom :: (Maybe (Array EnvFromSource))
+  , image :: (Maybe String)
+  , imagePullPolicy :: (Maybe String)
+  , lifecycle :: (Maybe Lifecycle)
+  , livenessProbe :: (Maybe Probe)
+  , name :: (Maybe String)
+  , ports :: (Maybe (Array ContainerPort))
+  , readinessProbe :: (Maybe Probe)
+  , resources :: (Maybe ResourceRequirements)
+  , securityContext :: (Maybe SecurityContext)
+  , stdin :: (Maybe Boolean)
+  , stdinOnce :: (Maybe Boolean)
+  , terminationMessagePath :: (Maybe String)
+  , terminationMessagePolicy :: (Maybe String)
+  , tty :: (Maybe Boolean)
+  , volumeDevices :: (Maybe (Array VolumeDevice))
+  , volumeMounts :: (Maybe (Array VolumeMount))
+  , workingDir :: (Maybe String) }
 
 derive instance newtypeContainer :: Newtype Container _
 derive instance genericContainer :: Generic Container _
 instance showContainer :: Show Container where show a = genericShow a
 instance decodeContainer :: Decode Container where
   decode a = do
-               args <- readProp "args" a >>= decode
-               command <- readProp "command" a >>= decode
-               env <- readProp "env" a >>= decode
-               envFrom <- readProp "envFrom" a >>= decode
-               image <- readProp "image" a >>= decode
-               imagePullPolicy <- readProp "imagePullPolicy" a >>= decode
-               lifecycle <- readProp "lifecycle" a >>= decode
-               livenessProbe <- readProp "livenessProbe" a >>= decode
-               name <- readProp "name" a >>= decode
-               ports <- readProp "ports" a >>= decode
-               readinessProbe <- readProp "readinessProbe" a >>= decode
-               resources <- readProp "resources" a >>= decode
-               securityContext <- readProp "securityContext" a >>= decode
-               stdin <- readProp "stdin" a >>= decode
-               stdinOnce <- readProp "stdinOnce" a >>= decode
-               terminationMessagePath <- readProp "terminationMessagePath" a >>= decode
-               terminationMessagePolicy <- readProp "terminationMessagePolicy" a >>= decode
-               tty <- readProp "tty" a >>= decode
-               volumeDevices <- readProp "volumeDevices" a >>= decode
-               volumeMounts <- readProp "volumeMounts" a >>= decode
-               workingDir <- readProp "workingDir" a >>= decode
+               args <- decodeMaybe "args" a
+               command <- decodeMaybe "command" a
+               env <- decodeMaybe "env" a
+               envFrom <- decodeMaybe "envFrom" a
+               image <- decodeMaybe "image" a
+               imagePullPolicy <- decodeMaybe "imagePullPolicy" a
+               lifecycle <- decodeMaybe "lifecycle" a
+               livenessProbe <- decodeMaybe "livenessProbe" a
+               name <- decodeMaybe "name" a
+               ports <- decodeMaybe "ports" a
+               readinessProbe <- decodeMaybe "readinessProbe" a
+               resources <- decodeMaybe "resources" a
+               securityContext <- decodeMaybe "securityContext" a
+               stdin <- decodeMaybe "stdin" a
+               stdinOnce <- decodeMaybe "stdinOnce" a
+               terminationMessagePath <- decodeMaybe "terminationMessagePath" a
+               terminationMessagePolicy <- decodeMaybe "terminationMessagePolicy" a
+               tty <- decodeMaybe "tty" a
+               volumeDevices <- decodeMaybe "volumeDevices" a
+               volumeMounts <- decodeMaybe "volumeMounts" a
+               workingDir <- decodeMaybe "workingDir" a
                pure $ Container { args, command, env, envFrom, image, imagePullPolicy, lifecycle, livenessProbe, name, ports, readinessProbe, resources, securityContext, stdin, stdinOnce, terminationMessagePath, terminationMessagePolicy, tty, volumeDevices, volumeMounts, workingDir }
 instance encodeContainer :: Encode Container where
   encode (Container a) = encode $ StrMap.fromFoldable $
-               [ Tuple "args" (encode a.args)
-               , Tuple "command" (encode a.command)
-               , Tuple "env" (encode a.env)
-               , Tuple "envFrom" (encode a.envFrom)
-               , Tuple "image" (encode a.image)
-               , Tuple "imagePullPolicy" (encode a.imagePullPolicy)
-               , Tuple "lifecycle" (encode a.lifecycle)
-               , Tuple "livenessProbe" (encode a.livenessProbe)
-               , Tuple "name" (encode a.name)
-               , Tuple "ports" (encode a.ports)
-               , Tuple "readinessProbe" (encode a.readinessProbe)
-               , Tuple "resources" (encode a.resources)
-               , Tuple "securityContext" (encode a.securityContext)
-               , Tuple "stdin" (encode a.stdin)
-               , Tuple "stdinOnce" (encode a.stdinOnce)
-               , Tuple "terminationMessagePath" (encode a.terminationMessagePath)
-               , Tuple "terminationMessagePolicy" (encode a.terminationMessagePolicy)
-               , Tuple "tty" (encode a.tty)
-               , Tuple "volumeDevices" (encode a.volumeDevices)
-               , Tuple "volumeMounts" (encode a.volumeMounts)
-               , Tuple "workingDir" (encode a.workingDir) ]
+               [ Tuple "args" (encodeMaybe a.args)
+               , Tuple "command" (encodeMaybe a.command)
+               , Tuple "env" (encodeMaybe a.env)
+               , Tuple "envFrom" (encodeMaybe a.envFrom)
+               , Tuple "image" (encodeMaybe a.image)
+               , Tuple "imagePullPolicy" (encodeMaybe a.imagePullPolicy)
+               , Tuple "lifecycle" (encodeMaybe a.lifecycle)
+               , Tuple "livenessProbe" (encodeMaybe a.livenessProbe)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "ports" (encodeMaybe a.ports)
+               , Tuple "readinessProbe" (encodeMaybe a.readinessProbe)
+               , Tuple "resources" (encodeMaybe a.resources)
+               , Tuple "securityContext" (encodeMaybe a.securityContext)
+               , Tuple "stdin" (encodeMaybe a.stdin)
+               , Tuple "stdinOnce" (encodeMaybe a.stdinOnce)
+               , Tuple "terminationMessagePath" (encodeMaybe a.terminationMessagePath)
+               , Tuple "terminationMessagePolicy" (encodeMaybe a.terminationMessagePolicy)
+               , Tuple "tty" (encodeMaybe a.tty)
+               , Tuple "volumeDevices" (encodeMaybe a.volumeDevices)
+               , Tuple "volumeMounts" (encodeMaybe a.volumeMounts)
+               , Tuple "workingDir" (encodeMaybe a.workingDir) ]
 
 
 instance defaultContainer :: Default Container where
   default = Container
-    { args: NullOrUndefined Nothing
-    , command: NullOrUndefined Nothing
-    , env: NullOrUndefined Nothing
-    , envFrom: NullOrUndefined Nothing
-    , image: NullOrUndefined Nothing
-    , imagePullPolicy: NullOrUndefined Nothing
-    , lifecycle: NullOrUndefined Nothing
-    , livenessProbe: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , ports: NullOrUndefined Nothing
-    , readinessProbe: NullOrUndefined Nothing
-    , resources: NullOrUndefined Nothing
-    , securityContext: NullOrUndefined Nothing
-    , stdin: NullOrUndefined Nothing
-    , stdinOnce: NullOrUndefined Nothing
-    , terminationMessagePath: NullOrUndefined Nothing
-    , terminationMessagePolicy: NullOrUndefined Nothing
-    , tty: NullOrUndefined Nothing
-    , volumeDevices: NullOrUndefined Nothing
-    , volumeMounts: NullOrUndefined Nothing
-    , workingDir: NullOrUndefined Nothing }
+    { args: Nothing
+    , command: Nothing
+    , env: Nothing
+    , envFrom: Nothing
+    , image: Nothing
+    , imagePullPolicy: Nothing
+    , lifecycle: Nothing
+    , livenessProbe: Nothing
+    , name: Nothing
+    , ports: Nothing
+    , readinessProbe: Nothing
+    , resources: Nothing
+    , securityContext: Nothing
+    , stdin: Nothing
+    , stdinOnce: Nothing
+    , terminationMessagePath: Nothing
+    , terminationMessagePolicy: Nothing
+    , tty: Nothing
+    , volumeDevices: Nothing
+    , volumeMounts: Nothing
+    , workingDir: Nothing }
 
 -- | Describe a container image
 -- |
@@ -955,27 +954,27 @@ instance defaultContainer :: Default Container where
 -- | - `names`: Names by which this image is known. e.g. ["gcr.io/google_containers/hyperkube:v1.0.7", "dockerhub.io/google_containers/hyperkube:v1.0.7"]
 -- | - `sizeBytes`: The size of the image in bytes.
 newtype ContainerImage = ContainerImage
-  { names :: (NullOrUndefined (Array String))
-  , sizeBytes :: (NullOrUndefined Int) }
+  { names :: (Maybe (Array String))
+  , sizeBytes :: (Maybe Int) }
 
 derive instance newtypeContainerImage :: Newtype ContainerImage _
 derive instance genericContainerImage :: Generic ContainerImage _
 instance showContainerImage :: Show ContainerImage where show a = genericShow a
 instance decodeContainerImage :: Decode ContainerImage where
   decode a = do
-               names <- readProp "names" a >>= decode
-               sizeBytes <- readProp "sizeBytes" a >>= decode
+               names <- decodeMaybe "names" a
+               sizeBytes <- decodeMaybe "sizeBytes" a
                pure $ ContainerImage { names, sizeBytes }
 instance encodeContainerImage :: Encode ContainerImage where
   encode (ContainerImage a) = encode $ StrMap.fromFoldable $
-               [ Tuple "names" (encode a.names)
-               , Tuple "sizeBytes" (encode a.sizeBytes) ]
+               [ Tuple "names" (encodeMaybe a.names)
+               , Tuple "sizeBytes" (encodeMaybe a.sizeBytes) ]
 
 
 instance defaultContainerImage :: Default ContainerImage where
   default = ContainerImage
-    { names: NullOrUndefined Nothing
-    , sizeBytes: NullOrUndefined Nothing }
+    { names: Nothing
+    , sizeBytes: Nothing }
 
 -- | ContainerPort represents a network port in a single container.
 -- |
@@ -986,39 +985,39 @@ instance defaultContainerImage :: Default ContainerImage where
 -- | - `name`: If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services.
 -- | - `protocol`: Protocol for port. Must be UDP or TCP. Defaults to "TCP".
 newtype ContainerPort = ContainerPort
-  { containerPort :: (NullOrUndefined Int)
-  , hostIP :: (NullOrUndefined String)
-  , hostPort :: (NullOrUndefined Int)
-  , name :: (NullOrUndefined String)
-  , protocol :: (NullOrUndefined String) }
+  { containerPort :: (Maybe Int)
+  , hostIP :: (Maybe String)
+  , hostPort :: (Maybe Int)
+  , name :: (Maybe String)
+  , protocol :: (Maybe String) }
 
 derive instance newtypeContainerPort :: Newtype ContainerPort _
 derive instance genericContainerPort :: Generic ContainerPort _
 instance showContainerPort :: Show ContainerPort where show a = genericShow a
 instance decodeContainerPort :: Decode ContainerPort where
   decode a = do
-               containerPort <- readProp "containerPort" a >>= decode
-               hostIP <- readProp "hostIP" a >>= decode
-               hostPort <- readProp "hostPort" a >>= decode
-               name <- readProp "name" a >>= decode
-               protocol <- readProp "protocol" a >>= decode
+               containerPort <- decodeMaybe "containerPort" a
+               hostIP <- decodeMaybe "hostIP" a
+               hostPort <- decodeMaybe "hostPort" a
+               name <- decodeMaybe "name" a
+               protocol <- decodeMaybe "protocol" a
                pure $ ContainerPort { containerPort, hostIP, hostPort, name, protocol }
 instance encodeContainerPort :: Encode ContainerPort where
   encode (ContainerPort a) = encode $ StrMap.fromFoldable $
-               [ Tuple "containerPort" (encode a.containerPort)
-               , Tuple "hostIP" (encode a.hostIP)
-               , Tuple "hostPort" (encode a.hostPort)
-               , Tuple "name" (encode a.name)
-               , Tuple "protocol" (encode a.protocol) ]
+               [ Tuple "containerPort" (encodeMaybe a.containerPort)
+               , Tuple "hostIP" (encodeMaybe a.hostIP)
+               , Tuple "hostPort" (encodeMaybe a.hostPort)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "protocol" (encodeMaybe a.protocol) ]
 
 
 instance defaultContainerPort :: Default ContainerPort where
   default = ContainerPort
-    { containerPort: NullOrUndefined Nothing
-    , hostIP: NullOrUndefined Nothing
-    , hostPort: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , protocol: NullOrUndefined Nothing }
+    { containerPort: Nothing
+    , hostIP: Nothing
+    , hostPort: Nothing
+    , name: Nothing
+    , protocol: Nothing }
 
 -- | ContainerState holds a possible state of container. Only one of its members may be specified. If none of them is specified, the default one is ContainerStateWaiting.
 -- |
@@ -1027,54 +1026,54 @@ instance defaultContainerPort :: Default ContainerPort where
 -- | - `terminated`: Details about a terminated container
 -- | - `waiting`: Details about a waiting container
 newtype ContainerState = ContainerState
-  { running :: (NullOrUndefined ContainerStateRunning)
-  , terminated :: (NullOrUndefined ContainerStateTerminated)
-  , waiting :: (NullOrUndefined ContainerStateWaiting) }
+  { running :: (Maybe ContainerStateRunning)
+  , terminated :: (Maybe ContainerStateTerminated)
+  , waiting :: (Maybe ContainerStateWaiting) }
 
 derive instance newtypeContainerState :: Newtype ContainerState _
 derive instance genericContainerState :: Generic ContainerState _
 instance showContainerState :: Show ContainerState where show a = genericShow a
 instance decodeContainerState :: Decode ContainerState where
   decode a = do
-               running <- readProp "running" a >>= decode
-               terminated <- readProp "terminated" a >>= decode
-               waiting <- readProp "waiting" a >>= decode
+               running <- decodeMaybe "running" a
+               terminated <- decodeMaybe "terminated" a
+               waiting <- decodeMaybe "waiting" a
                pure $ ContainerState { running, terminated, waiting }
 instance encodeContainerState :: Encode ContainerState where
   encode (ContainerState a) = encode $ StrMap.fromFoldable $
-               [ Tuple "running" (encode a.running)
-               , Tuple "terminated" (encode a.terminated)
-               , Tuple "waiting" (encode a.waiting) ]
+               [ Tuple "running" (encodeMaybe a.running)
+               , Tuple "terminated" (encodeMaybe a.terminated)
+               , Tuple "waiting" (encodeMaybe a.waiting) ]
 
 
 instance defaultContainerState :: Default ContainerState where
   default = ContainerState
-    { running: NullOrUndefined Nothing
-    , terminated: NullOrUndefined Nothing
-    , waiting: NullOrUndefined Nothing }
+    { running: Nothing
+    , terminated: Nothing
+    , waiting: Nothing }
 
 -- | ContainerStateRunning is a running state of a container.
 -- |
 -- | Fields:
 -- | - `startedAt`: Time at which the container was last (re-)started
 newtype ContainerStateRunning = ContainerStateRunning
-  { startedAt :: (NullOrUndefined MetaV1.Time) }
+  { startedAt :: (Maybe MetaV1.Time) }
 
 derive instance newtypeContainerStateRunning :: Newtype ContainerStateRunning _
 derive instance genericContainerStateRunning :: Generic ContainerStateRunning _
 instance showContainerStateRunning :: Show ContainerStateRunning where show a = genericShow a
 instance decodeContainerStateRunning :: Decode ContainerStateRunning where
   decode a = do
-               startedAt <- readProp "startedAt" a >>= decode
+               startedAt <- decodeMaybe "startedAt" a
                pure $ ContainerStateRunning { startedAt }
 instance encodeContainerStateRunning :: Encode ContainerStateRunning where
   encode (ContainerStateRunning a) = encode $ StrMap.fromFoldable $
-               [ Tuple "startedAt" (encode a.startedAt) ]
+               [ Tuple "startedAt" (encodeMaybe a.startedAt) ]
 
 
 instance defaultContainerStateRunning :: Default ContainerStateRunning where
   default = ContainerStateRunning
-    { startedAt: NullOrUndefined Nothing }
+    { startedAt: Nothing }
 
 -- | ContainerStateTerminated is a terminated state of a container.
 -- |
@@ -1087,47 +1086,47 @@ instance defaultContainerStateRunning :: Default ContainerStateRunning where
 -- | - `signal`: Signal from the last termination of the container
 -- | - `startedAt`: Time at which previous execution of the container started
 newtype ContainerStateTerminated = ContainerStateTerminated
-  { containerID :: (NullOrUndefined String)
-  , exitCode :: (NullOrUndefined Int)
-  , finishedAt :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , signal :: (NullOrUndefined Int)
-  , startedAt :: (NullOrUndefined MetaV1.Time) }
+  { containerID :: (Maybe String)
+  , exitCode :: (Maybe Int)
+  , finishedAt :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , signal :: (Maybe Int)
+  , startedAt :: (Maybe MetaV1.Time) }
 
 derive instance newtypeContainerStateTerminated :: Newtype ContainerStateTerminated _
 derive instance genericContainerStateTerminated :: Generic ContainerStateTerminated _
 instance showContainerStateTerminated :: Show ContainerStateTerminated where show a = genericShow a
 instance decodeContainerStateTerminated :: Decode ContainerStateTerminated where
   decode a = do
-               containerID <- readProp "containerID" a >>= decode
-               exitCode <- readProp "exitCode" a >>= decode
-               finishedAt <- readProp "finishedAt" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               signal <- readProp "signal" a >>= decode
-               startedAt <- readProp "startedAt" a >>= decode
+               containerID <- decodeMaybe "containerID" a
+               exitCode <- decodeMaybe "exitCode" a
+               finishedAt <- decodeMaybe "finishedAt" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               signal <- decodeMaybe "signal" a
+               startedAt <- decodeMaybe "startedAt" a
                pure $ ContainerStateTerminated { containerID, exitCode, finishedAt, message, reason, signal, startedAt }
 instance encodeContainerStateTerminated :: Encode ContainerStateTerminated where
   encode (ContainerStateTerminated a) = encode $ StrMap.fromFoldable $
-               [ Tuple "containerID" (encode a.containerID)
-               , Tuple "exitCode" (encode a.exitCode)
-               , Tuple "finishedAt" (encode a.finishedAt)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "signal" (encode a.signal)
-               , Tuple "startedAt" (encode a.startedAt) ]
+               [ Tuple "containerID" (encodeMaybe a.containerID)
+               , Tuple "exitCode" (encodeMaybe a.exitCode)
+               , Tuple "finishedAt" (encodeMaybe a.finishedAt)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "signal" (encodeMaybe a.signal)
+               , Tuple "startedAt" (encodeMaybe a.startedAt) ]
 
 
 instance defaultContainerStateTerminated :: Default ContainerStateTerminated where
   default = ContainerStateTerminated
-    { containerID: NullOrUndefined Nothing
-    , exitCode: NullOrUndefined Nothing
-    , finishedAt: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , signal: NullOrUndefined Nothing
-    , startedAt: NullOrUndefined Nothing }
+    { containerID: Nothing
+    , exitCode: Nothing
+    , finishedAt: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , signal: Nothing
+    , startedAt: Nothing }
 
 -- | ContainerStateWaiting is a waiting state of a container.
 -- |
@@ -1135,27 +1134,27 @@ instance defaultContainerStateTerminated :: Default ContainerStateTerminated whe
 -- | - `message`: Message regarding why the container is not yet running.
 -- | - `reason`: (brief) reason the container is not yet running.
 newtype ContainerStateWaiting = ContainerStateWaiting
-  { message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String) }
+  { message :: (Maybe String)
+  , reason :: (Maybe String) }
 
 derive instance newtypeContainerStateWaiting :: Newtype ContainerStateWaiting _
 derive instance genericContainerStateWaiting :: Generic ContainerStateWaiting _
 instance showContainerStateWaiting :: Show ContainerStateWaiting where show a = genericShow a
 instance decodeContainerStateWaiting :: Decode ContainerStateWaiting where
   decode a = do
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
                pure $ ContainerStateWaiting { message, reason }
 instance encodeContainerStateWaiting :: Encode ContainerStateWaiting where
   encode (ContainerStateWaiting a) = encode $ StrMap.fromFoldable $
-               [ Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason) ]
+               [ Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason) ]
 
 
 instance defaultContainerStateWaiting :: Default ContainerStateWaiting where
   default = ContainerStateWaiting
-    { message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing }
+    { message: Nothing
+    , reason: Nothing }
 
 -- | ContainerStatus contains details for the current status of this container.
 -- |
@@ -1169,97 +1168,97 @@ instance defaultContainerStateWaiting :: Default ContainerStateWaiting where
 -- | - `restartCount`: The number of times the container has been restarted, currently based on the number of dead containers that have not yet been removed. Note that this is calculated from dead containers. But those containers are subject to garbage collection. This value will get capped at 5 by GC.
 -- | - `state`: Details about the container's current condition.
 newtype ContainerStatus = ContainerStatus
-  { containerID :: (NullOrUndefined String)
-  , image :: (NullOrUndefined String)
-  , imageID :: (NullOrUndefined String)
-  , lastState :: (NullOrUndefined ContainerState)
-  , name :: (NullOrUndefined String)
-  , ready :: (NullOrUndefined Boolean)
-  , restartCount :: (NullOrUndefined Int)
-  , state :: (NullOrUndefined ContainerState) }
+  { containerID :: (Maybe String)
+  , image :: (Maybe String)
+  , imageID :: (Maybe String)
+  , lastState :: (Maybe ContainerState)
+  , name :: (Maybe String)
+  , ready :: (Maybe Boolean)
+  , restartCount :: (Maybe Int)
+  , state :: (Maybe ContainerState) }
 
 derive instance newtypeContainerStatus :: Newtype ContainerStatus _
 derive instance genericContainerStatus :: Generic ContainerStatus _
 instance showContainerStatus :: Show ContainerStatus where show a = genericShow a
 instance decodeContainerStatus :: Decode ContainerStatus where
   decode a = do
-               containerID <- readProp "containerID" a >>= decode
-               image <- readProp "image" a >>= decode
-               imageID <- readProp "imageID" a >>= decode
-               lastState <- readProp "lastState" a >>= decode
-               name <- readProp "name" a >>= decode
-               ready <- readProp "ready" a >>= decode
-               restartCount <- readProp "restartCount" a >>= decode
-               state <- readProp "state" a >>= decode
+               containerID <- decodeMaybe "containerID" a
+               image <- decodeMaybe "image" a
+               imageID <- decodeMaybe "imageID" a
+               lastState <- decodeMaybe "lastState" a
+               name <- decodeMaybe "name" a
+               ready <- decodeMaybe "ready" a
+               restartCount <- decodeMaybe "restartCount" a
+               state <- decodeMaybe "state" a
                pure $ ContainerStatus { containerID, image, imageID, lastState, name, ready, restartCount, state }
 instance encodeContainerStatus :: Encode ContainerStatus where
   encode (ContainerStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "containerID" (encode a.containerID)
-               , Tuple "image" (encode a.image)
-               , Tuple "imageID" (encode a.imageID)
-               , Tuple "lastState" (encode a.lastState)
-               , Tuple "name" (encode a.name)
-               , Tuple "ready" (encode a.ready)
-               , Tuple "restartCount" (encode a.restartCount)
-               , Tuple "state" (encode a.state) ]
+               [ Tuple "containerID" (encodeMaybe a.containerID)
+               , Tuple "image" (encodeMaybe a.image)
+               , Tuple "imageID" (encodeMaybe a.imageID)
+               , Tuple "lastState" (encodeMaybe a.lastState)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "ready" (encodeMaybe a.ready)
+               , Tuple "restartCount" (encodeMaybe a.restartCount)
+               , Tuple "state" (encodeMaybe a.state) ]
 
 
 instance defaultContainerStatus :: Default ContainerStatus where
   default = ContainerStatus
-    { containerID: NullOrUndefined Nothing
-    , image: NullOrUndefined Nothing
-    , imageID: NullOrUndefined Nothing
-    , lastState: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , ready: NullOrUndefined Nothing
-    , restartCount: NullOrUndefined Nothing
-    , state: NullOrUndefined Nothing }
+    { containerID: Nothing
+    , image: Nothing
+    , imageID: Nothing
+    , lastState: Nothing
+    , name: Nothing
+    , ready: Nothing
+    , restartCount: Nothing
+    , state: Nothing }
 
 -- | DaemonEndpoint contains information about a single Daemon endpoint.
 -- |
 -- | Fields:
 -- | - `_Port`: Port number of the given endpoint.
 newtype DaemonEndpoint = DaemonEndpoint
-  { _Port :: (NullOrUndefined Int) }
+  { _Port :: (Maybe Int) }
 
 derive instance newtypeDaemonEndpoint :: Newtype DaemonEndpoint _
 derive instance genericDaemonEndpoint :: Generic DaemonEndpoint _
 instance showDaemonEndpoint :: Show DaemonEndpoint where show a = genericShow a
 instance decodeDaemonEndpoint :: Decode DaemonEndpoint where
   decode a = do
-               _Port <- readProp "_Port" a >>= decode
+               _Port <- decodeMaybe "_Port" a
                pure $ DaemonEndpoint { _Port }
 instance encodeDaemonEndpoint :: Encode DaemonEndpoint where
   encode (DaemonEndpoint a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_Port" (encode a._Port) ]
+               [ Tuple "_Port" (encodeMaybe a._Port) ]
 
 
 instance defaultDaemonEndpoint :: Default DaemonEndpoint where
   default = DaemonEndpoint
-    { _Port: NullOrUndefined Nothing }
+    { _Port: Nothing }
 
 -- | Represents downward API info for projecting into a projected volume. Note that this is identical to a downwardAPI volume source without the default mode.
 -- |
 -- | Fields:
 -- | - `items`: Items is a list of DownwardAPIVolume file
 newtype DownwardAPIProjection = DownwardAPIProjection
-  { items :: (NullOrUndefined (Array DownwardAPIVolumeFile)) }
+  { items :: (Maybe (Array DownwardAPIVolumeFile)) }
 
 derive instance newtypeDownwardAPIProjection :: Newtype DownwardAPIProjection _
 derive instance genericDownwardAPIProjection :: Generic DownwardAPIProjection _
 instance showDownwardAPIProjection :: Show DownwardAPIProjection where show a = genericShow a
 instance decodeDownwardAPIProjection :: Decode DownwardAPIProjection where
   decode a = do
-               items <- readProp "items" a >>= decode
+               items <- decodeMaybe "items" a
                pure $ DownwardAPIProjection { items }
 instance encodeDownwardAPIProjection :: Encode DownwardAPIProjection where
   encode (DownwardAPIProjection a) = encode $ StrMap.fromFoldable $
-               [ Tuple "items" (encode a.items) ]
+               [ Tuple "items" (encodeMaybe a.items) ]
 
 
 instance defaultDownwardAPIProjection :: Default DownwardAPIProjection where
   default = DownwardAPIProjection
-    { items: NullOrUndefined Nothing }
+    { items: Nothing }
 
 -- | DownwardAPIVolumeFile represents information to create the file containing the pod field
 -- |
@@ -1269,35 +1268,35 @@ instance defaultDownwardAPIProjection :: Default DownwardAPIProjection where
 -- | - `path`: Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'
 -- | - `resourceFieldRef`: Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported.
 newtype DownwardAPIVolumeFile = DownwardAPIVolumeFile
-  { fieldRef :: (NullOrUndefined ObjectFieldSelector)
-  , mode :: (NullOrUndefined Int)
-  , path :: (NullOrUndefined String)
-  , resourceFieldRef :: (NullOrUndefined ResourceFieldSelector) }
+  { fieldRef :: (Maybe ObjectFieldSelector)
+  , mode :: (Maybe Int)
+  , path :: (Maybe String)
+  , resourceFieldRef :: (Maybe ResourceFieldSelector) }
 
 derive instance newtypeDownwardAPIVolumeFile :: Newtype DownwardAPIVolumeFile _
 derive instance genericDownwardAPIVolumeFile :: Generic DownwardAPIVolumeFile _
 instance showDownwardAPIVolumeFile :: Show DownwardAPIVolumeFile where show a = genericShow a
 instance decodeDownwardAPIVolumeFile :: Decode DownwardAPIVolumeFile where
   decode a = do
-               fieldRef <- readProp "fieldRef" a >>= decode
-               mode <- readProp "mode" a >>= decode
-               path <- readProp "path" a >>= decode
-               resourceFieldRef <- readProp "resourceFieldRef" a >>= decode
+               fieldRef <- decodeMaybe "fieldRef" a
+               mode <- decodeMaybe "mode" a
+               path <- decodeMaybe "path" a
+               resourceFieldRef <- decodeMaybe "resourceFieldRef" a
                pure $ DownwardAPIVolumeFile { fieldRef, mode, path, resourceFieldRef }
 instance encodeDownwardAPIVolumeFile :: Encode DownwardAPIVolumeFile where
   encode (DownwardAPIVolumeFile a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fieldRef" (encode a.fieldRef)
-               , Tuple "mode" (encode a.mode)
-               , Tuple "path" (encode a.path)
-               , Tuple "resourceFieldRef" (encode a.resourceFieldRef) ]
+               [ Tuple "fieldRef" (encodeMaybe a.fieldRef)
+               , Tuple "mode" (encodeMaybe a.mode)
+               , Tuple "path" (encodeMaybe a.path)
+               , Tuple "resourceFieldRef" (encodeMaybe a.resourceFieldRef) ]
 
 
 instance defaultDownwardAPIVolumeFile :: Default DownwardAPIVolumeFile where
   default = DownwardAPIVolumeFile
-    { fieldRef: NullOrUndefined Nothing
-    , mode: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing
-    , resourceFieldRef: NullOrUndefined Nothing }
+    { fieldRef: Nothing
+    , mode: Nothing
+    , path: Nothing
+    , resourceFieldRef: Nothing }
 
 -- | DownwardAPIVolumeSource represents a volume containing downward API info. Downward API volumes support ownership management and SELinux relabeling.
 -- |
@@ -1305,27 +1304,27 @@ instance defaultDownwardAPIVolumeFile :: Default DownwardAPIVolumeFile where
 -- | - `defaultMode`: Optional: mode bits to use on created files by default. Must be a value between 0 and 0777. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
 -- | - `items`: Items is a list of downward API volume file
 newtype DownwardAPIVolumeSource = DownwardAPIVolumeSource
-  { defaultMode :: (NullOrUndefined Int)
-  , items :: (NullOrUndefined (Array DownwardAPIVolumeFile)) }
+  { defaultMode :: (Maybe Int)
+  , items :: (Maybe (Array DownwardAPIVolumeFile)) }
 
 derive instance newtypeDownwardAPIVolumeSource :: Newtype DownwardAPIVolumeSource _
 derive instance genericDownwardAPIVolumeSource :: Generic DownwardAPIVolumeSource _
 instance showDownwardAPIVolumeSource :: Show DownwardAPIVolumeSource where show a = genericShow a
 instance decodeDownwardAPIVolumeSource :: Decode DownwardAPIVolumeSource where
   decode a = do
-               defaultMode <- readProp "defaultMode" a >>= decode
-               items <- readProp "items" a >>= decode
+               defaultMode <- decodeMaybe "defaultMode" a
+               items <- decodeMaybe "items" a
                pure $ DownwardAPIVolumeSource { defaultMode, items }
 instance encodeDownwardAPIVolumeSource :: Encode DownwardAPIVolumeSource where
   encode (DownwardAPIVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "defaultMode" (encode a.defaultMode)
-               , Tuple "items" (encode a.items) ]
+               [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
+               , Tuple "items" (encodeMaybe a.items) ]
 
 
 instance defaultDownwardAPIVolumeSource :: Default DownwardAPIVolumeSource where
   default = DownwardAPIVolumeSource
-    { defaultMode: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing }
+    { defaultMode: Nothing
+    , items: Nothing }
 
 -- | Represents an empty directory for a pod. Empty directory volumes support ownership management and SELinux relabeling.
 -- |
@@ -1333,27 +1332,27 @@ instance defaultDownwardAPIVolumeSource :: Default DownwardAPIVolumeSource where
 -- | - `medium`: What type of storage medium should back this directory. The default is "" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 -- | - `sizeLimit`: Total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir
 newtype EmptyDirVolumeSource = EmptyDirVolumeSource
-  { medium :: (NullOrUndefined String)
-  , sizeLimit :: (NullOrUndefined Resource.Quantity) }
+  { medium :: (Maybe String)
+  , sizeLimit :: (Maybe Resource.Quantity) }
 
 derive instance newtypeEmptyDirVolumeSource :: Newtype EmptyDirVolumeSource _
 derive instance genericEmptyDirVolumeSource :: Generic EmptyDirVolumeSource _
 instance showEmptyDirVolumeSource :: Show EmptyDirVolumeSource where show a = genericShow a
 instance decodeEmptyDirVolumeSource :: Decode EmptyDirVolumeSource where
   decode a = do
-               medium <- readProp "medium" a >>= decode
-               sizeLimit <- readProp "sizeLimit" a >>= decode
+               medium <- decodeMaybe "medium" a
+               sizeLimit <- decodeMaybe "sizeLimit" a
                pure $ EmptyDirVolumeSource { medium, sizeLimit }
 instance encodeEmptyDirVolumeSource :: Encode EmptyDirVolumeSource where
   encode (EmptyDirVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "medium" (encode a.medium)
-               , Tuple "sizeLimit" (encode a.sizeLimit) ]
+               [ Tuple "medium" (encodeMaybe a.medium)
+               , Tuple "sizeLimit" (encodeMaybe a.sizeLimit) ]
 
 
 instance defaultEmptyDirVolumeSource :: Default EmptyDirVolumeSource where
   default = EmptyDirVolumeSource
-    { medium: NullOrUndefined Nothing
-    , sizeLimit: NullOrUndefined Nothing }
+    { medium: Nothing
+    , sizeLimit: Nothing }
 
 -- | EndpointAddress is a tuple that describes single IP address.
 -- |
@@ -1363,35 +1362,35 @@ instance defaultEmptyDirVolumeSource :: Default EmptyDirVolumeSource where
 -- | - `nodeName`: Optional: Node hosting this endpoint. This can be used to determine endpoints local to a node.
 -- | - `targetRef`: Reference to object providing the endpoint.
 newtype EndpointAddress = EndpointAddress
-  { hostname :: (NullOrUndefined String)
-  , ip :: (NullOrUndefined String)
-  , nodeName :: (NullOrUndefined String)
-  , targetRef :: (NullOrUndefined ObjectReference) }
+  { hostname :: (Maybe String)
+  , ip :: (Maybe String)
+  , nodeName :: (Maybe String)
+  , targetRef :: (Maybe ObjectReference) }
 
 derive instance newtypeEndpointAddress :: Newtype EndpointAddress _
 derive instance genericEndpointAddress :: Generic EndpointAddress _
 instance showEndpointAddress :: Show EndpointAddress where show a = genericShow a
 instance decodeEndpointAddress :: Decode EndpointAddress where
   decode a = do
-               hostname <- readProp "hostname" a >>= decode
-               ip <- readProp "ip" a >>= decode
-               nodeName <- readProp "nodeName" a >>= decode
-               targetRef <- readProp "targetRef" a >>= decode
+               hostname <- decodeMaybe "hostname" a
+               ip <- decodeMaybe "ip" a
+               nodeName <- decodeMaybe "nodeName" a
+               targetRef <- decodeMaybe "targetRef" a
                pure $ EndpointAddress { hostname, ip, nodeName, targetRef }
 instance encodeEndpointAddress :: Encode EndpointAddress where
   encode (EndpointAddress a) = encode $ StrMap.fromFoldable $
-               [ Tuple "hostname" (encode a.hostname)
-               , Tuple "ip" (encode a.ip)
-               , Tuple "nodeName" (encode a.nodeName)
-               , Tuple "targetRef" (encode a.targetRef) ]
+               [ Tuple "hostname" (encodeMaybe a.hostname)
+               , Tuple "ip" (encodeMaybe a.ip)
+               , Tuple "nodeName" (encodeMaybe a.nodeName)
+               , Tuple "targetRef" (encodeMaybe a.targetRef) ]
 
 
 instance defaultEndpointAddress :: Default EndpointAddress where
   default = EndpointAddress
-    { hostname: NullOrUndefined Nothing
-    , ip: NullOrUndefined Nothing
-    , nodeName: NullOrUndefined Nothing
-    , targetRef: NullOrUndefined Nothing }
+    { hostname: Nothing
+    , ip: Nothing
+    , nodeName: Nothing
+    , targetRef: Nothing }
 
 -- | EndpointPort is a tuple that describes a single port.
 -- |
@@ -1400,31 +1399,31 @@ instance defaultEndpointAddress :: Default EndpointAddress where
 -- | - `port`: The port number of the endpoint.
 -- | - `protocol`: The IP protocol for this port. Must be UDP or TCP. Default is TCP.
 newtype EndpointPort = EndpointPort
-  { name :: (NullOrUndefined String)
-  , port :: (NullOrUndefined Int)
-  , protocol :: (NullOrUndefined String) }
+  { name :: (Maybe String)
+  , port :: (Maybe Int)
+  , protocol :: (Maybe String) }
 
 derive instance newtypeEndpointPort :: Newtype EndpointPort _
 derive instance genericEndpointPort :: Generic EndpointPort _
 instance showEndpointPort :: Show EndpointPort where show a = genericShow a
 instance decodeEndpointPort :: Decode EndpointPort where
   decode a = do
-               name <- readProp "name" a >>= decode
-               port <- readProp "port" a >>= decode
-               protocol <- readProp "protocol" a >>= decode
+               name <- decodeMaybe "name" a
+               port <- decodeMaybe "port" a
+               protocol <- decodeMaybe "protocol" a
                pure $ EndpointPort { name, port, protocol }
 instance encodeEndpointPort :: Encode EndpointPort where
   encode (EndpointPort a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "port" (encode a.port)
-               , Tuple "protocol" (encode a.protocol) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "port" (encodeMaybe a.port)
+               , Tuple "protocol" (encodeMaybe a.protocol) ]
 
 
 instance defaultEndpointPort :: Default EndpointPort where
   default = EndpointPort
-    { name: NullOrUndefined Nothing
-    , port: NullOrUndefined Nothing
-    , protocol: NullOrUndefined Nothing }
+    { name: Nothing
+    , port: Nothing
+    , protocol: Nothing }
 
 -- | EndpointSubset is a group of addresses with a common set of ports. The expanded set of endpoints is the Cartesian product of Addresses x Ports. For example, given:
 -- |   {
@@ -1440,31 +1439,31 @@ instance defaultEndpointPort :: Default EndpointPort where
 -- | - `notReadyAddresses`: IP addresses which offer the related ports but are not currently marked as ready because they have not yet finished starting, have recently failed a readiness check, or have recently failed a liveness check.
 -- | - `ports`: Port numbers available on the related IP addresses.
 newtype EndpointSubset = EndpointSubset
-  { addresses :: (NullOrUndefined (Array EndpointAddress))
-  , notReadyAddresses :: (NullOrUndefined (Array EndpointAddress))
-  , ports :: (NullOrUndefined (Array EndpointPort)) }
+  { addresses :: (Maybe (Array EndpointAddress))
+  , notReadyAddresses :: (Maybe (Array EndpointAddress))
+  , ports :: (Maybe (Array EndpointPort)) }
 
 derive instance newtypeEndpointSubset :: Newtype EndpointSubset _
 derive instance genericEndpointSubset :: Generic EndpointSubset _
 instance showEndpointSubset :: Show EndpointSubset where show a = genericShow a
 instance decodeEndpointSubset :: Decode EndpointSubset where
   decode a = do
-               addresses <- readProp "addresses" a >>= decode
-               notReadyAddresses <- readProp "notReadyAddresses" a >>= decode
-               ports <- readProp "ports" a >>= decode
+               addresses <- decodeMaybe "addresses" a
+               notReadyAddresses <- decodeMaybe "notReadyAddresses" a
+               ports <- decodeMaybe "ports" a
                pure $ EndpointSubset { addresses, notReadyAddresses, ports }
 instance encodeEndpointSubset :: Encode EndpointSubset where
   encode (EndpointSubset a) = encode $ StrMap.fromFoldable $
-               [ Tuple "addresses" (encode a.addresses)
-               , Tuple "notReadyAddresses" (encode a.notReadyAddresses)
-               , Tuple "ports" (encode a.ports) ]
+               [ Tuple "addresses" (encodeMaybe a.addresses)
+               , Tuple "notReadyAddresses" (encodeMaybe a.notReadyAddresses)
+               , Tuple "ports" (encodeMaybe a.ports) ]
 
 
 instance defaultEndpointSubset :: Default EndpointSubset where
   default = EndpointSubset
-    { addresses: NullOrUndefined Nothing
-    , notReadyAddresses: NullOrUndefined Nothing
-    , ports: NullOrUndefined Nothing }
+    { addresses: Nothing
+    , notReadyAddresses: Nothing
+    , ports: Nothing }
 
 -- | Endpoints is a collection of endpoints that implement the actual service. Example:
 -- |   Name: "mysvc",
@@ -1485,35 +1484,35 @@ instance defaultEndpointSubset :: Default EndpointSubset where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `subsets`: The set of all endpoints is the union of all subsets. Addresses are placed into subsets according to the IPs they share. A single address with multiple ports, some of which are ready and some of which are not (because they come from different containers) will result in the address being displayed in different subsets for the different ports. No address will appear in both Addresses and NotReadyAddresses in the same subset. Sets of addresses and ports that comprise a service.
 newtype Endpoints = Endpoints
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , subsets :: (NullOrUndefined (Array EndpointSubset)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , subsets :: (Maybe (Array EndpointSubset)) }
 
 derive instance newtypeEndpoints :: Newtype Endpoints _
 derive instance genericEndpoints :: Generic Endpoints _
 instance showEndpoints :: Show Endpoints where show a = genericShow a
 instance decodeEndpoints :: Decode Endpoints where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               subsets <- readProp "subsets" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               subsets <- decodeMaybe "subsets" a
                pure $ Endpoints { apiVersion, kind, metadata, subsets }
 instance encodeEndpoints :: Encode Endpoints where
   encode (Endpoints a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "subsets" (encode a.subsets) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "subsets" (encodeMaybe a.subsets) ]
 
 
 instance defaultEndpoints :: Default Endpoints where
   default = Endpoints
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , subsets: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , subsets: Nothing }
 
 -- | EndpointsList is a list of endpoints.
 -- |
@@ -1523,35 +1522,35 @@ instance defaultEndpoints :: Default Endpoints where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype EndpointsList = EndpointsList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Endpoints))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Endpoints))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeEndpointsList :: Newtype EndpointsList _
 derive instance genericEndpointsList :: Generic EndpointsList _
 instance showEndpointsList :: Show EndpointsList where show a = genericShow a
 instance decodeEndpointsList :: Decode EndpointsList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ EndpointsList { apiVersion, items, kind, metadata }
 instance encodeEndpointsList :: Encode EndpointsList where
   encode (EndpointsList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEndpointsList :: Default EndpointsList where
   default = EndpointsList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | EnvFromSource represents the source of a set of ConfigMaps
 -- |
@@ -1560,31 +1559,31 @@ instance defaultEndpointsList :: Default EndpointsList where
 -- | - `prefix`: An optional identifer to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER.
 -- | - `secretRef`: The Secret to select from
 newtype EnvFromSource = EnvFromSource
-  { configMapRef :: (NullOrUndefined ConfigMapEnvSource)
-  , prefix :: (NullOrUndefined String)
-  , secretRef :: (NullOrUndefined SecretEnvSource) }
+  { configMapRef :: (Maybe ConfigMapEnvSource)
+  , prefix :: (Maybe String)
+  , secretRef :: (Maybe SecretEnvSource) }
 
 derive instance newtypeEnvFromSource :: Newtype EnvFromSource _
 derive instance genericEnvFromSource :: Generic EnvFromSource _
 instance showEnvFromSource :: Show EnvFromSource where show a = genericShow a
 instance decodeEnvFromSource :: Decode EnvFromSource where
   decode a = do
-               configMapRef <- readProp "configMapRef" a >>= decode
-               prefix <- readProp "prefix" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
+               configMapRef <- decodeMaybe "configMapRef" a
+               prefix <- decodeMaybe "prefix" a
+               secretRef <- decodeMaybe "secretRef" a
                pure $ EnvFromSource { configMapRef, prefix, secretRef }
 instance encodeEnvFromSource :: Encode EnvFromSource where
   encode (EnvFromSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "configMapRef" (encode a.configMapRef)
-               , Tuple "prefix" (encode a.prefix)
-               , Tuple "secretRef" (encode a.secretRef) ]
+               [ Tuple "configMapRef" (encodeMaybe a.configMapRef)
+               , Tuple "prefix" (encodeMaybe a.prefix)
+               , Tuple "secretRef" (encodeMaybe a.secretRef) ]
 
 
 instance defaultEnvFromSource :: Default EnvFromSource where
   default = EnvFromSource
-    { configMapRef: NullOrUndefined Nothing
-    , prefix: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing }
+    { configMapRef: Nothing
+    , prefix: Nothing
+    , secretRef: Nothing }
 
 -- | EnvVar represents an environment variable present in a Container.
 -- |
@@ -1593,31 +1592,31 @@ instance defaultEnvFromSource :: Default EnvFromSource where
 -- | - `value`: Variable references $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to "".
 -- | - `valueFrom`: Source for the environment variable's value. Cannot be used if value is not empty.
 newtype EnvVar = EnvVar
-  { name :: (NullOrUndefined String)
-  , value :: (NullOrUndefined String)
-  , valueFrom :: (NullOrUndefined EnvVarSource) }
+  { name :: (Maybe String)
+  , value :: (Maybe String)
+  , valueFrom :: (Maybe EnvVarSource) }
 
 derive instance newtypeEnvVar :: Newtype EnvVar _
 derive instance genericEnvVar :: Generic EnvVar _
 instance showEnvVar :: Show EnvVar where show a = genericShow a
 instance decodeEnvVar :: Decode EnvVar where
   decode a = do
-               name <- readProp "name" a >>= decode
-               value <- readProp "value" a >>= decode
-               valueFrom <- readProp "valueFrom" a >>= decode
+               name <- decodeMaybe "name" a
+               value <- decodeMaybe "value" a
+               valueFrom <- decodeMaybe "valueFrom" a
                pure $ EnvVar { name, value, valueFrom }
 instance encodeEnvVar :: Encode EnvVar where
   encode (EnvVar a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "value" (encode a.value)
-               , Tuple "valueFrom" (encode a.valueFrom) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "value" (encodeMaybe a.value)
+               , Tuple "valueFrom" (encodeMaybe a.valueFrom) ]
 
 
 instance defaultEnvVar :: Default EnvVar where
   default = EnvVar
-    { name: NullOrUndefined Nothing
-    , value: NullOrUndefined Nothing
-    , valueFrom: NullOrUndefined Nothing }
+    { name: Nothing
+    , value: Nothing
+    , valueFrom: Nothing }
 
 -- | EnvVarSource represents a source for the value of an EnvVar.
 -- |
@@ -1627,35 +1626,35 @@ instance defaultEnvVar :: Default EnvVar where
 -- | - `resourceFieldRef`: Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
 -- | - `secretKeyRef`: Selects a key of a secret in the pod's namespace
 newtype EnvVarSource = EnvVarSource
-  { configMapKeyRef :: (NullOrUndefined ConfigMapKeySelector)
-  , fieldRef :: (NullOrUndefined ObjectFieldSelector)
-  , resourceFieldRef :: (NullOrUndefined ResourceFieldSelector)
-  , secretKeyRef :: (NullOrUndefined SecretKeySelector) }
+  { configMapKeyRef :: (Maybe ConfigMapKeySelector)
+  , fieldRef :: (Maybe ObjectFieldSelector)
+  , resourceFieldRef :: (Maybe ResourceFieldSelector)
+  , secretKeyRef :: (Maybe SecretKeySelector) }
 
 derive instance newtypeEnvVarSource :: Newtype EnvVarSource _
 derive instance genericEnvVarSource :: Generic EnvVarSource _
 instance showEnvVarSource :: Show EnvVarSource where show a = genericShow a
 instance decodeEnvVarSource :: Decode EnvVarSource where
   decode a = do
-               configMapKeyRef <- readProp "configMapKeyRef" a >>= decode
-               fieldRef <- readProp "fieldRef" a >>= decode
-               resourceFieldRef <- readProp "resourceFieldRef" a >>= decode
-               secretKeyRef <- readProp "secretKeyRef" a >>= decode
+               configMapKeyRef <- decodeMaybe "configMapKeyRef" a
+               fieldRef <- decodeMaybe "fieldRef" a
+               resourceFieldRef <- decodeMaybe "resourceFieldRef" a
+               secretKeyRef <- decodeMaybe "secretKeyRef" a
                pure $ EnvVarSource { configMapKeyRef, fieldRef, resourceFieldRef, secretKeyRef }
 instance encodeEnvVarSource :: Encode EnvVarSource where
   encode (EnvVarSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "configMapKeyRef" (encode a.configMapKeyRef)
-               , Tuple "fieldRef" (encode a.fieldRef)
-               , Tuple "resourceFieldRef" (encode a.resourceFieldRef)
-               , Tuple "secretKeyRef" (encode a.secretKeyRef) ]
+               [ Tuple "configMapKeyRef" (encodeMaybe a.configMapKeyRef)
+               , Tuple "fieldRef" (encodeMaybe a.fieldRef)
+               , Tuple "resourceFieldRef" (encodeMaybe a.resourceFieldRef)
+               , Tuple "secretKeyRef" (encodeMaybe a.secretKeyRef) ]
 
 
 instance defaultEnvVarSource :: Default EnvVarSource where
   default = EnvVarSource
-    { configMapKeyRef: NullOrUndefined Nothing
-    , fieldRef: NullOrUndefined Nothing
-    , resourceFieldRef: NullOrUndefined Nothing
-    , secretKeyRef: NullOrUndefined Nothing }
+    { configMapKeyRef: Nothing
+    , fieldRef: Nothing
+    , resourceFieldRef: Nothing
+    , secretKeyRef: Nothing }
 
 -- | Event is a report of an event somewhere in the cluster.
 -- |
@@ -1678,87 +1677,87 @@ instance defaultEnvVarSource :: Default EnvVarSource where
 -- | - `source`: The component reporting this event. Should be a short machine understandable string.
 -- | - `_type`: Type of this event (Normal, Warning), new types could be added in the future
 newtype Event = Event
-  { _type :: (NullOrUndefined String)
-  , action :: (NullOrUndefined String)
-  , apiVersion :: (NullOrUndefined String)
-  , count :: (NullOrUndefined Int)
-  , eventTime :: (NullOrUndefined MetaV1.MicroTime)
-  , firstTimestamp :: (NullOrUndefined MetaV1.Time)
-  , involvedObject :: (NullOrUndefined ObjectReference)
-  , kind :: (NullOrUndefined String)
-  , lastTimestamp :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , reason :: (NullOrUndefined String)
-  , related :: (NullOrUndefined ObjectReference)
-  , reportingComponent :: (NullOrUndefined String)
-  , reportingInstance :: (NullOrUndefined String)
-  , series :: (NullOrUndefined EventSeries)
-  , source :: (NullOrUndefined EventSource) }
+  { _type :: (Maybe String)
+  , action :: (Maybe String)
+  , apiVersion :: (Maybe String)
+  , count :: (Maybe Int)
+  , eventTime :: (Maybe MetaV1.MicroTime)
+  , firstTimestamp :: (Maybe MetaV1.Time)
+  , involvedObject :: (Maybe ObjectReference)
+  , kind :: (Maybe String)
+  , lastTimestamp :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , reason :: (Maybe String)
+  , related :: (Maybe ObjectReference)
+  , reportingComponent :: (Maybe String)
+  , reportingInstance :: (Maybe String)
+  , series :: (Maybe EventSeries)
+  , source :: (Maybe EventSource) }
 
 derive instance newtypeEvent :: Newtype Event _
 derive instance genericEvent :: Generic Event _
 instance showEvent :: Show Event where show a = genericShow a
 instance decodeEvent :: Decode Event where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               action <- readProp "action" a >>= decode
-               apiVersion <- readProp "apiVersion" a >>= decode
-               count <- readProp "count" a >>= decode
-               eventTime <- readProp "eventTime" a >>= decode
-               firstTimestamp <- readProp "firstTimestamp" a >>= decode
-               involvedObject <- readProp "involvedObject" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               lastTimestamp <- readProp "lastTimestamp" a >>= decode
-               message <- readProp "message" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               related <- readProp "related" a >>= decode
-               reportingComponent <- readProp "reportingComponent" a >>= decode
-               reportingInstance <- readProp "reportingInstance" a >>= decode
-               series <- readProp "series" a >>= decode
-               source <- readProp "source" a >>= decode
+               _type <- decodeMaybe "_type" a
+               action <- decodeMaybe "action" a
+               apiVersion <- decodeMaybe "apiVersion" a
+               count <- decodeMaybe "count" a
+               eventTime <- decodeMaybe "eventTime" a
+               firstTimestamp <- decodeMaybe "firstTimestamp" a
+               involvedObject <- decodeMaybe "involvedObject" a
+               kind <- decodeMaybe "kind" a
+               lastTimestamp <- decodeMaybe "lastTimestamp" a
+               message <- decodeMaybe "message" a
+               metadata <- decodeMaybe "metadata" a
+               reason <- decodeMaybe "reason" a
+               related <- decodeMaybe "related" a
+               reportingComponent <- decodeMaybe "reportingComponent" a
+               reportingInstance <- decodeMaybe "reportingInstance" a
+               series <- decodeMaybe "series" a
+               source <- decodeMaybe "source" a
                pure $ Event { _type, action, apiVersion, count, eventTime, firstTimestamp, involvedObject, kind, lastTimestamp, message, metadata, reason, related, reportingComponent, reportingInstance, series, source }
 instance encodeEvent :: Encode Event where
   encode (Event a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "action" (encode a.action)
-               , Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "count" (encode a.count)
-               , Tuple "eventTime" (encode a.eventTime)
-               , Tuple "firstTimestamp" (encode a.firstTimestamp)
-               , Tuple "involvedObject" (encode a.involvedObject)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "lastTimestamp" (encode a.lastTimestamp)
-               , Tuple "message" (encode a.message)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "related" (encode a.related)
-               , Tuple "reportingComponent" (encode a.reportingComponent)
-               , Tuple "reportingInstance" (encode a.reportingInstance)
-               , Tuple "series" (encode a.series)
-               , Tuple "source" (encode a.source) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "action" (encodeMaybe a.action)
+               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "count" (encodeMaybe a.count)
+               , Tuple "eventTime" (encodeMaybe a.eventTime)
+               , Tuple "firstTimestamp" (encodeMaybe a.firstTimestamp)
+               , Tuple "involvedObject" (encodeMaybe a.involvedObject)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "lastTimestamp" (encodeMaybe a.lastTimestamp)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "related" (encodeMaybe a.related)
+               , Tuple "reportingComponent" (encodeMaybe a.reportingComponent)
+               , Tuple "reportingInstance" (encodeMaybe a.reportingInstance)
+               , Tuple "series" (encodeMaybe a.series)
+               , Tuple "source" (encodeMaybe a.source) ]
 
 
 instance defaultEvent :: Default Event where
   default = Event
-    { _type: NullOrUndefined Nothing
-    , action: NullOrUndefined Nothing
-    , apiVersion: NullOrUndefined Nothing
-    , count: NullOrUndefined Nothing
-    , eventTime: NullOrUndefined Nothing
-    , firstTimestamp: NullOrUndefined Nothing
-    , involvedObject: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , lastTimestamp: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , related: NullOrUndefined Nothing
-    , reportingComponent: NullOrUndefined Nothing
-    , reportingInstance: NullOrUndefined Nothing
-    , series: NullOrUndefined Nothing
-    , source: NullOrUndefined Nothing }
+    { _type: Nothing
+    , action: Nothing
+    , apiVersion: Nothing
+    , count: Nothing
+    , eventTime: Nothing
+    , firstTimestamp: Nothing
+    , involvedObject: Nothing
+    , kind: Nothing
+    , lastTimestamp: Nothing
+    , message: Nothing
+    , metadata: Nothing
+    , reason: Nothing
+    , related: Nothing
+    , reportingComponent: Nothing
+    , reportingInstance: Nothing
+    , series: Nothing
+    , source: Nothing }
 
 -- | EventList is a list of events.
 -- |
@@ -1768,35 +1767,35 @@ instance defaultEvent :: Default Event where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype EventList = EventList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Event))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Event))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeEventList :: Newtype EventList _
 derive instance genericEventList :: Generic EventList _
 instance showEventList :: Show EventList where show a = genericShow a
 instance decodeEventList :: Decode EventList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ EventList { apiVersion, items, kind, metadata }
 instance encodeEventList :: Encode EventList where
   encode (EventList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEventList :: Default EventList where
   default = EventList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | EventSeries contain information on series of events, i.e. thing that was/is happening continously for some time.
 -- |
@@ -1805,31 +1804,31 @@ instance defaultEventList :: Default EventList where
 -- | - `lastObservedTime`: Time of the last occurence observed
 -- | - `state`: State of this Series: Ongoing or Finished
 newtype EventSeries = EventSeries
-  { count :: (NullOrUndefined Int)
-  , lastObservedTime :: (NullOrUndefined MetaV1.MicroTime)
-  , state :: (NullOrUndefined String) }
+  { count :: (Maybe Int)
+  , lastObservedTime :: (Maybe MetaV1.MicroTime)
+  , state :: (Maybe String) }
 
 derive instance newtypeEventSeries :: Newtype EventSeries _
 derive instance genericEventSeries :: Generic EventSeries _
 instance showEventSeries :: Show EventSeries where show a = genericShow a
 instance decodeEventSeries :: Decode EventSeries where
   decode a = do
-               count <- readProp "count" a >>= decode
-               lastObservedTime <- readProp "lastObservedTime" a >>= decode
-               state <- readProp "state" a >>= decode
+               count <- decodeMaybe "count" a
+               lastObservedTime <- decodeMaybe "lastObservedTime" a
+               state <- decodeMaybe "state" a
                pure $ EventSeries { count, lastObservedTime, state }
 instance encodeEventSeries :: Encode EventSeries where
   encode (EventSeries a) = encode $ StrMap.fromFoldable $
-               [ Tuple "count" (encode a.count)
-               , Tuple "lastObservedTime" (encode a.lastObservedTime)
-               , Tuple "state" (encode a.state) ]
+               [ Tuple "count" (encodeMaybe a.count)
+               , Tuple "lastObservedTime" (encodeMaybe a.lastObservedTime)
+               , Tuple "state" (encodeMaybe a.state) ]
 
 
 instance defaultEventSeries :: Default EventSeries where
   default = EventSeries
-    { count: NullOrUndefined Nothing
-    , lastObservedTime: NullOrUndefined Nothing
-    , state: NullOrUndefined Nothing }
+    { count: Nothing
+    , lastObservedTime: Nothing
+    , state: Nothing }
 
 -- | EventSource contains information for an event.
 -- |
@@ -1837,50 +1836,50 @@ instance defaultEventSeries :: Default EventSeries where
 -- | - `component`: Component from which the event is generated.
 -- | - `host`: Node name on which the event is generated.
 newtype EventSource = EventSource
-  { component :: (NullOrUndefined String)
-  , host :: (NullOrUndefined String) }
+  { component :: (Maybe String)
+  , host :: (Maybe String) }
 
 derive instance newtypeEventSource :: Newtype EventSource _
 derive instance genericEventSource :: Generic EventSource _
 instance showEventSource :: Show EventSource where show a = genericShow a
 instance decodeEventSource :: Decode EventSource where
   decode a = do
-               component <- readProp "component" a >>= decode
-               host <- readProp "host" a >>= decode
+               component <- decodeMaybe "component" a
+               host <- decodeMaybe "host" a
                pure $ EventSource { component, host }
 instance encodeEventSource :: Encode EventSource where
   encode (EventSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "component" (encode a.component)
-               , Tuple "host" (encode a.host) ]
+               [ Tuple "component" (encodeMaybe a.component)
+               , Tuple "host" (encodeMaybe a.host) ]
 
 
 instance defaultEventSource :: Default EventSource where
   default = EventSource
-    { component: NullOrUndefined Nothing
-    , host: NullOrUndefined Nothing }
+    { component: Nothing
+    , host: Nothing }
 
 -- | ExecAction describes a "run in container" action.
 -- |
 -- | Fields:
 -- | - `command`: Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
 newtype ExecAction = ExecAction
-  { command :: (NullOrUndefined (Array String)) }
+  { command :: (Maybe (Array String)) }
 
 derive instance newtypeExecAction :: Newtype ExecAction _
 derive instance genericExecAction :: Generic ExecAction _
 instance showExecAction :: Show ExecAction where show a = genericShow a
 instance decodeExecAction :: Decode ExecAction where
   decode a = do
-               command <- readProp "command" a >>= decode
+               command <- decodeMaybe "command" a
                pure $ ExecAction { command }
 instance encodeExecAction :: Encode ExecAction where
   encode (ExecAction a) = encode $ StrMap.fromFoldable $
-               [ Tuple "command" (encode a.command) ]
+               [ Tuple "command" (encodeMaybe a.command) ]
 
 
 instance defaultExecAction :: Default ExecAction where
   default = ExecAction
-    { command: NullOrUndefined Nothing }
+    { command: Nothing }
 
 -- | Represents a Fibre Channel volume. Fibre Channel volumes can only be mounted as read/write once. Fibre Channel volumes support ownership management and SELinux relabeling.
 -- |
@@ -1891,39 +1890,39 @@ instance defaultExecAction :: Default ExecAction where
 -- | - `targetWWNs`: Optional: FC target worldwide names (WWNs)
 -- | - `wwids`: Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously.
 newtype FCVolumeSource = FCVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , lun :: (NullOrUndefined Int)
-  , readOnly :: (NullOrUndefined Boolean)
-  , targetWWNs :: (NullOrUndefined (Array String))
-  , wwids :: (NullOrUndefined (Array String)) }
+  { fsType :: (Maybe String)
+  , lun :: (Maybe Int)
+  , readOnly :: (Maybe Boolean)
+  , targetWWNs :: (Maybe (Array String))
+  , wwids :: (Maybe (Array String)) }
 
 derive instance newtypeFCVolumeSource :: Newtype FCVolumeSource _
 derive instance genericFCVolumeSource :: Generic FCVolumeSource _
 instance showFCVolumeSource :: Show FCVolumeSource where show a = genericShow a
 instance decodeFCVolumeSource :: Decode FCVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               lun <- readProp "lun" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               targetWWNs <- readProp "targetWWNs" a >>= decode
-               wwids <- readProp "wwids" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               lun <- decodeMaybe "lun" a
+               readOnly <- decodeMaybe "readOnly" a
+               targetWWNs <- decodeMaybe "targetWWNs" a
+               wwids <- decodeMaybe "wwids" a
                pure $ FCVolumeSource { fsType, lun, readOnly, targetWWNs, wwids }
 instance encodeFCVolumeSource :: Encode FCVolumeSource where
   encode (FCVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "lun" (encode a.lun)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "targetWWNs" (encode a.targetWWNs)
-               , Tuple "wwids" (encode a.wwids) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "lun" (encodeMaybe a.lun)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "targetWWNs" (encodeMaybe a.targetWWNs)
+               , Tuple "wwids" (encodeMaybe a.wwids) ]
 
 
 instance defaultFCVolumeSource :: Default FCVolumeSource where
   default = FCVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , lun: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , targetWWNs: NullOrUndefined Nothing
-    , wwids: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , lun: Nothing
+    , readOnly: Nothing
+    , targetWWNs: Nothing
+    , wwids: Nothing }
 
 -- | FlexPersistentVolumeSource represents a generic persistent volume resource that is provisioned/attached using an exec based plugin.
 -- |
@@ -1934,39 +1933,39 @@ instance defaultFCVolumeSource :: Default FCVolumeSource where
 -- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
 -- | - `secretRef`: Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
 newtype FlexPersistentVolumeSource = FlexPersistentVolumeSource
-  { driver :: (NullOrUndefined String)
-  , fsType :: (NullOrUndefined String)
-  , options :: (NullOrUndefined (StrMap String))
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined SecretReference) }
+  { driver :: (Maybe String)
+  , fsType :: (Maybe String)
+  , options :: (Maybe (StrMap String))
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe SecretReference) }
 
 derive instance newtypeFlexPersistentVolumeSource :: Newtype FlexPersistentVolumeSource _
 derive instance genericFlexPersistentVolumeSource :: Generic FlexPersistentVolumeSource _
 instance showFlexPersistentVolumeSource :: Show FlexPersistentVolumeSource where show a = genericShow a
 instance decodeFlexPersistentVolumeSource :: Decode FlexPersistentVolumeSource where
   decode a = do
-               driver <- readProp "driver" a >>= decode
-               fsType <- readProp "fsType" a >>= decode
-               options <- readProp "options" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
+               driver <- decodeMaybe "driver" a
+               fsType <- decodeMaybe "fsType" a
+               options <- decodeMaybe "options" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
                pure $ FlexPersistentVolumeSource { driver, fsType, options, readOnly, secretRef }
 instance encodeFlexPersistentVolumeSource :: Encode FlexPersistentVolumeSource where
   encode (FlexPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "driver" (encode a.driver)
-               , Tuple "fsType" (encode a.fsType)
-               , Tuple "options" (encode a.options)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef) ]
+               [ Tuple "driver" (encodeMaybe a.driver)
+               , Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "options" (encodeMaybe a.options)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef) ]
 
 
 instance defaultFlexPersistentVolumeSource :: Default FlexPersistentVolumeSource where
   default = FlexPersistentVolumeSource
-    { driver: NullOrUndefined Nothing
-    , fsType: NullOrUndefined Nothing
-    , options: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing }
+    { driver: Nothing
+    , fsType: Nothing
+    , options: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing }
 
 -- | FlexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin.
 -- |
@@ -1977,39 +1976,39 @@ instance defaultFlexPersistentVolumeSource :: Default FlexPersistentVolumeSource
 -- | - `readOnly`: Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
 -- | - `secretRef`: Optional: SecretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts.
 newtype FlexVolumeSource = FlexVolumeSource
-  { driver :: (NullOrUndefined String)
-  , fsType :: (NullOrUndefined String)
-  , options :: (NullOrUndefined (StrMap String))
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined LocalObjectReference) }
+  { driver :: (Maybe String)
+  , fsType :: (Maybe String)
+  , options :: (Maybe (StrMap String))
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe LocalObjectReference) }
 
 derive instance newtypeFlexVolumeSource :: Newtype FlexVolumeSource _
 derive instance genericFlexVolumeSource :: Generic FlexVolumeSource _
 instance showFlexVolumeSource :: Show FlexVolumeSource where show a = genericShow a
 instance decodeFlexVolumeSource :: Decode FlexVolumeSource where
   decode a = do
-               driver <- readProp "driver" a >>= decode
-               fsType <- readProp "fsType" a >>= decode
-               options <- readProp "options" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
+               driver <- decodeMaybe "driver" a
+               fsType <- decodeMaybe "fsType" a
+               options <- decodeMaybe "options" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
                pure $ FlexVolumeSource { driver, fsType, options, readOnly, secretRef }
 instance encodeFlexVolumeSource :: Encode FlexVolumeSource where
   encode (FlexVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "driver" (encode a.driver)
-               , Tuple "fsType" (encode a.fsType)
-               , Tuple "options" (encode a.options)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef) ]
+               [ Tuple "driver" (encodeMaybe a.driver)
+               , Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "options" (encodeMaybe a.options)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef) ]
 
 
 instance defaultFlexVolumeSource :: Default FlexVolumeSource where
   default = FlexVolumeSource
-    { driver: NullOrUndefined Nothing
-    , fsType: NullOrUndefined Nothing
-    , options: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing }
+    { driver: Nothing
+    , fsType: Nothing
+    , options: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing }
 
 -- | Represents a Flocker volume mounted by the Flocker agent. One and only one of datasetName and datasetUUID should be set. Flocker volumes do not support ownership management or SELinux relabeling.
 -- |
@@ -2017,27 +2016,27 @@ instance defaultFlexVolumeSource :: Default FlexVolumeSource where
 -- | - `datasetName`: Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated
 -- | - `datasetUUID`: UUID of the dataset. This is unique identifier of a Flocker dataset
 newtype FlockerVolumeSource = FlockerVolumeSource
-  { datasetName :: (NullOrUndefined String)
-  , datasetUUID :: (NullOrUndefined String) }
+  { datasetName :: (Maybe String)
+  , datasetUUID :: (Maybe String) }
 
 derive instance newtypeFlockerVolumeSource :: Newtype FlockerVolumeSource _
 derive instance genericFlockerVolumeSource :: Generic FlockerVolumeSource _
 instance showFlockerVolumeSource :: Show FlockerVolumeSource where show a = genericShow a
 instance decodeFlockerVolumeSource :: Decode FlockerVolumeSource where
   decode a = do
-               datasetName <- readProp "datasetName" a >>= decode
-               datasetUUID <- readProp "datasetUUID" a >>= decode
+               datasetName <- decodeMaybe "datasetName" a
+               datasetUUID <- decodeMaybe "datasetUUID" a
                pure $ FlockerVolumeSource { datasetName, datasetUUID }
 instance encodeFlockerVolumeSource :: Encode FlockerVolumeSource where
   encode (FlockerVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "datasetName" (encode a.datasetName)
-               , Tuple "datasetUUID" (encode a.datasetUUID) ]
+               [ Tuple "datasetName" (encodeMaybe a.datasetName)
+               , Tuple "datasetUUID" (encodeMaybe a.datasetUUID) ]
 
 
 instance defaultFlockerVolumeSource :: Default FlockerVolumeSource where
   default = FlockerVolumeSource
-    { datasetName: NullOrUndefined Nothing
-    , datasetUUID: NullOrUndefined Nothing }
+    { datasetName: Nothing
+    , datasetUUID: Nothing }
 
 -- | Represents a Persistent Disk resource in Google Compute Engine.
 -- | 
@@ -2049,35 +2048,35 @@ instance defaultFlockerVolumeSource :: Default FlockerVolumeSource where
 -- | - `pdName`: Unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
 -- | - `readOnly`: ReadOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk
 newtype GCEPersistentDiskVolumeSource = GCEPersistentDiskVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , partition :: (NullOrUndefined Int)
-  , pdName :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean) }
+  { fsType :: (Maybe String)
+  , partition :: (Maybe Int)
+  , pdName :: (Maybe String)
+  , readOnly :: (Maybe Boolean) }
 
 derive instance newtypeGCEPersistentDiskVolumeSource :: Newtype GCEPersistentDiskVolumeSource _
 derive instance genericGCEPersistentDiskVolumeSource :: Generic GCEPersistentDiskVolumeSource _
 instance showGCEPersistentDiskVolumeSource :: Show GCEPersistentDiskVolumeSource where show a = genericShow a
 instance decodeGCEPersistentDiskVolumeSource :: Decode GCEPersistentDiskVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               partition <- readProp "partition" a >>= decode
-               pdName <- readProp "pdName" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               partition <- decodeMaybe "partition" a
+               pdName <- decodeMaybe "pdName" a
+               readOnly <- decodeMaybe "readOnly" a
                pure $ GCEPersistentDiskVolumeSource { fsType, partition, pdName, readOnly }
 instance encodeGCEPersistentDiskVolumeSource :: Encode GCEPersistentDiskVolumeSource where
   encode (GCEPersistentDiskVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "partition" (encode a.partition)
-               , Tuple "pdName" (encode a.pdName)
-               , Tuple "readOnly" (encode a.readOnly) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "partition" (encodeMaybe a.partition)
+               , Tuple "pdName" (encodeMaybe a.pdName)
+               , Tuple "readOnly" (encodeMaybe a.readOnly) ]
 
 
 instance defaultGCEPersistentDiskVolumeSource :: Default GCEPersistentDiskVolumeSource where
   default = GCEPersistentDiskVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , partition: NullOrUndefined Nothing
-    , pdName: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , partition: Nothing
+    , pdName: Nothing
+    , readOnly: Nothing }
 
 -- | Represents a volume that is populated with the contents of a git repository. Git repo volumes do not support ownership management. Git repo volumes support SELinux relabeling.
 -- |
@@ -2086,31 +2085,31 @@ instance defaultGCEPersistentDiskVolumeSource :: Default GCEPersistentDiskVolume
 -- | - `repository`: Repository URL
 -- | - `revision`: Commit hash for the specified revision.
 newtype GitRepoVolumeSource = GitRepoVolumeSource
-  { directory :: (NullOrUndefined String)
-  , repository :: (NullOrUndefined String)
-  , revision :: (NullOrUndefined String) }
+  { directory :: (Maybe String)
+  , repository :: (Maybe String)
+  , revision :: (Maybe String) }
 
 derive instance newtypeGitRepoVolumeSource :: Newtype GitRepoVolumeSource _
 derive instance genericGitRepoVolumeSource :: Generic GitRepoVolumeSource _
 instance showGitRepoVolumeSource :: Show GitRepoVolumeSource where show a = genericShow a
 instance decodeGitRepoVolumeSource :: Decode GitRepoVolumeSource where
   decode a = do
-               directory <- readProp "directory" a >>= decode
-               repository <- readProp "repository" a >>= decode
-               revision <- readProp "revision" a >>= decode
+               directory <- decodeMaybe "directory" a
+               repository <- decodeMaybe "repository" a
+               revision <- decodeMaybe "revision" a
                pure $ GitRepoVolumeSource { directory, repository, revision }
 instance encodeGitRepoVolumeSource :: Encode GitRepoVolumeSource where
   encode (GitRepoVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "directory" (encode a.directory)
-               , Tuple "repository" (encode a.repository)
-               , Tuple "revision" (encode a.revision) ]
+               [ Tuple "directory" (encodeMaybe a.directory)
+               , Tuple "repository" (encodeMaybe a.repository)
+               , Tuple "revision" (encodeMaybe a.revision) ]
 
 
 instance defaultGitRepoVolumeSource :: Default GitRepoVolumeSource where
   default = GitRepoVolumeSource
-    { directory: NullOrUndefined Nothing
-    , repository: NullOrUndefined Nothing
-    , revision: NullOrUndefined Nothing }
+    { directory: Nothing
+    , repository: Nothing
+    , revision: Nothing }
 
 -- | Represents a Glusterfs mount that lasts the lifetime of a pod. Glusterfs volumes do not support ownership management or SELinux relabeling.
 -- |
@@ -2119,31 +2118,31 @@ instance defaultGitRepoVolumeSource :: Default GitRepoVolumeSource where
 -- | - `path`: Path is the Glusterfs volume path. More info: https://releases.k8s.io/HEAD/examples/volumes/glusterfs/README.md#create-a-pod
 -- | - `readOnly`: ReadOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://releases.k8s.io/HEAD/examples/volumes/glusterfs/README.md#create-a-pod
 newtype GlusterfsVolumeSource = GlusterfsVolumeSource
-  { endpoints :: (NullOrUndefined String)
-  , path :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean) }
+  { endpoints :: (Maybe String)
+  , path :: (Maybe String)
+  , readOnly :: (Maybe Boolean) }
 
 derive instance newtypeGlusterfsVolumeSource :: Newtype GlusterfsVolumeSource _
 derive instance genericGlusterfsVolumeSource :: Generic GlusterfsVolumeSource _
 instance showGlusterfsVolumeSource :: Show GlusterfsVolumeSource where show a = genericShow a
 instance decodeGlusterfsVolumeSource :: Decode GlusterfsVolumeSource where
   decode a = do
-               endpoints <- readProp "endpoints" a >>= decode
-               path <- readProp "path" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
+               endpoints <- decodeMaybe "endpoints" a
+               path <- decodeMaybe "path" a
+               readOnly <- decodeMaybe "readOnly" a
                pure $ GlusterfsVolumeSource { endpoints, path, readOnly }
 instance encodeGlusterfsVolumeSource :: Encode GlusterfsVolumeSource where
   encode (GlusterfsVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "endpoints" (encode a.endpoints)
-               , Tuple "path" (encode a.path)
-               , Tuple "readOnly" (encode a.readOnly) ]
+               [ Tuple "endpoints" (encodeMaybe a.endpoints)
+               , Tuple "path" (encodeMaybe a.path)
+               , Tuple "readOnly" (encodeMaybe a.readOnly) ]
 
 
 instance defaultGlusterfsVolumeSource :: Default GlusterfsVolumeSource where
   default = GlusterfsVolumeSource
-    { endpoints: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing }
+    { endpoints: Nothing
+    , path: Nothing
+    , readOnly: Nothing }
 
 -- | HTTPGetAction describes an action based on HTTP Get requests.
 -- |
@@ -2154,39 +2153,39 @@ instance defaultGlusterfsVolumeSource :: Default GlusterfsVolumeSource where
 -- | - `port`: Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
 -- | - `scheme`: Scheme to use for connecting to the host. Defaults to HTTP.
 newtype HTTPGetAction = HTTPGetAction
-  { host :: (NullOrUndefined String)
-  , httpHeaders :: (NullOrUndefined (Array HTTPHeader))
-  , path :: (NullOrUndefined String)
-  , port :: (NullOrUndefined Util.IntOrString)
-  , scheme :: (NullOrUndefined String) }
+  { host :: (Maybe String)
+  , httpHeaders :: (Maybe (Array HTTPHeader))
+  , path :: (Maybe String)
+  , port :: (Maybe Util.IntOrString)
+  , scheme :: (Maybe String) }
 
 derive instance newtypeHTTPGetAction :: Newtype HTTPGetAction _
 derive instance genericHTTPGetAction :: Generic HTTPGetAction _
 instance showHTTPGetAction :: Show HTTPGetAction where show a = genericShow a
 instance decodeHTTPGetAction :: Decode HTTPGetAction where
   decode a = do
-               host <- readProp "host" a >>= decode
-               httpHeaders <- readProp "httpHeaders" a >>= decode
-               path <- readProp "path" a >>= decode
-               port <- readProp "port" a >>= decode
-               scheme <- readProp "scheme" a >>= decode
+               host <- decodeMaybe "host" a
+               httpHeaders <- decodeMaybe "httpHeaders" a
+               path <- decodeMaybe "path" a
+               port <- decodeMaybe "port" a
+               scheme <- decodeMaybe "scheme" a
                pure $ HTTPGetAction { host, httpHeaders, path, port, scheme }
 instance encodeHTTPGetAction :: Encode HTTPGetAction where
   encode (HTTPGetAction a) = encode $ StrMap.fromFoldable $
-               [ Tuple "host" (encode a.host)
-               , Tuple "httpHeaders" (encode a.httpHeaders)
-               , Tuple "path" (encode a.path)
-               , Tuple "port" (encode a.port)
-               , Tuple "scheme" (encode a.scheme) ]
+               [ Tuple "host" (encodeMaybe a.host)
+               , Tuple "httpHeaders" (encodeMaybe a.httpHeaders)
+               , Tuple "path" (encodeMaybe a.path)
+               , Tuple "port" (encodeMaybe a.port)
+               , Tuple "scheme" (encodeMaybe a.scheme) ]
 
 
 instance defaultHTTPGetAction :: Default HTTPGetAction where
   default = HTTPGetAction
-    { host: NullOrUndefined Nothing
-    , httpHeaders: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing
-    , port: NullOrUndefined Nothing
-    , scheme: NullOrUndefined Nothing }
+    { host: Nothing
+    , httpHeaders: Nothing
+    , path: Nothing
+    , port: Nothing
+    , scheme: Nothing }
 
 -- | HTTPHeader describes a custom header to be used in HTTP probes
 -- |
@@ -2194,27 +2193,27 @@ instance defaultHTTPGetAction :: Default HTTPGetAction where
 -- | - `name`: The header field name
 -- | - `value`: The header field value
 newtype HTTPHeader = HTTPHeader
-  { name :: (NullOrUndefined String)
-  , value :: (NullOrUndefined String) }
+  { name :: (Maybe String)
+  , value :: (Maybe String) }
 
 derive instance newtypeHTTPHeader :: Newtype HTTPHeader _
 derive instance genericHTTPHeader :: Generic HTTPHeader _
 instance showHTTPHeader :: Show HTTPHeader where show a = genericShow a
 instance decodeHTTPHeader :: Decode HTTPHeader where
   decode a = do
-               name <- readProp "name" a >>= decode
-               value <- readProp "value" a >>= decode
+               name <- decodeMaybe "name" a
+               value <- decodeMaybe "value" a
                pure $ HTTPHeader { name, value }
 instance encodeHTTPHeader :: Encode HTTPHeader where
   encode (HTTPHeader a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "value" (encode a.value) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "value" (encodeMaybe a.value) ]
 
 
 instance defaultHTTPHeader :: Default HTTPHeader where
   default = HTTPHeader
-    { name: NullOrUndefined Nothing
-    , value: NullOrUndefined Nothing }
+    { name: Nothing
+    , value: Nothing }
 
 -- | Handler defines a specific action that should be taken
 -- |
@@ -2223,31 +2222,31 @@ instance defaultHTTPHeader :: Default HTTPHeader where
 -- | - `httpGet`: HTTPGet specifies the http request to perform.
 -- | - `tcpSocket`: TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported
 newtype Handler = Handler
-  { exec :: (NullOrUndefined ExecAction)
-  , httpGet :: (NullOrUndefined HTTPGetAction)
-  , tcpSocket :: (NullOrUndefined TCPSocketAction) }
+  { exec :: (Maybe ExecAction)
+  , httpGet :: (Maybe HTTPGetAction)
+  , tcpSocket :: (Maybe TCPSocketAction) }
 
 derive instance newtypeHandler :: Newtype Handler _
 derive instance genericHandler :: Generic Handler _
 instance showHandler :: Show Handler where show a = genericShow a
 instance decodeHandler :: Decode Handler where
   decode a = do
-               exec <- readProp "exec" a >>= decode
-               httpGet <- readProp "httpGet" a >>= decode
-               tcpSocket <- readProp "tcpSocket" a >>= decode
+               exec <- decodeMaybe "exec" a
+               httpGet <- decodeMaybe "httpGet" a
+               tcpSocket <- decodeMaybe "tcpSocket" a
                pure $ Handler { exec, httpGet, tcpSocket }
 instance encodeHandler :: Encode Handler where
   encode (Handler a) = encode $ StrMap.fromFoldable $
-               [ Tuple "exec" (encode a.exec)
-               , Tuple "httpGet" (encode a.httpGet)
-               , Tuple "tcpSocket" (encode a.tcpSocket) ]
+               [ Tuple "exec" (encodeMaybe a.exec)
+               , Tuple "httpGet" (encodeMaybe a.httpGet)
+               , Tuple "tcpSocket" (encodeMaybe a.tcpSocket) ]
 
 
 instance defaultHandler :: Default Handler where
   default = Handler
-    { exec: NullOrUndefined Nothing
-    , httpGet: NullOrUndefined Nothing
-    , tcpSocket: NullOrUndefined Nothing }
+    { exec: Nothing
+    , httpGet: Nothing
+    , tcpSocket: Nothing }
 
 -- | HostAlias holds the mapping between IP and hostnames that will be injected as an entry in the pod's hosts file.
 -- |
@@ -2255,27 +2254,27 @@ instance defaultHandler :: Default Handler where
 -- | - `hostnames`: Hostnames for the above IP address.
 -- | - `ip`: IP address of the host file entry.
 newtype HostAlias = HostAlias
-  { hostnames :: (NullOrUndefined (Array String))
-  , ip :: (NullOrUndefined String) }
+  { hostnames :: (Maybe (Array String))
+  , ip :: (Maybe String) }
 
 derive instance newtypeHostAlias :: Newtype HostAlias _
 derive instance genericHostAlias :: Generic HostAlias _
 instance showHostAlias :: Show HostAlias where show a = genericShow a
 instance decodeHostAlias :: Decode HostAlias where
   decode a = do
-               hostnames <- readProp "hostnames" a >>= decode
-               ip <- readProp "ip" a >>= decode
+               hostnames <- decodeMaybe "hostnames" a
+               ip <- decodeMaybe "ip" a
                pure $ HostAlias { hostnames, ip }
 instance encodeHostAlias :: Encode HostAlias where
   encode (HostAlias a) = encode $ StrMap.fromFoldable $
-               [ Tuple "hostnames" (encode a.hostnames)
-               , Tuple "ip" (encode a.ip) ]
+               [ Tuple "hostnames" (encodeMaybe a.hostnames)
+               , Tuple "ip" (encodeMaybe a.ip) ]
 
 
 instance defaultHostAlias :: Default HostAlias where
   default = HostAlias
-    { hostnames: NullOrUndefined Nothing
-    , ip: NullOrUndefined Nothing }
+    { hostnames: Nothing
+    , ip: Nothing }
 
 -- | Represents a host path mapped into a pod. Host path volumes do not support ownership management or SELinux relabeling.
 -- |
@@ -2283,27 +2282,27 @@ instance defaultHostAlias :: Default HostAlias where
 -- | - `path`: Path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
 -- | - `_type`: Type for HostPath Volume Defaults to "" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath
 newtype HostPathVolumeSource = HostPathVolumeSource
-  { _type :: (NullOrUndefined String)
-  , path :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , path :: (Maybe String) }
 
 derive instance newtypeHostPathVolumeSource :: Newtype HostPathVolumeSource _
 derive instance genericHostPathVolumeSource :: Generic HostPathVolumeSource _
 instance showHostPathVolumeSource :: Show HostPathVolumeSource where show a = genericShow a
 instance decodeHostPathVolumeSource :: Decode HostPathVolumeSource where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               path <- readProp "path" a >>= decode
+               _type <- decodeMaybe "_type" a
+               path <- decodeMaybe "path" a
                pure $ HostPathVolumeSource { _type, path }
 instance encodeHostPathVolumeSource :: Encode HostPathVolumeSource where
   encode (HostPathVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "path" (encode a.path) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "path" (encodeMaybe a.path) ]
 
 
 instance defaultHostPathVolumeSource :: Default HostPathVolumeSource where
   default = HostPathVolumeSource
-    { _type: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing }
+    { _type: Nothing
+    , path: Nothing }
 
 -- | ISCSIPersistentVolumeSource represents an ISCSI disk. ISCSI volumes can only be mounted as read/write once. ISCSI volumes support ownership management and SELinux relabeling.
 -- |
@@ -2320,63 +2319,63 @@ instance defaultHostPathVolumeSource :: Default HostPathVolumeSource where
 -- | - `secretRef`: CHAP Secret for iSCSI target and initiator authentication
 -- | - `targetPortal`: iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
 newtype ISCSIPersistentVolumeSource = ISCSIPersistentVolumeSource
-  { chapAuthDiscovery :: (NullOrUndefined Boolean)
-  , chapAuthSession :: (NullOrUndefined Boolean)
-  , fsType :: (NullOrUndefined String)
-  , initiatorName :: (NullOrUndefined String)
-  , iqn :: (NullOrUndefined String)
-  , iscsiInterface :: (NullOrUndefined String)
-  , lun :: (NullOrUndefined Int)
-  , portals :: (NullOrUndefined (Array String))
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined SecretReference)
-  , targetPortal :: (NullOrUndefined String) }
+  { chapAuthDiscovery :: (Maybe Boolean)
+  , chapAuthSession :: (Maybe Boolean)
+  , fsType :: (Maybe String)
+  , initiatorName :: (Maybe String)
+  , iqn :: (Maybe String)
+  , iscsiInterface :: (Maybe String)
+  , lun :: (Maybe Int)
+  , portals :: (Maybe (Array String))
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe SecretReference)
+  , targetPortal :: (Maybe String) }
 
 derive instance newtypeISCSIPersistentVolumeSource :: Newtype ISCSIPersistentVolumeSource _
 derive instance genericISCSIPersistentVolumeSource :: Generic ISCSIPersistentVolumeSource _
 instance showISCSIPersistentVolumeSource :: Show ISCSIPersistentVolumeSource where show a = genericShow a
 instance decodeISCSIPersistentVolumeSource :: Decode ISCSIPersistentVolumeSource where
   decode a = do
-               chapAuthDiscovery <- readProp "chapAuthDiscovery" a >>= decode
-               chapAuthSession <- readProp "chapAuthSession" a >>= decode
-               fsType <- readProp "fsType" a >>= decode
-               initiatorName <- readProp "initiatorName" a >>= decode
-               iqn <- readProp "iqn" a >>= decode
-               iscsiInterface <- readProp "iscsiInterface" a >>= decode
-               lun <- readProp "lun" a >>= decode
-               portals <- readProp "portals" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               targetPortal <- readProp "targetPortal" a >>= decode
+               chapAuthDiscovery <- decodeMaybe "chapAuthDiscovery" a
+               chapAuthSession <- decodeMaybe "chapAuthSession" a
+               fsType <- decodeMaybe "fsType" a
+               initiatorName <- decodeMaybe "initiatorName" a
+               iqn <- decodeMaybe "iqn" a
+               iscsiInterface <- decodeMaybe "iscsiInterface" a
+               lun <- decodeMaybe "lun" a
+               portals <- decodeMaybe "portals" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               targetPortal <- decodeMaybe "targetPortal" a
                pure $ ISCSIPersistentVolumeSource { chapAuthDiscovery, chapAuthSession, fsType, initiatorName, iqn, iscsiInterface, lun, portals, readOnly, secretRef, targetPortal }
 instance encodeISCSIPersistentVolumeSource :: Encode ISCSIPersistentVolumeSource where
   encode (ISCSIPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "chapAuthDiscovery" (encode a.chapAuthDiscovery)
-               , Tuple "chapAuthSession" (encode a.chapAuthSession)
-               , Tuple "fsType" (encode a.fsType)
-               , Tuple "initiatorName" (encode a.initiatorName)
-               , Tuple "iqn" (encode a.iqn)
-               , Tuple "iscsiInterface" (encode a.iscsiInterface)
-               , Tuple "lun" (encode a.lun)
-               , Tuple "portals" (encode a.portals)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "targetPortal" (encode a.targetPortal) ]
+               [ Tuple "chapAuthDiscovery" (encodeMaybe a.chapAuthDiscovery)
+               , Tuple "chapAuthSession" (encodeMaybe a.chapAuthSession)
+               , Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "initiatorName" (encodeMaybe a.initiatorName)
+               , Tuple "iqn" (encodeMaybe a.iqn)
+               , Tuple "iscsiInterface" (encodeMaybe a.iscsiInterface)
+               , Tuple "lun" (encodeMaybe a.lun)
+               , Tuple "portals" (encodeMaybe a.portals)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "targetPortal" (encodeMaybe a.targetPortal) ]
 
 
 instance defaultISCSIPersistentVolumeSource :: Default ISCSIPersistentVolumeSource where
   default = ISCSIPersistentVolumeSource
-    { chapAuthDiscovery: NullOrUndefined Nothing
-    , chapAuthSession: NullOrUndefined Nothing
-    , fsType: NullOrUndefined Nothing
-    , initiatorName: NullOrUndefined Nothing
-    , iqn: NullOrUndefined Nothing
-    , iscsiInterface: NullOrUndefined Nothing
-    , lun: NullOrUndefined Nothing
-    , portals: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , targetPortal: NullOrUndefined Nothing }
+    { chapAuthDiscovery: Nothing
+    , chapAuthSession: Nothing
+    , fsType: Nothing
+    , initiatorName: Nothing
+    , iqn: Nothing
+    , iscsiInterface: Nothing
+    , lun: Nothing
+    , portals: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , targetPortal: Nothing }
 
 -- | Represents an ISCSI disk. ISCSI volumes can only be mounted as read/write once. ISCSI volumes support ownership management and SELinux relabeling.
 -- |
@@ -2393,63 +2392,63 @@ instance defaultISCSIPersistentVolumeSource :: Default ISCSIPersistentVolumeSour
 -- | - `secretRef`: CHAP Secret for iSCSI target and initiator authentication
 -- | - `targetPortal`: iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260).
 newtype ISCSIVolumeSource = ISCSIVolumeSource
-  { chapAuthDiscovery :: (NullOrUndefined Boolean)
-  , chapAuthSession :: (NullOrUndefined Boolean)
-  , fsType :: (NullOrUndefined String)
-  , initiatorName :: (NullOrUndefined String)
-  , iqn :: (NullOrUndefined String)
-  , iscsiInterface :: (NullOrUndefined String)
-  , lun :: (NullOrUndefined Int)
-  , portals :: (NullOrUndefined (Array String))
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined LocalObjectReference)
-  , targetPortal :: (NullOrUndefined String) }
+  { chapAuthDiscovery :: (Maybe Boolean)
+  , chapAuthSession :: (Maybe Boolean)
+  , fsType :: (Maybe String)
+  , initiatorName :: (Maybe String)
+  , iqn :: (Maybe String)
+  , iscsiInterface :: (Maybe String)
+  , lun :: (Maybe Int)
+  , portals :: (Maybe (Array String))
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe LocalObjectReference)
+  , targetPortal :: (Maybe String) }
 
 derive instance newtypeISCSIVolumeSource :: Newtype ISCSIVolumeSource _
 derive instance genericISCSIVolumeSource :: Generic ISCSIVolumeSource _
 instance showISCSIVolumeSource :: Show ISCSIVolumeSource where show a = genericShow a
 instance decodeISCSIVolumeSource :: Decode ISCSIVolumeSource where
   decode a = do
-               chapAuthDiscovery <- readProp "chapAuthDiscovery" a >>= decode
-               chapAuthSession <- readProp "chapAuthSession" a >>= decode
-               fsType <- readProp "fsType" a >>= decode
-               initiatorName <- readProp "initiatorName" a >>= decode
-               iqn <- readProp "iqn" a >>= decode
-               iscsiInterface <- readProp "iscsiInterface" a >>= decode
-               lun <- readProp "lun" a >>= decode
-               portals <- readProp "portals" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               targetPortal <- readProp "targetPortal" a >>= decode
+               chapAuthDiscovery <- decodeMaybe "chapAuthDiscovery" a
+               chapAuthSession <- decodeMaybe "chapAuthSession" a
+               fsType <- decodeMaybe "fsType" a
+               initiatorName <- decodeMaybe "initiatorName" a
+               iqn <- decodeMaybe "iqn" a
+               iscsiInterface <- decodeMaybe "iscsiInterface" a
+               lun <- decodeMaybe "lun" a
+               portals <- decodeMaybe "portals" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               targetPortal <- decodeMaybe "targetPortal" a
                pure $ ISCSIVolumeSource { chapAuthDiscovery, chapAuthSession, fsType, initiatorName, iqn, iscsiInterface, lun, portals, readOnly, secretRef, targetPortal }
 instance encodeISCSIVolumeSource :: Encode ISCSIVolumeSource where
   encode (ISCSIVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "chapAuthDiscovery" (encode a.chapAuthDiscovery)
-               , Tuple "chapAuthSession" (encode a.chapAuthSession)
-               , Tuple "fsType" (encode a.fsType)
-               , Tuple "initiatorName" (encode a.initiatorName)
-               , Tuple "iqn" (encode a.iqn)
-               , Tuple "iscsiInterface" (encode a.iscsiInterface)
-               , Tuple "lun" (encode a.lun)
-               , Tuple "portals" (encode a.portals)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "targetPortal" (encode a.targetPortal) ]
+               [ Tuple "chapAuthDiscovery" (encodeMaybe a.chapAuthDiscovery)
+               , Tuple "chapAuthSession" (encodeMaybe a.chapAuthSession)
+               , Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "initiatorName" (encodeMaybe a.initiatorName)
+               , Tuple "iqn" (encodeMaybe a.iqn)
+               , Tuple "iscsiInterface" (encodeMaybe a.iscsiInterface)
+               , Tuple "lun" (encodeMaybe a.lun)
+               , Tuple "portals" (encodeMaybe a.portals)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "targetPortal" (encodeMaybe a.targetPortal) ]
 
 
 instance defaultISCSIVolumeSource :: Default ISCSIVolumeSource where
   default = ISCSIVolumeSource
-    { chapAuthDiscovery: NullOrUndefined Nothing
-    , chapAuthSession: NullOrUndefined Nothing
-    , fsType: NullOrUndefined Nothing
-    , initiatorName: NullOrUndefined Nothing
-    , iqn: NullOrUndefined Nothing
-    , iscsiInterface: NullOrUndefined Nothing
-    , lun: NullOrUndefined Nothing
-    , portals: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , targetPortal: NullOrUndefined Nothing }
+    { chapAuthDiscovery: Nothing
+    , chapAuthSession: Nothing
+    , fsType: Nothing
+    , initiatorName: Nothing
+    , iqn: Nothing
+    , iscsiInterface: Nothing
+    , lun: Nothing
+    , portals: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , targetPortal: Nothing }
 
 -- | Maps a string key to a path within a volume.
 -- |
@@ -2458,31 +2457,31 @@ instance defaultISCSIVolumeSource :: Default ISCSIVolumeSource where
 -- | - `mode`: Optional: mode bits to use on this file, must be a value between 0 and 0777. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
 -- | - `path`: The relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'.
 newtype KeyToPath = KeyToPath
-  { key :: (NullOrUndefined String)
-  , mode :: (NullOrUndefined Int)
-  , path :: (NullOrUndefined String) }
+  { key :: (Maybe String)
+  , mode :: (Maybe Int)
+  , path :: (Maybe String) }
 
 derive instance newtypeKeyToPath :: Newtype KeyToPath _
 derive instance genericKeyToPath :: Generic KeyToPath _
 instance showKeyToPath :: Show KeyToPath where show a = genericShow a
 instance decodeKeyToPath :: Decode KeyToPath where
   decode a = do
-               key <- readProp "key" a >>= decode
-               mode <- readProp "mode" a >>= decode
-               path <- readProp "path" a >>= decode
+               key <- decodeMaybe "key" a
+               mode <- decodeMaybe "mode" a
+               path <- decodeMaybe "path" a
                pure $ KeyToPath { key, mode, path }
 instance encodeKeyToPath :: Encode KeyToPath where
   encode (KeyToPath a) = encode $ StrMap.fromFoldable $
-               [ Tuple "key" (encode a.key)
-               , Tuple "mode" (encode a.mode)
-               , Tuple "path" (encode a.path) ]
+               [ Tuple "key" (encodeMaybe a.key)
+               , Tuple "mode" (encodeMaybe a.mode)
+               , Tuple "path" (encodeMaybe a.path) ]
 
 
 instance defaultKeyToPath :: Default KeyToPath where
   default = KeyToPath
-    { key: NullOrUndefined Nothing
-    , mode: NullOrUndefined Nothing
-    , path: NullOrUndefined Nothing }
+    { key: Nothing
+    , mode: Nothing
+    , path: Nothing }
 
 -- | Lifecycle describes actions that the management system should take in response to container lifecycle events. For the PostStart and PreStop lifecycle handlers, management of the container blocks until the action is complete, unless the container process fails, in which case the handler is aborted.
 -- |
@@ -2490,27 +2489,27 @@ instance defaultKeyToPath :: Default KeyToPath where
 -- | - `postStart`: PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
 -- | - `preStop`: PreStop is called immediately before a container is terminated. The container is terminated after the handler completes. The reason for termination is passed to the handler. Regardless of the outcome of the handler, the container is eventually terminated. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
 newtype Lifecycle = Lifecycle
-  { postStart :: (NullOrUndefined Handler)
-  , preStop :: (NullOrUndefined Handler) }
+  { postStart :: (Maybe Handler)
+  , preStop :: (Maybe Handler) }
 
 derive instance newtypeLifecycle :: Newtype Lifecycle _
 derive instance genericLifecycle :: Generic Lifecycle _
 instance showLifecycle :: Show Lifecycle where show a = genericShow a
 instance decodeLifecycle :: Decode Lifecycle where
   decode a = do
-               postStart <- readProp "postStart" a >>= decode
-               preStop <- readProp "preStop" a >>= decode
+               postStart <- decodeMaybe "postStart" a
+               preStop <- decodeMaybe "preStop" a
                pure $ Lifecycle { postStart, preStop }
 instance encodeLifecycle :: Encode Lifecycle where
   encode (Lifecycle a) = encode $ StrMap.fromFoldable $
-               [ Tuple "postStart" (encode a.postStart)
-               , Tuple "preStop" (encode a.preStop) ]
+               [ Tuple "postStart" (encodeMaybe a.postStart)
+               , Tuple "preStop" (encodeMaybe a.preStop) ]
 
 
 instance defaultLifecycle :: Default Lifecycle where
   default = Lifecycle
-    { postStart: NullOrUndefined Nothing
-    , preStop: NullOrUndefined Nothing }
+    { postStart: Nothing
+    , preStop: Nothing }
 
 -- | LimitRange sets resource usage limits for each kind of resource in a Namespace.
 -- |
@@ -2520,35 +2519,35 @@ instance defaultLifecycle :: Default Lifecycle where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Spec defines the limits enforced. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype LimitRange = LimitRange
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined LimitRangeSpec) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe LimitRangeSpec) }
 
 derive instance newtypeLimitRange :: Newtype LimitRange _
 derive instance genericLimitRange :: Generic LimitRange _
 instance showLimitRange :: Show LimitRange where show a = genericShow a
 instance decodeLimitRange :: Decode LimitRange where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
                pure $ LimitRange { apiVersion, kind, metadata, spec }
 instance encodeLimitRange :: Encode LimitRange where
   encode (LimitRange a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultLimitRange :: Default LimitRange where
   default = LimitRange
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing }
 
 -- | LimitRangeItem defines a min/max usage limit for any resource that matches on kind.
 -- |
@@ -2560,43 +2559,43 @@ instance defaultLimitRange :: Default LimitRange where
 -- | - `min`: Min usage constraints on this kind by resource name.
 -- | - `_type`: Type of resource that this limit applies to.
 newtype LimitRangeItem = LimitRangeItem
-  { _default :: (NullOrUndefined (StrMap Resource.Quantity))
-  , _type :: (NullOrUndefined String)
-  , defaultRequest :: (NullOrUndefined (StrMap Resource.Quantity))
-  , max :: (NullOrUndefined (StrMap Resource.Quantity))
-  , maxLimitRequestRatio :: (NullOrUndefined (StrMap Resource.Quantity))
-  , min :: (NullOrUndefined (StrMap Resource.Quantity)) }
+  { _default :: (Maybe (StrMap Resource.Quantity))
+  , _type :: (Maybe String)
+  , defaultRequest :: (Maybe (StrMap Resource.Quantity))
+  , max :: (Maybe (StrMap Resource.Quantity))
+  , maxLimitRequestRatio :: (Maybe (StrMap Resource.Quantity))
+  , min :: (Maybe (StrMap Resource.Quantity)) }
 
 derive instance newtypeLimitRangeItem :: Newtype LimitRangeItem _
 derive instance genericLimitRangeItem :: Generic LimitRangeItem _
 instance showLimitRangeItem :: Show LimitRangeItem where show a = genericShow a
 instance decodeLimitRangeItem :: Decode LimitRangeItem where
   decode a = do
-               _default <- readProp "_default" a >>= decode
-               _type <- readProp "_type" a >>= decode
-               defaultRequest <- readProp "defaultRequest" a >>= decode
-               max <- readProp "max" a >>= decode
-               maxLimitRequestRatio <- readProp "maxLimitRequestRatio" a >>= decode
-               min <- readProp "min" a >>= decode
+               _default <- decodeMaybe "_default" a
+               _type <- decodeMaybe "_type" a
+               defaultRequest <- decodeMaybe "defaultRequest" a
+               max <- decodeMaybe "max" a
+               maxLimitRequestRatio <- decodeMaybe "maxLimitRequestRatio" a
+               min <- decodeMaybe "min" a
                pure $ LimitRangeItem { _default, _type, defaultRequest, max, maxLimitRequestRatio, min }
 instance encodeLimitRangeItem :: Encode LimitRangeItem where
   encode (LimitRangeItem a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_default" (encode a._default)
-               , Tuple "_type" (encode a._type)
-               , Tuple "defaultRequest" (encode a.defaultRequest)
-               , Tuple "max" (encode a.max)
-               , Tuple "maxLimitRequestRatio" (encode a.maxLimitRequestRatio)
-               , Tuple "min" (encode a.min) ]
+               [ Tuple "_default" (encodeMaybe a._default)
+               , Tuple "_type" (encodeMaybe a._type)
+               , Tuple "defaultRequest" (encodeMaybe a.defaultRequest)
+               , Tuple "max" (encodeMaybe a.max)
+               , Tuple "maxLimitRequestRatio" (encodeMaybe a.maxLimitRequestRatio)
+               , Tuple "min" (encodeMaybe a.min) ]
 
 
 instance defaultLimitRangeItem :: Default LimitRangeItem where
   default = LimitRangeItem
-    { _default: NullOrUndefined Nothing
-    , _type: NullOrUndefined Nothing
-    , defaultRequest: NullOrUndefined Nothing
-    , max: NullOrUndefined Nothing
-    , maxLimitRequestRatio: NullOrUndefined Nothing
-    , min: NullOrUndefined Nothing }
+    { _default: Nothing
+    , _type: Nothing
+    , defaultRequest: Nothing
+    , max: Nothing
+    , maxLimitRequestRatio: Nothing
+    , min: Nothing }
 
 -- | LimitRangeList is a list of LimitRange items.
 -- |
@@ -2606,58 +2605,58 @@ instance defaultLimitRangeItem :: Default LimitRangeItem where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype LimitRangeList = LimitRangeList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array LimitRange))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array LimitRange))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeLimitRangeList :: Newtype LimitRangeList _
 derive instance genericLimitRangeList :: Generic LimitRangeList _
 instance showLimitRangeList :: Show LimitRangeList where show a = genericShow a
 instance decodeLimitRangeList :: Decode LimitRangeList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ LimitRangeList { apiVersion, items, kind, metadata }
 instance encodeLimitRangeList :: Encode LimitRangeList where
   encode (LimitRangeList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultLimitRangeList :: Default LimitRangeList where
   default = LimitRangeList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | LimitRangeSpec defines a min/max usage limit for resources that match on kind.
 -- |
 -- | Fields:
 -- | - `limits`: Limits is the list of LimitRangeItem objects that are enforced.
 newtype LimitRangeSpec = LimitRangeSpec
-  { limits :: (NullOrUndefined (Array LimitRangeItem)) }
+  { limits :: (Maybe (Array LimitRangeItem)) }
 
 derive instance newtypeLimitRangeSpec :: Newtype LimitRangeSpec _
 derive instance genericLimitRangeSpec :: Generic LimitRangeSpec _
 instance showLimitRangeSpec :: Show LimitRangeSpec where show a = genericShow a
 instance decodeLimitRangeSpec :: Decode LimitRangeSpec where
   decode a = do
-               limits <- readProp "limits" a >>= decode
+               limits <- decodeMaybe "limits" a
                pure $ LimitRangeSpec { limits }
 instance encodeLimitRangeSpec :: Encode LimitRangeSpec where
   encode (LimitRangeSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "limits" (encode a.limits) ]
+               [ Tuple "limits" (encodeMaybe a.limits) ]
 
 
 instance defaultLimitRangeSpec :: Default LimitRangeSpec where
   default = LimitRangeSpec
-    { limits: NullOrUndefined Nothing }
+    { limits: Nothing }
 
 -- | LoadBalancerIngress represents the status of a load-balancer ingress point: traffic intended for the service should be sent to an ingress point.
 -- |
@@ -2665,96 +2664,96 @@ instance defaultLimitRangeSpec :: Default LimitRangeSpec where
 -- | - `hostname`: Hostname is set for load-balancer ingress points that are DNS based (typically AWS load-balancers)
 -- | - `ip`: IP is set for load-balancer ingress points that are IP based (typically GCE or OpenStack load-balancers)
 newtype LoadBalancerIngress = LoadBalancerIngress
-  { hostname :: (NullOrUndefined String)
-  , ip :: (NullOrUndefined String) }
+  { hostname :: (Maybe String)
+  , ip :: (Maybe String) }
 
 derive instance newtypeLoadBalancerIngress :: Newtype LoadBalancerIngress _
 derive instance genericLoadBalancerIngress :: Generic LoadBalancerIngress _
 instance showLoadBalancerIngress :: Show LoadBalancerIngress where show a = genericShow a
 instance decodeLoadBalancerIngress :: Decode LoadBalancerIngress where
   decode a = do
-               hostname <- readProp "hostname" a >>= decode
-               ip <- readProp "ip" a >>= decode
+               hostname <- decodeMaybe "hostname" a
+               ip <- decodeMaybe "ip" a
                pure $ LoadBalancerIngress { hostname, ip }
 instance encodeLoadBalancerIngress :: Encode LoadBalancerIngress where
   encode (LoadBalancerIngress a) = encode $ StrMap.fromFoldable $
-               [ Tuple "hostname" (encode a.hostname)
-               , Tuple "ip" (encode a.ip) ]
+               [ Tuple "hostname" (encodeMaybe a.hostname)
+               , Tuple "ip" (encodeMaybe a.ip) ]
 
 
 instance defaultLoadBalancerIngress :: Default LoadBalancerIngress where
   default = LoadBalancerIngress
-    { hostname: NullOrUndefined Nothing
-    , ip: NullOrUndefined Nothing }
+    { hostname: Nothing
+    , ip: Nothing }
 
 -- | LoadBalancerStatus represents the status of a load-balancer.
 -- |
 -- | Fields:
 -- | - `ingress`: Ingress is a list containing ingress points for the load-balancer. Traffic intended for the service should be sent to these ingress points.
 newtype LoadBalancerStatus = LoadBalancerStatus
-  { ingress :: (NullOrUndefined (Array LoadBalancerIngress)) }
+  { ingress :: (Maybe (Array LoadBalancerIngress)) }
 
 derive instance newtypeLoadBalancerStatus :: Newtype LoadBalancerStatus _
 derive instance genericLoadBalancerStatus :: Generic LoadBalancerStatus _
 instance showLoadBalancerStatus :: Show LoadBalancerStatus where show a = genericShow a
 instance decodeLoadBalancerStatus :: Decode LoadBalancerStatus where
   decode a = do
-               ingress <- readProp "ingress" a >>= decode
+               ingress <- decodeMaybe "ingress" a
                pure $ LoadBalancerStatus { ingress }
 instance encodeLoadBalancerStatus :: Encode LoadBalancerStatus where
   encode (LoadBalancerStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "ingress" (encode a.ingress) ]
+               [ Tuple "ingress" (encodeMaybe a.ingress) ]
 
 
 instance defaultLoadBalancerStatus :: Default LoadBalancerStatus where
   default = LoadBalancerStatus
-    { ingress: NullOrUndefined Nothing }
+    { ingress: Nothing }
 
 -- | LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
 -- |
 -- | Fields:
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 newtype LocalObjectReference = LocalObjectReference
-  { name :: (NullOrUndefined String) }
+  { name :: (Maybe String) }
 
 derive instance newtypeLocalObjectReference :: Newtype LocalObjectReference _
 derive instance genericLocalObjectReference :: Generic LocalObjectReference _
 instance showLocalObjectReference :: Show LocalObjectReference where show a = genericShow a
 instance decodeLocalObjectReference :: Decode LocalObjectReference where
   decode a = do
-               name <- readProp "name" a >>= decode
+               name <- decodeMaybe "name" a
                pure $ LocalObjectReference { name }
 instance encodeLocalObjectReference :: Encode LocalObjectReference where
   encode (LocalObjectReference a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name) ]
+               [ Tuple "name" (encodeMaybe a.name) ]
 
 
 instance defaultLocalObjectReference :: Default LocalObjectReference where
   default = LocalObjectReference
-    { name: NullOrUndefined Nothing }
+    { name: Nothing }
 
 -- | Local represents directly-attached storage with node affinity
 -- |
 -- | Fields:
 -- | - `path`: The full path to the volume on the node For alpha, this path must be a directory Once block as a source is supported, then this path can point to a block device
 newtype LocalVolumeSource = LocalVolumeSource
-  { path :: (NullOrUndefined String) }
+  { path :: (Maybe String) }
 
 derive instance newtypeLocalVolumeSource :: Newtype LocalVolumeSource _
 derive instance genericLocalVolumeSource :: Generic LocalVolumeSource _
 instance showLocalVolumeSource :: Show LocalVolumeSource where show a = genericShow a
 instance decodeLocalVolumeSource :: Decode LocalVolumeSource where
   decode a = do
-               path <- readProp "path" a >>= decode
+               path <- decodeMaybe "path" a
                pure $ LocalVolumeSource { path }
 instance encodeLocalVolumeSource :: Encode LocalVolumeSource where
   encode (LocalVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "path" (encode a.path) ]
+               [ Tuple "path" (encodeMaybe a.path) ]
 
 
 instance defaultLocalVolumeSource :: Default LocalVolumeSource where
   default = LocalVolumeSource
-    { path: NullOrUndefined Nothing }
+    { path: Nothing }
 
 -- | Represents an NFS mount that lasts the lifetime of a pod. NFS volumes do not support ownership management or SELinux relabeling.
 -- |
@@ -2763,31 +2762,31 @@ instance defaultLocalVolumeSource :: Default LocalVolumeSource where
 -- | - `readOnly`: ReadOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
 -- | - `server`: Server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs
 newtype NFSVolumeSource = NFSVolumeSource
-  { path :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , server :: (NullOrUndefined String) }
+  { path :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , server :: (Maybe String) }
 
 derive instance newtypeNFSVolumeSource :: Newtype NFSVolumeSource _
 derive instance genericNFSVolumeSource :: Generic NFSVolumeSource _
 instance showNFSVolumeSource :: Show NFSVolumeSource where show a = genericShow a
 instance decodeNFSVolumeSource :: Decode NFSVolumeSource where
   decode a = do
-               path <- readProp "path" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               server <- readProp "server" a >>= decode
+               path <- decodeMaybe "path" a
+               readOnly <- decodeMaybe "readOnly" a
+               server <- decodeMaybe "server" a
                pure $ NFSVolumeSource { path, readOnly, server }
 instance encodeNFSVolumeSource :: Encode NFSVolumeSource where
   encode (NFSVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "path" (encode a.path)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "server" (encode a.server) ]
+               [ Tuple "path" (encodeMaybe a.path)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "server" (encodeMaybe a.server) ]
 
 
 instance defaultNFSVolumeSource :: Default NFSVolumeSource where
   default = NFSVolumeSource
-    { path: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , server: NullOrUndefined Nothing }
+    { path: Nothing
+    , readOnly: Nothing
+    , server: Nothing }
 
 -- | Namespace provides a scope for Names. Use of multiple namespaces is optional.
 -- |
@@ -2798,39 +2797,39 @@ instance defaultNFSVolumeSource :: Default NFSVolumeSource where
 -- | - `spec`: Spec defines the behavior of the Namespace. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Status describes the current status of a Namespace. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Namespace = Namespace
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined NamespaceSpec)
-  , status :: (NullOrUndefined NamespaceStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe NamespaceSpec)
+  , status :: (Maybe NamespaceStatus) }
 
 derive instance newtypeNamespace :: Newtype Namespace _
 derive instance genericNamespace :: Generic Namespace _
 instance showNamespace :: Show Namespace where show a = genericShow a
 instance decodeNamespace :: Decode Namespace where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ Namespace { apiVersion, kind, metadata, spec, status }
 instance encodeNamespace :: Encode Namespace where
   encode (Namespace a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultNamespace :: Default Namespace where
   default = Namespace
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | NamespaceList is a list of Namespaces.
 -- |
@@ -2840,81 +2839,81 @@ instance defaultNamespace :: Default Namespace where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NamespaceList = NamespaceList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Namespace))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Namespace))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeNamespaceList :: Newtype NamespaceList _
 derive instance genericNamespaceList :: Generic NamespaceList _
 instance showNamespaceList :: Show NamespaceList where show a = genericShow a
 instance decodeNamespaceList :: Decode NamespaceList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ NamespaceList { apiVersion, items, kind, metadata }
 instance encodeNamespaceList :: Encode NamespaceList where
   encode (NamespaceList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultNamespaceList :: Default NamespaceList where
   default = NamespaceList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | NamespaceSpec describes the attributes on a Namespace.
 -- |
 -- | Fields:
 -- | - `finalizers`: Finalizers is an opaque list of values that must be empty to permanently remove object from storage. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
 newtype NamespaceSpec = NamespaceSpec
-  { finalizers :: (NullOrUndefined (Array String)) }
+  { finalizers :: (Maybe (Array String)) }
 
 derive instance newtypeNamespaceSpec :: Newtype NamespaceSpec _
 derive instance genericNamespaceSpec :: Generic NamespaceSpec _
 instance showNamespaceSpec :: Show NamespaceSpec where show a = genericShow a
 instance decodeNamespaceSpec :: Decode NamespaceSpec where
   decode a = do
-               finalizers <- readProp "finalizers" a >>= decode
+               finalizers <- decodeMaybe "finalizers" a
                pure $ NamespaceSpec { finalizers }
 instance encodeNamespaceSpec :: Encode NamespaceSpec where
   encode (NamespaceSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "finalizers" (encode a.finalizers) ]
+               [ Tuple "finalizers" (encodeMaybe a.finalizers) ]
 
 
 instance defaultNamespaceSpec :: Default NamespaceSpec where
   default = NamespaceSpec
-    { finalizers: NullOrUndefined Nothing }
+    { finalizers: Nothing }
 
 -- | NamespaceStatus is information about the current status of a Namespace.
 -- |
 -- | Fields:
 -- | - `phase`: Phase is the current lifecycle phase of the namespace. More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
 newtype NamespaceStatus = NamespaceStatus
-  { phase :: (NullOrUndefined String) }
+  { phase :: (Maybe String) }
 
 derive instance newtypeNamespaceStatus :: Newtype NamespaceStatus _
 derive instance genericNamespaceStatus :: Generic NamespaceStatus _
 instance showNamespaceStatus :: Show NamespaceStatus where show a = genericShow a
 instance decodeNamespaceStatus :: Decode NamespaceStatus where
   decode a = do
-               phase <- readProp "phase" a >>= decode
+               phase <- decodeMaybe "phase" a
                pure $ NamespaceStatus { phase }
 instance encodeNamespaceStatus :: Encode NamespaceStatus where
   encode (NamespaceStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "phase" (encode a.phase) ]
+               [ Tuple "phase" (encodeMaybe a.phase) ]
 
 
 instance defaultNamespaceStatus :: Default NamespaceStatus where
   default = NamespaceStatus
-    { phase: NullOrUndefined Nothing }
+    { phase: Nothing }
 
 -- | Node is a worker node in Kubernetes. Each node will have a unique identifier in the cache (i.e. in etcd).
 -- |
@@ -2925,39 +2924,39 @@ instance defaultNamespaceStatus :: Default NamespaceStatus where
 -- | - `spec`: Spec defines the behavior of a node. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Most recently observed status of the node. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Node = Node
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined NodeSpec)
-  , status :: (NullOrUndefined NodeStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe NodeSpec)
+  , status :: (Maybe NodeStatus) }
 
 derive instance newtypeNode :: Newtype Node _
 derive instance genericNode :: Generic Node _
 instance showNode :: Show Node where show a = genericShow a
 instance decodeNode :: Decode Node where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ Node { apiVersion, kind, metadata, spec, status }
 instance encodeNode :: Encode Node where
   encode (Node a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultNode :: Default Node where
   default = Node
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | NodeAddress contains information for the node's address.
 -- |
@@ -2965,27 +2964,27 @@ instance defaultNode :: Default Node where
 -- | - `address`: The node address.
 -- | - `_type`: Node address type, one of Hostname, ExternalIP or InternalIP.
 newtype NodeAddress = NodeAddress
-  { _type :: (NullOrUndefined String)
-  , address :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , address :: (Maybe String) }
 
 derive instance newtypeNodeAddress :: Newtype NodeAddress _
 derive instance genericNodeAddress :: Generic NodeAddress _
 instance showNodeAddress :: Show NodeAddress where show a = genericShow a
 instance decodeNodeAddress :: Decode NodeAddress where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               address <- readProp "address" a >>= decode
+               _type <- decodeMaybe "_type" a
+               address <- decodeMaybe "address" a
                pure $ NodeAddress { _type, address }
 instance encodeNodeAddress :: Encode NodeAddress where
   encode (NodeAddress a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "address" (encode a.address) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "address" (encodeMaybe a.address) ]
 
 
 instance defaultNodeAddress :: Default NodeAddress where
   default = NodeAddress
-    { _type: NullOrUndefined Nothing
-    , address: NullOrUndefined Nothing }
+    { _type: Nothing
+    , address: Nothing }
 
 -- | Node affinity is a group of node affinity scheduling rules.
 -- |
@@ -2993,27 +2992,27 @@ instance defaultNodeAddress :: Default NodeAddress where
 -- | - `preferredDuringSchedulingIgnoredDuringExecution`: The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node matches the corresponding matchExpressions; the node(s) with the highest sum are the most preferred.
 -- | - `requiredDuringSchedulingIgnoredDuringExecution`: If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node.
 newtype NodeAffinity = NodeAffinity
-  { preferredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array PreferredSchedulingTerm))
-  , requiredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined NodeSelector) }
+  { preferredDuringSchedulingIgnoredDuringExecution :: (Maybe (Array PreferredSchedulingTerm))
+  , requiredDuringSchedulingIgnoredDuringExecution :: (Maybe NodeSelector) }
 
 derive instance newtypeNodeAffinity :: Newtype NodeAffinity _
 derive instance genericNodeAffinity :: Generic NodeAffinity _
 instance showNodeAffinity :: Show NodeAffinity where show a = genericShow a
 instance decodeNodeAffinity :: Decode NodeAffinity where
   decode a = do
-               preferredDuringSchedulingIgnoredDuringExecution <- readProp "preferredDuringSchedulingIgnoredDuringExecution" a >>= decode
-               requiredDuringSchedulingIgnoredDuringExecution <- readProp "requiredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               preferredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "preferredDuringSchedulingIgnoredDuringExecution" a
+               requiredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "requiredDuringSchedulingIgnoredDuringExecution" a
                pure $ NodeAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodeNodeAffinity :: Encode NodeAffinity where
   encode (NodeAffinity a) = encode $ StrMap.fromFoldable $
-               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encode a.preferredDuringSchedulingIgnoredDuringExecution)
-               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encode a.requiredDuringSchedulingIgnoredDuringExecution) ]
+               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.preferredDuringSchedulingIgnoredDuringExecution)
+               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.requiredDuringSchedulingIgnoredDuringExecution) ]
 
 
 instance defaultNodeAffinity :: Default NodeAffinity where
   default = NodeAffinity
-    { preferredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing
-    , requiredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing }
+    { preferredDuringSchedulingIgnoredDuringExecution: Nothing
+    , requiredDuringSchedulingIgnoredDuringExecution: Nothing }
 
 -- | NodeCondition contains condition information for a node.
 -- |
@@ -3025,43 +3024,43 @@ instance defaultNodeAffinity :: Default NodeAffinity where
 -- | - `status`: Status of the condition, one of True, False, Unknown.
 -- | - `_type`: Type of node condition.
 newtype NodeCondition = NodeCondition
-  { _type :: (NullOrUndefined String)
-  , lastHeartbeatTime :: (NullOrUndefined MetaV1.Time)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastHeartbeatTime :: (Maybe MetaV1.Time)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeNodeCondition :: Newtype NodeCondition _
 derive instance genericNodeCondition :: Generic NodeCondition _
 instance showNodeCondition :: Show NodeCondition where show a = genericShow a
 instance decodeNodeCondition :: Decode NodeCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastHeartbeatTime <- readProp "lastHeartbeatTime" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastHeartbeatTime <- decodeMaybe "lastHeartbeatTime" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ NodeCondition { _type, lastHeartbeatTime, lastTransitionTime, message, reason, status }
 instance encodeNodeCondition :: Encode NodeCondition where
   encode (NodeCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastHeartbeatTime" (encode a.lastHeartbeatTime)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastHeartbeatTime" (encodeMaybe a.lastHeartbeatTime)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultNodeCondition :: Default NodeCondition where
   default = NodeCondition
-    { _type: NullOrUndefined Nothing
-    , lastHeartbeatTime: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastHeartbeatTime: Nothing
+    , lastTransitionTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | NodeConfigSource specifies a source of node configuration. Exactly one subfield (excluding metadata) must be non-nil.
 -- |
@@ -3070,54 +3069,54 @@ instance defaultNodeCondition :: Default NodeCondition where
 -- | - `configMapRef`
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NodeConfigSource = NodeConfigSource
-  { apiVersion :: (NullOrUndefined String)
-  , configMapRef :: (NullOrUndefined ObjectReference)
-  , kind :: (NullOrUndefined String) }
+  { apiVersion :: (Maybe String)
+  , configMapRef :: (Maybe ObjectReference)
+  , kind :: (Maybe String) }
 
 derive instance newtypeNodeConfigSource :: Newtype NodeConfigSource _
 derive instance genericNodeConfigSource :: Generic NodeConfigSource _
 instance showNodeConfigSource :: Show NodeConfigSource where show a = genericShow a
 instance decodeNodeConfigSource :: Decode NodeConfigSource where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               configMapRef <- readProp "configMapRef" a >>= decode
-               kind <- readProp "kind" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               configMapRef <- decodeMaybe "configMapRef" a
+               kind <- decodeMaybe "kind" a
                pure $ NodeConfigSource { apiVersion, configMapRef, kind }
 instance encodeNodeConfigSource :: Encode NodeConfigSource where
   encode (NodeConfigSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "configMapRef" (encode a.configMapRef)
-               , Tuple "kind" (encode a.kind) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "configMapRef" (encodeMaybe a.configMapRef)
+               , Tuple "kind" (encodeMaybe a.kind) ]
 
 
 instance defaultNodeConfigSource :: Default NodeConfigSource where
   default = NodeConfigSource
-    { apiVersion: NullOrUndefined Nothing
-    , configMapRef: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , configMapRef: Nothing
+    , kind: Nothing }
 
 -- | NodeDaemonEndpoints lists ports opened by daemons running on the Node.
 -- |
 -- | Fields:
 -- | - `kubeletEndpoint`: Endpoint on which Kubelet is listening.
 newtype NodeDaemonEndpoints = NodeDaemonEndpoints
-  { kubeletEndpoint :: (NullOrUndefined DaemonEndpoint) }
+  { kubeletEndpoint :: (Maybe DaemonEndpoint) }
 
 derive instance newtypeNodeDaemonEndpoints :: Newtype NodeDaemonEndpoints _
 derive instance genericNodeDaemonEndpoints :: Generic NodeDaemonEndpoints _
 instance showNodeDaemonEndpoints :: Show NodeDaemonEndpoints where show a = genericShow a
 instance decodeNodeDaemonEndpoints :: Decode NodeDaemonEndpoints where
   decode a = do
-               kubeletEndpoint <- readProp "kubeletEndpoint" a >>= decode
+               kubeletEndpoint <- decodeMaybe "kubeletEndpoint" a
                pure $ NodeDaemonEndpoints { kubeletEndpoint }
 instance encodeNodeDaemonEndpoints :: Encode NodeDaemonEndpoints where
   encode (NodeDaemonEndpoints a) = encode $ StrMap.fromFoldable $
-               [ Tuple "kubeletEndpoint" (encode a.kubeletEndpoint) ]
+               [ Tuple "kubeletEndpoint" (encodeMaybe a.kubeletEndpoint) ]
 
 
 instance defaultNodeDaemonEndpoints :: Default NodeDaemonEndpoints where
   default = NodeDaemonEndpoints
-    { kubeletEndpoint: NullOrUndefined Nothing }
+    { kubeletEndpoint: Nothing }
 
 -- | NodeList is the whole list of all Nodes which have been registered with master.
 -- |
@@ -3127,58 +3126,58 @@ instance defaultNodeDaemonEndpoints :: Default NodeDaemonEndpoints where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype NodeList = NodeList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Node))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Node))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeNodeList :: Newtype NodeList _
 derive instance genericNodeList :: Generic NodeList _
 instance showNodeList :: Show NodeList where show a = genericShow a
 instance decodeNodeList :: Decode NodeList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ NodeList { apiVersion, items, kind, metadata }
 instance encodeNodeList :: Encode NodeList where
   encode (NodeList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultNodeList :: Default NodeList where
   default = NodeList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | A node selector represents the union of the results of one or more label queries over a set of nodes; that is, it represents the OR of the selectors represented by the node selector terms.
 -- |
 -- | Fields:
 -- | - `nodeSelectorTerms`: Required. A list of node selector terms. The terms are ORed.
 newtype NodeSelector = NodeSelector
-  { nodeSelectorTerms :: (NullOrUndefined (Array NodeSelectorTerm)) }
+  { nodeSelectorTerms :: (Maybe (Array NodeSelectorTerm)) }
 
 derive instance newtypeNodeSelector :: Newtype NodeSelector _
 derive instance genericNodeSelector :: Generic NodeSelector _
 instance showNodeSelector :: Show NodeSelector where show a = genericShow a
 instance decodeNodeSelector :: Decode NodeSelector where
   decode a = do
-               nodeSelectorTerms <- readProp "nodeSelectorTerms" a >>= decode
+               nodeSelectorTerms <- decodeMaybe "nodeSelectorTerms" a
                pure $ NodeSelector { nodeSelectorTerms }
 instance encodeNodeSelector :: Encode NodeSelector where
   encode (NodeSelector a) = encode $ StrMap.fromFoldable $
-               [ Tuple "nodeSelectorTerms" (encode a.nodeSelectorTerms) ]
+               [ Tuple "nodeSelectorTerms" (encodeMaybe a.nodeSelectorTerms) ]
 
 
 instance defaultNodeSelector :: Default NodeSelector where
   default = NodeSelector
-    { nodeSelectorTerms: NullOrUndefined Nothing }
+    { nodeSelectorTerms: Nothing }
 
 -- | A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
 -- |
@@ -3187,54 +3186,54 @@ instance defaultNodeSelector :: Default NodeSelector where
 -- | - `operator`: Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
 -- | - `values`: An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch.
 newtype NodeSelectorRequirement = NodeSelectorRequirement
-  { key :: (NullOrUndefined String)
-  , operator :: (NullOrUndefined String)
-  , values :: (NullOrUndefined (Array String)) }
+  { key :: (Maybe String)
+  , operator :: (Maybe String)
+  , values :: (Maybe (Array String)) }
 
 derive instance newtypeNodeSelectorRequirement :: Newtype NodeSelectorRequirement _
 derive instance genericNodeSelectorRequirement :: Generic NodeSelectorRequirement _
 instance showNodeSelectorRequirement :: Show NodeSelectorRequirement where show a = genericShow a
 instance decodeNodeSelectorRequirement :: Decode NodeSelectorRequirement where
   decode a = do
-               key <- readProp "key" a >>= decode
-               operator <- readProp "operator" a >>= decode
-               values <- readProp "values" a >>= decode
+               key <- decodeMaybe "key" a
+               operator <- decodeMaybe "operator" a
+               values <- decodeMaybe "values" a
                pure $ NodeSelectorRequirement { key, operator, values }
 instance encodeNodeSelectorRequirement :: Encode NodeSelectorRequirement where
   encode (NodeSelectorRequirement a) = encode $ StrMap.fromFoldable $
-               [ Tuple "key" (encode a.key)
-               , Tuple "operator" (encode a.operator)
-               , Tuple "values" (encode a.values) ]
+               [ Tuple "key" (encodeMaybe a.key)
+               , Tuple "operator" (encodeMaybe a.operator)
+               , Tuple "values" (encodeMaybe a.values) ]
 
 
 instance defaultNodeSelectorRequirement :: Default NodeSelectorRequirement where
   default = NodeSelectorRequirement
-    { key: NullOrUndefined Nothing
-    , operator: NullOrUndefined Nothing
-    , values: NullOrUndefined Nothing }
+    { key: Nothing
+    , operator: Nothing
+    , values: Nothing }
 
 -- | A null or empty node selector term matches no objects.
 -- |
 -- | Fields:
 -- | - `matchExpressions`: Required. A list of node selector requirements. The requirements are ANDed.
 newtype NodeSelectorTerm = NodeSelectorTerm
-  { matchExpressions :: (NullOrUndefined (Array NodeSelectorRequirement)) }
+  { matchExpressions :: (Maybe (Array NodeSelectorRequirement)) }
 
 derive instance newtypeNodeSelectorTerm :: Newtype NodeSelectorTerm _
 derive instance genericNodeSelectorTerm :: Generic NodeSelectorTerm _
 instance showNodeSelectorTerm :: Show NodeSelectorTerm where show a = genericShow a
 instance decodeNodeSelectorTerm :: Decode NodeSelectorTerm where
   decode a = do
-               matchExpressions <- readProp "matchExpressions" a >>= decode
+               matchExpressions <- decodeMaybe "matchExpressions" a
                pure $ NodeSelectorTerm { matchExpressions }
 instance encodeNodeSelectorTerm :: Encode NodeSelectorTerm where
   encode (NodeSelectorTerm a) = encode $ StrMap.fromFoldable $
-               [ Tuple "matchExpressions" (encode a.matchExpressions) ]
+               [ Tuple "matchExpressions" (encodeMaybe a.matchExpressions) ]
 
 
 instance defaultNodeSelectorTerm :: Default NodeSelectorTerm where
   default = NodeSelectorTerm
-    { matchExpressions: NullOrUndefined Nothing }
+    { matchExpressions: Nothing }
 
 -- | NodeSpec describes the attributes that a node is created with.
 -- |
@@ -3246,43 +3245,43 @@ instance defaultNodeSelectorTerm :: Default NodeSelectorTerm where
 -- | - `taints`: If specified, the node's taints.
 -- | - `unschedulable`: Unschedulable controls node schedulability of new pods. By default, node is schedulable. More info: https://kubernetes.io/docs/concepts/nodes/node/#manual-node-administration
 newtype NodeSpec = NodeSpec
-  { configSource :: (NullOrUndefined NodeConfigSource)
-  , externalID :: (NullOrUndefined String)
-  , podCIDR :: (NullOrUndefined String)
-  , providerID :: (NullOrUndefined String)
-  , taints :: (NullOrUndefined (Array Taint))
-  , unschedulable :: (NullOrUndefined Boolean) }
+  { configSource :: (Maybe NodeConfigSource)
+  , externalID :: (Maybe String)
+  , podCIDR :: (Maybe String)
+  , providerID :: (Maybe String)
+  , taints :: (Maybe (Array Taint))
+  , unschedulable :: (Maybe Boolean) }
 
 derive instance newtypeNodeSpec :: Newtype NodeSpec _
 derive instance genericNodeSpec :: Generic NodeSpec _
 instance showNodeSpec :: Show NodeSpec where show a = genericShow a
 instance decodeNodeSpec :: Decode NodeSpec where
   decode a = do
-               configSource <- readProp "configSource" a >>= decode
-               externalID <- readProp "externalID" a >>= decode
-               podCIDR <- readProp "podCIDR" a >>= decode
-               providerID <- readProp "providerID" a >>= decode
-               taints <- readProp "taints" a >>= decode
-               unschedulable <- readProp "unschedulable" a >>= decode
+               configSource <- decodeMaybe "configSource" a
+               externalID <- decodeMaybe "externalID" a
+               podCIDR <- decodeMaybe "podCIDR" a
+               providerID <- decodeMaybe "providerID" a
+               taints <- decodeMaybe "taints" a
+               unschedulable <- decodeMaybe "unschedulable" a
                pure $ NodeSpec { configSource, externalID, podCIDR, providerID, taints, unschedulable }
 instance encodeNodeSpec :: Encode NodeSpec where
   encode (NodeSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "configSource" (encode a.configSource)
-               , Tuple "externalID" (encode a.externalID)
-               , Tuple "podCIDR" (encode a.podCIDR)
-               , Tuple "providerID" (encode a.providerID)
-               , Tuple "taints" (encode a.taints)
-               , Tuple "unschedulable" (encode a.unschedulable) ]
+               [ Tuple "configSource" (encodeMaybe a.configSource)
+               , Tuple "externalID" (encodeMaybe a.externalID)
+               , Tuple "podCIDR" (encodeMaybe a.podCIDR)
+               , Tuple "providerID" (encodeMaybe a.providerID)
+               , Tuple "taints" (encodeMaybe a.taints)
+               , Tuple "unschedulable" (encodeMaybe a.unschedulable) ]
 
 
 instance defaultNodeSpec :: Default NodeSpec where
   default = NodeSpec
-    { configSource: NullOrUndefined Nothing
-    , externalID: NullOrUndefined Nothing
-    , podCIDR: NullOrUndefined Nothing
-    , providerID: NullOrUndefined Nothing
-    , taints: NullOrUndefined Nothing
-    , unschedulable: NullOrUndefined Nothing }
+    { configSource: Nothing
+    , externalID: Nothing
+    , podCIDR: Nothing
+    , providerID: Nothing
+    , taints: Nothing
+    , unschedulable: Nothing }
 
 -- | NodeStatus is information about the current status of a node.
 -- |
@@ -3298,59 +3297,59 @@ instance defaultNodeSpec :: Default NodeSpec where
 -- | - `volumesAttached`: List of volumes that are attached to the node.
 -- | - `volumesInUse`: List of attachable volumes in use (mounted) by the node.
 newtype NodeStatus = NodeStatus
-  { addresses :: (NullOrUndefined (Array NodeAddress))
-  , allocatable :: (NullOrUndefined (StrMap Resource.Quantity))
-  , capacity :: (NullOrUndefined (StrMap Resource.Quantity))
-  , conditions :: (NullOrUndefined (Array NodeCondition))
-  , daemonEndpoints :: (NullOrUndefined NodeDaemonEndpoints)
-  , images :: (NullOrUndefined (Array ContainerImage))
-  , nodeInfo :: (NullOrUndefined NodeSystemInfo)
-  , phase :: (NullOrUndefined String)
-  , volumesAttached :: (NullOrUndefined (Array AttachedVolume))
-  , volumesInUse :: (NullOrUndefined (Array String)) }
+  { addresses :: (Maybe (Array NodeAddress))
+  , allocatable :: (Maybe (StrMap Resource.Quantity))
+  , capacity :: (Maybe (StrMap Resource.Quantity))
+  , conditions :: (Maybe (Array NodeCondition))
+  , daemonEndpoints :: (Maybe NodeDaemonEndpoints)
+  , images :: (Maybe (Array ContainerImage))
+  , nodeInfo :: (Maybe NodeSystemInfo)
+  , phase :: (Maybe String)
+  , volumesAttached :: (Maybe (Array AttachedVolume))
+  , volumesInUse :: (Maybe (Array String)) }
 
 derive instance newtypeNodeStatus :: Newtype NodeStatus _
 derive instance genericNodeStatus :: Generic NodeStatus _
 instance showNodeStatus :: Show NodeStatus where show a = genericShow a
 instance decodeNodeStatus :: Decode NodeStatus where
   decode a = do
-               addresses <- readProp "addresses" a >>= decode
-               allocatable <- readProp "allocatable" a >>= decode
-               capacity <- readProp "capacity" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
-               daemonEndpoints <- readProp "daemonEndpoints" a >>= decode
-               images <- readProp "images" a >>= decode
-               nodeInfo <- readProp "nodeInfo" a >>= decode
-               phase <- readProp "phase" a >>= decode
-               volumesAttached <- readProp "volumesAttached" a >>= decode
-               volumesInUse <- readProp "volumesInUse" a >>= decode
+               addresses <- decodeMaybe "addresses" a
+               allocatable <- decodeMaybe "allocatable" a
+               capacity <- decodeMaybe "capacity" a
+               conditions <- decodeMaybe "conditions" a
+               daemonEndpoints <- decodeMaybe "daemonEndpoints" a
+               images <- decodeMaybe "images" a
+               nodeInfo <- decodeMaybe "nodeInfo" a
+               phase <- decodeMaybe "phase" a
+               volumesAttached <- decodeMaybe "volumesAttached" a
+               volumesInUse <- decodeMaybe "volumesInUse" a
                pure $ NodeStatus { addresses, allocatable, capacity, conditions, daemonEndpoints, images, nodeInfo, phase, volumesAttached, volumesInUse }
 instance encodeNodeStatus :: Encode NodeStatus where
   encode (NodeStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "addresses" (encode a.addresses)
-               , Tuple "allocatable" (encode a.allocatable)
-               , Tuple "capacity" (encode a.capacity)
-               , Tuple "conditions" (encode a.conditions)
-               , Tuple "daemonEndpoints" (encode a.daemonEndpoints)
-               , Tuple "images" (encode a.images)
-               , Tuple "nodeInfo" (encode a.nodeInfo)
-               , Tuple "phase" (encode a.phase)
-               , Tuple "volumesAttached" (encode a.volumesAttached)
-               , Tuple "volumesInUse" (encode a.volumesInUse) ]
+               [ Tuple "addresses" (encodeMaybe a.addresses)
+               , Tuple "allocatable" (encodeMaybe a.allocatable)
+               , Tuple "capacity" (encodeMaybe a.capacity)
+               , Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "daemonEndpoints" (encodeMaybe a.daemonEndpoints)
+               , Tuple "images" (encodeMaybe a.images)
+               , Tuple "nodeInfo" (encodeMaybe a.nodeInfo)
+               , Tuple "phase" (encodeMaybe a.phase)
+               , Tuple "volumesAttached" (encodeMaybe a.volumesAttached)
+               , Tuple "volumesInUse" (encodeMaybe a.volumesInUse) ]
 
 
 instance defaultNodeStatus :: Default NodeStatus where
   default = NodeStatus
-    { addresses: NullOrUndefined Nothing
-    , allocatable: NullOrUndefined Nothing
-    , capacity: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing
-    , daemonEndpoints: NullOrUndefined Nothing
-    , images: NullOrUndefined Nothing
-    , nodeInfo: NullOrUndefined Nothing
-    , phase: NullOrUndefined Nothing
-    , volumesAttached: NullOrUndefined Nothing
-    , volumesInUse: NullOrUndefined Nothing }
+    { addresses: Nothing
+    , allocatable: Nothing
+    , capacity: Nothing
+    , conditions: Nothing
+    , daemonEndpoints: Nothing
+    , images: Nothing
+    , nodeInfo: Nothing
+    , phase: Nothing
+    , volumesAttached: Nothing
+    , volumesInUse: Nothing }
 
 -- | NodeSystemInfo is a set of ids/uuids to uniquely identify the node.
 -- |
@@ -3366,59 +3365,59 @@ instance defaultNodeStatus :: Default NodeStatus where
 -- | - `osImage`: OS Image reported by the node from /etc/os-release (e.g. Debian GNU/Linux 7 (wheezy)).
 -- | - `systemUUID`: SystemUUID reported by the node. For unique machine identification MachineID is preferred. This field is specific to Red Hat hosts https://access.redhat.com/documentation/en-US/Red_Hat_Subscription_Management/1/html/RHSM/getting-system-uuid.html
 newtype NodeSystemInfo = NodeSystemInfo
-  { architecture :: (NullOrUndefined String)
-  , bootID :: (NullOrUndefined String)
-  , containerRuntimeVersion :: (NullOrUndefined String)
-  , kernelVersion :: (NullOrUndefined String)
-  , kubeProxyVersion :: (NullOrUndefined String)
-  , kubeletVersion :: (NullOrUndefined String)
-  , machineID :: (NullOrUndefined String)
-  , operatingSystem :: (NullOrUndefined String)
-  , osImage :: (NullOrUndefined String)
-  , systemUUID :: (NullOrUndefined String) }
+  { architecture :: (Maybe String)
+  , bootID :: (Maybe String)
+  , containerRuntimeVersion :: (Maybe String)
+  , kernelVersion :: (Maybe String)
+  , kubeProxyVersion :: (Maybe String)
+  , kubeletVersion :: (Maybe String)
+  , machineID :: (Maybe String)
+  , operatingSystem :: (Maybe String)
+  , osImage :: (Maybe String)
+  , systemUUID :: (Maybe String) }
 
 derive instance newtypeNodeSystemInfo :: Newtype NodeSystemInfo _
 derive instance genericNodeSystemInfo :: Generic NodeSystemInfo _
 instance showNodeSystemInfo :: Show NodeSystemInfo where show a = genericShow a
 instance decodeNodeSystemInfo :: Decode NodeSystemInfo where
   decode a = do
-               architecture <- readProp "architecture" a >>= decode
-               bootID <- readProp "bootID" a >>= decode
-               containerRuntimeVersion <- readProp "containerRuntimeVersion" a >>= decode
-               kernelVersion <- readProp "kernelVersion" a >>= decode
-               kubeProxyVersion <- readProp "kubeProxyVersion" a >>= decode
-               kubeletVersion <- readProp "kubeletVersion" a >>= decode
-               machineID <- readProp "machineID" a >>= decode
-               operatingSystem <- readProp "operatingSystem" a >>= decode
-               osImage <- readProp "osImage" a >>= decode
-               systemUUID <- readProp "systemUUID" a >>= decode
+               architecture <- decodeMaybe "architecture" a
+               bootID <- decodeMaybe "bootID" a
+               containerRuntimeVersion <- decodeMaybe "containerRuntimeVersion" a
+               kernelVersion <- decodeMaybe "kernelVersion" a
+               kubeProxyVersion <- decodeMaybe "kubeProxyVersion" a
+               kubeletVersion <- decodeMaybe "kubeletVersion" a
+               machineID <- decodeMaybe "machineID" a
+               operatingSystem <- decodeMaybe "operatingSystem" a
+               osImage <- decodeMaybe "osImage" a
+               systemUUID <- decodeMaybe "systemUUID" a
                pure $ NodeSystemInfo { architecture, bootID, containerRuntimeVersion, kernelVersion, kubeProxyVersion, kubeletVersion, machineID, operatingSystem, osImage, systemUUID }
 instance encodeNodeSystemInfo :: Encode NodeSystemInfo where
   encode (NodeSystemInfo a) = encode $ StrMap.fromFoldable $
-               [ Tuple "architecture" (encode a.architecture)
-               , Tuple "bootID" (encode a.bootID)
-               , Tuple "containerRuntimeVersion" (encode a.containerRuntimeVersion)
-               , Tuple "kernelVersion" (encode a.kernelVersion)
-               , Tuple "kubeProxyVersion" (encode a.kubeProxyVersion)
-               , Tuple "kubeletVersion" (encode a.kubeletVersion)
-               , Tuple "machineID" (encode a.machineID)
-               , Tuple "operatingSystem" (encode a.operatingSystem)
-               , Tuple "osImage" (encode a.osImage)
-               , Tuple "systemUUID" (encode a.systemUUID) ]
+               [ Tuple "architecture" (encodeMaybe a.architecture)
+               , Tuple "bootID" (encodeMaybe a.bootID)
+               , Tuple "containerRuntimeVersion" (encodeMaybe a.containerRuntimeVersion)
+               , Tuple "kernelVersion" (encodeMaybe a.kernelVersion)
+               , Tuple "kubeProxyVersion" (encodeMaybe a.kubeProxyVersion)
+               , Tuple "kubeletVersion" (encodeMaybe a.kubeletVersion)
+               , Tuple "machineID" (encodeMaybe a.machineID)
+               , Tuple "operatingSystem" (encodeMaybe a.operatingSystem)
+               , Tuple "osImage" (encodeMaybe a.osImage)
+               , Tuple "systemUUID" (encodeMaybe a.systemUUID) ]
 
 
 instance defaultNodeSystemInfo :: Default NodeSystemInfo where
   default = NodeSystemInfo
-    { architecture: NullOrUndefined Nothing
-    , bootID: NullOrUndefined Nothing
-    , containerRuntimeVersion: NullOrUndefined Nothing
-    , kernelVersion: NullOrUndefined Nothing
-    , kubeProxyVersion: NullOrUndefined Nothing
-    , kubeletVersion: NullOrUndefined Nothing
-    , machineID: NullOrUndefined Nothing
-    , operatingSystem: NullOrUndefined Nothing
-    , osImage: NullOrUndefined Nothing
-    , systemUUID: NullOrUndefined Nothing }
+    { architecture: Nothing
+    , bootID: Nothing
+    , containerRuntimeVersion: Nothing
+    , kernelVersion: Nothing
+    , kubeProxyVersion: Nothing
+    , kubeletVersion: Nothing
+    , machineID: Nothing
+    , operatingSystem: Nothing
+    , osImage: Nothing
+    , systemUUID: Nothing }
 
 -- | ObjectFieldSelector selects an APIVersioned field of an object.
 -- |
@@ -3426,27 +3425,27 @@ instance defaultNodeSystemInfo :: Default NodeSystemInfo where
 -- | - `apiVersion`: Version of the schema the FieldPath is written in terms of, defaults to "v1".
 -- | - `fieldPath`: Path of the field to select in the specified API version.
 newtype ObjectFieldSelector = ObjectFieldSelector
-  { apiVersion :: (NullOrUndefined String)
-  , fieldPath :: (NullOrUndefined String) }
+  { apiVersion :: (Maybe String)
+  , fieldPath :: (Maybe String) }
 
 derive instance newtypeObjectFieldSelector :: Newtype ObjectFieldSelector _
 derive instance genericObjectFieldSelector :: Generic ObjectFieldSelector _
 instance showObjectFieldSelector :: Show ObjectFieldSelector where show a = genericShow a
 instance decodeObjectFieldSelector :: Decode ObjectFieldSelector where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               fieldPath <- readProp "fieldPath" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               fieldPath <- decodeMaybe "fieldPath" a
                pure $ ObjectFieldSelector { apiVersion, fieldPath }
 instance encodeObjectFieldSelector :: Encode ObjectFieldSelector where
   encode (ObjectFieldSelector a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "fieldPath" (encode a.fieldPath) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "fieldPath" (encodeMaybe a.fieldPath) ]
 
 
 instance defaultObjectFieldSelector :: Default ObjectFieldSelector where
   default = ObjectFieldSelector
-    { apiVersion: NullOrUndefined Nothing
-    , fieldPath: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , fieldPath: Nothing }
 
 -- | ObjectReference contains enough information to let you inspect or modify the referred object.
 -- |
@@ -3459,47 +3458,47 @@ instance defaultObjectFieldSelector :: Default ObjectFieldSelector where
 -- | - `resourceVersion`: Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency
 -- | - `uid`: UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
 newtype ObjectReference = ObjectReference
-  { apiVersion :: (NullOrUndefined String)
-  , fieldPath :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , namespace :: (NullOrUndefined String)
-  , resourceVersion :: (NullOrUndefined String)
-  , uid :: (NullOrUndefined String) }
+  { apiVersion :: (Maybe String)
+  , fieldPath :: (Maybe String)
+  , kind :: (Maybe String)
+  , name :: (Maybe String)
+  , namespace :: (Maybe String)
+  , resourceVersion :: (Maybe String)
+  , uid :: (Maybe String) }
 
 derive instance newtypeObjectReference :: Newtype ObjectReference _
 derive instance genericObjectReference :: Generic ObjectReference _
 instance showObjectReference :: Show ObjectReference where show a = genericShow a
 instance decodeObjectReference :: Decode ObjectReference where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               fieldPath <- readProp "fieldPath" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
-               namespace <- readProp "namespace" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               uid <- readProp "uid" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               fieldPath <- decodeMaybe "fieldPath" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
+               namespace <- decodeMaybe "namespace" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               uid <- decodeMaybe "uid" a
                pure $ ObjectReference { apiVersion, fieldPath, kind, name, namespace, resourceVersion, uid }
 instance encodeObjectReference :: Encode ObjectReference where
   encode (ObjectReference a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "fieldPath" (encode a.fieldPath)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name)
-               , Tuple "namespace" (encode a.namespace)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "uid" (encode a.uid) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "fieldPath" (encodeMaybe a.fieldPath)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespace" (encodeMaybe a.namespace)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "uid" (encodeMaybe a.uid) ]
 
 
 instance defaultObjectReference :: Default ObjectReference where
   default = ObjectReference
-    { apiVersion: NullOrUndefined Nothing
-    , fieldPath: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , namespace: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , uid: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , fieldPath: Nothing
+    , kind: Nothing
+    , name: Nothing
+    , namespace: Nothing
+    , resourceVersion: Nothing
+    , uid: Nothing }
 
 -- | PersistentVolume (PV) is a storage resource provisioned by an administrator. It is analogous to a node. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes
 -- |
@@ -3510,39 +3509,39 @@ instance defaultObjectReference :: Default ObjectReference where
 -- | - `spec`: Spec defines a specification of a persistent volume owned by the cluster. Provisioned by an administrator. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
 -- | - `status`: Status represents the current information/status for the persistent volume. Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistent-volumes
 newtype PersistentVolume = PersistentVolume
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined PersistentVolumeSpec)
-  , status :: (NullOrUndefined PersistentVolumeStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe PersistentVolumeSpec)
+  , status :: (Maybe PersistentVolumeStatus) }
 
 derive instance newtypePersistentVolume :: Newtype PersistentVolume _
 derive instance genericPersistentVolume :: Generic PersistentVolume _
 instance showPersistentVolume :: Show PersistentVolume where show a = genericShow a
 instance decodePersistentVolume :: Decode PersistentVolume where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ PersistentVolume { apiVersion, kind, metadata, spec, status }
 instance encodePersistentVolume :: Encode PersistentVolume where
   encode (PersistentVolume a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultPersistentVolume :: Default PersistentVolume where
   default = PersistentVolume
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | PersistentVolumeClaim is a user's request for and claim to a persistent volume
 -- |
@@ -3553,39 +3552,39 @@ instance defaultPersistentVolume :: Default PersistentVolume where
 -- | - `spec`: Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 -- | - `status`: Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 newtype PersistentVolumeClaim = PersistentVolumeClaim
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined PersistentVolumeClaimSpec)
-  , status :: (NullOrUndefined PersistentVolumeClaimStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe PersistentVolumeClaimSpec)
+  , status :: (Maybe PersistentVolumeClaimStatus) }
 
 derive instance newtypePersistentVolumeClaim :: Newtype PersistentVolumeClaim _
 derive instance genericPersistentVolumeClaim :: Generic PersistentVolumeClaim _
 instance showPersistentVolumeClaim :: Show PersistentVolumeClaim where show a = genericShow a
 instance decodePersistentVolumeClaim :: Decode PersistentVolumeClaim where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ PersistentVolumeClaim { apiVersion, kind, metadata, spec, status }
 instance encodePersistentVolumeClaim :: Encode PersistentVolumeClaim where
   encode (PersistentVolumeClaim a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultPersistentVolumeClaim :: Default PersistentVolumeClaim where
   default = PersistentVolumeClaim
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | PersistentVolumeClaimCondition contails details about state of pvc
 -- |
@@ -3597,43 +3596,43 @@ instance defaultPersistentVolumeClaim :: Default PersistentVolumeClaim where
 -- | - `status`
 -- | - `_type`
 newtype PersistentVolumeClaimCondition = PersistentVolumeClaimCondition
-  { _type :: (NullOrUndefined String)
-  , lastProbeTime :: (NullOrUndefined MetaV1.Time)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastProbeTime :: (Maybe MetaV1.Time)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypePersistentVolumeClaimCondition :: Newtype PersistentVolumeClaimCondition _
 derive instance genericPersistentVolumeClaimCondition :: Generic PersistentVolumeClaimCondition _
 instance showPersistentVolumeClaimCondition :: Show PersistentVolumeClaimCondition where show a = genericShow a
 instance decodePersistentVolumeClaimCondition :: Decode PersistentVolumeClaimCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastProbeTime <- readProp "lastProbeTime" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastProbeTime <- decodeMaybe "lastProbeTime" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ PersistentVolumeClaimCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodePersistentVolumeClaimCondition :: Encode PersistentVolumeClaimCondition where
   encode (PersistentVolumeClaimCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastProbeTime" (encode a.lastProbeTime)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastProbeTime" (encodeMaybe a.lastProbeTime)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultPersistentVolumeClaimCondition :: Default PersistentVolumeClaimCondition where
   default = PersistentVolumeClaimCondition
-    { _type: NullOrUndefined Nothing
-    , lastProbeTime: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastProbeTime: Nothing
+    , lastTransitionTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | PersistentVolumeClaimList is a list of PersistentVolumeClaim items.
 -- |
@@ -3643,35 +3642,35 @@ instance defaultPersistentVolumeClaimCondition :: Default PersistentVolumeClaimC
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PersistentVolumeClaimList = PersistentVolumeClaimList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PersistentVolumeClaim))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array PersistentVolumeClaim))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePersistentVolumeClaimList :: Newtype PersistentVolumeClaimList _
 derive instance genericPersistentVolumeClaimList :: Generic PersistentVolumeClaimList _
 instance showPersistentVolumeClaimList :: Show PersistentVolumeClaimList where show a = genericShow a
 instance decodePersistentVolumeClaimList :: Decode PersistentVolumeClaimList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ PersistentVolumeClaimList { apiVersion, items, kind, metadata }
 instance encodePersistentVolumeClaimList :: Encode PersistentVolumeClaimList where
   encode (PersistentVolumeClaimList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPersistentVolumeClaimList :: Default PersistentVolumeClaimList where
   default = PersistentVolumeClaimList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PersistentVolumeClaimSpec describes the common attributes of storage devices and allows a Source for provider-specific attributes
 -- |
@@ -3683,43 +3682,43 @@ instance defaultPersistentVolumeClaimList :: Default PersistentVolumeClaimList w
 -- | - `volumeMode`: volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec. This is an alpha feature and may change in the future.
 -- | - `volumeName`: VolumeName is the binding reference to the PersistentVolume backing this claim.
 newtype PersistentVolumeClaimSpec = PersistentVolumeClaimSpec
-  { accessModes :: (NullOrUndefined (Array String))
-  , resources :: (NullOrUndefined ResourceRequirements)
-  , selector :: (NullOrUndefined MetaV1.LabelSelector)
-  , storageClassName :: (NullOrUndefined String)
-  , volumeMode :: (NullOrUndefined String)
-  , volumeName :: (NullOrUndefined String) }
+  { accessModes :: (Maybe (Array String))
+  , resources :: (Maybe ResourceRequirements)
+  , selector :: (Maybe MetaV1.LabelSelector)
+  , storageClassName :: (Maybe String)
+  , volumeMode :: (Maybe String)
+  , volumeName :: (Maybe String) }
 
 derive instance newtypePersistentVolumeClaimSpec :: Newtype PersistentVolumeClaimSpec _
 derive instance genericPersistentVolumeClaimSpec :: Generic PersistentVolumeClaimSpec _
 instance showPersistentVolumeClaimSpec :: Show PersistentVolumeClaimSpec where show a = genericShow a
 instance decodePersistentVolumeClaimSpec :: Decode PersistentVolumeClaimSpec where
   decode a = do
-               accessModes <- readProp "accessModes" a >>= decode
-               resources <- readProp "resources" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               storageClassName <- readProp "storageClassName" a >>= decode
-               volumeMode <- readProp "volumeMode" a >>= decode
-               volumeName <- readProp "volumeName" a >>= decode
+               accessModes <- decodeMaybe "accessModes" a
+               resources <- decodeMaybe "resources" a
+               selector <- decodeMaybe "selector" a
+               storageClassName <- decodeMaybe "storageClassName" a
+               volumeMode <- decodeMaybe "volumeMode" a
+               volumeName <- decodeMaybe "volumeName" a
                pure $ PersistentVolumeClaimSpec { accessModes, resources, selector, storageClassName, volumeMode, volumeName }
 instance encodePersistentVolumeClaimSpec :: Encode PersistentVolumeClaimSpec where
   encode (PersistentVolumeClaimSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "accessModes" (encode a.accessModes)
-               , Tuple "resources" (encode a.resources)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "storageClassName" (encode a.storageClassName)
-               , Tuple "volumeMode" (encode a.volumeMode)
-               , Tuple "volumeName" (encode a.volumeName) ]
+               [ Tuple "accessModes" (encodeMaybe a.accessModes)
+               , Tuple "resources" (encodeMaybe a.resources)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "storageClassName" (encodeMaybe a.storageClassName)
+               , Tuple "volumeMode" (encodeMaybe a.volumeMode)
+               , Tuple "volumeName" (encodeMaybe a.volumeName) ]
 
 
 instance defaultPersistentVolumeClaimSpec :: Default PersistentVolumeClaimSpec where
   default = PersistentVolumeClaimSpec
-    { accessModes: NullOrUndefined Nothing
-    , resources: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , storageClassName: NullOrUndefined Nothing
-    , volumeMode: NullOrUndefined Nothing
-    , volumeName: NullOrUndefined Nothing }
+    { accessModes: Nothing
+    , resources: Nothing
+    , selector: Nothing
+    , storageClassName: Nothing
+    , volumeMode: Nothing
+    , volumeName: Nothing }
 
 -- | PersistentVolumeClaimStatus is the current status of a persistent volume claim.
 -- |
@@ -3729,35 +3728,35 @@ instance defaultPersistentVolumeClaimSpec :: Default PersistentVolumeClaimSpec w
 -- | - `conditions`: Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'.
 -- | - `phase`: Phase represents the current phase of PersistentVolumeClaim.
 newtype PersistentVolumeClaimStatus = PersistentVolumeClaimStatus
-  { accessModes :: (NullOrUndefined (Array String))
-  , capacity :: (NullOrUndefined (StrMap Resource.Quantity))
-  , conditions :: (NullOrUndefined (Array PersistentVolumeClaimCondition))
-  , phase :: (NullOrUndefined String) }
+  { accessModes :: (Maybe (Array String))
+  , capacity :: (Maybe (StrMap Resource.Quantity))
+  , conditions :: (Maybe (Array PersistentVolumeClaimCondition))
+  , phase :: (Maybe String) }
 
 derive instance newtypePersistentVolumeClaimStatus :: Newtype PersistentVolumeClaimStatus _
 derive instance genericPersistentVolumeClaimStatus :: Generic PersistentVolumeClaimStatus _
 instance showPersistentVolumeClaimStatus :: Show PersistentVolumeClaimStatus where show a = genericShow a
 instance decodePersistentVolumeClaimStatus :: Decode PersistentVolumeClaimStatus where
   decode a = do
-               accessModes <- readProp "accessModes" a >>= decode
-               capacity <- readProp "capacity" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
-               phase <- readProp "phase" a >>= decode
+               accessModes <- decodeMaybe "accessModes" a
+               capacity <- decodeMaybe "capacity" a
+               conditions <- decodeMaybe "conditions" a
+               phase <- decodeMaybe "phase" a
                pure $ PersistentVolumeClaimStatus { accessModes, capacity, conditions, phase }
 instance encodePersistentVolumeClaimStatus :: Encode PersistentVolumeClaimStatus where
   encode (PersistentVolumeClaimStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "accessModes" (encode a.accessModes)
-               , Tuple "capacity" (encode a.capacity)
-               , Tuple "conditions" (encode a.conditions)
-               , Tuple "phase" (encode a.phase) ]
+               [ Tuple "accessModes" (encodeMaybe a.accessModes)
+               , Tuple "capacity" (encodeMaybe a.capacity)
+               , Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "phase" (encodeMaybe a.phase) ]
 
 
 instance defaultPersistentVolumeClaimStatus :: Default PersistentVolumeClaimStatus where
   default = PersistentVolumeClaimStatus
-    { accessModes: NullOrUndefined Nothing
-    , capacity: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing
-    , phase: NullOrUndefined Nothing }
+    { accessModes: Nothing
+    , capacity: Nothing
+    , conditions: Nothing
+    , phase: Nothing }
 
 -- | PersistentVolumeClaimVolumeSource references the user's PVC in the same namespace. This volume finds the bound PV and mounts that volume for the pod. A PersistentVolumeClaimVolumeSource is, essentially, a wrapper around another type of volume that is owned by someone else (the system).
 -- |
@@ -3765,27 +3764,27 @@ instance defaultPersistentVolumeClaimStatus :: Default PersistentVolumeClaimStat
 -- | - `claimName`: ClaimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 -- | - `readOnly`: Will force the ReadOnly setting in VolumeMounts. Default false.
 newtype PersistentVolumeClaimVolumeSource = PersistentVolumeClaimVolumeSource
-  { claimName :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean) }
+  { claimName :: (Maybe String)
+  , readOnly :: (Maybe Boolean) }
 
 derive instance newtypePersistentVolumeClaimVolumeSource :: Newtype PersistentVolumeClaimVolumeSource _
 derive instance genericPersistentVolumeClaimVolumeSource :: Generic PersistentVolumeClaimVolumeSource _
 instance showPersistentVolumeClaimVolumeSource :: Show PersistentVolumeClaimVolumeSource where show a = genericShow a
 instance decodePersistentVolumeClaimVolumeSource :: Decode PersistentVolumeClaimVolumeSource where
   decode a = do
-               claimName <- readProp "claimName" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
+               claimName <- decodeMaybe "claimName" a
+               readOnly <- decodeMaybe "readOnly" a
                pure $ PersistentVolumeClaimVolumeSource { claimName, readOnly }
 instance encodePersistentVolumeClaimVolumeSource :: Encode PersistentVolumeClaimVolumeSource where
   encode (PersistentVolumeClaimVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "claimName" (encode a.claimName)
-               , Tuple "readOnly" (encode a.readOnly) ]
+               [ Tuple "claimName" (encodeMaybe a.claimName)
+               , Tuple "readOnly" (encodeMaybe a.readOnly) ]
 
 
 instance defaultPersistentVolumeClaimVolumeSource :: Default PersistentVolumeClaimVolumeSource where
   default = PersistentVolumeClaimVolumeSource
-    { claimName: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing }
+    { claimName: Nothing
+    , readOnly: Nothing }
 
 -- | PersistentVolumeList is a list of PersistentVolume items.
 -- |
@@ -3795,35 +3794,35 @@ instance defaultPersistentVolumeClaimVolumeSource :: Default PersistentVolumeCla
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PersistentVolumeList = PersistentVolumeList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PersistentVolume))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array PersistentVolume))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePersistentVolumeList :: Newtype PersistentVolumeList _
 derive instance genericPersistentVolumeList :: Generic PersistentVolumeList _
 instance showPersistentVolumeList :: Show PersistentVolumeList where show a = genericShow a
 instance decodePersistentVolumeList :: Decode PersistentVolumeList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ PersistentVolumeList { apiVersion, items, kind, metadata }
 instance encodePersistentVolumeList :: Encode PersistentVolumeList where
   encode (PersistentVolumeList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPersistentVolumeList :: Default PersistentVolumeList where
   default = PersistentVolumeList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PersistentVolumeSpec is the specification of a persistent volume.
 -- |
@@ -3858,135 +3857,135 @@ instance defaultPersistentVolumeList :: Default PersistentVolumeList where
 -- | - `volumeMode`: volumeMode defines if a volume is intended to be used with a formatted filesystem or to remain in raw block state. Value of Filesystem is implied when not included in spec. This is an alpha feature and may change in the future.
 -- | - `vsphereVolume`: VsphereVolume represents a vSphere volume attached and mounted on kubelets host machine
 newtype PersistentVolumeSpec = PersistentVolumeSpec
-  { accessModes :: (NullOrUndefined (Array String))
-  , awsElasticBlockStore :: (NullOrUndefined AWSElasticBlockStoreVolumeSource)
-  , azureDisk :: (NullOrUndefined AzureDiskVolumeSource)
-  , azureFile :: (NullOrUndefined AzureFilePersistentVolumeSource)
-  , capacity :: (NullOrUndefined (StrMap Resource.Quantity))
-  , cephfs :: (NullOrUndefined CephFSPersistentVolumeSource)
-  , cinder :: (NullOrUndefined CinderVolumeSource)
-  , claimRef :: (NullOrUndefined ObjectReference)
-  , csi :: (NullOrUndefined CSIPersistentVolumeSource)
-  , fc :: (NullOrUndefined FCVolumeSource)
-  , flexVolume :: (NullOrUndefined FlexPersistentVolumeSource)
-  , flocker :: (NullOrUndefined FlockerVolumeSource)
-  , gcePersistentDisk :: (NullOrUndefined GCEPersistentDiskVolumeSource)
-  , glusterfs :: (NullOrUndefined GlusterfsVolumeSource)
-  , hostPath :: (NullOrUndefined HostPathVolumeSource)
-  , iscsi :: (NullOrUndefined ISCSIPersistentVolumeSource)
-  , local :: (NullOrUndefined LocalVolumeSource)
-  , mountOptions :: (NullOrUndefined (Array String))
-  , nfs :: (NullOrUndefined NFSVolumeSource)
-  , persistentVolumeReclaimPolicy :: (NullOrUndefined String)
-  , photonPersistentDisk :: (NullOrUndefined PhotonPersistentDiskVolumeSource)
-  , portworxVolume :: (NullOrUndefined PortworxVolumeSource)
-  , quobyte :: (NullOrUndefined QuobyteVolumeSource)
-  , rbd :: (NullOrUndefined RBDPersistentVolumeSource)
-  , scaleIO :: (NullOrUndefined ScaleIOPersistentVolumeSource)
-  , storageClassName :: (NullOrUndefined String)
-  , storageos :: (NullOrUndefined StorageOSPersistentVolumeSource)
-  , volumeMode :: (NullOrUndefined String)
-  , vsphereVolume :: (NullOrUndefined VsphereVirtualDiskVolumeSource) }
+  { accessModes :: (Maybe (Array String))
+  , awsElasticBlockStore :: (Maybe AWSElasticBlockStoreVolumeSource)
+  , azureDisk :: (Maybe AzureDiskVolumeSource)
+  , azureFile :: (Maybe AzureFilePersistentVolumeSource)
+  , capacity :: (Maybe (StrMap Resource.Quantity))
+  , cephfs :: (Maybe CephFSPersistentVolumeSource)
+  , cinder :: (Maybe CinderVolumeSource)
+  , claimRef :: (Maybe ObjectReference)
+  , csi :: (Maybe CSIPersistentVolumeSource)
+  , fc :: (Maybe FCVolumeSource)
+  , flexVolume :: (Maybe FlexPersistentVolumeSource)
+  , flocker :: (Maybe FlockerVolumeSource)
+  , gcePersistentDisk :: (Maybe GCEPersistentDiskVolumeSource)
+  , glusterfs :: (Maybe GlusterfsVolumeSource)
+  , hostPath :: (Maybe HostPathVolumeSource)
+  , iscsi :: (Maybe ISCSIPersistentVolumeSource)
+  , local :: (Maybe LocalVolumeSource)
+  , mountOptions :: (Maybe (Array String))
+  , nfs :: (Maybe NFSVolumeSource)
+  , persistentVolumeReclaimPolicy :: (Maybe String)
+  , photonPersistentDisk :: (Maybe PhotonPersistentDiskVolumeSource)
+  , portworxVolume :: (Maybe PortworxVolumeSource)
+  , quobyte :: (Maybe QuobyteVolumeSource)
+  , rbd :: (Maybe RBDPersistentVolumeSource)
+  , scaleIO :: (Maybe ScaleIOPersistentVolumeSource)
+  , storageClassName :: (Maybe String)
+  , storageos :: (Maybe StorageOSPersistentVolumeSource)
+  , volumeMode :: (Maybe String)
+  , vsphereVolume :: (Maybe VsphereVirtualDiskVolumeSource) }
 
 derive instance newtypePersistentVolumeSpec :: Newtype PersistentVolumeSpec _
 derive instance genericPersistentVolumeSpec :: Generic PersistentVolumeSpec _
 instance showPersistentVolumeSpec :: Show PersistentVolumeSpec where show a = genericShow a
 instance decodePersistentVolumeSpec :: Decode PersistentVolumeSpec where
   decode a = do
-               accessModes <- readProp "accessModes" a >>= decode
-               awsElasticBlockStore <- readProp "awsElasticBlockStore" a >>= decode
-               azureDisk <- readProp "azureDisk" a >>= decode
-               azureFile <- readProp "azureFile" a >>= decode
-               capacity <- readProp "capacity" a >>= decode
-               cephfs <- readProp "cephfs" a >>= decode
-               cinder <- readProp "cinder" a >>= decode
-               claimRef <- readProp "claimRef" a >>= decode
-               csi <- readProp "csi" a >>= decode
-               fc <- readProp "fc" a >>= decode
-               flexVolume <- readProp "flexVolume" a >>= decode
-               flocker <- readProp "flocker" a >>= decode
-               gcePersistentDisk <- readProp "gcePersistentDisk" a >>= decode
-               glusterfs <- readProp "glusterfs" a >>= decode
-               hostPath <- readProp "hostPath" a >>= decode
-               iscsi <- readProp "iscsi" a >>= decode
-               local <- readProp "local" a >>= decode
-               mountOptions <- readProp "mountOptions" a >>= decode
-               nfs <- readProp "nfs" a >>= decode
-               persistentVolumeReclaimPolicy <- readProp "persistentVolumeReclaimPolicy" a >>= decode
-               photonPersistentDisk <- readProp "photonPersistentDisk" a >>= decode
-               portworxVolume <- readProp "portworxVolume" a >>= decode
-               quobyte <- readProp "quobyte" a >>= decode
-               rbd <- readProp "rbd" a >>= decode
-               scaleIO <- readProp "scaleIO" a >>= decode
-               storageClassName <- readProp "storageClassName" a >>= decode
-               storageos <- readProp "storageos" a >>= decode
-               volumeMode <- readProp "volumeMode" a >>= decode
-               vsphereVolume <- readProp "vsphereVolume" a >>= decode
+               accessModes <- decodeMaybe "accessModes" a
+               awsElasticBlockStore <- decodeMaybe "awsElasticBlockStore" a
+               azureDisk <- decodeMaybe "azureDisk" a
+               azureFile <- decodeMaybe "azureFile" a
+               capacity <- decodeMaybe "capacity" a
+               cephfs <- decodeMaybe "cephfs" a
+               cinder <- decodeMaybe "cinder" a
+               claimRef <- decodeMaybe "claimRef" a
+               csi <- decodeMaybe "csi" a
+               fc <- decodeMaybe "fc" a
+               flexVolume <- decodeMaybe "flexVolume" a
+               flocker <- decodeMaybe "flocker" a
+               gcePersistentDisk <- decodeMaybe "gcePersistentDisk" a
+               glusterfs <- decodeMaybe "glusterfs" a
+               hostPath <- decodeMaybe "hostPath" a
+               iscsi <- decodeMaybe "iscsi" a
+               local <- decodeMaybe "local" a
+               mountOptions <- decodeMaybe "mountOptions" a
+               nfs <- decodeMaybe "nfs" a
+               persistentVolumeReclaimPolicy <- decodeMaybe "persistentVolumeReclaimPolicy" a
+               photonPersistentDisk <- decodeMaybe "photonPersistentDisk" a
+               portworxVolume <- decodeMaybe "portworxVolume" a
+               quobyte <- decodeMaybe "quobyte" a
+               rbd <- decodeMaybe "rbd" a
+               scaleIO <- decodeMaybe "scaleIO" a
+               storageClassName <- decodeMaybe "storageClassName" a
+               storageos <- decodeMaybe "storageos" a
+               volumeMode <- decodeMaybe "volumeMode" a
+               vsphereVolume <- decodeMaybe "vsphereVolume" a
                pure $ PersistentVolumeSpec { accessModes, awsElasticBlockStore, azureDisk, azureFile, capacity, cephfs, cinder, claimRef, csi, fc, flexVolume, flocker, gcePersistentDisk, glusterfs, hostPath, iscsi, local, mountOptions, nfs, persistentVolumeReclaimPolicy, photonPersistentDisk, portworxVolume, quobyte, rbd, scaleIO, storageClassName, storageos, volumeMode, vsphereVolume }
 instance encodePersistentVolumeSpec :: Encode PersistentVolumeSpec where
   encode (PersistentVolumeSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "accessModes" (encode a.accessModes)
-               , Tuple "awsElasticBlockStore" (encode a.awsElasticBlockStore)
-               , Tuple "azureDisk" (encode a.azureDisk)
-               , Tuple "azureFile" (encode a.azureFile)
-               , Tuple "capacity" (encode a.capacity)
-               , Tuple "cephfs" (encode a.cephfs)
-               , Tuple "cinder" (encode a.cinder)
-               , Tuple "claimRef" (encode a.claimRef)
-               , Tuple "csi" (encode a.csi)
-               , Tuple "fc" (encode a.fc)
-               , Tuple "flexVolume" (encode a.flexVolume)
-               , Tuple "flocker" (encode a.flocker)
-               , Tuple "gcePersistentDisk" (encode a.gcePersistentDisk)
-               , Tuple "glusterfs" (encode a.glusterfs)
-               , Tuple "hostPath" (encode a.hostPath)
-               , Tuple "iscsi" (encode a.iscsi)
-               , Tuple "local" (encode a.local)
-               , Tuple "mountOptions" (encode a.mountOptions)
-               , Tuple "nfs" (encode a.nfs)
-               , Tuple "persistentVolumeReclaimPolicy" (encode a.persistentVolumeReclaimPolicy)
-               , Tuple "photonPersistentDisk" (encode a.photonPersistentDisk)
-               , Tuple "portworxVolume" (encode a.portworxVolume)
-               , Tuple "quobyte" (encode a.quobyte)
-               , Tuple "rbd" (encode a.rbd)
-               , Tuple "scaleIO" (encode a.scaleIO)
-               , Tuple "storageClassName" (encode a.storageClassName)
-               , Tuple "storageos" (encode a.storageos)
-               , Tuple "volumeMode" (encode a.volumeMode)
-               , Tuple "vsphereVolume" (encode a.vsphereVolume) ]
+               [ Tuple "accessModes" (encodeMaybe a.accessModes)
+               , Tuple "awsElasticBlockStore" (encodeMaybe a.awsElasticBlockStore)
+               , Tuple "azureDisk" (encodeMaybe a.azureDisk)
+               , Tuple "azureFile" (encodeMaybe a.azureFile)
+               , Tuple "capacity" (encodeMaybe a.capacity)
+               , Tuple "cephfs" (encodeMaybe a.cephfs)
+               , Tuple "cinder" (encodeMaybe a.cinder)
+               , Tuple "claimRef" (encodeMaybe a.claimRef)
+               , Tuple "csi" (encodeMaybe a.csi)
+               , Tuple "fc" (encodeMaybe a.fc)
+               , Tuple "flexVolume" (encodeMaybe a.flexVolume)
+               , Tuple "flocker" (encodeMaybe a.flocker)
+               , Tuple "gcePersistentDisk" (encodeMaybe a.gcePersistentDisk)
+               , Tuple "glusterfs" (encodeMaybe a.glusterfs)
+               , Tuple "hostPath" (encodeMaybe a.hostPath)
+               , Tuple "iscsi" (encodeMaybe a.iscsi)
+               , Tuple "local" (encodeMaybe a.local)
+               , Tuple "mountOptions" (encodeMaybe a.mountOptions)
+               , Tuple "nfs" (encodeMaybe a.nfs)
+               , Tuple "persistentVolumeReclaimPolicy" (encodeMaybe a.persistentVolumeReclaimPolicy)
+               , Tuple "photonPersistentDisk" (encodeMaybe a.photonPersistentDisk)
+               , Tuple "portworxVolume" (encodeMaybe a.portworxVolume)
+               , Tuple "quobyte" (encodeMaybe a.quobyte)
+               , Tuple "rbd" (encodeMaybe a.rbd)
+               , Tuple "scaleIO" (encodeMaybe a.scaleIO)
+               , Tuple "storageClassName" (encodeMaybe a.storageClassName)
+               , Tuple "storageos" (encodeMaybe a.storageos)
+               , Tuple "volumeMode" (encodeMaybe a.volumeMode)
+               , Tuple "vsphereVolume" (encodeMaybe a.vsphereVolume) ]
 
 
 instance defaultPersistentVolumeSpec :: Default PersistentVolumeSpec where
   default = PersistentVolumeSpec
-    { accessModes: NullOrUndefined Nothing
-    , awsElasticBlockStore: NullOrUndefined Nothing
-    , azureDisk: NullOrUndefined Nothing
-    , azureFile: NullOrUndefined Nothing
-    , capacity: NullOrUndefined Nothing
-    , cephfs: NullOrUndefined Nothing
-    , cinder: NullOrUndefined Nothing
-    , claimRef: NullOrUndefined Nothing
-    , csi: NullOrUndefined Nothing
-    , fc: NullOrUndefined Nothing
-    , flexVolume: NullOrUndefined Nothing
-    , flocker: NullOrUndefined Nothing
-    , gcePersistentDisk: NullOrUndefined Nothing
-    , glusterfs: NullOrUndefined Nothing
-    , hostPath: NullOrUndefined Nothing
-    , iscsi: NullOrUndefined Nothing
-    , local: NullOrUndefined Nothing
-    , mountOptions: NullOrUndefined Nothing
-    , nfs: NullOrUndefined Nothing
-    , persistentVolumeReclaimPolicy: NullOrUndefined Nothing
-    , photonPersistentDisk: NullOrUndefined Nothing
-    , portworxVolume: NullOrUndefined Nothing
-    , quobyte: NullOrUndefined Nothing
-    , rbd: NullOrUndefined Nothing
-    , scaleIO: NullOrUndefined Nothing
-    , storageClassName: NullOrUndefined Nothing
-    , storageos: NullOrUndefined Nothing
-    , volumeMode: NullOrUndefined Nothing
-    , vsphereVolume: NullOrUndefined Nothing }
+    { accessModes: Nothing
+    , awsElasticBlockStore: Nothing
+    , azureDisk: Nothing
+    , azureFile: Nothing
+    , capacity: Nothing
+    , cephfs: Nothing
+    , cinder: Nothing
+    , claimRef: Nothing
+    , csi: Nothing
+    , fc: Nothing
+    , flexVolume: Nothing
+    , flocker: Nothing
+    , gcePersistentDisk: Nothing
+    , glusterfs: Nothing
+    , hostPath: Nothing
+    , iscsi: Nothing
+    , local: Nothing
+    , mountOptions: Nothing
+    , nfs: Nothing
+    , persistentVolumeReclaimPolicy: Nothing
+    , photonPersistentDisk: Nothing
+    , portworxVolume: Nothing
+    , quobyte: Nothing
+    , rbd: Nothing
+    , scaleIO: Nothing
+    , storageClassName: Nothing
+    , storageos: Nothing
+    , volumeMode: Nothing
+    , vsphereVolume: Nothing }
 
 -- | PersistentVolumeStatus is the current status of a persistent volume.
 -- |
@@ -3995,31 +3994,31 @@ instance defaultPersistentVolumeSpec :: Default PersistentVolumeSpec where
 -- | - `phase`: Phase indicates if a volume is available, bound to a claim, or released by a claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#phase
 -- | - `reason`: Reason is a brief CamelCase string that describes any failure and is meant for machine parsing and tidy display in the CLI.
 newtype PersistentVolumeStatus = PersistentVolumeStatus
-  { message :: (NullOrUndefined String)
-  , phase :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String) }
+  { message :: (Maybe String)
+  , phase :: (Maybe String)
+  , reason :: (Maybe String) }
 
 derive instance newtypePersistentVolumeStatus :: Newtype PersistentVolumeStatus _
 derive instance genericPersistentVolumeStatus :: Generic PersistentVolumeStatus _
 instance showPersistentVolumeStatus :: Show PersistentVolumeStatus where show a = genericShow a
 instance decodePersistentVolumeStatus :: Decode PersistentVolumeStatus where
   decode a = do
-               message <- readProp "message" a >>= decode
-               phase <- readProp "phase" a >>= decode
-               reason <- readProp "reason" a >>= decode
+               message <- decodeMaybe "message" a
+               phase <- decodeMaybe "phase" a
+               reason <- decodeMaybe "reason" a
                pure $ PersistentVolumeStatus { message, phase, reason }
 instance encodePersistentVolumeStatus :: Encode PersistentVolumeStatus where
   encode (PersistentVolumeStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "message" (encode a.message)
-               , Tuple "phase" (encode a.phase)
-               , Tuple "reason" (encode a.reason) ]
+               [ Tuple "message" (encodeMaybe a.message)
+               , Tuple "phase" (encodeMaybe a.phase)
+               , Tuple "reason" (encodeMaybe a.reason) ]
 
 
 instance defaultPersistentVolumeStatus :: Default PersistentVolumeStatus where
   default = PersistentVolumeStatus
-    { message: NullOrUndefined Nothing
-    , phase: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing }
+    { message: Nothing
+    , phase: Nothing
+    , reason: Nothing }
 
 -- | Represents a Photon Controller persistent disk resource.
 -- |
@@ -4027,27 +4026,27 @@ instance defaultPersistentVolumeStatus :: Default PersistentVolumeStatus where
 -- | - `fsType`: Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. "ext4", "xfs", "ntfs". Implicitly inferred to be "ext4" if unspecified.
 -- | - `pdID`: ID that identifies Photon Controller persistent disk
 newtype PhotonPersistentDiskVolumeSource = PhotonPersistentDiskVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , pdID :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , pdID :: (Maybe String) }
 
 derive instance newtypePhotonPersistentDiskVolumeSource :: Newtype PhotonPersistentDiskVolumeSource _
 derive instance genericPhotonPersistentDiskVolumeSource :: Generic PhotonPersistentDiskVolumeSource _
 instance showPhotonPersistentDiskVolumeSource :: Show PhotonPersistentDiskVolumeSource where show a = genericShow a
 instance decodePhotonPersistentDiskVolumeSource :: Decode PhotonPersistentDiskVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               pdID <- readProp "pdID" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               pdID <- decodeMaybe "pdID" a
                pure $ PhotonPersistentDiskVolumeSource { fsType, pdID }
 instance encodePhotonPersistentDiskVolumeSource :: Encode PhotonPersistentDiskVolumeSource where
   encode (PhotonPersistentDiskVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "pdID" (encode a.pdID) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "pdID" (encodeMaybe a.pdID) ]
 
 
 instance defaultPhotonPersistentDiskVolumeSource :: Default PhotonPersistentDiskVolumeSource where
   default = PhotonPersistentDiskVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , pdID: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , pdID: Nothing }
 
 -- | Pod is a collection of containers that can run on a host. This resource is created by clients and scheduled onto hosts.
 -- |
@@ -4058,39 +4057,39 @@ instance defaultPhotonPersistentDiskVolumeSource :: Default PhotonPersistentDisk
 -- | - `spec`: Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Most recently observed status of the pod. This data may not be up to date. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Pod = Pod
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined PodSpec)
-  , status :: (NullOrUndefined PodStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe PodSpec)
+  , status :: (Maybe PodStatus) }
 
 derive instance newtypePod :: Newtype Pod _
 derive instance genericPod :: Generic Pod _
 instance showPod :: Show Pod where show a = genericShow a
 instance decodePod :: Decode Pod where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ Pod { apiVersion, kind, metadata, spec, status }
 instance encodePod :: Encode Pod where
   encode (Pod a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultPod :: Default Pod where
   default = Pod
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | Pod affinity is a group of inter pod affinity scheduling rules.
 -- |
@@ -4098,27 +4097,27 @@ instance defaultPod :: Default Pod where
 -- | - `preferredDuringSchedulingIgnoredDuringExecution`: The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
 -- | - `requiredDuringSchedulingIgnoredDuringExecution`: If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
 newtype PodAffinity = PodAffinity
-  { preferredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array WeightedPodAffinityTerm))
-  , requiredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array PodAffinityTerm)) }
+  { preferredDuringSchedulingIgnoredDuringExecution :: (Maybe (Array WeightedPodAffinityTerm))
+  , requiredDuringSchedulingIgnoredDuringExecution :: (Maybe (Array PodAffinityTerm)) }
 
 derive instance newtypePodAffinity :: Newtype PodAffinity _
 derive instance genericPodAffinity :: Generic PodAffinity _
 instance showPodAffinity :: Show PodAffinity where show a = genericShow a
 instance decodePodAffinity :: Decode PodAffinity where
   decode a = do
-               preferredDuringSchedulingIgnoredDuringExecution <- readProp "preferredDuringSchedulingIgnoredDuringExecution" a >>= decode
-               requiredDuringSchedulingIgnoredDuringExecution <- readProp "requiredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               preferredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "preferredDuringSchedulingIgnoredDuringExecution" a
+               requiredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "requiredDuringSchedulingIgnoredDuringExecution" a
                pure $ PodAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodePodAffinity :: Encode PodAffinity where
   encode (PodAffinity a) = encode $ StrMap.fromFoldable $
-               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encode a.preferredDuringSchedulingIgnoredDuringExecution)
-               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encode a.requiredDuringSchedulingIgnoredDuringExecution) ]
+               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.preferredDuringSchedulingIgnoredDuringExecution)
+               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.requiredDuringSchedulingIgnoredDuringExecution) ]
 
 
 instance defaultPodAffinity :: Default PodAffinity where
   default = PodAffinity
-    { preferredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing
-    , requiredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing }
+    { preferredDuringSchedulingIgnoredDuringExecution: Nothing
+    , requiredDuringSchedulingIgnoredDuringExecution: Nothing }
 
 -- | Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running
 -- |
@@ -4127,31 +4126,31 @@ instance defaultPodAffinity :: Default PodAffinity where
 -- | - `namespaces`: namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means "this pod's namespace"
 -- | - `topologyKey`: This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed.
 newtype PodAffinityTerm = PodAffinityTerm
-  { labelSelector :: (NullOrUndefined MetaV1.LabelSelector)
-  , namespaces :: (NullOrUndefined (Array String))
-  , topologyKey :: (NullOrUndefined String) }
+  { labelSelector :: (Maybe MetaV1.LabelSelector)
+  , namespaces :: (Maybe (Array String))
+  , topologyKey :: (Maybe String) }
 
 derive instance newtypePodAffinityTerm :: Newtype PodAffinityTerm _
 derive instance genericPodAffinityTerm :: Generic PodAffinityTerm _
 instance showPodAffinityTerm :: Show PodAffinityTerm where show a = genericShow a
 instance decodePodAffinityTerm :: Decode PodAffinityTerm where
   decode a = do
-               labelSelector <- readProp "labelSelector" a >>= decode
-               namespaces <- readProp "namespaces" a >>= decode
-               topologyKey <- readProp "topologyKey" a >>= decode
+               labelSelector <- decodeMaybe "labelSelector" a
+               namespaces <- decodeMaybe "namespaces" a
+               topologyKey <- decodeMaybe "topologyKey" a
                pure $ PodAffinityTerm { labelSelector, namespaces, topologyKey }
 instance encodePodAffinityTerm :: Encode PodAffinityTerm where
   encode (PodAffinityTerm a) = encode $ StrMap.fromFoldable $
-               [ Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "namespaces" (encode a.namespaces)
-               , Tuple "topologyKey" (encode a.topologyKey) ]
+               [ Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "namespaces" (encodeMaybe a.namespaces)
+               , Tuple "topologyKey" (encodeMaybe a.topologyKey) ]
 
 
 instance defaultPodAffinityTerm :: Default PodAffinityTerm where
   default = PodAffinityTerm
-    { labelSelector: NullOrUndefined Nothing
-    , namespaces: NullOrUndefined Nothing
-    , topologyKey: NullOrUndefined Nothing }
+    { labelSelector: Nothing
+    , namespaces: Nothing
+    , topologyKey: Nothing }
 
 -- | Pod anti affinity is a group of inter pod anti affinity scheduling rules.
 -- |
@@ -4159,27 +4158,27 @@ instance defaultPodAffinityTerm :: Default PodAffinityTerm where
 -- | - `preferredDuringSchedulingIgnoredDuringExecution`: The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling anti-affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred.
 -- | - `requiredDuringSchedulingIgnoredDuringExecution`: If the anti-affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the anti-affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied.
 newtype PodAntiAffinity = PodAntiAffinity
-  { preferredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array WeightedPodAffinityTerm))
-  , requiredDuringSchedulingIgnoredDuringExecution :: (NullOrUndefined (Array PodAffinityTerm)) }
+  { preferredDuringSchedulingIgnoredDuringExecution :: (Maybe (Array WeightedPodAffinityTerm))
+  , requiredDuringSchedulingIgnoredDuringExecution :: (Maybe (Array PodAffinityTerm)) }
 
 derive instance newtypePodAntiAffinity :: Newtype PodAntiAffinity _
 derive instance genericPodAntiAffinity :: Generic PodAntiAffinity _
 instance showPodAntiAffinity :: Show PodAntiAffinity where show a = genericShow a
 instance decodePodAntiAffinity :: Decode PodAntiAffinity where
   decode a = do
-               preferredDuringSchedulingIgnoredDuringExecution <- readProp "preferredDuringSchedulingIgnoredDuringExecution" a >>= decode
-               requiredDuringSchedulingIgnoredDuringExecution <- readProp "requiredDuringSchedulingIgnoredDuringExecution" a >>= decode
+               preferredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "preferredDuringSchedulingIgnoredDuringExecution" a
+               requiredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "requiredDuringSchedulingIgnoredDuringExecution" a
                pure $ PodAntiAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodePodAntiAffinity :: Encode PodAntiAffinity where
   encode (PodAntiAffinity a) = encode $ StrMap.fromFoldable $
-               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encode a.preferredDuringSchedulingIgnoredDuringExecution)
-               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encode a.requiredDuringSchedulingIgnoredDuringExecution) ]
+               [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.preferredDuringSchedulingIgnoredDuringExecution)
+               , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.requiredDuringSchedulingIgnoredDuringExecution) ]
 
 
 instance defaultPodAntiAffinity :: Default PodAntiAffinity where
   default = PodAntiAffinity
-    { preferredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing
-    , requiredDuringSchedulingIgnoredDuringExecution: NullOrUndefined Nothing }
+    { preferredDuringSchedulingIgnoredDuringExecution: Nothing
+    , requiredDuringSchedulingIgnoredDuringExecution: Nothing }
 
 -- | PodCondition contains details for the current condition of this pod.
 -- |
@@ -4191,43 +4190,43 @@ instance defaultPodAntiAffinity :: Default PodAntiAffinity where
 -- | - `status`: Status is the status of the condition. Can be True, False, Unknown. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
 -- | - `_type`: Type is the type of the condition. Currently only Ready. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#pod-conditions
 newtype PodCondition = PodCondition
-  { _type :: (NullOrUndefined String)
-  , lastProbeTime :: (NullOrUndefined MetaV1.Time)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastProbeTime :: (Maybe MetaV1.Time)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypePodCondition :: Newtype PodCondition _
 derive instance genericPodCondition :: Generic PodCondition _
 instance showPodCondition :: Show PodCondition where show a = genericShow a
 instance decodePodCondition :: Decode PodCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastProbeTime <- readProp "lastProbeTime" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastProbeTime <- decodeMaybe "lastProbeTime" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ PodCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodePodCondition :: Encode PodCondition where
   encode (PodCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastProbeTime" (encode a.lastProbeTime)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastProbeTime" (encodeMaybe a.lastProbeTime)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultPodCondition :: Default PodCondition where
   default = PodCondition
-    { _type: NullOrUndefined Nothing
-    , lastProbeTime: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastProbeTime: Nothing
+    , lastTransitionTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | PodDNSConfig defines the DNS parameters of a pod in addition to those generated from DNSPolicy.
 -- |
@@ -4236,31 +4235,31 @@ instance defaultPodCondition :: Default PodCondition where
 -- | - `options`: A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy.
 -- | - `searches`: A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed.
 newtype PodDNSConfig = PodDNSConfig
-  { nameservers :: (NullOrUndefined (Array String))
-  , options :: (NullOrUndefined (Array PodDNSConfigOption))
-  , searches :: (NullOrUndefined (Array String)) }
+  { nameservers :: (Maybe (Array String))
+  , options :: (Maybe (Array PodDNSConfigOption))
+  , searches :: (Maybe (Array String)) }
 
 derive instance newtypePodDNSConfig :: Newtype PodDNSConfig _
 derive instance genericPodDNSConfig :: Generic PodDNSConfig _
 instance showPodDNSConfig :: Show PodDNSConfig where show a = genericShow a
 instance decodePodDNSConfig :: Decode PodDNSConfig where
   decode a = do
-               nameservers <- readProp "nameservers" a >>= decode
-               options <- readProp "options" a >>= decode
-               searches <- readProp "searches" a >>= decode
+               nameservers <- decodeMaybe "nameservers" a
+               options <- decodeMaybe "options" a
+               searches <- decodeMaybe "searches" a
                pure $ PodDNSConfig { nameservers, options, searches }
 instance encodePodDNSConfig :: Encode PodDNSConfig where
   encode (PodDNSConfig a) = encode $ StrMap.fromFoldable $
-               [ Tuple "nameservers" (encode a.nameservers)
-               , Tuple "options" (encode a.options)
-               , Tuple "searches" (encode a.searches) ]
+               [ Tuple "nameservers" (encodeMaybe a.nameservers)
+               , Tuple "options" (encodeMaybe a.options)
+               , Tuple "searches" (encodeMaybe a.searches) ]
 
 
 instance defaultPodDNSConfig :: Default PodDNSConfig where
   default = PodDNSConfig
-    { nameservers: NullOrUndefined Nothing
-    , options: NullOrUndefined Nothing
-    , searches: NullOrUndefined Nothing }
+    { nameservers: Nothing
+    , options: Nothing
+    , searches: Nothing }
 
 -- | PodDNSConfigOption defines DNS resolver options of a pod.
 -- |
@@ -4268,27 +4267,27 @@ instance defaultPodDNSConfig :: Default PodDNSConfig where
 -- | - `name`: Required.
 -- | - `value`
 newtype PodDNSConfigOption = PodDNSConfigOption
-  { name :: (NullOrUndefined String)
-  , value :: (NullOrUndefined String) }
+  { name :: (Maybe String)
+  , value :: (Maybe String) }
 
 derive instance newtypePodDNSConfigOption :: Newtype PodDNSConfigOption _
 derive instance genericPodDNSConfigOption :: Generic PodDNSConfigOption _
 instance showPodDNSConfigOption :: Show PodDNSConfigOption where show a = genericShow a
 instance decodePodDNSConfigOption :: Decode PodDNSConfigOption where
   decode a = do
-               name <- readProp "name" a >>= decode
-               value <- readProp "value" a >>= decode
+               name <- decodeMaybe "name" a
+               value <- decodeMaybe "value" a
                pure $ PodDNSConfigOption { name, value }
 instance encodePodDNSConfigOption :: Encode PodDNSConfigOption where
   encode (PodDNSConfigOption a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "value" (encode a.value) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "value" (encodeMaybe a.value) ]
 
 
 instance defaultPodDNSConfigOption :: Default PodDNSConfigOption where
   default = PodDNSConfigOption
-    { name: NullOrUndefined Nothing
-    , value: NullOrUndefined Nothing }
+    { name: Nothing
+    , value: Nothing }
 
 -- | PodList is a list of Pods.
 -- |
@@ -4298,35 +4297,35 @@ instance defaultPodDNSConfigOption :: Default PodDNSConfigOption where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PodList = PodList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Pod))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Pod))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodList :: Newtype PodList _
 derive instance genericPodList :: Generic PodList _
 instance showPodList :: Show PodList where show a = genericShow a
 instance decodePodList :: Decode PodList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ PodList { apiVersion, items, kind, metadata }
 instance encodePodList :: Encode PodList where
   encode (PodList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodList :: Default PodList where
   default = PodList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PodSecurityContext holds pod-level security attributes and common container settings. Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.
 -- |
@@ -4341,39 +4340,39 @@ instance defaultPodList :: Default PodList where
 -- | - `seLinuxOptions`: The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container.
 -- | - `supplementalGroups`: A list of groups applied to the first process run in each container, in addition to the container's primary GID.  If unspecified, no groups will be added to any container.
 newtype PodSecurityContext = PodSecurityContext
-  { fsGroup :: (NullOrUndefined Int)
-  , runAsNonRoot :: (NullOrUndefined Boolean)
-  , runAsUser :: (NullOrUndefined Int)
-  , seLinuxOptions :: (NullOrUndefined SELinuxOptions)
-  , supplementalGroups :: (NullOrUndefined (Array Int)) }
+  { fsGroup :: (Maybe Int)
+  , runAsNonRoot :: (Maybe Boolean)
+  , runAsUser :: (Maybe Int)
+  , seLinuxOptions :: (Maybe SELinuxOptions)
+  , supplementalGroups :: (Maybe (Array Int)) }
 
 derive instance newtypePodSecurityContext :: Newtype PodSecurityContext _
 derive instance genericPodSecurityContext :: Generic PodSecurityContext _
 instance showPodSecurityContext :: Show PodSecurityContext where show a = genericShow a
 instance decodePodSecurityContext :: Decode PodSecurityContext where
   decode a = do
-               fsGroup <- readProp "fsGroup" a >>= decode
-               runAsNonRoot <- readProp "runAsNonRoot" a >>= decode
-               runAsUser <- readProp "runAsUser" a >>= decode
-               seLinuxOptions <- readProp "seLinuxOptions" a >>= decode
-               supplementalGroups <- readProp "supplementalGroups" a >>= decode
+               fsGroup <- decodeMaybe "fsGroup" a
+               runAsNonRoot <- decodeMaybe "runAsNonRoot" a
+               runAsUser <- decodeMaybe "runAsUser" a
+               seLinuxOptions <- decodeMaybe "seLinuxOptions" a
+               supplementalGroups <- decodeMaybe "supplementalGroups" a
                pure $ PodSecurityContext { fsGroup, runAsNonRoot, runAsUser, seLinuxOptions, supplementalGroups }
 instance encodePodSecurityContext :: Encode PodSecurityContext where
   encode (PodSecurityContext a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsGroup" (encode a.fsGroup)
-               , Tuple "runAsNonRoot" (encode a.runAsNonRoot)
-               , Tuple "runAsUser" (encode a.runAsUser)
-               , Tuple "seLinuxOptions" (encode a.seLinuxOptions)
-               , Tuple "supplementalGroups" (encode a.supplementalGroups) ]
+               [ Tuple "fsGroup" (encodeMaybe a.fsGroup)
+               , Tuple "runAsNonRoot" (encodeMaybe a.runAsNonRoot)
+               , Tuple "runAsUser" (encodeMaybe a.runAsUser)
+               , Tuple "seLinuxOptions" (encodeMaybe a.seLinuxOptions)
+               , Tuple "supplementalGroups" (encodeMaybe a.supplementalGroups) ]
 
 
 instance defaultPodSecurityContext :: Default PodSecurityContext where
   default = PodSecurityContext
-    { fsGroup: NullOrUndefined Nothing
-    , runAsNonRoot: NullOrUndefined Nothing
-    , runAsUser: NullOrUndefined Nothing
-    , seLinuxOptions: NullOrUndefined Nothing
-    , supplementalGroups: NullOrUndefined Nothing }
+    { fsGroup: Nothing
+    , runAsNonRoot: Nothing
+    , runAsUser: Nothing
+    , seLinuxOptions: Nothing
+    , supplementalGroups: Nothing }
 
 -- | PodSpec is a description of a pod.
 -- |
@@ -4405,123 +4404,123 @@ instance defaultPodSecurityContext :: Default PodSecurityContext where
 -- | - `tolerations`: If specified, the pod's tolerations.
 -- | - `volumes`: List of volumes that can be mounted by containers belonging to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes
 newtype PodSpec = PodSpec
-  { activeDeadlineSeconds :: (NullOrUndefined Int)
-  , affinity :: (NullOrUndefined Affinity)
-  , automountServiceAccountToken :: (NullOrUndefined Boolean)
-  , containers :: (NullOrUndefined (Array Container))
-  , dnsConfig :: (NullOrUndefined PodDNSConfig)
-  , dnsPolicy :: (NullOrUndefined String)
-  , hostAliases :: (NullOrUndefined (Array HostAlias))
-  , hostIPC :: (NullOrUndefined Boolean)
-  , hostNetwork :: (NullOrUndefined Boolean)
-  , hostPID :: (NullOrUndefined Boolean)
-  , hostname :: (NullOrUndefined String)
-  , imagePullSecrets :: (NullOrUndefined (Array LocalObjectReference))
-  , initContainers :: (NullOrUndefined (Array Container))
-  , nodeName :: (NullOrUndefined String)
-  , nodeSelector :: (NullOrUndefined (StrMap String))
-  , priority :: (NullOrUndefined Int)
-  , priorityClassName :: (NullOrUndefined String)
-  , restartPolicy :: (NullOrUndefined String)
-  , schedulerName :: (NullOrUndefined String)
-  , securityContext :: (NullOrUndefined PodSecurityContext)
-  , serviceAccount :: (NullOrUndefined String)
-  , serviceAccountName :: (NullOrUndefined String)
-  , subdomain :: (NullOrUndefined String)
-  , terminationGracePeriodSeconds :: (NullOrUndefined Int)
-  , tolerations :: (NullOrUndefined (Array Toleration))
-  , volumes :: (NullOrUndefined (Array Volume)) }
+  { activeDeadlineSeconds :: (Maybe Int)
+  , affinity :: (Maybe Affinity)
+  , automountServiceAccountToken :: (Maybe Boolean)
+  , containers :: (Maybe (Array Container))
+  , dnsConfig :: (Maybe PodDNSConfig)
+  , dnsPolicy :: (Maybe String)
+  , hostAliases :: (Maybe (Array HostAlias))
+  , hostIPC :: (Maybe Boolean)
+  , hostNetwork :: (Maybe Boolean)
+  , hostPID :: (Maybe Boolean)
+  , hostname :: (Maybe String)
+  , imagePullSecrets :: (Maybe (Array LocalObjectReference))
+  , initContainers :: (Maybe (Array Container))
+  , nodeName :: (Maybe String)
+  , nodeSelector :: (Maybe (StrMap String))
+  , priority :: (Maybe Int)
+  , priorityClassName :: (Maybe String)
+  , restartPolicy :: (Maybe String)
+  , schedulerName :: (Maybe String)
+  , securityContext :: (Maybe PodSecurityContext)
+  , serviceAccount :: (Maybe String)
+  , serviceAccountName :: (Maybe String)
+  , subdomain :: (Maybe String)
+  , terminationGracePeriodSeconds :: (Maybe Int)
+  , tolerations :: (Maybe (Array Toleration))
+  , volumes :: (Maybe (Array Volume)) }
 
 derive instance newtypePodSpec :: Newtype PodSpec _
 derive instance genericPodSpec :: Generic PodSpec _
 instance showPodSpec :: Show PodSpec where show a = genericShow a
 instance decodePodSpec :: Decode PodSpec where
   decode a = do
-               activeDeadlineSeconds <- readProp "activeDeadlineSeconds" a >>= decode
-               affinity <- readProp "affinity" a >>= decode
-               automountServiceAccountToken <- readProp "automountServiceAccountToken" a >>= decode
-               containers <- readProp "containers" a >>= decode
-               dnsConfig <- readProp "dnsConfig" a >>= decode
-               dnsPolicy <- readProp "dnsPolicy" a >>= decode
-               hostAliases <- readProp "hostAliases" a >>= decode
-               hostIPC <- readProp "hostIPC" a >>= decode
-               hostNetwork <- readProp "hostNetwork" a >>= decode
-               hostPID <- readProp "hostPID" a >>= decode
-               hostname <- readProp "hostname" a >>= decode
-               imagePullSecrets <- readProp "imagePullSecrets" a >>= decode
-               initContainers <- readProp "initContainers" a >>= decode
-               nodeName <- readProp "nodeName" a >>= decode
-               nodeSelector <- readProp "nodeSelector" a >>= decode
-               priority <- readProp "priority" a >>= decode
-               priorityClassName <- readProp "priorityClassName" a >>= decode
-               restartPolicy <- readProp "restartPolicy" a >>= decode
-               schedulerName <- readProp "schedulerName" a >>= decode
-               securityContext <- readProp "securityContext" a >>= decode
-               serviceAccount <- readProp "serviceAccount" a >>= decode
-               serviceAccountName <- readProp "serviceAccountName" a >>= decode
-               subdomain <- readProp "subdomain" a >>= decode
-               terminationGracePeriodSeconds <- readProp "terminationGracePeriodSeconds" a >>= decode
-               tolerations <- readProp "tolerations" a >>= decode
-               volumes <- readProp "volumes" a >>= decode
+               activeDeadlineSeconds <- decodeMaybe "activeDeadlineSeconds" a
+               affinity <- decodeMaybe "affinity" a
+               automountServiceAccountToken <- decodeMaybe "automountServiceAccountToken" a
+               containers <- decodeMaybe "containers" a
+               dnsConfig <- decodeMaybe "dnsConfig" a
+               dnsPolicy <- decodeMaybe "dnsPolicy" a
+               hostAliases <- decodeMaybe "hostAliases" a
+               hostIPC <- decodeMaybe "hostIPC" a
+               hostNetwork <- decodeMaybe "hostNetwork" a
+               hostPID <- decodeMaybe "hostPID" a
+               hostname <- decodeMaybe "hostname" a
+               imagePullSecrets <- decodeMaybe "imagePullSecrets" a
+               initContainers <- decodeMaybe "initContainers" a
+               nodeName <- decodeMaybe "nodeName" a
+               nodeSelector <- decodeMaybe "nodeSelector" a
+               priority <- decodeMaybe "priority" a
+               priorityClassName <- decodeMaybe "priorityClassName" a
+               restartPolicy <- decodeMaybe "restartPolicy" a
+               schedulerName <- decodeMaybe "schedulerName" a
+               securityContext <- decodeMaybe "securityContext" a
+               serviceAccount <- decodeMaybe "serviceAccount" a
+               serviceAccountName <- decodeMaybe "serviceAccountName" a
+               subdomain <- decodeMaybe "subdomain" a
+               terminationGracePeriodSeconds <- decodeMaybe "terminationGracePeriodSeconds" a
+               tolerations <- decodeMaybe "tolerations" a
+               volumes <- decodeMaybe "volumes" a
                pure $ PodSpec { activeDeadlineSeconds, affinity, automountServiceAccountToken, containers, dnsConfig, dnsPolicy, hostAliases, hostIPC, hostNetwork, hostPID, hostname, imagePullSecrets, initContainers, nodeName, nodeSelector, priority, priorityClassName, restartPolicy, schedulerName, securityContext, serviceAccount, serviceAccountName, subdomain, terminationGracePeriodSeconds, tolerations, volumes }
 instance encodePodSpec :: Encode PodSpec where
   encode (PodSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "activeDeadlineSeconds" (encode a.activeDeadlineSeconds)
-               , Tuple "affinity" (encode a.affinity)
-               , Tuple "automountServiceAccountToken" (encode a.automountServiceAccountToken)
-               , Tuple "containers" (encode a.containers)
-               , Tuple "dnsConfig" (encode a.dnsConfig)
-               , Tuple "dnsPolicy" (encode a.dnsPolicy)
-               , Tuple "hostAliases" (encode a.hostAliases)
-               , Tuple "hostIPC" (encode a.hostIPC)
-               , Tuple "hostNetwork" (encode a.hostNetwork)
-               , Tuple "hostPID" (encode a.hostPID)
-               , Tuple "hostname" (encode a.hostname)
-               , Tuple "imagePullSecrets" (encode a.imagePullSecrets)
-               , Tuple "initContainers" (encode a.initContainers)
-               , Tuple "nodeName" (encode a.nodeName)
-               , Tuple "nodeSelector" (encode a.nodeSelector)
-               , Tuple "priority" (encode a.priority)
-               , Tuple "priorityClassName" (encode a.priorityClassName)
-               , Tuple "restartPolicy" (encode a.restartPolicy)
-               , Tuple "schedulerName" (encode a.schedulerName)
-               , Tuple "securityContext" (encode a.securityContext)
-               , Tuple "serviceAccount" (encode a.serviceAccount)
-               , Tuple "serviceAccountName" (encode a.serviceAccountName)
-               , Tuple "subdomain" (encode a.subdomain)
-               , Tuple "terminationGracePeriodSeconds" (encode a.terminationGracePeriodSeconds)
-               , Tuple "tolerations" (encode a.tolerations)
-               , Tuple "volumes" (encode a.volumes) ]
+               [ Tuple "activeDeadlineSeconds" (encodeMaybe a.activeDeadlineSeconds)
+               , Tuple "affinity" (encodeMaybe a.affinity)
+               , Tuple "automountServiceAccountToken" (encodeMaybe a.automountServiceAccountToken)
+               , Tuple "containers" (encodeMaybe a.containers)
+               , Tuple "dnsConfig" (encodeMaybe a.dnsConfig)
+               , Tuple "dnsPolicy" (encodeMaybe a.dnsPolicy)
+               , Tuple "hostAliases" (encodeMaybe a.hostAliases)
+               , Tuple "hostIPC" (encodeMaybe a.hostIPC)
+               , Tuple "hostNetwork" (encodeMaybe a.hostNetwork)
+               , Tuple "hostPID" (encodeMaybe a.hostPID)
+               , Tuple "hostname" (encodeMaybe a.hostname)
+               , Tuple "imagePullSecrets" (encodeMaybe a.imagePullSecrets)
+               , Tuple "initContainers" (encodeMaybe a.initContainers)
+               , Tuple "nodeName" (encodeMaybe a.nodeName)
+               , Tuple "nodeSelector" (encodeMaybe a.nodeSelector)
+               , Tuple "priority" (encodeMaybe a.priority)
+               , Tuple "priorityClassName" (encodeMaybe a.priorityClassName)
+               , Tuple "restartPolicy" (encodeMaybe a.restartPolicy)
+               , Tuple "schedulerName" (encodeMaybe a.schedulerName)
+               , Tuple "securityContext" (encodeMaybe a.securityContext)
+               , Tuple "serviceAccount" (encodeMaybe a.serviceAccount)
+               , Tuple "serviceAccountName" (encodeMaybe a.serviceAccountName)
+               , Tuple "subdomain" (encodeMaybe a.subdomain)
+               , Tuple "terminationGracePeriodSeconds" (encodeMaybe a.terminationGracePeriodSeconds)
+               , Tuple "tolerations" (encodeMaybe a.tolerations)
+               , Tuple "volumes" (encodeMaybe a.volumes) ]
 
 
 instance defaultPodSpec :: Default PodSpec where
   default = PodSpec
-    { activeDeadlineSeconds: NullOrUndefined Nothing
-    , affinity: NullOrUndefined Nothing
-    , automountServiceAccountToken: NullOrUndefined Nothing
-    , containers: NullOrUndefined Nothing
-    , dnsConfig: NullOrUndefined Nothing
-    , dnsPolicy: NullOrUndefined Nothing
-    , hostAliases: NullOrUndefined Nothing
-    , hostIPC: NullOrUndefined Nothing
-    , hostNetwork: NullOrUndefined Nothing
-    , hostPID: NullOrUndefined Nothing
-    , hostname: NullOrUndefined Nothing
-    , imagePullSecrets: NullOrUndefined Nothing
-    , initContainers: NullOrUndefined Nothing
-    , nodeName: NullOrUndefined Nothing
-    , nodeSelector: NullOrUndefined Nothing
-    , priority: NullOrUndefined Nothing
-    , priorityClassName: NullOrUndefined Nothing
-    , restartPolicy: NullOrUndefined Nothing
-    , schedulerName: NullOrUndefined Nothing
-    , securityContext: NullOrUndefined Nothing
-    , serviceAccount: NullOrUndefined Nothing
-    , serviceAccountName: NullOrUndefined Nothing
-    , subdomain: NullOrUndefined Nothing
-    , terminationGracePeriodSeconds: NullOrUndefined Nothing
-    , tolerations: NullOrUndefined Nothing
-    , volumes: NullOrUndefined Nothing }
+    { activeDeadlineSeconds: Nothing
+    , affinity: Nothing
+    , automountServiceAccountToken: Nothing
+    , containers: Nothing
+    , dnsConfig: Nothing
+    , dnsPolicy: Nothing
+    , hostAliases: Nothing
+    , hostIPC: Nothing
+    , hostNetwork: Nothing
+    , hostPID: Nothing
+    , hostname: Nothing
+    , imagePullSecrets: Nothing
+    , initContainers: Nothing
+    , nodeName: Nothing
+    , nodeSelector: Nothing
+    , priority: Nothing
+    , priorityClassName: Nothing
+    , restartPolicy: Nothing
+    , schedulerName: Nothing
+    , securityContext: Nothing
+    , serviceAccount: Nothing
+    , serviceAccountName: Nothing
+    , subdomain: Nothing
+    , terminationGracePeriodSeconds: Nothing
+    , tolerations: Nothing
+    , volumes: Nothing }
 
 -- | PodStatus represents information about the status of a pod. Status may trail the actual state of a system.
 -- |
@@ -4537,59 +4536,59 @@ instance defaultPodSpec :: Default PodSpec where
 -- | - `reason`: A brief CamelCase message indicating details about why the pod is in this state. e.g. 'Evicted'
 -- | - `startTime`: RFC 3339 date and time at which the object was acknowledged by the Kubelet. This is before the Kubelet pulled the container image(s) for the pod.
 newtype PodStatus = PodStatus
-  { conditions :: (NullOrUndefined (Array PodCondition))
-  , containerStatuses :: (NullOrUndefined (Array ContainerStatus))
-  , hostIP :: (NullOrUndefined String)
-  , initContainerStatuses :: (NullOrUndefined (Array ContainerStatus))
-  , message :: (NullOrUndefined String)
-  , phase :: (NullOrUndefined String)
-  , podIP :: (NullOrUndefined String)
-  , qosClass :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , startTime :: (NullOrUndefined MetaV1.Time) }
+  { conditions :: (Maybe (Array PodCondition))
+  , containerStatuses :: (Maybe (Array ContainerStatus))
+  , hostIP :: (Maybe String)
+  , initContainerStatuses :: (Maybe (Array ContainerStatus))
+  , message :: (Maybe String)
+  , phase :: (Maybe String)
+  , podIP :: (Maybe String)
+  , qosClass :: (Maybe String)
+  , reason :: (Maybe String)
+  , startTime :: (Maybe MetaV1.Time) }
 
 derive instance newtypePodStatus :: Newtype PodStatus _
 derive instance genericPodStatus :: Generic PodStatus _
 instance showPodStatus :: Show PodStatus where show a = genericShow a
 instance decodePodStatus :: Decode PodStatus where
   decode a = do
-               conditions <- readProp "conditions" a >>= decode
-               containerStatuses <- readProp "containerStatuses" a >>= decode
-               hostIP <- readProp "hostIP" a >>= decode
-               initContainerStatuses <- readProp "initContainerStatuses" a >>= decode
-               message <- readProp "message" a >>= decode
-               phase <- readProp "phase" a >>= decode
-               podIP <- readProp "podIP" a >>= decode
-               qosClass <- readProp "qosClass" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               startTime <- readProp "startTime" a >>= decode
+               conditions <- decodeMaybe "conditions" a
+               containerStatuses <- decodeMaybe "containerStatuses" a
+               hostIP <- decodeMaybe "hostIP" a
+               initContainerStatuses <- decodeMaybe "initContainerStatuses" a
+               message <- decodeMaybe "message" a
+               phase <- decodeMaybe "phase" a
+               podIP <- decodeMaybe "podIP" a
+               qosClass <- decodeMaybe "qosClass" a
+               reason <- decodeMaybe "reason" a
+               startTime <- decodeMaybe "startTime" a
                pure $ PodStatus { conditions, containerStatuses, hostIP, initContainerStatuses, message, phase, podIP, qosClass, reason, startTime }
 instance encodePodStatus :: Encode PodStatus where
   encode (PodStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "conditions" (encode a.conditions)
-               , Tuple "containerStatuses" (encode a.containerStatuses)
-               , Tuple "hostIP" (encode a.hostIP)
-               , Tuple "initContainerStatuses" (encode a.initContainerStatuses)
-               , Tuple "message" (encode a.message)
-               , Tuple "phase" (encode a.phase)
-               , Tuple "podIP" (encode a.podIP)
-               , Tuple "qosClass" (encode a.qosClass)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "startTime" (encode a.startTime) ]
+               [ Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "containerStatuses" (encodeMaybe a.containerStatuses)
+               , Tuple "hostIP" (encodeMaybe a.hostIP)
+               , Tuple "initContainerStatuses" (encodeMaybe a.initContainerStatuses)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "phase" (encodeMaybe a.phase)
+               , Tuple "podIP" (encodeMaybe a.podIP)
+               , Tuple "qosClass" (encodeMaybe a.qosClass)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "startTime" (encodeMaybe a.startTime) ]
 
 
 instance defaultPodStatus :: Default PodStatus where
   default = PodStatus
-    { conditions: NullOrUndefined Nothing
-    , containerStatuses: NullOrUndefined Nothing
-    , hostIP: NullOrUndefined Nothing
-    , initContainerStatuses: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , phase: NullOrUndefined Nothing
-    , podIP: NullOrUndefined Nothing
-    , qosClass: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , startTime: NullOrUndefined Nothing }
+    { conditions: Nothing
+    , containerStatuses: Nothing
+    , hostIP: Nothing
+    , initContainerStatuses: Nothing
+    , message: Nothing
+    , phase: Nothing
+    , podIP: Nothing
+    , qosClass: Nothing
+    , reason: Nothing
+    , startTime: Nothing }
 
 -- | PodTemplate describes a template for creating copies of a predefined pod.
 -- |
@@ -4599,35 +4598,35 @@ instance defaultPodStatus :: Default PodStatus where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `template`: Template defines the pods that will be created from this pod template. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype PodTemplate = PodTemplate
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , template :: (NullOrUndefined PodTemplateSpec) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , template :: (Maybe PodTemplateSpec) }
 
 derive instance newtypePodTemplate :: Newtype PodTemplate _
 derive instance genericPodTemplate :: Generic PodTemplate _
 instance showPodTemplate :: Show PodTemplate where show a = genericShow a
 instance decodePodTemplate :: Decode PodTemplate where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               template <- readProp "template" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               template <- decodeMaybe "template" a
                pure $ PodTemplate { apiVersion, kind, metadata, template }
 instance encodePodTemplate :: Encode PodTemplate where
   encode (PodTemplate a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "template" (encode a.template) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "template" (encodeMaybe a.template) ]
 
 
 instance defaultPodTemplate :: Default PodTemplate where
   default = PodTemplate
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , template: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , template: Nothing }
 
 -- | PodTemplateList is a list of PodTemplates.
 -- |
@@ -4637,35 +4636,35 @@ instance defaultPodTemplate :: Default PodTemplate where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype PodTemplateList = PodTemplateList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PodTemplate))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array PodTemplate))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodTemplateList :: Newtype PodTemplateList _
 derive instance genericPodTemplateList :: Generic PodTemplateList _
 instance showPodTemplateList :: Show PodTemplateList where show a = genericShow a
 instance decodePodTemplateList :: Decode PodTemplateList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ PodTemplateList { apiVersion, items, kind, metadata }
 instance encodePodTemplateList :: Encode PodTemplateList where
   encode (PodTemplateList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodTemplateList :: Default PodTemplateList where
   default = PodTemplateList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PodTemplateSpec describes the data a pod should have when created from a template
 -- |
@@ -4673,27 +4672,27 @@ instance defaultPodTemplateList :: Default PodTemplateList where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype PodTemplateSpec = PodTemplateSpec
-  { metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined PodSpec) }
+  { metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe PodSpec) }
 
 derive instance newtypePodTemplateSpec :: Newtype PodTemplateSpec _
 derive instance genericPodTemplateSpec :: Generic PodTemplateSpec _
 instance showPodTemplateSpec :: Show PodTemplateSpec where show a = genericShow a
 instance decodePodTemplateSpec :: Decode PodTemplateSpec where
   decode a = do
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
                pure $ PodTemplateSpec { metadata, spec }
 instance encodePodTemplateSpec :: Encode PodTemplateSpec where
   encode (PodTemplateSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec) ]
+               [ Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultPodTemplateSpec :: Default PodTemplateSpec where
   default = PodTemplateSpec
-    { metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing }
+    { metadata: Nothing
+    , spec: Nothing }
 
 -- | PortworxVolumeSource represents a Portworx volume resource.
 -- |
@@ -4702,31 +4701,31 @@ instance defaultPodTemplateSpec :: Default PodTemplateSpec where
 -- | - `readOnly`: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts.
 -- | - `volumeID`: VolumeID uniquely identifies a Portworx volume
 newtype PortworxVolumeSource = PortworxVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , volumeID :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , volumeID :: (Maybe String) }
 
 derive instance newtypePortworxVolumeSource :: Newtype PortworxVolumeSource _
 derive instance genericPortworxVolumeSource :: Generic PortworxVolumeSource _
 instance showPortworxVolumeSource :: Show PortworxVolumeSource where show a = genericShow a
 instance decodePortworxVolumeSource :: Decode PortworxVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               volumeID <- readProp "volumeID" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               readOnly <- decodeMaybe "readOnly" a
+               volumeID <- decodeMaybe "volumeID" a
                pure $ PortworxVolumeSource { fsType, readOnly, volumeID }
 instance encodePortworxVolumeSource :: Encode PortworxVolumeSource where
   encode (PortworxVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "volumeID" (encode a.volumeID) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "volumeID" (encodeMaybe a.volumeID) ]
 
 
 instance defaultPortworxVolumeSource :: Default PortworxVolumeSource where
   default = PortworxVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , volumeID: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , readOnly: Nothing
+    , volumeID: Nothing }
 
 -- | An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op).
 -- |
@@ -4734,27 +4733,27 @@ instance defaultPortworxVolumeSource :: Default PortworxVolumeSource where
 -- | - `preference`: A node selector term, associated with the corresponding weight.
 -- | - `weight`: Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.
 newtype PreferredSchedulingTerm = PreferredSchedulingTerm
-  { preference :: (NullOrUndefined NodeSelectorTerm)
-  , weight :: (NullOrUndefined Int) }
+  { preference :: (Maybe NodeSelectorTerm)
+  , weight :: (Maybe Int) }
 
 derive instance newtypePreferredSchedulingTerm :: Newtype PreferredSchedulingTerm _
 derive instance genericPreferredSchedulingTerm :: Generic PreferredSchedulingTerm _
 instance showPreferredSchedulingTerm :: Show PreferredSchedulingTerm where show a = genericShow a
 instance decodePreferredSchedulingTerm :: Decode PreferredSchedulingTerm where
   decode a = do
-               preference <- readProp "preference" a >>= decode
-               weight <- readProp "weight" a >>= decode
+               preference <- decodeMaybe "preference" a
+               weight <- decodeMaybe "weight" a
                pure $ PreferredSchedulingTerm { preference, weight }
 instance encodePreferredSchedulingTerm :: Encode PreferredSchedulingTerm where
   encode (PreferredSchedulingTerm a) = encode $ StrMap.fromFoldable $
-               [ Tuple "preference" (encode a.preference)
-               , Tuple "weight" (encode a.weight) ]
+               [ Tuple "preference" (encodeMaybe a.preference)
+               , Tuple "weight" (encodeMaybe a.weight) ]
 
 
 instance defaultPreferredSchedulingTerm :: Default PreferredSchedulingTerm where
   default = PreferredSchedulingTerm
-    { preference: NullOrUndefined Nothing
-    , weight: NullOrUndefined Nothing }
+    { preference: Nothing
+    , weight: Nothing }
 
 -- | Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
 -- |
@@ -4768,51 +4767,51 @@ instance defaultPreferredSchedulingTerm :: Default PreferredSchedulingTerm where
 -- | - `tcpSocket`: TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported
 -- | - `timeoutSeconds`: Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 newtype Probe = Probe
-  { exec :: (NullOrUndefined ExecAction)
-  , failureThreshold :: (NullOrUndefined Int)
-  , httpGet :: (NullOrUndefined HTTPGetAction)
-  , initialDelaySeconds :: (NullOrUndefined Int)
-  , periodSeconds :: (NullOrUndefined Int)
-  , successThreshold :: (NullOrUndefined Int)
-  , tcpSocket :: (NullOrUndefined TCPSocketAction)
-  , timeoutSeconds :: (NullOrUndefined Int) }
+  { exec :: (Maybe ExecAction)
+  , failureThreshold :: (Maybe Int)
+  , httpGet :: (Maybe HTTPGetAction)
+  , initialDelaySeconds :: (Maybe Int)
+  , periodSeconds :: (Maybe Int)
+  , successThreshold :: (Maybe Int)
+  , tcpSocket :: (Maybe TCPSocketAction)
+  , timeoutSeconds :: (Maybe Int) }
 
 derive instance newtypeProbe :: Newtype Probe _
 derive instance genericProbe :: Generic Probe _
 instance showProbe :: Show Probe where show a = genericShow a
 instance decodeProbe :: Decode Probe where
   decode a = do
-               exec <- readProp "exec" a >>= decode
-               failureThreshold <- readProp "failureThreshold" a >>= decode
-               httpGet <- readProp "httpGet" a >>= decode
-               initialDelaySeconds <- readProp "initialDelaySeconds" a >>= decode
-               periodSeconds <- readProp "periodSeconds" a >>= decode
-               successThreshold <- readProp "successThreshold" a >>= decode
-               tcpSocket <- readProp "tcpSocket" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
+               exec <- decodeMaybe "exec" a
+               failureThreshold <- decodeMaybe "failureThreshold" a
+               httpGet <- decodeMaybe "httpGet" a
+               initialDelaySeconds <- decodeMaybe "initialDelaySeconds" a
+               periodSeconds <- decodeMaybe "periodSeconds" a
+               successThreshold <- decodeMaybe "successThreshold" a
+               tcpSocket <- decodeMaybe "tcpSocket" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                pure $ Probe { exec, failureThreshold, httpGet, initialDelaySeconds, periodSeconds, successThreshold, tcpSocket, timeoutSeconds }
 instance encodeProbe :: Encode Probe where
   encode (Probe a) = encode $ StrMap.fromFoldable $
-               [ Tuple "exec" (encode a.exec)
-               , Tuple "failureThreshold" (encode a.failureThreshold)
-               , Tuple "httpGet" (encode a.httpGet)
-               , Tuple "initialDelaySeconds" (encode a.initialDelaySeconds)
-               , Tuple "periodSeconds" (encode a.periodSeconds)
-               , Tuple "successThreshold" (encode a.successThreshold)
-               , Tuple "tcpSocket" (encode a.tcpSocket)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds) ]
+               [ Tuple "exec" (encodeMaybe a.exec)
+               , Tuple "failureThreshold" (encodeMaybe a.failureThreshold)
+               , Tuple "httpGet" (encodeMaybe a.httpGet)
+               , Tuple "initialDelaySeconds" (encodeMaybe a.initialDelaySeconds)
+               , Tuple "periodSeconds" (encodeMaybe a.periodSeconds)
+               , Tuple "successThreshold" (encodeMaybe a.successThreshold)
+               , Tuple "tcpSocket" (encodeMaybe a.tcpSocket)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds) ]
 
 
 instance defaultProbe :: Default Probe where
   default = Probe
-    { exec: NullOrUndefined Nothing
-    , failureThreshold: NullOrUndefined Nothing
-    , httpGet: NullOrUndefined Nothing
-    , initialDelaySeconds: NullOrUndefined Nothing
-    , periodSeconds: NullOrUndefined Nothing
-    , successThreshold: NullOrUndefined Nothing
-    , tcpSocket: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing }
+    { exec: Nothing
+    , failureThreshold: Nothing
+    , httpGet: Nothing
+    , initialDelaySeconds: Nothing
+    , periodSeconds: Nothing
+    , successThreshold: Nothing
+    , tcpSocket: Nothing
+    , timeoutSeconds: Nothing }
 
 -- | Represents a projected volume source
 -- |
@@ -4820,27 +4819,27 @@ instance defaultProbe :: Default Probe where
 -- | - `defaultMode`: Mode bits to use on created files by default. Must be a value between 0 and 0777. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set.
 -- | - `sources`: list of volume projections
 newtype ProjectedVolumeSource = ProjectedVolumeSource
-  { defaultMode :: (NullOrUndefined Int)
-  , sources :: (NullOrUndefined (Array VolumeProjection)) }
+  { defaultMode :: (Maybe Int)
+  , sources :: (Maybe (Array VolumeProjection)) }
 
 derive instance newtypeProjectedVolumeSource :: Newtype ProjectedVolumeSource _
 derive instance genericProjectedVolumeSource :: Generic ProjectedVolumeSource _
 instance showProjectedVolumeSource :: Show ProjectedVolumeSource where show a = genericShow a
 instance decodeProjectedVolumeSource :: Decode ProjectedVolumeSource where
   decode a = do
-               defaultMode <- readProp "defaultMode" a >>= decode
-               sources <- readProp "sources" a >>= decode
+               defaultMode <- decodeMaybe "defaultMode" a
+               sources <- decodeMaybe "sources" a
                pure $ ProjectedVolumeSource { defaultMode, sources }
 instance encodeProjectedVolumeSource :: Encode ProjectedVolumeSource where
   encode (ProjectedVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "defaultMode" (encode a.defaultMode)
-               , Tuple "sources" (encode a.sources) ]
+               [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
+               , Tuple "sources" (encodeMaybe a.sources) ]
 
 
 instance defaultProjectedVolumeSource :: Default ProjectedVolumeSource where
   default = ProjectedVolumeSource
-    { defaultMode: NullOrUndefined Nothing
-    , sources: NullOrUndefined Nothing }
+    { defaultMode: Nothing
+    , sources: Nothing }
 
 -- | Represents a Quobyte mount that lasts the lifetime of a pod. Quobyte volumes do not support ownership management or SELinux relabeling.
 -- |
@@ -4851,39 +4850,39 @@ instance defaultProjectedVolumeSource :: Default ProjectedVolumeSource where
 -- | - `user`: User to map volume access to Defaults to serivceaccount user
 -- | - `volume`: Volume is a string that references an already created Quobyte volume by name.
 newtype QuobyteVolumeSource = QuobyteVolumeSource
-  { group :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , registry :: (NullOrUndefined String)
-  , user :: (NullOrUndefined String)
-  , volume :: (NullOrUndefined String) }
+  { group :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , registry :: (Maybe String)
+  , user :: (Maybe String)
+  , volume :: (Maybe String) }
 
 derive instance newtypeQuobyteVolumeSource :: Newtype QuobyteVolumeSource _
 derive instance genericQuobyteVolumeSource :: Generic QuobyteVolumeSource _
 instance showQuobyteVolumeSource :: Show QuobyteVolumeSource where show a = genericShow a
 instance decodeQuobyteVolumeSource :: Decode QuobyteVolumeSource where
   decode a = do
-               group <- readProp "group" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               registry <- readProp "registry" a >>= decode
-               user <- readProp "user" a >>= decode
-               volume <- readProp "volume" a >>= decode
+               group <- decodeMaybe "group" a
+               readOnly <- decodeMaybe "readOnly" a
+               registry <- decodeMaybe "registry" a
+               user <- decodeMaybe "user" a
+               volume <- decodeMaybe "volume" a
                pure $ QuobyteVolumeSource { group, readOnly, registry, user, volume }
 instance encodeQuobyteVolumeSource :: Encode QuobyteVolumeSource where
   encode (QuobyteVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "group" (encode a.group)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "registry" (encode a.registry)
-               , Tuple "user" (encode a.user)
-               , Tuple "volume" (encode a.volume) ]
+               [ Tuple "group" (encodeMaybe a.group)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "registry" (encodeMaybe a.registry)
+               , Tuple "user" (encodeMaybe a.user)
+               , Tuple "volume" (encodeMaybe a.volume) ]
 
 
 instance defaultQuobyteVolumeSource :: Default QuobyteVolumeSource where
   default = QuobyteVolumeSource
-    { group: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , registry: NullOrUndefined Nothing
-    , user: NullOrUndefined Nothing
-    , volume: NullOrUndefined Nothing }
+    { group: Nothing
+    , readOnly: Nothing
+    , registry: Nothing
+    , user: Nothing
+    , volume: Nothing }
 
 -- | Represents a Rados Block Device mount that lasts the lifetime of a pod. RBD volumes support ownership management and SELinux relabeling.
 -- |
@@ -4897,51 +4896,51 @@ instance defaultQuobyteVolumeSource :: Default QuobyteVolumeSource where
 -- | - `secretRef`: SecretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
 -- | - `user`: The rados user name. Default is admin. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
 newtype RBDPersistentVolumeSource = RBDPersistentVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , image :: (NullOrUndefined String)
-  , keyring :: (NullOrUndefined String)
-  , monitors :: (NullOrUndefined (Array String))
-  , pool :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined SecretReference)
-  , user :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , image :: (Maybe String)
+  , keyring :: (Maybe String)
+  , monitors :: (Maybe (Array String))
+  , pool :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe SecretReference)
+  , user :: (Maybe String) }
 
 derive instance newtypeRBDPersistentVolumeSource :: Newtype RBDPersistentVolumeSource _
 derive instance genericRBDPersistentVolumeSource :: Generic RBDPersistentVolumeSource _
 instance showRBDPersistentVolumeSource :: Show RBDPersistentVolumeSource where show a = genericShow a
 instance decodeRBDPersistentVolumeSource :: Decode RBDPersistentVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               image <- readProp "image" a >>= decode
-               keyring <- readProp "keyring" a >>= decode
-               monitors <- readProp "monitors" a >>= decode
-               pool <- readProp "pool" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               user <- readProp "user" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               image <- decodeMaybe "image" a
+               keyring <- decodeMaybe "keyring" a
+               monitors <- decodeMaybe "monitors" a
+               pool <- decodeMaybe "pool" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               user <- decodeMaybe "user" a
                pure $ RBDPersistentVolumeSource { fsType, image, keyring, monitors, pool, readOnly, secretRef, user }
 instance encodeRBDPersistentVolumeSource :: Encode RBDPersistentVolumeSource where
   encode (RBDPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "image" (encode a.image)
-               , Tuple "keyring" (encode a.keyring)
-               , Tuple "monitors" (encode a.monitors)
-               , Tuple "pool" (encode a.pool)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "user" (encode a.user) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "image" (encodeMaybe a.image)
+               , Tuple "keyring" (encodeMaybe a.keyring)
+               , Tuple "monitors" (encodeMaybe a.monitors)
+               , Tuple "pool" (encodeMaybe a.pool)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "user" (encodeMaybe a.user) ]
 
 
 instance defaultRBDPersistentVolumeSource :: Default RBDPersistentVolumeSource where
   default = RBDPersistentVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , image: NullOrUndefined Nothing
-    , keyring: NullOrUndefined Nothing
-    , monitors: NullOrUndefined Nothing
-    , pool: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , user: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , image: Nothing
+    , keyring: Nothing
+    , monitors: Nothing
+    , pool: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , user: Nothing }
 
 -- | Represents a Rados Block Device mount that lasts the lifetime of a pod. RBD volumes support ownership management and SELinux relabeling.
 -- |
@@ -4955,51 +4954,51 @@ instance defaultRBDPersistentVolumeSource :: Default RBDPersistentVolumeSource w
 -- | - `secretRef`: SecretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
 -- | - `user`: The rados user name. Default is admin. More info: https://releases.k8s.io/HEAD/examples/volumes/rbd/README.md#how-to-use-it
 newtype RBDVolumeSource = RBDVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , image :: (NullOrUndefined String)
-  , keyring :: (NullOrUndefined String)
-  , monitors :: (NullOrUndefined (Array String))
-  , pool :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined LocalObjectReference)
-  , user :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , image :: (Maybe String)
+  , keyring :: (Maybe String)
+  , monitors :: (Maybe (Array String))
+  , pool :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe LocalObjectReference)
+  , user :: (Maybe String) }
 
 derive instance newtypeRBDVolumeSource :: Newtype RBDVolumeSource _
 derive instance genericRBDVolumeSource :: Generic RBDVolumeSource _
 instance showRBDVolumeSource :: Show RBDVolumeSource where show a = genericShow a
 instance decodeRBDVolumeSource :: Decode RBDVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               image <- readProp "image" a >>= decode
-               keyring <- readProp "keyring" a >>= decode
-               monitors <- readProp "monitors" a >>= decode
-               pool <- readProp "pool" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               user <- readProp "user" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               image <- decodeMaybe "image" a
+               keyring <- decodeMaybe "keyring" a
+               monitors <- decodeMaybe "monitors" a
+               pool <- decodeMaybe "pool" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               user <- decodeMaybe "user" a
                pure $ RBDVolumeSource { fsType, image, keyring, monitors, pool, readOnly, secretRef, user }
 instance encodeRBDVolumeSource :: Encode RBDVolumeSource where
   encode (RBDVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "image" (encode a.image)
-               , Tuple "keyring" (encode a.keyring)
-               , Tuple "monitors" (encode a.monitors)
-               , Tuple "pool" (encode a.pool)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "user" (encode a.user) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "image" (encodeMaybe a.image)
+               , Tuple "keyring" (encodeMaybe a.keyring)
+               , Tuple "monitors" (encodeMaybe a.monitors)
+               , Tuple "pool" (encodeMaybe a.pool)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "user" (encodeMaybe a.user) ]
 
 
 instance defaultRBDVolumeSource :: Default RBDVolumeSource where
   default = RBDVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , image: NullOrUndefined Nothing
-    , keyring: NullOrUndefined Nothing
-    , monitors: NullOrUndefined Nothing
-    , pool: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , user: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , image: Nothing
+    , keyring: Nothing
+    , monitors: Nothing
+    , pool: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , user: Nothing }
 
 -- | ReplicationController represents the configuration of a replication controller.
 -- |
@@ -5010,39 +5009,39 @@ instance defaultRBDVolumeSource :: Default RBDVolumeSource where
 -- | - `spec`: Spec defines the specification of the desired behavior of the replication controller. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Status is the most recently observed status of the replication controller. This data may be out of date by some window of time. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ReplicationController = ReplicationController
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined ReplicationControllerSpec)
-  , status :: (NullOrUndefined ReplicationControllerStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe ReplicationControllerSpec)
+  , status :: (Maybe ReplicationControllerStatus) }
 
 derive instance newtypeReplicationController :: Newtype ReplicationController _
 derive instance genericReplicationController :: Generic ReplicationController _
 instance showReplicationController :: Show ReplicationController where show a = genericShow a
 instance decodeReplicationController :: Decode ReplicationController where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ ReplicationController { apiVersion, kind, metadata, spec, status }
 instance encodeReplicationController :: Encode ReplicationController where
   encode (ReplicationController a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultReplicationController :: Default ReplicationController where
   default = ReplicationController
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | ReplicationControllerCondition describes the state of a replication controller at a certain point.
 -- |
@@ -5053,39 +5052,39 @@ instance defaultReplicationController :: Default ReplicationController where
 -- | - `status`: Status of the condition, one of True, False, Unknown.
 -- | - `_type`: Type of replication controller condition.
 newtype ReplicationControllerCondition = ReplicationControllerCondition
-  { _type :: (NullOrUndefined String)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeReplicationControllerCondition :: Newtype ReplicationControllerCondition _
 derive instance genericReplicationControllerCondition :: Generic ReplicationControllerCondition _
 instance showReplicationControllerCondition :: Show ReplicationControllerCondition where show a = genericShow a
 instance decodeReplicationControllerCondition :: Decode ReplicationControllerCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ ReplicationControllerCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeReplicationControllerCondition :: Encode ReplicationControllerCondition where
   encode (ReplicationControllerCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultReplicationControllerCondition :: Default ReplicationControllerCondition where
   default = ReplicationControllerCondition
-    { _type: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastTransitionTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | ReplicationControllerList is a collection of replication controllers.
 -- |
@@ -5095,35 +5094,35 @@ instance defaultReplicationControllerCondition :: Default ReplicationControllerC
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ReplicationControllerList = ReplicationControllerList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ReplicationController))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ReplicationController))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeReplicationControllerList :: Newtype ReplicationControllerList _
 derive instance genericReplicationControllerList :: Generic ReplicationControllerList _
 instance showReplicationControllerList :: Show ReplicationControllerList where show a = genericShow a
 instance decodeReplicationControllerList :: Decode ReplicationControllerList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ReplicationControllerList { apiVersion, items, kind, metadata }
 instance encodeReplicationControllerList :: Encode ReplicationControllerList where
   encode (ReplicationControllerList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultReplicationControllerList :: Default ReplicationControllerList where
   default = ReplicationControllerList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | ReplicationControllerSpec is the specification of a replication controller.
 -- |
@@ -5133,35 +5132,35 @@ instance defaultReplicationControllerList :: Default ReplicationControllerList w
 -- | - `selector`: Selector is a label query over pods that should match the Replicas count. If Selector is empty, it is defaulted to the labels present on the Pod template. Label keys and values that must match in order to be controlled by this replication controller, if empty defaulted to labels on Pod template. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 -- | - `template`: Template is the object that describes the pod that will be created if insufficient replicas are detected. This takes precedence over a TemplateRef. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 newtype ReplicationControllerSpec = ReplicationControllerSpec
-  { minReadySeconds :: (NullOrUndefined Int)
-  , replicas :: (NullOrUndefined Int)
-  , selector :: (NullOrUndefined (StrMap String))
-  , template :: (NullOrUndefined PodTemplateSpec) }
+  { minReadySeconds :: (Maybe Int)
+  , replicas :: (Maybe Int)
+  , selector :: (Maybe (StrMap String))
+  , template :: (Maybe PodTemplateSpec) }
 
 derive instance newtypeReplicationControllerSpec :: Newtype ReplicationControllerSpec _
 derive instance genericReplicationControllerSpec :: Generic ReplicationControllerSpec _
 instance showReplicationControllerSpec :: Show ReplicationControllerSpec where show a = genericShow a
 instance decodeReplicationControllerSpec :: Decode ReplicationControllerSpec where
   decode a = do
-               minReadySeconds <- readProp "minReadySeconds" a >>= decode
-               replicas <- readProp "replicas" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               template <- readProp "template" a >>= decode
+               minReadySeconds <- decodeMaybe "minReadySeconds" a
+               replicas <- decodeMaybe "replicas" a
+               selector <- decodeMaybe "selector" a
+               template <- decodeMaybe "template" a
                pure $ ReplicationControllerSpec { minReadySeconds, replicas, selector, template }
 instance encodeReplicationControllerSpec :: Encode ReplicationControllerSpec where
   encode (ReplicationControllerSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "minReadySeconds" (encode a.minReadySeconds)
-               , Tuple "replicas" (encode a.replicas)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "template" (encode a.template) ]
+               [ Tuple "minReadySeconds" (encodeMaybe a.minReadySeconds)
+               , Tuple "replicas" (encodeMaybe a.replicas)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "template" (encodeMaybe a.template) ]
 
 
 instance defaultReplicationControllerSpec :: Default ReplicationControllerSpec where
   default = ReplicationControllerSpec
-    { minReadySeconds: NullOrUndefined Nothing
-    , replicas: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , template: NullOrUndefined Nothing }
+    { minReadySeconds: Nothing
+    , replicas: Nothing
+    , selector: Nothing
+    , template: Nothing }
 
 -- | ReplicationControllerStatus represents the current status of a replication controller.
 -- |
@@ -5173,43 +5172,43 @@ instance defaultReplicationControllerSpec :: Default ReplicationControllerSpec w
 -- | - `readyReplicas`: The number of ready replicas for this replication controller.
 -- | - `replicas`: Replicas is the most recently oberved number of replicas. More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#what-is-a-replicationcontroller
 newtype ReplicationControllerStatus = ReplicationControllerStatus
-  { availableReplicas :: (NullOrUndefined Int)
-  , conditions :: (NullOrUndefined (Array ReplicationControllerCondition))
-  , fullyLabeledReplicas :: (NullOrUndefined Int)
-  , observedGeneration :: (NullOrUndefined Int)
-  , readyReplicas :: (NullOrUndefined Int)
-  , replicas :: (NullOrUndefined Int) }
+  { availableReplicas :: (Maybe Int)
+  , conditions :: (Maybe (Array ReplicationControllerCondition))
+  , fullyLabeledReplicas :: (Maybe Int)
+  , observedGeneration :: (Maybe Int)
+  , readyReplicas :: (Maybe Int)
+  , replicas :: (Maybe Int) }
 
 derive instance newtypeReplicationControllerStatus :: Newtype ReplicationControllerStatus _
 derive instance genericReplicationControllerStatus :: Generic ReplicationControllerStatus _
 instance showReplicationControllerStatus :: Show ReplicationControllerStatus where show a = genericShow a
 instance decodeReplicationControllerStatus :: Decode ReplicationControllerStatus where
   decode a = do
-               availableReplicas <- readProp "availableReplicas" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
-               fullyLabeledReplicas <- readProp "fullyLabeledReplicas" a >>= decode
-               observedGeneration <- readProp "observedGeneration" a >>= decode
-               readyReplicas <- readProp "readyReplicas" a >>= decode
-               replicas <- readProp "replicas" a >>= decode
+               availableReplicas <- decodeMaybe "availableReplicas" a
+               conditions <- decodeMaybe "conditions" a
+               fullyLabeledReplicas <- decodeMaybe "fullyLabeledReplicas" a
+               observedGeneration <- decodeMaybe "observedGeneration" a
+               readyReplicas <- decodeMaybe "readyReplicas" a
+               replicas <- decodeMaybe "replicas" a
                pure $ ReplicationControllerStatus { availableReplicas, conditions, fullyLabeledReplicas, observedGeneration, readyReplicas, replicas }
 instance encodeReplicationControllerStatus :: Encode ReplicationControllerStatus where
   encode (ReplicationControllerStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "availableReplicas" (encode a.availableReplicas)
-               , Tuple "conditions" (encode a.conditions)
-               , Tuple "fullyLabeledReplicas" (encode a.fullyLabeledReplicas)
-               , Tuple "observedGeneration" (encode a.observedGeneration)
-               , Tuple "readyReplicas" (encode a.readyReplicas)
-               , Tuple "replicas" (encode a.replicas) ]
+               [ Tuple "availableReplicas" (encodeMaybe a.availableReplicas)
+               , Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "fullyLabeledReplicas" (encodeMaybe a.fullyLabeledReplicas)
+               , Tuple "observedGeneration" (encodeMaybe a.observedGeneration)
+               , Tuple "readyReplicas" (encodeMaybe a.readyReplicas)
+               , Tuple "replicas" (encodeMaybe a.replicas) ]
 
 
 instance defaultReplicationControllerStatus :: Default ReplicationControllerStatus where
   default = ReplicationControllerStatus
-    { availableReplicas: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing
-    , fullyLabeledReplicas: NullOrUndefined Nothing
-    , observedGeneration: NullOrUndefined Nothing
-    , readyReplicas: NullOrUndefined Nothing
-    , replicas: NullOrUndefined Nothing }
+    { availableReplicas: Nothing
+    , conditions: Nothing
+    , fullyLabeledReplicas: Nothing
+    , observedGeneration: Nothing
+    , readyReplicas: Nothing
+    , replicas: Nothing }
 
 -- | ResourceFieldSelector represents container resources (cpu, memory) and their output format
 -- |
@@ -5218,31 +5217,31 @@ instance defaultReplicationControllerStatus :: Default ReplicationControllerStat
 -- | - `divisor`: Specifies the output format of the exposed resources, defaults to "1"
 -- | - `resource`: Required: resource to select
 newtype ResourceFieldSelector = ResourceFieldSelector
-  { containerName :: (NullOrUndefined String)
-  , divisor :: (NullOrUndefined Resource.Quantity)
-  , resource :: (NullOrUndefined String) }
+  { containerName :: (Maybe String)
+  , divisor :: (Maybe Resource.Quantity)
+  , resource :: (Maybe String) }
 
 derive instance newtypeResourceFieldSelector :: Newtype ResourceFieldSelector _
 derive instance genericResourceFieldSelector :: Generic ResourceFieldSelector _
 instance showResourceFieldSelector :: Show ResourceFieldSelector where show a = genericShow a
 instance decodeResourceFieldSelector :: Decode ResourceFieldSelector where
   decode a = do
-               containerName <- readProp "containerName" a >>= decode
-               divisor <- readProp "divisor" a >>= decode
-               resource <- readProp "resource" a >>= decode
+               containerName <- decodeMaybe "containerName" a
+               divisor <- decodeMaybe "divisor" a
+               resource <- decodeMaybe "resource" a
                pure $ ResourceFieldSelector { containerName, divisor, resource }
 instance encodeResourceFieldSelector :: Encode ResourceFieldSelector where
   encode (ResourceFieldSelector a) = encode $ StrMap.fromFoldable $
-               [ Tuple "containerName" (encode a.containerName)
-               , Tuple "divisor" (encode a.divisor)
-               , Tuple "resource" (encode a.resource) ]
+               [ Tuple "containerName" (encodeMaybe a.containerName)
+               , Tuple "divisor" (encodeMaybe a.divisor)
+               , Tuple "resource" (encodeMaybe a.resource) ]
 
 
 instance defaultResourceFieldSelector :: Default ResourceFieldSelector where
   default = ResourceFieldSelector
-    { containerName: NullOrUndefined Nothing
-    , divisor: NullOrUndefined Nothing
-    , resource: NullOrUndefined Nothing }
+    { containerName: Nothing
+    , divisor: Nothing
+    , resource: Nothing }
 
 -- | ResourceQuota sets aggregate quota restrictions enforced per namespace
 -- |
@@ -5253,39 +5252,39 @@ instance defaultResourceFieldSelector :: Default ResourceFieldSelector where
 -- | - `spec`: Spec defines the desired quota. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Status defines the actual enforced quota and its current usage. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype ResourceQuota = ResourceQuota
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined ResourceQuotaSpec)
-  , status :: (NullOrUndefined ResourceQuotaStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe ResourceQuotaSpec)
+  , status :: (Maybe ResourceQuotaStatus) }
 
 derive instance newtypeResourceQuota :: Newtype ResourceQuota _
 derive instance genericResourceQuota :: Generic ResourceQuota _
 instance showResourceQuota :: Show ResourceQuota where show a = genericShow a
 instance decodeResourceQuota :: Decode ResourceQuota where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ ResourceQuota { apiVersion, kind, metadata, spec, status }
 instance encodeResourceQuota :: Encode ResourceQuota where
   encode (ResourceQuota a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultResourceQuota :: Default ResourceQuota where
   default = ResourceQuota
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | ResourceQuotaList is a list of ResourceQuota items.
 -- |
@@ -5295,35 +5294,35 @@ instance defaultResourceQuota :: Default ResourceQuota where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ResourceQuotaList = ResourceQuotaList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ResourceQuota))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ResourceQuota))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeResourceQuotaList :: Newtype ResourceQuotaList _
 derive instance genericResourceQuotaList :: Generic ResourceQuotaList _
 instance showResourceQuotaList :: Show ResourceQuotaList where show a = genericShow a
 instance decodeResourceQuotaList :: Decode ResourceQuotaList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ResourceQuotaList { apiVersion, items, kind, metadata }
 instance encodeResourceQuotaList :: Encode ResourceQuotaList where
   encode (ResourceQuotaList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultResourceQuotaList :: Default ResourceQuotaList where
   default = ResourceQuotaList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | ResourceQuotaSpec defines the desired hard limits to enforce for Quota.
 -- |
@@ -5331,27 +5330,27 @@ instance defaultResourceQuotaList :: Default ResourceQuotaList where
 -- | - `hard`: Hard is the set of desired hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 -- | - `scopes`: A collection of filters that must match each object tracked by a quota. If not specified, the quota matches all objects.
 newtype ResourceQuotaSpec = ResourceQuotaSpec
-  { hard :: (NullOrUndefined (StrMap Resource.Quantity))
-  , scopes :: (NullOrUndefined (Array String)) }
+  { hard :: (Maybe (StrMap Resource.Quantity))
+  , scopes :: (Maybe (Array String)) }
 
 derive instance newtypeResourceQuotaSpec :: Newtype ResourceQuotaSpec _
 derive instance genericResourceQuotaSpec :: Generic ResourceQuotaSpec _
 instance showResourceQuotaSpec :: Show ResourceQuotaSpec where show a = genericShow a
 instance decodeResourceQuotaSpec :: Decode ResourceQuotaSpec where
   decode a = do
-               hard <- readProp "hard" a >>= decode
-               scopes <- readProp "scopes" a >>= decode
+               hard <- decodeMaybe "hard" a
+               scopes <- decodeMaybe "scopes" a
                pure $ ResourceQuotaSpec { hard, scopes }
 instance encodeResourceQuotaSpec :: Encode ResourceQuotaSpec where
   encode (ResourceQuotaSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "hard" (encode a.hard)
-               , Tuple "scopes" (encode a.scopes) ]
+               [ Tuple "hard" (encodeMaybe a.hard)
+               , Tuple "scopes" (encodeMaybe a.scopes) ]
 
 
 instance defaultResourceQuotaSpec :: Default ResourceQuotaSpec where
   default = ResourceQuotaSpec
-    { hard: NullOrUndefined Nothing
-    , scopes: NullOrUndefined Nothing }
+    { hard: Nothing
+    , scopes: Nothing }
 
 -- | ResourceQuotaStatus defines the enforced hard limits and observed use.
 -- |
@@ -5359,27 +5358,27 @@ instance defaultResourceQuotaSpec :: Default ResourceQuotaSpec where
 -- | - `hard`: Hard is the set of enforced hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 -- | - `used`: Used is the current observed total usage of the resource in the namespace.
 newtype ResourceQuotaStatus = ResourceQuotaStatus
-  { hard :: (NullOrUndefined (StrMap Resource.Quantity))
-  , used :: (NullOrUndefined (StrMap Resource.Quantity)) }
+  { hard :: (Maybe (StrMap Resource.Quantity))
+  , used :: (Maybe (StrMap Resource.Quantity)) }
 
 derive instance newtypeResourceQuotaStatus :: Newtype ResourceQuotaStatus _
 derive instance genericResourceQuotaStatus :: Generic ResourceQuotaStatus _
 instance showResourceQuotaStatus :: Show ResourceQuotaStatus where show a = genericShow a
 instance decodeResourceQuotaStatus :: Decode ResourceQuotaStatus where
   decode a = do
-               hard <- readProp "hard" a >>= decode
-               used <- readProp "used" a >>= decode
+               hard <- decodeMaybe "hard" a
+               used <- decodeMaybe "used" a
                pure $ ResourceQuotaStatus { hard, used }
 instance encodeResourceQuotaStatus :: Encode ResourceQuotaStatus where
   encode (ResourceQuotaStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "hard" (encode a.hard)
-               , Tuple "used" (encode a.used) ]
+               [ Tuple "hard" (encodeMaybe a.hard)
+               , Tuple "used" (encodeMaybe a.used) ]
 
 
 instance defaultResourceQuotaStatus :: Default ResourceQuotaStatus where
   default = ResourceQuotaStatus
-    { hard: NullOrUndefined Nothing
-    , used: NullOrUndefined Nothing }
+    { hard: Nothing
+    , used: Nothing }
 
 -- | ResourceRequirements describes the compute resource requirements.
 -- |
@@ -5387,27 +5386,27 @@ instance defaultResourceQuotaStatus :: Default ResourceQuotaStatus where
 -- | - `limits`: Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 -- | - `requests`: Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 newtype ResourceRequirements = ResourceRequirements
-  { limits :: (NullOrUndefined (StrMap Resource.Quantity))
-  , requests :: (NullOrUndefined (StrMap Resource.Quantity)) }
+  { limits :: (Maybe (StrMap Resource.Quantity))
+  , requests :: (Maybe (StrMap Resource.Quantity)) }
 
 derive instance newtypeResourceRequirements :: Newtype ResourceRequirements _
 derive instance genericResourceRequirements :: Generic ResourceRequirements _
 instance showResourceRequirements :: Show ResourceRequirements where show a = genericShow a
 instance decodeResourceRequirements :: Decode ResourceRequirements where
   decode a = do
-               limits <- readProp "limits" a >>= decode
-               requests <- readProp "requests" a >>= decode
+               limits <- decodeMaybe "limits" a
+               requests <- decodeMaybe "requests" a
                pure $ ResourceRequirements { limits, requests }
 instance encodeResourceRequirements :: Encode ResourceRequirements where
   encode (ResourceRequirements a) = encode $ StrMap.fromFoldable $
-               [ Tuple "limits" (encode a.limits)
-               , Tuple "requests" (encode a.requests) ]
+               [ Tuple "limits" (encodeMaybe a.limits)
+               , Tuple "requests" (encodeMaybe a.requests) ]
 
 
 instance defaultResourceRequirements :: Default ResourceRequirements where
   default = ResourceRequirements
-    { limits: NullOrUndefined Nothing
-    , requests: NullOrUndefined Nothing }
+    { limits: Nothing
+    , requests: Nothing }
 
 -- | SELinuxOptions are the labels to be applied to the container
 -- |
@@ -5417,35 +5416,35 @@ instance defaultResourceRequirements :: Default ResourceRequirements where
 -- | - `_type`: Type is a SELinux type label that applies to the container.
 -- | - `user`: User is a SELinux user label that applies to the container.
 newtype SELinuxOptions = SELinuxOptions
-  { _type :: (NullOrUndefined String)
-  , level :: (NullOrUndefined String)
-  , role :: (NullOrUndefined String)
-  , user :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , level :: (Maybe String)
+  , role :: (Maybe String)
+  , user :: (Maybe String) }
 
 derive instance newtypeSELinuxOptions :: Newtype SELinuxOptions _
 derive instance genericSELinuxOptions :: Generic SELinuxOptions _
 instance showSELinuxOptions :: Show SELinuxOptions where show a = genericShow a
 instance decodeSELinuxOptions :: Decode SELinuxOptions where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               level <- readProp "level" a >>= decode
-               role <- readProp "role" a >>= decode
-               user <- readProp "user" a >>= decode
+               _type <- decodeMaybe "_type" a
+               level <- decodeMaybe "level" a
+               role <- decodeMaybe "role" a
+               user <- decodeMaybe "user" a
                pure $ SELinuxOptions { _type, level, role, user }
 instance encodeSELinuxOptions :: Encode SELinuxOptions where
   encode (SELinuxOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "level" (encode a.level)
-               , Tuple "role" (encode a.role)
-               , Tuple "user" (encode a.user) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "level" (encodeMaybe a.level)
+               , Tuple "role" (encodeMaybe a.role)
+               , Tuple "user" (encodeMaybe a.user) ]
 
 
 instance defaultSELinuxOptions :: Default SELinuxOptions where
   default = SELinuxOptions
-    { _type: NullOrUndefined Nothing
-    , level: NullOrUndefined Nothing
-    , role: NullOrUndefined Nothing
-    , user: NullOrUndefined Nothing }
+    { _type: Nothing
+    , level: Nothing
+    , role: Nothing
+    , user: Nothing }
 
 -- | ScaleIOPersistentVolumeSource represents a persistent ScaleIO volume
 -- |
@@ -5461,59 +5460,59 @@ instance defaultSELinuxOptions :: Default SELinuxOptions where
 -- | - `system`: The name of the storage system as configured in ScaleIO.
 -- | - `volumeName`: The name of a volume already created in the ScaleIO system that is associated with this volume source.
 newtype ScaleIOPersistentVolumeSource = ScaleIOPersistentVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , gateway :: (NullOrUndefined String)
-  , protectionDomain :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined SecretReference)
-  , sslEnabled :: (NullOrUndefined Boolean)
-  , storageMode :: (NullOrUndefined String)
-  , storagePool :: (NullOrUndefined String)
-  , system :: (NullOrUndefined String)
-  , volumeName :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , gateway :: (Maybe String)
+  , protectionDomain :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe SecretReference)
+  , sslEnabled :: (Maybe Boolean)
+  , storageMode :: (Maybe String)
+  , storagePool :: (Maybe String)
+  , system :: (Maybe String)
+  , volumeName :: (Maybe String) }
 
 derive instance newtypeScaleIOPersistentVolumeSource :: Newtype ScaleIOPersistentVolumeSource _
 derive instance genericScaleIOPersistentVolumeSource :: Generic ScaleIOPersistentVolumeSource _
 instance showScaleIOPersistentVolumeSource :: Show ScaleIOPersistentVolumeSource where show a = genericShow a
 instance decodeScaleIOPersistentVolumeSource :: Decode ScaleIOPersistentVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               gateway <- readProp "gateway" a >>= decode
-               protectionDomain <- readProp "protectionDomain" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               sslEnabled <- readProp "sslEnabled" a >>= decode
-               storageMode <- readProp "storageMode" a >>= decode
-               storagePool <- readProp "storagePool" a >>= decode
-               system <- readProp "system" a >>= decode
-               volumeName <- readProp "volumeName" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               gateway <- decodeMaybe "gateway" a
+               protectionDomain <- decodeMaybe "protectionDomain" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               sslEnabled <- decodeMaybe "sslEnabled" a
+               storageMode <- decodeMaybe "storageMode" a
+               storagePool <- decodeMaybe "storagePool" a
+               system <- decodeMaybe "system" a
+               volumeName <- decodeMaybe "volumeName" a
                pure $ ScaleIOPersistentVolumeSource { fsType, gateway, protectionDomain, readOnly, secretRef, sslEnabled, storageMode, storagePool, system, volumeName }
 instance encodeScaleIOPersistentVolumeSource :: Encode ScaleIOPersistentVolumeSource where
   encode (ScaleIOPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "gateway" (encode a.gateway)
-               , Tuple "protectionDomain" (encode a.protectionDomain)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "sslEnabled" (encode a.sslEnabled)
-               , Tuple "storageMode" (encode a.storageMode)
-               , Tuple "storagePool" (encode a.storagePool)
-               , Tuple "system" (encode a.system)
-               , Tuple "volumeName" (encode a.volumeName) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "gateway" (encodeMaybe a.gateway)
+               , Tuple "protectionDomain" (encodeMaybe a.protectionDomain)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "sslEnabled" (encodeMaybe a.sslEnabled)
+               , Tuple "storageMode" (encodeMaybe a.storageMode)
+               , Tuple "storagePool" (encodeMaybe a.storagePool)
+               , Tuple "system" (encodeMaybe a.system)
+               , Tuple "volumeName" (encodeMaybe a.volumeName) ]
 
 
 instance defaultScaleIOPersistentVolumeSource :: Default ScaleIOPersistentVolumeSource where
   default = ScaleIOPersistentVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , gateway: NullOrUndefined Nothing
-    , protectionDomain: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , sslEnabled: NullOrUndefined Nothing
-    , storageMode: NullOrUndefined Nothing
-    , storagePool: NullOrUndefined Nothing
-    , system: NullOrUndefined Nothing
-    , volumeName: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , gateway: Nothing
+    , protectionDomain: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , sslEnabled: Nothing
+    , storageMode: Nothing
+    , storagePool: Nothing
+    , system: Nothing
+    , volumeName: Nothing }
 
 -- | ScaleIOVolumeSource represents a persistent ScaleIO volume
 -- |
@@ -5529,59 +5528,59 @@ instance defaultScaleIOPersistentVolumeSource :: Default ScaleIOPersistentVolume
 -- | - `system`: The name of the storage system as configured in ScaleIO.
 -- | - `volumeName`: The name of a volume already created in the ScaleIO system that is associated with this volume source.
 newtype ScaleIOVolumeSource = ScaleIOVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , gateway :: (NullOrUndefined String)
-  , protectionDomain :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined LocalObjectReference)
-  , sslEnabled :: (NullOrUndefined Boolean)
-  , storageMode :: (NullOrUndefined String)
-  , storagePool :: (NullOrUndefined String)
-  , system :: (NullOrUndefined String)
-  , volumeName :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , gateway :: (Maybe String)
+  , protectionDomain :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe LocalObjectReference)
+  , sslEnabled :: (Maybe Boolean)
+  , storageMode :: (Maybe String)
+  , storagePool :: (Maybe String)
+  , system :: (Maybe String)
+  , volumeName :: (Maybe String) }
 
 derive instance newtypeScaleIOVolumeSource :: Newtype ScaleIOVolumeSource _
 derive instance genericScaleIOVolumeSource :: Generic ScaleIOVolumeSource _
 instance showScaleIOVolumeSource :: Show ScaleIOVolumeSource where show a = genericShow a
 instance decodeScaleIOVolumeSource :: Decode ScaleIOVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               gateway <- readProp "gateway" a >>= decode
-               protectionDomain <- readProp "protectionDomain" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               sslEnabled <- readProp "sslEnabled" a >>= decode
-               storageMode <- readProp "storageMode" a >>= decode
-               storagePool <- readProp "storagePool" a >>= decode
-               system <- readProp "system" a >>= decode
-               volumeName <- readProp "volumeName" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               gateway <- decodeMaybe "gateway" a
+               protectionDomain <- decodeMaybe "protectionDomain" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               sslEnabled <- decodeMaybe "sslEnabled" a
+               storageMode <- decodeMaybe "storageMode" a
+               storagePool <- decodeMaybe "storagePool" a
+               system <- decodeMaybe "system" a
+               volumeName <- decodeMaybe "volumeName" a
                pure $ ScaleIOVolumeSource { fsType, gateway, protectionDomain, readOnly, secretRef, sslEnabled, storageMode, storagePool, system, volumeName }
 instance encodeScaleIOVolumeSource :: Encode ScaleIOVolumeSource where
   encode (ScaleIOVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "gateway" (encode a.gateway)
-               , Tuple "protectionDomain" (encode a.protectionDomain)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "sslEnabled" (encode a.sslEnabled)
-               , Tuple "storageMode" (encode a.storageMode)
-               , Tuple "storagePool" (encode a.storagePool)
-               , Tuple "system" (encode a.system)
-               , Tuple "volumeName" (encode a.volumeName) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "gateway" (encodeMaybe a.gateway)
+               , Tuple "protectionDomain" (encodeMaybe a.protectionDomain)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "sslEnabled" (encodeMaybe a.sslEnabled)
+               , Tuple "storageMode" (encodeMaybe a.storageMode)
+               , Tuple "storagePool" (encodeMaybe a.storagePool)
+               , Tuple "system" (encodeMaybe a.system)
+               , Tuple "volumeName" (encodeMaybe a.volumeName) ]
 
 
 instance defaultScaleIOVolumeSource :: Default ScaleIOVolumeSource where
   default = ScaleIOVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , gateway: NullOrUndefined Nothing
-    , protectionDomain: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , sslEnabled: NullOrUndefined Nothing
-    , storageMode: NullOrUndefined Nothing
-    , storagePool: NullOrUndefined Nothing
-    , system: NullOrUndefined Nothing
-    , volumeName: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , gateway: Nothing
+    , protectionDomain: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , sslEnabled: Nothing
+    , storageMode: Nothing
+    , storagePool: Nothing
+    , system: Nothing
+    , volumeName: Nothing }
 
 -- | Secret holds secret data of a certain type. The total bytes of the values in the Data field must be less than MaxSecretSize bytes.
 -- |
@@ -5593,43 +5592,43 @@ instance defaultScaleIOVolumeSource :: Default ScaleIOVolumeSource where
 -- | - `stringData`: stringData allows specifying non-binary secret data in string form. It is provided as a write-only convenience method. All keys and values are merged into the data field on write, overwriting any existing values. It is never output when reading from the API.
 -- | - `_type`: Used to facilitate programmatic handling of secret data.
 newtype Secret = Secret
-  { _data :: (NullOrUndefined (StrMap String))
-  , _type :: (NullOrUndefined String)
-  , apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , stringData :: (NullOrUndefined (StrMap String)) }
+  { _data :: (Maybe (StrMap String))
+  , _type :: (Maybe String)
+  , apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , stringData :: (Maybe (StrMap String)) }
 
 derive instance newtypeSecret :: Newtype Secret _
 derive instance genericSecret :: Generic Secret _
 instance showSecret :: Show Secret where show a = genericShow a
 instance decodeSecret :: Decode Secret where
   decode a = do
-               _data <- readProp "_data" a >>= decode
-               _type <- readProp "_type" a >>= decode
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               stringData <- readProp "stringData" a >>= decode
+               _data <- decodeMaybe "_data" a
+               _type <- decodeMaybe "_type" a
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               stringData <- decodeMaybe "stringData" a
                pure $ Secret { _data, _type, apiVersion, kind, metadata, stringData }
 instance encodeSecret :: Encode Secret where
   encode (Secret a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_data" (encode a._data)
-               , Tuple "_type" (encode a._type)
-               , Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "stringData" (encode a.stringData) ]
+               [ Tuple "_data" (encodeMaybe a._data)
+               , Tuple "_type" (encodeMaybe a._type)
+               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "stringData" (encodeMaybe a.stringData) ]
 
 
 instance defaultSecret :: Default Secret where
   default = Secret
-    { _data: NullOrUndefined Nothing
-    , _type: NullOrUndefined Nothing
-    , apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , stringData: NullOrUndefined Nothing }
+    { _data: Nothing
+    , _type: Nothing
+    , apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , stringData: Nothing }
 
 -- | SecretEnvSource selects a Secret to populate the environment variables with.
 -- | 
@@ -5639,27 +5638,27 @@ instance defaultSecret :: Default Secret where
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 -- | - `optional`: Specify whether the Secret must be defined
 newtype SecretEnvSource = SecretEnvSource
-  { name :: (NullOrUndefined String)
-  , optional :: (NullOrUndefined Boolean) }
+  { name :: (Maybe String)
+  , optional :: (Maybe Boolean) }
 
 derive instance newtypeSecretEnvSource :: Newtype SecretEnvSource _
 derive instance genericSecretEnvSource :: Generic SecretEnvSource _
 instance showSecretEnvSource :: Show SecretEnvSource where show a = genericShow a
 instance decodeSecretEnvSource :: Decode SecretEnvSource where
   decode a = do
-               name <- readProp "name" a >>= decode
-               optional <- readProp "optional" a >>= decode
+               name <- decodeMaybe "name" a
+               optional <- decodeMaybe "optional" a
                pure $ SecretEnvSource { name, optional }
 instance encodeSecretEnvSource :: Encode SecretEnvSource where
   encode (SecretEnvSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "optional" (encode a.optional) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "optional" (encodeMaybe a.optional) ]
 
 
 instance defaultSecretEnvSource :: Default SecretEnvSource where
   default = SecretEnvSource
-    { name: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing }
+    { name: Nothing
+    , optional: Nothing }
 
 -- | SecretKeySelector selects a key of a Secret.
 -- |
@@ -5668,31 +5667,31 @@ instance defaultSecretEnvSource :: Default SecretEnvSource where
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 -- | - `optional`: Specify whether the Secret or it's key must be defined
 newtype SecretKeySelector = SecretKeySelector
-  { key :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , optional :: (NullOrUndefined Boolean) }
+  { key :: (Maybe String)
+  , name :: (Maybe String)
+  , optional :: (Maybe Boolean) }
 
 derive instance newtypeSecretKeySelector :: Newtype SecretKeySelector _
 derive instance genericSecretKeySelector :: Generic SecretKeySelector _
 instance showSecretKeySelector :: Show SecretKeySelector where show a = genericShow a
 instance decodeSecretKeySelector :: Decode SecretKeySelector where
   decode a = do
-               key <- readProp "key" a >>= decode
-               name <- readProp "name" a >>= decode
-               optional <- readProp "optional" a >>= decode
+               key <- decodeMaybe "key" a
+               name <- decodeMaybe "name" a
+               optional <- decodeMaybe "optional" a
                pure $ SecretKeySelector { key, name, optional }
 instance encodeSecretKeySelector :: Encode SecretKeySelector where
   encode (SecretKeySelector a) = encode $ StrMap.fromFoldable $
-               [ Tuple "key" (encode a.key)
-               , Tuple "name" (encode a.name)
-               , Tuple "optional" (encode a.optional) ]
+               [ Tuple "key" (encodeMaybe a.key)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "optional" (encodeMaybe a.optional) ]
 
 
 instance defaultSecretKeySelector :: Default SecretKeySelector where
   default = SecretKeySelector
-    { key: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing }
+    { key: Nothing
+    , name: Nothing
+    , optional: Nothing }
 
 -- | SecretList is a list of Secret.
 -- |
@@ -5702,35 +5701,35 @@ instance defaultSecretKeySelector :: Default SecretKeySelector where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype SecretList = SecretList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Secret))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Secret))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeSecretList :: Newtype SecretList _
 derive instance genericSecretList :: Generic SecretList _
 instance showSecretList :: Show SecretList where show a = genericShow a
 instance decodeSecretList :: Decode SecretList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ SecretList { apiVersion, items, kind, metadata }
 instance encodeSecretList :: Encode SecretList where
   encode (SecretList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultSecretList :: Default SecretList where
   default = SecretList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | Adapts a secret into a projected volume.
 -- | 
@@ -5741,31 +5740,31 @@ instance defaultSecretList :: Default SecretList where
 -- | - `name`: Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 -- | - `optional`: Specify whether the Secret or its key must be defined
 newtype SecretProjection = SecretProjection
-  { items :: (NullOrUndefined (Array KeyToPath))
-  , name :: (NullOrUndefined String)
-  , optional :: (NullOrUndefined Boolean) }
+  { items :: (Maybe (Array KeyToPath))
+  , name :: (Maybe String)
+  , optional :: (Maybe Boolean) }
 
 derive instance newtypeSecretProjection :: Newtype SecretProjection _
 derive instance genericSecretProjection :: Generic SecretProjection _
 instance showSecretProjection :: Show SecretProjection where show a = genericShow a
 instance decodeSecretProjection :: Decode SecretProjection where
   decode a = do
-               items <- readProp "items" a >>= decode
-               name <- readProp "name" a >>= decode
-               optional <- readProp "optional" a >>= decode
+               items <- decodeMaybe "items" a
+               name <- decodeMaybe "name" a
+               optional <- decodeMaybe "optional" a
                pure $ SecretProjection { items, name, optional }
 instance encodeSecretProjection :: Encode SecretProjection where
   encode (SecretProjection a) = encode $ StrMap.fromFoldable $
-               [ Tuple "items" (encode a.items)
-               , Tuple "name" (encode a.name)
-               , Tuple "optional" (encode a.optional) ]
+               [ Tuple "items" (encodeMaybe a.items)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "optional" (encodeMaybe a.optional) ]
 
 
 instance defaultSecretProjection :: Default SecretProjection where
   default = SecretProjection
-    { items: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing }
+    { items: Nothing
+    , name: Nothing
+    , optional: Nothing }
 
 -- | SecretReference represents a Secret Reference. It has enough information to retrieve secret in any namespace
 -- |
@@ -5773,27 +5772,27 @@ instance defaultSecretProjection :: Default SecretProjection where
 -- | - `name`: Name is unique within a namespace to reference a secret resource.
 -- | - `namespace`: Namespace defines the space within which the secret name must be unique.
 newtype SecretReference = SecretReference
-  { name :: (NullOrUndefined String)
-  , namespace :: (NullOrUndefined String) }
+  { name :: (Maybe String)
+  , namespace :: (Maybe String) }
 
 derive instance newtypeSecretReference :: Newtype SecretReference _
 derive instance genericSecretReference :: Generic SecretReference _
 instance showSecretReference :: Show SecretReference where show a = genericShow a
 instance decodeSecretReference :: Decode SecretReference where
   decode a = do
-               name <- readProp "name" a >>= decode
-               namespace <- readProp "namespace" a >>= decode
+               name <- decodeMaybe "name" a
+               namespace <- decodeMaybe "namespace" a
                pure $ SecretReference { name, namespace }
 instance encodeSecretReference :: Encode SecretReference where
   encode (SecretReference a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "namespace" (encode a.namespace) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespace" (encodeMaybe a.namespace) ]
 
 
 instance defaultSecretReference :: Default SecretReference where
   default = SecretReference
-    { name: NullOrUndefined Nothing
-    , namespace: NullOrUndefined Nothing }
+    { name: Nothing
+    , namespace: Nothing }
 
 -- | Adapts a Secret into a volume.
 -- | 
@@ -5805,35 +5804,35 @@ instance defaultSecretReference :: Default SecretReference where
 -- | - `optional`: Specify whether the Secret or it's keys must be defined
 -- | - `secretName`: Name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
 newtype SecretVolumeSource = SecretVolumeSource
-  { defaultMode :: (NullOrUndefined Int)
-  , items :: (NullOrUndefined (Array KeyToPath))
-  , optional :: (NullOrUndefined Boolean)
-  , secretName :: (NullOrUndefined String) }
+  { defaultMode :: (Maybe Int)
+  , items :: (Maybe (Array KeyToPath))
+  , optional :: (Maybe Boolean)
+  , secretName :: (Maybe String) }
 
 derive instance newtypeSecretVolumeSource :: Newtype SecretVolumeSource _
 derive instance genericSecretVolumeSource :: Generic SecretVolumeSource _
 instance showSecretVolumeSource :: Show SecretVolumeSource where show a = genericShow a
 instance decodeSecretVolumeSource :: Decode SecretVolumeSource where
   decode a = do
-               defaultMode <- readProp "defaultMode" a >>= decode
-               items <- readProp "items" a >>= decode
-               optional <- readProp "optional" a >>= decode
-               secretName <- readProp "secretName" a >>= decode
+               defaultMode <- decodeMaybe "defaultMode" a
+               items <- decodeMaybe "items" a
+               optional <- decodeMaybe "optional" a
+               secretName <- decodeMaybe "secretName" a
                pure $ SecretVolumeSource { defaultMode, items, optional, secretName }
 instance encodeSecretVolumeSource :: Encode SecretVolumeSource where
   encode (SecretVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "defaultMode" (encode a.defaultMode)
-               , Tuple "items" (encode a.items)
-               , Tuple "optional" (encode a.optional)
-               , Tuple "secretName" (encode a.secretName) ]
+               [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "optional" (encodeMaybe a.optional)
+               , Tuple "secretName" (encodeMaybe a.secretName) ]
 
 
 instance defaultSecretVolumeSource :: Default SecretVolumeSource where
   default = SecretVolumeSource
-    { defaultMode: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , optional: NullOrUndefined Nothing
-    , secretName: NullOrUndefined Nothing }
+    { defaultMode: Nothing
+    , items: Nothing
+    , optional: Nothing
+    , secretName: Nothing }
 
 -- | SecurityContext holds security configuration that will be applied to a container. Some fields are present in both SecurityContext and PodSecurityContext.  When both are set, the values in SecurityContext take precedence.
 -- |
@@ -5846,47 +5845,47 @@ instance defaultSecretVolumeSource :: Default SecretVolumeSource where
 -- | - `runAsUser`: The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
 -- | - `seLinuxOptions`: The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
 newtype SecurityContext = SecurityContext
-  { allowPrivilegeEscalation :: (NullOrUndefined Boolean)
-  , capabilities :: (NullOrUndefined Capabilities)
-  , privileged :: (NullOrUndefined Boolean)
-  , readOnlyRootFilesystem :: (NullOrUndefined Boolean)
-  , runAsNonRoot :: (NullOrUndefined Boolean)
-  , runAsUser :: (NullOrUndefined Int)
-  , seLinuxOptions :: (NullOrUndefined SELinuxOptions) }
+  { allowPrivilegeEscalation :: (Maybe Boolean)
+  , capabilities :: (Maybe Capabilities)
+  , privileged :: (Maybe Boolean)
+  , readOnlyRootFilesystem :: (Maybe Boolean)
+  , runAsNonRoot :: (Maybe Boolean)
+  , runAsUser :: (Maybe Int)
+  , seLinuxOptions :: (Maybe SELinuxOptions) }
 
 derive instance newtypeSecurityContext :: Newtype SecurityContext _
 derive instance genericSecurityContext :: Generic SecurityContext _
 instance showSecurityContext :: Show SecurityContext where show a = genericShow a
 instance decodeSecurityContext :: Decode SecurityContext where
   decode a = do
-               allowPrivilegeEscalation <- readProp "allowPrivilegeEscalation" a >>= decode
-               capabilities <- readProp "capabilities" a >>= decode
-               privileged <- readProp "privileged" a >>= decode
-               readOnlyRootFilesystem <- readProp "readOnlyRootFilesystem" a >>= decode
-               runAsNonRoot <- readProp "runAsNonRoot" a >>= decode
-               runAsUser <- readProp "runAsUser" a >>= decode
-               seLinuxOptions <- readProp "seLinuxOptions" a >>= decode
+               allowPrivilegeEscalation <- decodeMaybe "allowPrivilegeEscalation" a
+               capabilities <- decodeMaybe "capabilities" a
+               privileged <- decodeMaybe "privileged" a
+               readOnlyRootFilesystem <- decodeMaybe "readOnlyRootFilesystem" a
+               runAsNonRoot <- decodeMaybe "runAsNonRoot" a
+               runAsUser <- decodeMaybe "runAsUser" a
+               seLinuxOptions <- decodeMaybe "seLinuxOptions" a
                pure $ SecurityContext { allowPrivilegeEscalation, capabilities, privileged, readOnlyRootFilesystem, runAsNonRoot, runAsUser, seLinuxOptions }
 instance encodeSecurityContext :: Encode SecurityContext where
   encode (SecurityContext a) = encode $ StrMap.fromFoldable $
-               [ Tuple "allowPrivilegeEscalation" (encode a.allowPrivilegeEscalation)
-               , Tuple "capabilities" (encode a.capabilities)
-               , Tuple "privileged" (encode a.privileged)
-               , Tuple "readOnlyRootFilesystem" (encode a.readOnlyRootFilesystem)
-               , Tuple "runAsNonRoot" (encode a.runAsNonRoot)
-               , Tuple "runAsUser" (encode a.runAsUser)
-               , Tuple "seLinuxOptions" (encode a.seLinuxOptions) ]
+               [ Tuple "allowPrivilegeEscalation" (encodeMaybe a.allowPrivilegeEscalation)
+               , Tuple "capabilities" (encodeMaybe a.capabilities)
+               , Tuple "privileged" (encodeMaybe a.privileged)
+               , Tuple "readOnlyRootFilesystem" (encodeMaybe a.readOnlyRootFilesystem)
+               , Tuple "runAsNonRoot" (encodeMaybe a.runAsNonRoot)
+               , Tuple "runAsUser" (encodeMaybe a.runAsUser)
+               , Tuple "seLinuxOptions" (encodeMaybe a.seLinuxOptions) ]
 
 
 instance defaultSecurityContext :: Default SecurityContext where
   default = SecurityContext
-    { allowPrivilegeEscalation: NullOrUndefined Nothing
-    , capabilities: NullOrUndefined Nothing
-    , privileged: NullOrUndefined Nothing
-    , readOnlyRootFilesystem: NullOrUndefined Nothing
-    , runAsNonRoot: NullOrUndefined Nothing
-    , runAsUser: NullOrUndefined Nothing
-    , seLinuxOptions: NullOrUndefined Nothing }
+    { allowPrivilegeEscalation: Nothing
+    , capabilities: Nothing
+    , privileged: Nothing
+    , readOnlyRootFilesystem: Nothing
+    , runAsNonRoot: Nothing
+    , runAsUser: Nothing
+    , seLinuxOptions: Nothing }
 
 -- | Service is a named abstraction of software service (for example, mysql) consisting of local port (for example 3306) that the proxy listens on, and the selector that determines which pods will answer requests sent through the proxy.
 -- |
@@ -5897,39 +5896,39 @@ instance defaultSecurityContext :: Default SecurityContext where
 -- | - `spec`: Spec defines the behavior of a service. https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Most recently observed status of the service. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Service = Service
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined ServiceSpec)
-  , status :: (NullOrUndefined ServiceStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe ServiceSpec)
+  , status :: (Maybe ServiceStatus) }
 
 derive instance newtypeService :: Newtype Service _
 derive instance genericService :: Generic Service _
 instance showService :: Show Service where show a = genericShow a
 instance decodeService :: Decode Service where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ Service { apiVersion, kind, metadata, spec, status }
 instance encodeService :: Encode Service where
   encode (Service a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultService :: Default Service where
   default = Service
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | ServiceAccount binds together: * a name, understood by users, and perhaps by peripheral systems, for an identity * a principal that can be authenticated and authorized * a set of secrets
 -- |
@@ -5941,43 +5940,43 @@ instance defaultService :: Default Service where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `secrets`: Secrets is the list of secrets allowed to be used by pods running using this ServiceAccount. More info: https://kubernetes.io/docs/concepts/configuration/secret
 newtype ServiceAccount = ServiceAccount
-  { apiVersion :: (NullOrUndefined String)
-  , automountServiceAccountToken :: (NullOrUndefined Boolean)
-  , imagePullSecrets :: (NullOrUndefined (Array LocalObjectReference))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , secrets :: (NullOrUndefined (Array ObjectReference)) }
+  { apiVersion :: (Maybe String)
+  , automountServiceAccountToken :: (Maybe Boolean)
+  , imagePullSecrets :: (Maybe (Array LocalObjectReference))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , secrets :: (Maybe (Array ObjectReference)) }
 
 derive instance newtypeServiceAccount :: Newtype ServiceAccount _
 derive instance genericServiceAccount :: Generic ServiceAccount _
 instance showServiceAccount :: Show ServiceAccount where show a = genericShow a
 instance decodeServiceAccount :: Decode ServiceAccount where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               automountServiceAccountToken <- readProp "automountServiceAccountToken" a >>= decode
-               imagePullSecrets <- readProp "imagePullSecrets" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               secrets <- readProp "secrets" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               automountServiceAccountToken <- decodeMaybe "automountServiceAccountToken" a
+               imagePullSecrets <- decodeMaybe "imagePullSecrets" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               secrets <- decodeMaybe "secrets" a
                pure $ ServiceAccount { apiVersion, automountServiceAccountToken, imagePullSecrets, kind, metadata, secrets }
 instance encodeServiceAccount :: Encode ServiceAccount where
   encode (ServiceAccount a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "automountServiceAccountToken" (encode a.automountServiceAccountToken)
-               , Tuple "imagePullSecrets" (encode a.imagePullSecrets)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "secrets" (encode a.secrets) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "automountServiceAccountToken" (encodeMaybe a.automountServiceAccountToken)
+               , Tuple "imagePullSecrets" (encodeMaybe a.imagePullSecrets)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "secrets" (encodeMaybe a.secrets) ]
 
 
 instance defaultServiceAccount :: Default ServiceAccount where
   default = ServiceAccount
-    { apiVersion: NullOrUndefined Nothing
-    , automountServiceAccountToken: NullOrUndefined Nothing
-    , imagePullSecrets: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , secrets: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , automountServiceAccountToken: Nothing
+    , imagePullSecrets: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , secrets: Nothing }
 
 -- | ServiceAccountList is a list of ServiceAccount objects
 -- |
@@ -5987,35 +5986,35 @@ instance defaultServiceAccount :: Default ServiceAccount where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ServiceAccountList = ServiceAccountList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ServiceAccount))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ServiceAccount))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeServiceAccountList :: Newtype ServiceAccountList _
 derive instance genericServiceAccountList :: Generic ServiceAccountList _
 instance showServiceAccountList :: Show ServiceAccountList where show a = genericShow a
 instance decodeServiceAccountList :: Decode ServiceAccountList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ServiceAccountList { apiVersion, items, kind, metadata }
 instance encodeServiceAccountList :: Encode ServiceAccountList where
   encode (ServiceAccountList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultServiceAccountList :: Default ServiceAccountList where
   default = ServiceAccountList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | ServiceList holds a list of services.
 -- |
@@ -6025,35 +6024,35 @@ instance defaultServiceAccountList :: Default ServiceAccountList where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype ServiceList = ServiceList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Service))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Service))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeServiceList :: Newtype ServiceList _
 derive instance genericServiceList :: Generic ServiceList _
 instance showServiceList :: Show ServiceList where show a = genericShow a
 instance decodeServiceList :: Decode ServiceList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ServiceList { apiVersion, items, kind, metadata }
 instance encodeServiceList :: Encode ServiceList where
   encode (ServiceList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultServiceList :: Default ServiceList where
   default = ServiceList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | ServicePort contains information on service's port.
 -- |
@@ -6064,39 +6063,39 @@ instance defaultServiceList :: Default ServiceList where
 -- | - `protocol`: The IP protocol for this port. Supports "TCP" and "UDP". Default is TCP.
 -- | - `targetPort`: Number or name of the port to access on the pods targeted by the service. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME. If this is a string, it will be looked up as a named port in the target Pod's container ports. If this is not specified, the value of the 'port' field is used (an identity map). This field is ignored for services with clusterIP=None, and should be omitted or set equal to the 'port' field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
 newtype ServicePort = ServicePort
-  { name :: (NullOrUndefined String)
-  , nodePort :: (NullOrUndefined Int)
-  , port :: (NullOrUndefined Int)
-  , protocol :: (NullOrUndefined String)
-  , targetPort :: (NullOrUndefined Util.IntOrString) }
+  { name :: (Maybe String)
+  , nodePort :: (Maybe Int)
+  , port :: (Maybe Int)
+  , protocol :: (Maybe String)
+  , targetPort :: (Maybe Util.IntOrString) }
 
 derive instance newtypeServicePort :: Newtype ServicePort _
 derive instance genericServicePort :: Generic ServicePort _
 instance showServicePort :: Show ServicePort where show a = genericShow a
 instance decodeServicePort :: Decode ServicePort where
   decode a = do
-               name <- readProp "name" a >>= decode
-               nodePort <- readProp "nodePort" a >>= decode
-               port <- readProp "port" a >>= decode
-               protocol <- readProp "protocol" a >>= decode
-               targetPort <- readProp "targetPort" a >>= decode
+               name <- decodeMaybe "name" a
+               nodePort <- decodeMaybe "nodePort" a
+               port <- decodeMaybe "port" a
+               protocol <- decodeMaybe "protocol" a
+               targetPort <- decodeMaybe "targetPort" a
                pure $ ServicePort { name, nodePort, port, protocol, targetPort }
 instance encodeServicePort :: Encode ServicePort where
   encode (ServicePort a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name)
-               , Tuple "nodePort" (encode a.nodePort)
-               , Tuple "port" (encode a.port)
-               , Tuple "protocol" (encode a.protocol)
-               , Tuple "targetPort" (encode a.targetPort) ]
+               [ Tuple "name" (encodeMaybe a.name)
+               , Tuple "nodePort" (encodeMaybe a.nodePort)
+               , Tuple "port" (encodeMaybe a.port)
+               , Tuple "protocol" (encodeMaybe a.protocol)
+               , Tuple "targetPort" (encodeMaybe a.targetPort) ]
 
 
 instance defaultServicePort :: Default ServicePort where
   default = ServicePort
-    { name: NullOrUndefined Nothing
-    , nodePort: NullOrUndefined Nothing
-    , port: NullOrUndefined Nothing
-    , protocol: NullOrUndefined Nothing
-    , targetPort: NullOrUndefined Nothing }
+    { name: Nothing
+    , nodePort: Nothing
+    , port: Nothing
+    , protocol: Nothing
+    , targetPort: Nothing }
 
 -- | ServiceSpec describes the attributes that a user creates on a service.
 -- |
@@ -6115,117 +6114,117 @@ instance defaultServicePort :: Default ServicePort where
 -- | - `sessionAffinityConfig`: sessionAffinityConfig contains the configurations of session affinity.
 -- | - `_type`: type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. "ExternalName" maps to the specified externalName. "ClusterIP" allocates a cluster-internal IP address for load-balancing to endpoints. Endpoints are determined by the selector or if that is not specified, by manual construction of an Endpoints object. If clusterIP is "None", no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a stable IP. "NodePort" builds on ClusterIP and allocates a port on every node which routes to the clusterIP. "LoadBalancer" builds on NodePort and creates an external load-balancer (if supported in the current cloud) which routes to the clusterIP. More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types
 newtype ServiceSpec = ServiceSpec
-  { _type :: (NullOrUndefined String)
-  , clusterIP :: (NullOrUndefined String)
-  , externalIPs :: (NullOrUndefined (Array String))
-  , externalName :: (NullOrUndefined String)
-  , externalTrafficPolicy :: (NullOrUndefined String)
-  , healthCheckNodePort :: (NullOrUndefined Int)
-  , loadBalancerIP :: (NullOrUndefined String)
-  , loadBalancerSourceRanges :: (NullOrUndefined (Array String))
-  , ports :: (NullOrUndefined (Array ServicePort))
-  , publishNotReadyAddresses :: (NullOrUndefined Boolean)
-  , selector :: (NullOrUndefined (StrMap String))
-  , sessionAffinity :: (NullOrUndefined String)
-  , sessionAffinityConfig :: (NullOrUndefined SessionAffinityConfig) }
+  { _type :: (Maybe String)
+  , clusterIP :: (Maybe String)
+  , externalIPs :: (Maybe (Array String))
+  , externalName :: (Maybe String)
+  , externalTrafficPolicy :: (Maybe String)
+  , healthCheckNodePort :: (Maybe Int)
+  , loadBalancerIP :: (Maybe String)
+  , loadBalancerSourceRanges :: (Maybe (Array String))
+  , ports :: (Maybe (Array ServicePort))
+  , publishNotReadyAddresses :: (Maybe Boolean)
+  , selector :: (Maybe (StrMap String))
+  , sessionAffinity :: (Maybe String)
+  , sessionAffinityConfig :: (Maybe SessionAffinityConfig) }
 
 derive instance newtypeServiceSpec :: Newtype ServiceSpec _
 derive instance genericServiceSpec :: Generic ServiceSpec _
 instance showServiceSpec :: Show ServiceSpec where show a = genericShow a
 instance decodeServiceSpec :: Decode ServiceSpec where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               clusterIP <- readProp "clusterIP" a >>= decode
-               externalIPs <- readProp "externalIPs" a >>= decode
-               externalName <- readProp "externalName" a >>= decode
-               externalTrafficPolicy <- readProp "externalTrafficPolicy" a >>= decode
-               healthCheckNodePort <- readProp "healthCheckNodePort" a >>= decode
-               loadBalancerIP <- readProp "loadBalancerIP" a >>= decode
-               loadBalancerSourceRanges <- readProp "loadBalancerSourceRanges" a >>= decode
-               ports <- readProp "ports" a >>= decode
-               publishNotReadyAddresses <- readProp "publishNotReadyAddresses" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               sessionAffinity <- readProp "sessionAffinity" a >>= decode
-               sessionAffinityConfig <- readProp "sessionAffinityConfig" a >>= decode
+               _type <- decodeMaybe "_type" a
+               clusterIP <- decodeMaybe "clusterIP" a
+               externalIPs <- decodeMaybe "externalIPs" a
+               externalName <- decodeMaybe "externalName" a
+               externalTrafficPolicy <- decodeMaybe "externalTrafficPolicy" a
+               healthCheckNodePort <- decodeMaybe "healthCheckNodePort" a
+               loadBalancerIP <- decodeMaybe "loadBalancerIP" a
+               loadBalancerSourceRanges <- decodeMaybe "loadBalancerSourceRanges" a
+               ports <- decodeMaybe "ports" a
+               publishNotReadyAddresses <- decodeMaybe "publishNotReadyAddresses" a
+               selector <- decodeMaybe "selector" a
+               sessionAffinity <- decodeMaybe "sessionAffinity" a
+               sessionAffinityConfig <- decodeMaybe "sessionAffinityConfig" a
                pure $ ServiceSpec { _type, clusterIP, externalIPs, externalName, externalTrafficPolicy, healthCheckNodePort, loadBalancerIP, loadBalancerSourceRanges, ports, publishNotReadyAddresses, selector, sessionAffinity, sessionAffinityConfig }
 instance encodeServiceSpec :: Encode ServiceSpec where
   encode (ServiceSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "clusterIP" (encode a.clusterIP)
-               , Tuple "externalIPs" (encode a.externalIPs)
-               , Tuple "externalName" (encode a.externalName)
-               , Tuple "externalTrafficPolicy" (encode a.externalTrafficPolicy)
-               , Tuple "healthCheckNodePort" (encode a.healthCheckNodePort)
-               , Tuple "loadBalancerIP" (encode a.loadBalancerIP)
-               , Tuple "loadBalancerSourceRanges" (encode a.loadBalancerSourceRanges)
-               , Tuple "ports" (encode a.ports)
-               , Tuple "publishNotReadyAddresses" (encode a.publishNotReadyAddresses)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "sessionAffinity" (encode a.sessionAffinity)
-               , Tuple "sessionAffinityConfig" (encode a.sessionAffinityConfig) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "clusterIP" (encodeMaybe a.clusterIP)
+               , Tuple "externalIPs" (encodeMaybe a.externalIPs)
+               , Tuple "externalName" (encodeMaybe a.externalName)
+               , Tuple "externalTrafficPolicy" (encodeMaybe a.externalTrafficPolicy)
+               , Tuple "healthCheckNodePort" (encodeMaybe a.healthCheckNodePort)
+               , Tuple "loadBalancerIP" (encodeMaybe a.loadBalancerIP)
+               , Tuple "loadBalancerSourceRanges" (encodeMaybe a.loadBalancerSourceRanges)
+               , Tuple "ports" (encodeMaybe a.ports)
+               , Tuple "publishNotReadyAddresses" (encodeMaybe a.publishNotReadyAddresses)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "sessionAffinity" (encodeMaybe a.sessionAffinity)
+               , Tuple "sessionAffinityConfig" (encodeMaybe a.sessionAffinityConfig) ]
 
 
 instance defaultServiceSpec :: Default ServiceSpec where
   default = ServiceSpec
-    { _type: NullOrUndefined Nothing
-    , clusterIP: NullOrUndefined Nothing
-    , externalIPs: NullOrUndefined Nothing
-    , externalName: NullOrUndefined Nothing
-    , externalTrafficPolicy: NullOrUndefined Nothing
-    , healthCheckNodePort: NullOrUndefined Nothing
-    , loadBalancerIP: NullOrUndefined Nothing
-    , loadBalancerSourceRanges: NullOrUndefined Nothing
-    , ports: NullOrUndefined Nothing
-    , publishNotReadyAddresses: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , sessionAffinity: NullOrUndefined Nothing
-    , sessionAffinityConfig: NullOrUndefined Nothing }
+    { _type: Nothing
+    , clusterIP: Nothing
+    , externalIPs: Nothing
+    , externalName: Nothing
+    , externalTrafficPolicy: Nothing
+    , healthCheckNodePort: Nothing
+    , loadBalancerIP: Nothing
+    , loadBalancerSourceRanges: Nothing
+    , ports: Nothing
+    , publishNotReadyAddresses: Nothing
+    , selector: Nothing
+    , sessionAffinity: Nothing
+    , sessionAffinityConfig: Nothing }
 
 -- | ServiceStatus represents the current status of a service.
 -- |
 -- | Fields:
 -- | - `loadBalancer`: LoadBalancer contains the current status of the load-balancer, if one is present.
 newtype ServiceStatus = ServiceStatus
-  { loadBalancer :: (NullOrUndefined LoadBalancerStatus) }
+  { loadBalancer :: (Maybe LoadBalancerStatus) }
 
 derive instance newtypeServiceStatus :: Newtype ServiceStatus _
 derive instance genericServiceStatus :: Generic ServiceStatus _
 instance showServiceStatus :: Show ServiceStatus where show a = genericShow a
 instance decodeServiceStatus :: Decode ServiceStatus where
   decode a = do
-               loadBalancer <- readProp "loadBalancer" a >>= decode
+               loadBalancer <- decodeMaybe "loadBalancer" a
                pure $ ServiceStatus { loadBalancer }
 instance encodeServiceStatus :: Encode ServiceStatus where
   encode (ServiceStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "loadBalancer" (encode a.loadBalancer) ]
+               [ Tuple "loadBalancer" (encodeMaybe a.loadBalancer) ]
 
 
 instance defaultServiceStatus :: Default ServiceStatus where
   default = ServiceStatus
-    { loadBalancer: NullOrUndefined Nothing }
+    { loadBalancer: Nothing }
 
 -- | SessionAffinityConfig represents the configurations of session affinity.
 -- |
 -- | Fields:
 -- | - `clientIP`: clientIP contains the configurations of Client IP based session affinity.
 newtype SessionAffinityConfig = SessionAffinityConfig
-  { clientIP :: (NullOrUndefined ClientIPConfig) }
+  { clientIP :: (Maybe ClientIPConfig) }
 
 derive instance newtypeSessionAffinityConfig :: Newtype SessionAffinityConfig _
 derive instance genericSessionAffinityConfig :: Generic SessionAffinityConfig _
 instance showSessionAffinityConfig :: Show SessionAffinityConfig where show a = genericShow a
 instance decodeSessionAffinityConfig :: Decode SessionAffinityConfig where
   decode a = do
-               clientIP <- readProp "clientIP" a >>= decode
+               clientIP <- decodeMaybe "clientIP" a
                pure $ SessionAffinityConfig { clientIP }
 instance encodeSessionAffinityConfig :: Encode SessionAffinityConfig where
   encode (SessionAffinityConfig a) = encode $ StrMap.fromFoldable $
-               [ Tuple "clientIP" (encode a.clientIP) ]
+               [ Tuple "clientIP" (encodeMaybe a.clientIP) ]
 
 
 instance defaultSessionAffinityConfig :: Default SessionAffinityConfig where
   default = SessionAffinityConfig
-    { clientIP: NullOrUndefined Nothing }
+    { clientIP: Nothing }
 
 -- | Represents a StorageOS persistent volume resource.
 -- |
@@ -6236,39 +6235,39 @@ instance defaultSessionAffinityConfig :: Default SessionAffinityConfig where
 -- | - `volumeName`: VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
 -- | - `volumeNamespace`: VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
 newtype StorageOSPersistentVolumeSource = StorageOSPersistentVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined ObjectReference)
-  , volumeName :: (NullOrUndefined String)
-  , volumeNamespace :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe ObjectReference)
+  , volumeName :: (Maybe String)
+  , volumeNamespace :: (Maybe String) }
 
 derive instance newtypeStorageOSPersistentVolumeSource :: Newtype StorageOSPersistentVolumeSource _
 derive instance genericStorageOSPersistentVolumeSource :: Generic StorageOSPersistentVolumeSource _
 instance showStorageOSPersistentVolumeSource :: Show StorageOSPersistentVolumeSource where show a = genericShow a
 instance decodeStorageOSPersistentVolumeSource :: Decode StorageOSPersistentVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               volumeName <- readProp "volumeName" a >>= decode
-               volumeNamespace <- readProp "volumeNamespace" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               volumeName <- decodeMaybe "volumeName" a
+               volumeNamespace <- decodeMaybe "volumeNamespace" a
                pure $ StorageOSPersistentVolumeSource { fsType, readOnly, secretRef, volumeName, volumeNamespace }
 instance encodeStorageOSPersistentVolumeSource :: Encode StorageOSPersistentVolumeSource where
   encode (StorageOSPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "volumeName" (encode a.volumeName)
-               , Tuple "volumeNamespace" (encode a.volumeNamespace) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "volumeName" (encodeMaybe a.volumeName)
+               , Tuple "volumeNamespace" (encodeMaybe a.volumeNamespace) ]
 
 
 instance defaultStorageOSPersistentVolumeSource :: Default StorageOSPersistentVolumeSource where
   default = StorageOSPersistentVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , volumeName: NullOrUndefined Nothing
-    , volumeNamespace: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , volumeName: Nothing
+    , volumeNamespace: Nothing }
 
 -- | Represents a StorageOS persistent volume resource.
 -- |
@@ -6279,39 +6278,39 @@ instance defaultStorageOSPersistentVolumeSource :: Default StorageOSPersistentVo
 -- | - `volumeName`: VolumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace.
 -- | - `volumeNamespace`: VolumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
 newtype StorageOSVolumeSource = StorageOSVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , secretRef :: (NullOrUndefined LocalObjectReference)
-  , volumeName :: (NullOrUndefined String)
-  , volumeNamespace :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , secretRef :: (Maybe LocalObjectReference)
+  , volumeName :: (Maybe String)
+  , volumeNamespace :: (Maybe String) }
 
 derive instance newtypeStorageOSVolumeSource :: Newtype StorageOSVolumeSource _
 derive instance genericStorageOSVolumeSource :: Generic StorageOSVolumeSource _
 instance showStorageOSVolumeSource :: Show StorageOSVolumeSource where show a = genericShow a
 instance decodeStorageOSVolumeSource :: Decode StorageOSVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               secretRef <- readProp "secretRef" a >>= decode
-               volumeName <- readProp "volumeName" a >>= decode
-               volumeNamespace <- readProp "volumeNamespace" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               readOnly <- decodeMaybe "readOnly" a
+               secretRef <- decodeMaybe "secretRef" a
+               volumeName <- decodeMaybe "volumeName" a
+               volumeNamespace <- decodeMaybe "volumeNamespace" a
                pure $ StorageOSVolumeSource { fsType, readOnly, secretRef, volumeName, volumeNamespace }
 instance encodeStorageOSVolumeSource :: Encode StorageOSVolumeSource where
   encode (StorageOSVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "secretRef" (encode a.secretRef)
-               , Tuple "volumeName" (encode a.volumeName)
-               , Tuple "volumeNamespace" (encode a.volumeNamespace) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "secretRef" (encodeMaybe a.secretRef)
+               , Tuple "volumeName" (encodeMaybe a.volumeName)
+               , Tuple "volumeNamespace" (encodeMaybe a.volumeNamespace) ]
 
 
 instance defaultStorageOSVolumeSource :: Default StorageOSVolumeSource where
   default = StorageOSVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , secretRef: NullOrUndefined Nothing
-    , volumeName: NullOrUndefined Nothing
-    , volumeNamespace: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , readOnly: Nothing
+    , secretRef: Nothing
+    , volumeName: Nothing
+    , volumeNamespace: Nothing }
 
 -- | TCPSocketAction describes an action based on opening a socket
 -- |
@@ -6319,27 +6318,27 @@ instance defaultStorageOSVolumeSource :: Default StorageOSVolumeSource where
 -- | - `host`: Optional: Host name to connect to, defaults to the pod IP.
 -- | - `port`: Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
 newtype TCPSocketAction = TCPSocketAction
-  { host :: (NullOrUndefined String)
-  , port :: (NullOrUndefined Util.IntOrString) }
+  { host :: (Maybe String)
+  , port :: (Maybe Util.IntOrString) }
 
 derive instance newtypeTCPSocketAction :: Newtype TCPSocketAction _
 derive instance genericTCPSocketAction :: Generic TCPSocketAction _
 instance showTCPSocketAction :: Show TCPSocketAction where show a = genericShow a
 instance decodeTCPSocketAction :: Decode TCPSocketAction where
   decode a = do
-               host <- readProp "host" a >>= decode
-               port <- readProp "port" a >>= decode
+               host <- decodeMaybe "host" a
+               port <- decodeMaybe "port" a
                pure $ TCPSocketAction { host, port }
 instance encodeTCPSocketAction :: Encode TCPSocketAction where
   encode (TCPSocketAction a) = encode $ StrMap.fromFoldable $
-               [ Tuple "host" (encode a.host)
-               , Tuple "port" (encode a.port) ]
+               [ Tuple "host" (encodeMaybe a.host)
+               , Tuple "port" (encodeMaybe a.port) ]
 
 
 instance defaultTCPSocketAction :: Default TCPSocketAction where
   default = TCPSocketAction
-    { host: NullOrUndefined Nothing
-    , port: NullOrUndefined Nothing }
+    { host: Nothing
+    , port: Nothing }
 
 -- | The node this Taint is attached to has the "effect" on any pod that does not tolerate the Taint.
 -- |
@@ -6349,35 +6348,35 @@ instance defaultTCPSocketAction :: Default TCPSocketAction where
 -- | - `timeAdded`: TimeAdded represents the time at which the taint was added. It is only written for NoExecute taints.
 -- | - `value`: Required. The taint value corresponding to the taint key.
 newtype Taint = Taint
-  { effect :: (NullOrUndefined String)
-  , key :: (NullOrUndefined String)
-  , timeAdded :: (NullOrUndefined MetaV1.Time)
-  , value :: (NullOrUndefined String) }
+  { effect :: (Maybe String)
+  , key :: (Maybe String)
+  , timeAdded :: (Maybe MetaV1.Time)
+  , value :: (Maybe String) }
 
 derive instance newtypeTaint :: Newtype Taint _
 derive instance genericTaint :: Generic Taint _
 instance showTaint :: Show Taint where show a = genericShow a
 instance decodeTaint :: Decode Taint where
   decode a = do
-               effect <- readProp "effect" a >>= decode
-               key <- readProp "key" a >>= decode
-               timeAdded <- readProp "timeAdded" a >>= decode
-               value <- readProp "value" a >>= decode
+               effect <- decodeMaybe "effect" a
+               key <- decodeMaybe "key" a
+               timeAdded <- decodeMaybe "timeAdded" a
+               value <- decodeMaybe "value" a
                pure $ Taint { effect, key, timeAdded, value }
 instance encodeTaint :: Encode Taint where
   encode (Taint a) = encode $ StrMap.fromFoldable $
-               [ Tuple "effect" (encode a.effect)
-               , Tuple "key" (encode a.key)
-               , Tuple "timeAdded" (encode a.timeAdded)
-               , Tuple "value" (encode a.value) ]
+               [ Tuple "effect" (encodeMaybe a.effect)
+               , Tuple "key" (encodeMaybe a.key)
+               , Tuple "timeAdded" (encodeMaybe a.timeAdded)
+               , Tuple "value" (encodeMaybe a.value) ]
 
 
 instance defaultTaint :: Default Taint where
   default = Taint
-    { effect: NullOrUndefined Nothing
-    , key: NullOrUndefined Nothing
-    , timeAdded: NullOrUndefined Nothing
-    , value: NullOrUndefined Nothing }
+    { effect: Nothing
+    , key: Nothing
+    , timeAdded: Nothing
+    , value: Nothing }
 
 -- | The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect> using the matching operator <operator>.
 -- |
@@ -6388,39 +6387,39 @@ instance defaultTaint :: Default Taint where
 -- | - `tolerationSeconds`: TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system.
 -- | - `value`: Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string.
 newtype Toleration = Toleration
-  { effect :: (NullOrUndefined String)
-  , key :: (NullOrUndefined String)
-  , operator :: (NullOrUndefined String)
-  , tolerationSeconds :: (NullOrUndefined Int)
-  , value :: (NullOrUndefined String) }
+  { effect :: (Maybe String)
+  , key :: (Maybe String)
+  , operator :: (Maybe String)
+  , tolerationSeconds :: (Maybe Int)
+  , value :: (Maybe String) }
 
 derive instance newtypeToleration :: Newtype Toleration _
 derive instance genericToleration :: Generic Toleration _
 instance showToleration :: Show Toleration where show a = genericShow a
 instance decodeToleration :: Decode Toleration where
   decode a = do
-               effect <- readProp "effect" a >>= decode
-               key <- readProp "key" a >>= decode
-               operator <- readProp "operator" a >>= decode
-               tolerationSeconds <- readProp "tolerationSeconds" a >>= decode
-               value <- readProp "value" a >>= decode
+               effect <- decodeMaybe "effect" a
+               key <- decodeMaybe "key" a
+               operator <- decodeMaybe "operator" a
+               tolerationSeconds <- decodeMaybe "tolerationSeconds" a
+               value <- decodeMaybe "value" a
                pure $ Toleration { effect, key, operator, tolerationSeconds, value }
 instance encodeToleration :: Encode Toleration where
   encode (Toleration a) = encode $ StrMap.fromFoldable $
-               [ Tuple "effect" (encode a.effect)
-               , Tuple "key" (encode a.key)
-               , Tuple "operator" (encode a.operator)
-               , Tuple "tolerationSeconds" (encode a.tolerationSeconds)
-               , Tuple "value" (encode a.value) ]
+               [ Tuple "effect" (encodeMaybe a.effect)
+               , Tuple "key" (encodeMaybe a.key)
+               , Tuple "operator" (encodeMaybe a.operator)
+               , Tuple "tolerationSeconds" (encodeMaybe a.tolerationSeconds)
+               , Tuple "value" (encodeMaybe a.value) ]
 
 
 instance defaultToleration :: Default Toleration where
   default = Toleration
-    { effect: NullOrUndefined Nothing
-    , key: NullOrUndefined Nothing
-    , operator: NullOrUndefined Nothing
-    , tolerationSeconds: NullOrUndefined Nothing
-    , value: NullOrUndefined Nothing }
+    { effect: Nothing
+    , key: Nothing
+    , operator: Nothing
+    , tolerationSeconds: Nothing
+    , value: Nothing }
 
 -- | Volume represents a named volume in a pod that may be accessed by any container in the pod.
 -- |
@@ -6454,131 +6453,131 @@ instance defaultToleration :: Default Toleration where
 -- | - `storageos`: StorageOS represents a StorageOS volume attached and mounted on Kubernetes nodes.
 -- | - `vsphereVolume`: VsphereVolume represents a vSphere volume attached and mounted on kubelets host machine
 newtype Volume = Volume
-  { awsElasticBlockStore :: (NullOrUndefined AWSElasticBlockStoreVolumeSource)
-  , azureDisk :: (NullOrUndefined AzureDiskVolumeSource)
-  , azureFile :: (NullOrUndefined AzureFileVolumeSource)
-  , cephfs :: (NullOrUndefined CephFSVolumeSource)
-  , cinder :: (NullOrUndefined CinderVolumeSource)
-  , configMap :: (NullOrUndefined ConfigMapVolumeSource)
-  , downwardAPI :: (NullOrUndefined DownwardAPIVolumeSource)
-  , emptyDir :: (NullOrUndefined EmptyDirVolumeSource)
-  , fc :: (NullOrUndefined FCVolumeSource)
-  , flexVolume :: (NullOrUndefined FlexVolumeSource)
-  , flocker :: (NullOrUndefined FlockerVolumeSource)
-  , gcePersistentDisk :: (NullOrUndefined GCEPersistentDiskVolumeSource)
-  , gitRepo :: (NullOrUndefined GitRepoVolumeSource)
-  , glusterfs :: (NullOrUndefined GlusterfsVolumeSource)
-  , hostPath :: (NullOrUndefined HostPathVolumeSource)
-  , iscsi :: (NullOrUndefined ISCSIVolumeSource)
-  , name :: (NullOrUndefined String)
-  , nfs :: (NullOrUndefined NFSVolumeSource)
-  , persistentVolumeClaim :: (NullOrUndefined PersistentVolumeClaimVolumeSource)
-  , photonPersistentDisk :: (NullOrUndefined PhotonPersistentDiskVolumeSource)
-  , portworxVolume :: (NullOrUndefined PortworxVolumeSource)
-  , projected :: (NullOrUndefined ProjectedVolumeSource)
-  , quobyte :: (NullOrUndefined QuobyteVolumeSource)
-  , rbd :: (NullOrUndefined RBDVolumeSource)
-  , scaleIO :: (NullOrUndefined ScaleIOVolumeSource)
-  , secret :: (NullOrUndefined SecretVolumeSource)
-  , storageos :: (NullOrUndefined StorageOSVolumeSource)
-  , vsphereVolume :: (NullOrUndefined VsphereVirtualDiskVolumeSource) }
+  { awsElasticBlockStore :: (Maybe AWSElasticBlockStoreVolumeSource)
+  , azureDisk :: (Maybe AzureDiskVolumeSource)
+  , azureFile :: (Maybe AzureFileVolumeSource)
+  , cephfs :: (Maybe CephFSVolumeSource)
+  , cinder :: (Maybe CinderVolumeSource)
+  , configMap :: (Maybe ConfigMapVolumeSource)
+  , downwardAPI :: (Maybe DownwardAPIVolumeSource)
+  , emptyDir :: (Maybe EmptyDirVolumeSource)
+  , fc :: (Maybe FCVolumeSource)
+  , flexVolume :: (Maybe FlexVolumeSource)
+  , flocker :: (Maybe FlockerVolumeSource)
+  , gcePersistentDisk :: (Maybe GCEPersistentDiskVolumeSource)
+  , gitRepo :: (Maybe GitRepoVolumeSource)
+  , glusterfs :: (Maybe GlusterfsVolumeSource)
+  , hostPath :: (Maybe HostPathVolumeSource)
+  , iscsi :: (Maybe ISCSIVolumeSource)
+  , name :: (Maybe String)
+  , nfs :: (Maybe NFSVolumeSource)
+  , persistentVolumeClaim :: (Maybe PersistentVolumeClaimVolumeSource)
+  , photonPersistentDisk :: (Maybe PhotonPersistentDiskVolumeSource)
+  , portworxVolume :: (Maybe PortworxVolumeSource)
+  , projected :: (Maybe ProjectedVolumeSource)
+  , quobyte :: (Maybe QuobyteVolumeSource)
+  , rbd :: (Maybe RBDVolumeSource)
+  , scaleIO :: (Maybe ScaleIOVolumeSource)
+  , secret :: (Maybe SecretVolumeSource)
+  , storageos :: (Maybe StorageOSVolumeSource)
+  , vsphereVolume :: (Maybe VsphereVirtualDiskVolumeSource) }
 
 derive instance newtypeVolume :: Newtype Volume _
 derive instance genericVolume :: Generic Volume _
 instance showVolume :: Show Volume where show a = genericShow a
 instance decodeVolume :: Decode Volume where
   decode a = do
-               awsElasticBlockStore <- readProp "awsElasticBlockStore" a >>= decode
-               azureDisk <- readProp "azureDisk" a >>= decode
-               azureFile <- readProp "azureFile" a >>= decode
-               cephfs <- readProp "cephfs" a >>= decode
-               cinder <- readProp "cinder" a >>= decode
-               configMap <- readProp "configMap" a >>= decode
-               downwardAPI <- readProp "downwardAPI" a >>= decode
-               emptyDir <- readProp "emptyDir" a >>= decode
-               fc <- readProp "fc" a >>= decode
-               flexVolume <- readProp "flexVolume" a >>= decode
-               flocker <- readProp "flocker" a >>= decode
-               gcePersistentDisk <- readProp "gcePersistentDisk" a >>= decode
-               gitRepo <- readProp "gitRepo" a >>= decode
-               glusterfs <- readProp "glusterfs" a >>= decode
-               hostPath <- readProp "hostPath" a >>= decode
-               iscsi <- readProp "iscsi" a >>= decode
-               name <- readProp "name" a >>= decode
-               nfs <- readProp "nfs" a >>= decode
-               persistentVolumeClaim <- readProp "persistentVolumeClaim" a >>= decode
-               photonPersistentDisk <- readProp "photonPersistentDisk" a >>= decode
-               portworxVolume <- readProp "portworxVolume" a >>= decode
-               projected <- readProp "projected" a >>= decode
-               quobyte <- readProp "quobyte" a >>= decode
-               rbd <- readProp "rbd" a >>= decode
-               scaleIO <- readProp "scaleIO" a >>= decode
-               secret <- readProp "secret" a >>= decode
-               storageos <- readProp "storageos" a >>= decode
-               vsphereVolume <- readProp "vsphereVolume" a >>= decode
+               awsElasticBlockStore <- decodeMaybe "awsElasticBlockStore" a
+               azureDisk <- decodeMaybe "azureDisk" a
+               azureFile <- decodeMaybe "azureFile" a
+               cephfs <- decodeMaybe "cephfs" a
+               cinder <- decodeMaybe "cinder" a
+               configMap <- decodeMaybe "configMap" a
+               downwardAPI <- decodeMaybe "downwardAPI" a
+               emptyDir <- decodeMaybe "emptyDir" a
+               fc <- decodeMaybe "fc" a
+               flexVolume <- decodeMaybe "flexVolume" a
+               flocker <- decodeMaybe "flocker" a
+               gcePersistentDisk <- decodeMaybe "gcePersistentDisk" a
+               gitRepo <- decodeMaybe "gitRepo" a
+               glusterfs <- decodeMaybe "glusterfs" a
+               hostPath <- decodeMaybe "hostPath" a
+               iscsi <- decodeMaybe "iscsi" a
+               name <- decodeMaybe "name" a
+               nfs <- decodeMaybe "nfs" a
+               persistentVolumeClaim <- decodeMaybe "persistentVolumeClaim" a
+               photonPersistentDisk <- decodeMaybe "photonPersistentDisk" a
+               portworxVolume <- decodeMaybe "portworxVolume" a
+               projected <- decodeMaybe "projected" a
+               quobyte <- decodeMaybe "quobyte" a
+               rbd <- decodeMaybe "rbd" a
+               scaleIO <- decodeMaybe "scaleIO" a
+               secret <- decodeMaybe "secret" a
+               storageos <- decodeMaybe "storageos" a
+               vsphereVolume <- decodeMaybe "vsphereVolume" a
                pure $ Volume { awsElasticBlockStore, azureDisk, azureFile, cephfs, cinder, configMap, downwardAPI, emptyDir, fc, flexVolume, flocker, gcePersistentDisk, gitRepo, glusterfs, hostPath, iscsi, name, nfs, persistentVolumeClaim, photonPersistentDisk, portworxVolume, projected, quobyte, rbd, scaleIO, secret, storageos, vsphereVolume }
 instance encodeVolume :: Encode Volume where
   encode (Volume a) = encode $ StrMap.fromFoldable $
-               [ Tuple "awsElasticBlockStore" (encode a.awsElasticBlockStore)
-               , Tuple "azureDisk" (encode a.azureDisk)
-               , Tuple "azureFile" (encode a.azureFile)
-               , Tuple "cephfs" (encode a.cephfs)
-               , Tuple "cinder" (encode a.cinder)
-               , Tuple "configMap" (encode a.configMap)
-               , Tuple "downwardAPI" (encode a.downwardAPI)
-               , Tuple "emptyDir" (encode a.emptyDir)
-               , Tuple "fc" (encode a.fc)
-               , Tuple "flexVolume" (encode a.flexVolume)
-               , Tuple "flocker" (encode a.flocker)
-               , Tuple "gcePersistentDisk" (encode a.gcePersistentDisk)
-               , Tuple "gitRepo" (encode a.gitRepo)
-               , Tuple "glusterfs" (encode a.glusterfs)
-               , Tuple "hostPath" (encode a.hostPath)
-               , Tuple "iscsi" (encode a.iscsi)
-               , Tuple "name" (encode a.name)
-               , Tuple "nfs" (encode a.nfs)
-               , Tuple "persistentVolumeClaim" (encode a.persistentVolumeClaim)
-               , Tuple "photonPersistentDisk" (encode a.photonPersistentDisk)
-               , Tuple "portworxVolume" (encode a.portworxVolume)
-               , Tuple "projected" (encode a.projected)
-               , Tuple "quobyte" (encode a.quobyte)
-               , Tuple "rbd" (encode a.rbd)
-               , Tuple "scaleIO" (encode a.scaleIO)
-               , Tuple "secret" (encode a.secret)
-               , Tuple "storageos" (encode a.storageos)
-               , Tuple "vsphereVolume" (encode a.vsphereVolume) ]
+               [ Tuple "awsElasticBlockStore" (encodeMaybe a.awsElasticBlockStore)
+               , Tuple "azureDisk" (encodeMaybe a.azureDisk)
+               , Tuple "azureFile" (encodeMaybe a.azureFile)
+               , Tuple "cephfs" (encodeMaybe a.cephfs)
+               , Tuple "cinder" (encodeMaybe a.cinder)
+               , Tuple "configMap" (encodeMaybe a.configMap)
+               , Tuple "downwardAPI" (encodeMaybe a.downwardAPI)
+               , Tuple "emptyDir" (encodeMaybe a.emptyDir)
+               , Tuple "fc" (encodeMaybe a.fc)
+               , Tuple "flexVolume" (encodeMaybe a.flexVolume)
+               , Tuple "flocker" (encodeMaybe a.flocker)
+               , Tuple "gcePersistentDisk" (encodeMaybe a.gcePersistentDisk)
+               , Tuple "gitRepo" (encodeMaybe a.gitRepo)
+               , Tuple "glusterfs" (encodeMaybe a.glusterfs)
+               , Tuple "hostPath" (encodeMaybe a.hostPath)
+               , Tuple "iscsi" (encodeMaybe a.iscsi)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "nfs" (encodeMaybe a.nfs)
+               , Tuple "persistentVolumeClaim" (encodeMaybe a.persistentVolumeClaim)
+               , Tuple "photonPersistentDisk" (encodeMaybe a.photonPersistentDisk)
+               , Tuple "portworxVolume" (encodeMaybe a.portworxVolume)
+               , Tuple "projected" (encodeMaybe a.projected)
+               , Tuple "quobyte" (encodeMaybe a.quobyte)
+               , Tuple "rbd" (encodeMaybe a.rbd)
+               , Tuple "scaleIO" (encodeMaybe a.scaleIO)
+               , Tuple "secret" (encodeMaybe a.secret)
+               , Tuple "storageos" (encodeMaybe a.storageos)
+               , Tuple "vsphereVolume" (encodeMaybe a.vsphereVolume) ]
 
 
 instance defaultVolume :: Default Volume where
   default = Volume
-    { awsElasticBlockStore: NullOrUndefined Nothing
-    , azureDisk: NullOrUndefined Nothing
-    , azureFile: NullOrUndefined Nothing
-    , cephfs: NullOrUndefined Nothing
-    , cinder: NullOrUndefined Nothing
-    , configMap: NullOrUndefined Nothing
-    , downwardAPI: NullOrUndefined Nothing
-    , emptyDir: NullOrUndefined Nothing
-    , fc: NullOrUndefined Nothing
-    , flexVolume: NullOrUndefined Nothing
-    , flocker: NullOrUndefined Nothing
-    , gcePersistentDisk: NullOrUndefined Nothing
-    , gitRepo: NullOrUndefined Nothing
-    , glusterfs: NullOrUndefined Nothing
-    , hostPath: NullOrUndefined Nothing
-    , iscsi: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , nfs: NullOrUndefined Nothing
-    , persistentVolumeClaim: NullOrUndefined Nothing
-    , photonPersistentDisk: NullOrUndefined Nothing
-    , portworxVolume: NullOrUndefined Nothing
-    , projected: NullOrUndefined Nothing
-    , quobyte: NullOrUndefined Nothing
-    , rbd: NullOrUndefined Nothing
-    , scaleIO: NullOrUndefined Nothing
-    , secret: NullOrUndefined Nothing
-    , storageos: NullOrUndefined Nothing
-    , vsphereVolume: NullOrUndefined Nothing }
+    { awsElasticBlockStore: Nothing
+    , azureDisk: Nothing
+    , azureFile: Nothing
+    , cephfs: Nothing
+    , cinder: Nothing
+    , configMap: Nothing
+    , downwardAPI: Nothing
+    , emptyDir: Nothing
+    , fc: Nothing
+    , flexVolume: Nothing
+    , flocker: Nothing
+    , gcePersistentDisk: Nothing
+    , gitRepo: Nothing
+    , glusterfs: Nothing
+    , hostPath: Nothing
+    , iscsi: Nothing
+    , name: Nothing
+    , nfs: Nothing
+    , persistentVolumeClaim: Nothing
+    , photonPersistentDisk: Nothing
+    , portworxVolume: Nothing
+    , projected: Nothing
+    , quobyte: Nothing
+    , rbd: Nothing
+    , scaleIO: Nothing
+    , secret: Nothing
+    , storageos: Nothing
+    , vsphereVolume: Nothing }
 
 -- | volumeDevice describes a mapping of a raw block device within a container.
 -- |
@@ -6586,27 +6585,27 @@ instance defaultVolume :: Default Volume where
 -- | - `devicePath`: devicePath is the path inside of the container that the device will be mapped to.
 -- | - `name`: name must match the name of a persistentVolumeClaim in the pod
 newtype VolumeDevice = VolumeDevice
-  { devicePath :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String) }
+  { devicePath :: (Maybe String)
+  , name :: (Maybe String) }
 
 derive instance newtypeVolumeDevice :: Newtype VolumeDevice _
 derive instance genericVolumeDevice :: Generic VolumeDevice _
 instance showVolumeDevice :: Show VolumeDevice where show a = genericShow a
 instance decodeVolumeDevice :: Decode VolumeDevice where
   decode a = do
-               devicePath <- readProp "devicePath" a >>= decode
-               name <- readProp "name" a >>= decode
+               devicePath <- decodeMaybe "devicePath" a
+               name <- decodeMaybe "name" a
                pure $ VolumeDevice { devicePath, name }
 instance encodeVolumeDevice :: Encode VolumeDevice where
   encode (VolumeDevice a) = encode $ StrMap.fromFoldable $
-               [ Tuple "devicePath" (encode a.devicePath)
-               , Tuple "name" (encode a.name) ]
+               [ Tuple "devicePath" (encodeMaybe a.devicePath)
+               , Tuple "name" (encodeMaybe a.name) ]
 
 
 instance defaultVolumeDevice :: Default VolumeDevice where
   default = VolumeDevice
-    { devicePath: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing }
+    { devicePath: Nothing
+    , name: Nothing }
 
 -- | VolumeMount describes a mounting of a Volume within a container.
 -- |
@@ -6617,39 +6616,39 @@ instance defaultVolumeDevice :: Default VolumeDevice where
 -- | - `readOnly`: Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false.
 -- | - `subPath`: Path within the volume from which the container's volume should be mounted. Defaults to "" (volume's root).
 newtype VolumeMount = VolumeMount
-  { mountPath :: (NullOrUndefined String)
-  , mountPropagation :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , readOnly :: (NullOrUndefined Boolean)
-  , subPath :: (NullOrUndefined String) }
+  { mountPath :: (Maybe String)
+  , mountPropagation :: (Maybe String)
+  , name :: (Maybe String)
+  , readOnly :: (Maybe Boolean)
+  , subPath :: (Maybe String) }
 
 derive instance newtypeVolumeMount :: Newtype VolumeMount _
 derive instance genericVolumeMount :: Generic VolumeMount _
 instance showVolumeMount :: Show VolumeMount where show a = genericShow a
 instance decodeVolumeMount :: Decode VolumeMount where
   decode a = do
-               mountPath <- readProp "mountPath" a >>= decode
-               mountPropagation <- readProp "mountPropagation" a >>= decode
-               name <- readProp "name" a >>= decode
-               readOnly <- readProp "readOnly" a >>= decode
-               subPath <- readProp "subPath" a >>= decode
+               mountPath <- decodeMaybe "mountPath" a
+               mountPropagation <- decodeMaybe "mountPropagation" a
+               name <- decodeMaybe "name" a
+               readOnly <- decodeMaybe "readOnly" a
+               subPath <- decodeMaybe "subPath" a
                pure $ VolumeMount { mountPath, mountPropagation, name, readOnly, subPath }
 instance encodeVolumeMount :: Encode VolumeMount where
   encode (VolumeMount a) = encode $ StrMap.fromFoldable $
-               [ Tuple "mountPath" (encode a.mountPath)
-               , Tuple "mountPropagation" (encode a.mountPropagation)
-               , Tuple "name" (encode a.name)
-               , Tuple "readOnly" (encode a.readOnly)
-               , Tuple "subPath" (encode a.subPath) ]
+               [ Tuple "mountPath" (encodeMaybe a.mountPath)
+               , Tuple "mountPropagation" (encodeMaybe a.mountPropagation)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "readOnly" (encodeMaybe a.readOnly)
+               , Tuple "subPath" (encodeMaybe a.subPath) ]
 
 
 instance defaultVolumeMount :: Default VolumeMount where
   default = VolumeMount
-    { mountPath: NullOrUndefined Nothing
-    , mountPropagation: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , readOnly: NullOrUndefined Nothing
-    , subPath: NullOrUndefined Nothing }
+    { mountPath: Nothing
+    , mountPropagation: Nothing
+    , name: Nothing
+    , readOnly: Nothing
+    , subPath: Nothing }
 
 -- | Projection that may be projected along with other supported volume types
 -- |
@@ -6658,31 +6657,31 @@ instance defaultVolumeMount :: Default VolumeMount where
 -- | - `downwardAPI`: information about the downwardAPI data to project
 -- | - `secret`: information about the secret data to project
 newtype VolumeProjection = VolumeProjection
-  { configMap :: (NullOrUndefined ConfigMapProjection)
-  , downwardAPI :: (NullOrUndefined DownwardAPIProjection)
-  , secret :: (NullOrUndefined SecretProjection) }
+  { configMap :: (Maybe ConfigMapProjection)
+  , downwardAPI :: (Maybe DownwardAPIProjection)
+  , secret :: (Maybe SecretProjection) }
 
 derive instance newtypeVolumeProjection :: Newtype VolumeProjection _
 derive instance genericVolumeProjection :: Generic VolumeProjection _
 instance showVolumeProjection :: Show VolumeProjection where show a = genericShow a
 instance decodeVolumeProjection :: Decode VolumeProjection where
   decode a = do
-               configMap <- readProp "configMap" a >>= decode
-               downwardAPI <- readProp "downwardAPI" a >>= decode
-               secret <- readProp "secret" a >>= decode
+               configMap <- decodeMaybe "configMap" a
+               downwardAPI <- decodeMaybe "downwardAPI" a
+               secret <- decodeMaybe "secret" a
                pure $ VolumeProjection { configMap, downwardAPI, secret }
 instance encodeVolumeProjection :: Encode VolumeProjection where
   encode (VolumeProjection a) = encode $ StrMap.fromFoldable $
-               [ Tuple "configMap" (encode a.configMap)
-               , Tuple "downwardAPI" (encode a.downwardAPI)
-               , Tuple "secret" (encode a.secret) ]
+               [ Tuple "configMap" (encodeMaybe a.configMap)
+               , Tuple "downwardAPI" (encodeMaybe a.downwardAPI)
+               , Tuple "secret" (encodeMaybe a.secret) ]
 
 
 instance defaultVolumeProjection :: Default VolumeProjection where
   default = VolumeProjection
-    { configMap: NullOrUndefined Nothing
-    , downwardAPI: NullOrUndefined Nothing
-    , secret: NullOrUndefined Nothing }
+    { configMap: Nothing
+    , downwardAPI: Nothing
+    , secret: Nothing }
 
 -- | Represents a vSphere volume resource.
 -- |
@@ -6692,35 +6691,35 @@ instance defaultVolumeProjection :: Default VolumeProjection where
 -- | - `storagePolicyName`: Storage Policy Based Management (SPBM) profile name.
 -- | - `volumePath`: Path that identifies vSphere volume vmdk
 newtype VsphereVirtualDiskVolumeSource = VsphereVirtualDiskVolumeSource
-  { fsType :: (NullOrUndefined String)
-  , storagePolicyID :: (NullOrUndefined String)
-  , storagePolicyName :: (NullOrUndefined String)
-  , volumePath :: (NullOrUndefined String) }
+  { fsType :: (Maybe String)
+  , storagePolicyID :: (Maybe String)
+  , storagePolicyName :: (Maybe String)
+  , volumePath :: (Maybe String) }
 
 derive instance newtypeVsphereVirtualDiskVolumeSource :: Newtype VsphereVirtualDiskVolumeSource _
 derive instance genericVsphereVirtualDiskVolumeSource :: Generic VsphereVirtualDiskVolumeSource _
 instance showVsphereVirtualDiskVolumeSource :: Show VsphereVirtualDiskVolumeSource where show a = genericShow a
 instance decodeVsphereVirtualDiskVolumeSource :: Decode VsphereVirtualDiskVolumeSource where
   decode a = do
-               fsType <- readProp "fsType" a >>= decode
-               storagePolicyID <- readProp "storagePolicyID" a >>= decode
-               storagePolicyName <- readProp "storagePolicyName" a >>= decode
-               volumePath <- readProp "volumePath" a >>= decode
+               fsType <- decodeMaybe "fsType" a
+               storagePolicyID <- decodeMaybe "storagePolicyID" a
+               storagePolicyName <- decodeMaybe "storagePolicyName" a
+               volumePath <- decodeMaybe "volumePath" a
                pure $ VsphereVirtualDiskVolumeSource { fsType, storagePolicyID, storagePolicyName, volumePath }
 instance encodeVsphereVirtualDiskVolumeSource :: Encode VsphereVirtualDiskVolumeSource where
   encode (VsphereVirtualDiskVolumeSource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "fsType" (encode a.fsType)
-               , Tuple "storagePolicyID" (encode a.storagePolicyID)
-               , Tuple "storagePolicyName" (encode a.storagePolicyName)
-               , Tuple "volumePath" (encode a.volumePath) ]
+               [ Tuple "fsType" (encodeMaybe a.fsType)
+               , Tuple "storagePolicyID" (encodeMaybe a.storagePolicyID)
+               , Tuple "storagePolicyName" (encodeMaybe a.storagePolicyName)
+               , Tuple "volumePath" (encodeMaybe a.volumePath) ]
 
 
 instance defaultVsphereVirtualDiskVolumeSource :: Default VsphereVirtualDiskVolumeSource where
   default = VsphereVirtualDiskVolumeSource
-    { fsType: NullOrUndefined Nothing
-    , storagePolicyID: NullOrUndefined Nothing
-    , storagePolicyName: NullOrUndefined Nothing
-    , volumePath: NullOrUndefined Nothing }
+    { fsType: Nothing
+    , storagePolicyID: Nothing
+    , storagePolicyName: Nothing
+    , volumePath: Nothing }
 
 -- | The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
 -- |
@@ -6728,27 +6727,27 @@ instance defaultVsphereVirtualDiskVolumeSource :: Default VsphereVirtualDiskVolu
 -- | - `podAffinityTerm`: Required. A pod affinity term, associated with the corresponding weight.
 -- | - `weight`: weight associated with matching the corresponding podAffinityTerm, in the range 1-100.
 newtype WeightedPodAffinityTerm = WeightedPodAffinityTerm
-  { podAffinityTerm :: (NullOrUndefined PodAffinityTerm)
-  , weight :: (NullOrUndefined Int) }
+  { podAffinityTerm :: (Maybe PodAffinityTerm)
+  , weight :: (Maybe Int) }
 
 derive instance newtypeWeightedPodAffinityTerm :: Newtype WeightedPodAffinityTerm _
 derive instance genericWeightedPodAffinityTerm :: Generic WeightedPodAffinityTerm _
 instance showWeightedPodAffinityTerm :: Show WeightedPodAffinityTerm where show a = genericShow a
 instance decodeWeightedPodAffinityTerm :: Decode WeightedPodAffinityTerm where
   decode a = do
-               podAffinityTerm <- readProp "podAffinityTerm" a >>= decode
-               weight <- readProp "weight" a >>= decode
+               podAffinityTerm <- decodeMaybe "podAffinityTerm" a
+               weight <- decodeMaybe "weight" a
                pure $ WeightedPodAffinityTerm { podAffinityTerm, weight }
 instance encodeWeightedPodAffinityTerm :: Encode WeightedPodAffinityTerm where
   encode (WeightedPodAffinityTerm a) = encode $ StrMap.fromFoldable $
-               [ Tuple "podAffinityTerm" (encode a.podAffinityTerm)
-               , Tuple "weight" (encode a.weight) ]
+               [ Tuple "podAffinityTerm" (encodeMaybe a.podAffinityTerm)
+               , Tuple "weight" (encodeMaybe a.weight) ]
 
 
 instance defaultWeightedPodAffinityTerm :: Default WeightedPodAffinityTerm where
   default = WeightedPodAffinityTerm
-    { podAffinityTerm: NullOrUndefined Nothing
-    , weight: NullOrUndefined Nothing }
+    { podAffinityTerm: Nothing
+    , weight: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

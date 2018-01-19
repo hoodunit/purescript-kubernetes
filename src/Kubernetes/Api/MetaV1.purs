@@ -6,7 +6,6 @@ import Data.Foreign.Class (class Decode, class Encode, decode, encode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -15,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.Runtime as Runtime
 
 -- | APIGroup contains the name, the supported versions, and the preferred version of a group.
@@ -28,43 +27,43 @@ import Kubernetes.Api.Runtime as Runtime
 -- | - `serverAddressByClientCIDRs`: a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
 -- | - `versions`: versions are the versions supported in this group.
 newtype APIGroup = APIGroup
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , preferredVersion :: (NullOrUndefined GroupVersionForDiscovery)
-  , serverAddressByClientCIDRs :: (NullOrUndefined (Array ServerAddressByClientCIDR))
-  , versions :: (NullOrUndefined (Array GroupVersionForDiscovery)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , name :: (Maybe String)
+  , preferredVersion :: (Maybe GroupVersionForDiscovery)
+  , serverAddressByClientCIDRs :: (Maybe (Array ServerAddressByClientCIDR))
+  , versions :: (Maybe (Array GroupVersionForDiscovery)) }
 
 derive instance newtypeAPIGroup :: Newtype APIGroup _
 derive instance genericAPIGroup :: Generic APIGroup _
 instance showAPIGroup :: Show APIGroup where show a = genericShow a
 instance decodeAPIGroup :: Decode APIGroup where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
-               preferredVersion <- readProp "preferredVersion" a >>= decode
-               serverAddressByClientCIDRs <- readProp "serverAddressByClientCIDRs" a >>= decode
-               versions <- readProp "versions" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
+               preferredVersion <- decodeMaybe "preferredVersion" a
+               serverAddressByClientCIDRs <- decodeMaybe "serverAddressByClientCIDRs" a
+               versions <- decodeMaybe "versions" a
                pure $ APIGroup { apiVersion, kind, name, preferredVersion, serverAddressByClientCIDRs, versions }
 instance encodeAPIGroup :: Encode APIGroup where
   encode (APIGroup a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name)
-               , Tuple "preferredVersion" (encode a.preferredVersion)
-               , Tuple "serverAddressByClientCIDRs" (encode a.serverAddressByClientCIDRs)
-               , Tuple "versions" (encode a.versions) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "preferredVersion" (encodeMaybe a.preferredVersion)
+               , Tuple "serverAddressByClientCIDRs" (encodeMaybe a.serverAddressByClientCIDRs)
+               , Tuple "versions" (encodeMaybe a.versions) ]
 
 
 instance defaultAPIGroup :: Default APIGroup where
   default = APIGroup
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , preferredVersion: NullOrUndefined Nothing
-    , serverAddressByClientCIDRs: NullOrUndefined Nothing
-    , versions: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , name: Nothing
+    , preferredVersion: Nothing
+    , serverAddressByClientCIDRs: Nothing
+    , versions: Nothing }
 
 -- | APIGroupList is a list of APIGroup, to allow clients to discover the API at /apis.
 -- |
@@ -73,31 +72,31 @@ instance defaultAPIGroup :: Default APIGroup where
 -- | - `groups`: groups is a list of APIGroup.
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 newtype APIGroupList = APIGroupList
-  { apiVersion :: (NullOrUndefined String)
-  , groups :: (NullOrUndefined (Array APIGroup))
-  , kind :: (NullOrUndefined String) }
+  { apiVersion :: (Maybe String)
+  , groups :: (Maybe (Array APIGroup))
+  , kind :: (Maybe String) }
 
 derive instance newtypeAPIGroupList :: Newtype APIGroupList _
 derive instance genericAPIGroupList :: Generic APIGroupList _
 instance showAPIGroupList :: Show APIGroupList where show a = genericShow a
 instance decodeAPIGroupList :: Decode APIGroupList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               groups <- readProp "groups" a >>= decode
-               kind <- readProp "kind" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               groups <- decodeMaybe "groups" a
+               kind <- decodeMaybe "kind" a
                pure $ APIGroupList { apiVersion, groups, kind }
 instance encodeAPIGroupList :: Encode APIGroupList where
   encode (APIGroupList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "groups" (encode a.groups)
-               , Tuple "kind" (encode a.kind) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "groups" (encodeMaybe a.groups)
+               , Tuple "kind" (encodeMaybe a.kind) ]
 
 
 instance defaultAPIGroupList :: Default APIGroupList where
   default = APIGroupList
-    { apiVersion: NullOrUndefined Nothing
-    , groups: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , groups: Nothing
+    , kind: Nothing }
 
 -- | APIResource specifies the name of a resource and whether it is namespaced.
 -- |
@@ -112,55 +111,55 @@ instance defaultAPIGroupList :: Default APIGroupList where
 -- | - `verbs`: verbs is a list of supported kube verbs (this includes get, list, watch, create, update, patch, delete, deletecollection, and proxy)
 -- | - `version`: version is the preferred version of the resource.  Empty implies the version of the containing resource list For subresources, this may have a different value, for example: v1 (while inside a v1beta1 version of the core resource's group)".
 newtype APIResource = APIResource
-  { categories :: (NullOrUndefined (Array String))
-  , group :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , namespaced :: (NullOrUndefined Boolean)
-  , shortNames :: (NullOrUndefined (Array String))
-  , singularName :: (NullOrUndefined String)
-  , verbs :: (NullOrUndefined (Array String))
-  , version :: (NullOrUndefined String) }
+  { categories :: (Maybe (Array String))
+  , group :: (Maybe String)
+  , kind :: (Maybe String)
+  , name :: (Maybe String)
+  , namespaced :: (Maybe Boolean)
+  , shortNames :: (Maybe (Array String))
+  , singularName :: (Maybe String)
+  , verbs :: (Maybe (Array String))
+  , version :: (Maybe String) }
 
 derive instance newtypeAPIResource :: Newtype APIResource _
 derive instance genericAPIResource :: Generic APIResource _
 instance showAPIResource :: Show APIResource where show a = genericShow a
 instance decodeAPIResource :: Decode APIResource where
   decode a = do
-               categories <- readProp "categories" a >>= decode
-               group <- readProp "group" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
-               namespaced <- readProp "namespaced" a >>= decode
-               shortNames <- readProp "shortNames" a >>= decode
-               singularName <- readProp "singularName" a >>= decode
-               verbs <- readProp "verbs" a >>= decode
-               version <- readProp "version" a >>= decode
+               categories <- decodeMaybe "categories" a
+               group <- decodeMaybe "group" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
+               namespaced <- decodeMaybe "namespaced" a
+               shortNames <- decodeMaybe "shortNames" a
+               singularName <- decodeMaybe "singularName" a
+               verbs <- decodeMaybe "verbs" a
+               version <- decodeMaybe "version" a
                pure $ APIResource { categories, group, kind, name, namespaced, shortNames, singularName, verbs, version }
 instance encodeAPIResource :: Encode APIResource where
   encode (APIResource a) = encode $ StrMap.fromFoldable $
-               [ Tuple "categories" (encode a.categories)
-               , Tuple "group" (encode a.group)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name)
-               , Tuple "namespaced" (encode a.namespaced)
-               , Tuple "shortNames" (encode a.shortNames)
-               , Tuple "singularName" (encode a.singularName)
-               , Tuple "verbs" (encode a.verbs)
-               , Tuple "version" (encode a.version) ]
+               [ Tuple "categories" (encodeMaybe a.categories)
+               , Tuple "group" (encodeMaybe a.group)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespaced" (encodeMaybe a.namespaced)
+               , Tuple "shortNames" (encodeMaybe a.shortNames)
+               , Tuple "singularName" (encodeMaybe a.singularName)
+               , Tuple "verbs" (encodeMaybe a.verbs)
+               , Tuple "version" (encodeMaybe a.version) ]
 
 
 instance defaultAPIResource :: Default APIResource where
   default = APIResource
-    { categories: NullOrUndefined Nothing
-    , group: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , namespaced: NullOrUndefined Nothing
-    , shortNames: NullOrUndefined Nothing
-    , singularName: NullOrUndefined Nothing
-    , verbs: NullOrUndefined Nothing
-    , version: NullOrUndefined Nothing }
+    { categories: Nothing
+    , group: Nothing
+    , kind: Nothing
+    , name: Nothing
+    , namespaced: Nothing
+    , shortNames: Nothing
+    , singularName: Nothing
+    , verbs: Nothing
+    , version: Nothing }
 
 -- | APIResourceList is a list of APIResource, it is used to expose the name of the resources supported in a specific group and version, and if the resource is namespaced.
 -- |
@@ -170,35 +169,35 @@ instance defaultAPIResource :: Default APIResource where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `resources`: resources contains the name of the resources and if they are namespaced.
 newtype APIResourceList = APIResourceList
-  { apiVersion :: (NullOrUndefined String)
-  , groupVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , resources :: (NullOrUndefined (Array APIResource)) }
+  { apiVersion :: (Maybe String)
+  , groupVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , resources :: (Maybe (Array APIResource)) }
 
 derive instance newtypeAPIResourceList :: Newtype APIResourceList _
 derive instance genericAPIResourceList :: Generic APIResourceList _
 instance showAPIResourceList :: Show APIResourceList where show a = genericShow a
 instance decodeAPIResourceList :: Decode APIResourceList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               groupVersion <- readProp "groupVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               resources <- readProp "resources" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               groupVersion <- decodeMaybe "groupVersion" a
+               kind <- decodeMaybe "kind" a
+               resources <- decodeMaybe "resources" a
                pure $ APIResourceList { apiVersion, groupVersion, kind, resources }
 instance encodeAPIResourceList :: Encode APIResourceList where
   encode (APIResourceList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "groupVersion" (encode a.groupVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "resources" (encode a.resources) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "groupVersion" (encodeMaybe a.groupVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "resources" (encodeMaybe a.resources) ]
 
 
 instance defaultAPIResourceList :: Default APIResourceList where
   default = APIResourceList
-    { apiVersion: NullOrUndefined Nothing
-    , groupVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , resources: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , groupVersion: Nothing
+    , kind: Nothing
+    , resources: Nothing }
 
 -- | APIVersions lists the versions that are available, to allow clients to discover the API at /api, which is the root path of the legacy v1 API.
 -- |
@@ -208,35 +207,35 @@ instance defaultAPIResourceList :: Default APIResourceList where
 -- | - `serverAddressByClientCIDRs`: a map of client CIDR to server address that is serving this group. This is to help clients reach servers in the most network-efficient way possible. Clients can use the appropriate server address as per the CIDR that they match. In case of multiple matches, clients should use the longest matching CIDR. The server returns only those CIDRs that it thinks that the client can match. For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP. Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
 -- | - `versions`: versions are the api versions that are available.
 newtype APIVersions = APIVersions
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , serverAddressByClientCIDRs :: (NullOrUndefined (Array ServerAddressByClientCIDR))
-  , versions :: (NullOrUndefined (Array String)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , serverAddressByClientCIDRs :: (Maybe (Array ServerAddressByClientCIDR))
+  , versions :: (Maybe (Array String)) }
 
 derive instance newtypeAPIVersions :: Newtype APIVersions _
 derive instance genericAPIVersions :: Generic APIVersions _
 instance showAPIVersions :: Show APIVersions where show a = genericShow a
 instance decodeAPIVersions :: Decode APIVersions where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               serverAddressByClientCIDRs <- readProp "serverAddressByClientCIDRs" a >>= decode
-               versions <- readProp "versions" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               serverAddressByClientCIDRs <- decodeMaybe "serverAddressByClientCIDRs" a
+               versions <- decodeMaybe "versions" a
                pure $ APIVersions { apiVersion, kind, serverAddressByClientCIDRs, versions }
 instance encodeAPIVersions :: Encode APIVersions where
   encode (APIVersions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "serverAddressByClientCIDRs" (encode a.serverAddressByClientCIDRs)
-               , Tuple "versions" (encode a.versions) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "serverAddressByClientCIDRs" (encodeMaybe a.serverAddressByClientCIDRs)
+               , Tuple "versions" (encodeMaybe a.versions) ]
 
 
 instance defaultAPIVersions :: Default APIVersions where
   default = APIVersions
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , serverAddressByClientCIDRs: NullOrUndefined Nothing
-    , versions: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , serverAddressByClientCIDRs: Nothing
+    , versions: Nothing }
 
 -- | DeleteOptions may be provided when deleting an API object.
 -- |
@@ -248,43 +247,43 @@ instance defaultAPIVersions :: Default APIVersions where
 -- | - `preconditions`: Must be fulfilled before a deletion is carried out. If not possible, a 409 Conflict status will be returned.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteOptions = DeleteOptions
-  { apiVersion :: (NullOrUndefined String)
-  , gracePeriodSeconds :: (NullOrUndefined Int)
-  , kind :: (NullOrUndefined String)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , preconditions :: (NullOrUndefined Preconditions)
-  , propagationPolicy :: (NullOrUndefined String) }
+  { apiVersion :: (Maybe String)
+  , gracePeriodSeconds :: (Maybe Int)
+  , kind :: (Maybe String)
+  , orphanDependents :: (Maybe Boolean)
+  , preconditions :: (Maybe Preconditions)
+  , propagationPolicy :: (Maybe String) }
 
 derive instance newtypeDeleteOptions :: Newtype DeleteOptions _
 derive instance genericDeleteOptions :: Generic DeleteOptions _
 instance showDeleteOptions :: Show DeleteOptions where show a = genericShow a
 instance decodeDeleteOptions :: Decode DeleteOptions where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               orphanDependents <- readProp "orphanDependents" a >>= decode
-               preconditions <- readProp "preconditions" a >>= decode
-               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               kind <- decodeMaybe "kind" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               preconditions <- decodeMaybe "preconditions" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteOptions { apiVersion, gracePeriodSeconds, kind, orphanDependents, preconditions, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
   encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "orphanDependents" (encode a.orphanDependents)
-               , Tuple "preconditions" (encode a.preconditions)
-               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "preconditions" (encodeMaybe a.preconditions)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
 instance defaultDeleteOptions :: Default DeleteOptions where
   default = DeleteOptions
-    { apiVersion: NullOrUndefined Nothing
-    , gracePeriodSeconds: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , preconditions: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , gracePeriodSeconds: Nothing
+    , kind: Nothing
+    , orphanDependents: Nothing
+    , preconditions: Nothing
+    , propagationPolicy: Nothing }
 
 -- | GroupVersion contains the "group/version" and "version" string of a version. It is made a struct to keep extensibility.
 -- |
@@ -292,50 +291,50 @@ instance defaultDeleteOptions :: Default DeleteOptions where
 -- | - `groupVersion`: groupVersion specifies the API group and version in the form "group/version"
 -- | - `version`: version specifies the version in the form of "version". This is to save the clients the trouble of splitting the GroupVersion.
 newtype GroupVersionForDiscovery = GroupVersionForDiscovery
-  { groupVersion :: (NullOrUndefined String)
-  , version :: (NullOrUndefined String) }
+  { groupVersion :: (Maybe String)
+  , version :: (Maybe String) }
 
 derive instance newtypeGroupVersionForDiscovery :: Newtype GroupVersionForDiscovery _
 derive instance genericGroupVersionForDiscovery :: Generic GroupVersionForDiscovery _
 instance showGroupVersionForDiscovery :: Show GroupVersionForDiscovery where show a = genericShow a
 instance decodeGroupVersionForDiscovery :: Decode GroupVersionForDiscovery where
   decode a = do
-               groupVersion <- readProp "groupVersion" a >>= decode
-               version <- readProp "version" a >>= decode
+               groupVersion <- decodeMaybe "groupVersion" a
+               version <- decodeMaybe "version" a
                pure $ GroupVersionForDiscovery { groupVersion, version }
 instance encodeGroupVersionForDiscovery :: Encode GroupVersionForDiscovery where
   encode (GroupVersionForDiscovery a) = encode $ StrMap.fromFoldable $
-               [ Tuple "groupVersion" (encode a.groupVersion)
-               , Tuple "version" (encode a.version) ]
+               [ Tuple "groupVersion" (encodeMaybe a.groupVersion)
+               , Tuple "version" (encodeMaybe a.version) ]
 
 
 instance defaultGroupVersionForDiscovery :: Default GroupVersionForDiscovery where
   default = GroupVersionForDiscovery
-    { groupVersion: NullOrUndefined Nothing
-    , version: NullOrUndefined Nothing }
+    { groupVersion: Nothing
+    , version: Nothing }
 
 -- | Initializer is information about an initializer that has not yet completed.
 -- |
 -- | Fields:
 -- | - `name`: name of the process that is responsible for initializing this object.
 newtype Initializer = Initializer
-  { name :: (NullOrUndefined String) }
+  { name :: (Maybe String) }
 
 derive instance newtypeInitializer :: Newtype Initializer _
 derive instance genericInitializer :: Generic Initializer _
 instance showInitializer :: Show Initializer where show a = genericShow a
 instance decodeInitializer :: Decode Initializer where
   decode a = do
-               name <- readProp "name" a >>= decode
+               name <- decodeMaybe "name" a
                pure $ Initializer { name }
 instance encodeInitializer :: Encode Initializer where
   encode (Initializer a) = encode $ StrMap.fromFoldable $
-               [ Tuple "name" (encode a.name) ]
+               [ Tuple "name" (encodeMaybe a.name) ]
 
 
 instance defaultInitializer :: Default Initializer where
   default = Initializer
-    { name: NullOrUndefined Nothing }
+    { name: Nothing }
 
 -- | Initializers tracks the progress of initialization.
 -- |
@@ -343,27 +342,27 @@ instance defaultInitializer :: Default Initializer where
 -- | - `pending`: Pending is a list of initializers that must execute in order before this object is visible. When the last pending initializer is removed, and no failing result is set, the initializers struct will be set to nil and the object is considered as initialized and visible to all clients.
 -- | - `result`: If result is set with the Failure field, the object will be persisted to storage and then deleted, ensuring that other clients can observe the deletion.
 newtype Initializers = Initializers
-  { pending :: (NullOrUndefined (Array Initializer))
-  , result :: (NullOrUndefined Status) }
+  { pending :: (Maybe (Array Initializer))
+  , result :: (Maybe Status) }
 
 derive instance newtypeInitializers :: Newtype Initializers _
 derive instance genericInitializers :: Generic Initializers _
 instance showInitializers :: Show Initializers where show a = genericShow a
 instance decodeInitializers :: Decode Initializers where
   decode a = do
-               pending <- readProp "pending" a >>= decode
-               result <- readProp "result" a >>= decode
+               pending <- decodeMaybe "pending" a
+               result <- decodeMaybe "result" a
                pure $ Initializers { pending, result }
 instance encodeInitializers :: Encode Initializers where
   encode (Initializers a) = encode $ StrMap.fromFoldable $
-               [ Tuple "pending" (encode a.pending)
-               , Tuple "result" (encode a.result) ]
+               [ Tuple "pending" (encodeMaybe a.pending)
+               , Tuple "result" (encodeMaybe a.result) ]
 
 
 instance defaultInitializers :: Default Initializers where
   default = Initializers
-    { pending: NullOrUndefined Nothing
-    , result: NullOrUndefined Nothing }
+    { pending: Nothing
+    , result: Nothing }
 
 -- | A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.
 -- |
@@ -371,27 +370,27 @@ instance defaultInitializers :: Default Initializers where
 -- | - `matchExpressions`: matchExpressions is a list of label selector requirements. The requirements are ANDed.
 -- | - `matchLabels`: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
 newtype LabelSelector = LabelSelector
-  { matchExpressions :: (NullOrUndefined (Array LabelSelectorRequirement))
-  , matchLabels :: (NullOrUndefined (StrMap String)) }
+  { matchExpressions :: (Maybe (Array LabelSelectorRequirement))
+  , matchLabels :: (Maybe (StrMap String)) }
 
 derive instance newtypeLabelSelector :: Newtype LabelSelector _
 derive instance genericLabelSelector :: Generic LabelSelector _
 instance showLabelSelector :: Show LabelSelector where show a = genericShow a
 instance decodeLabelSelector :: Decode LabelSelector where
   decode a = do
-               matchExpressions <- readProp "matchExpressions" a >>= decode
-               matchLabels <- readProp "matchLabels" a >>= decode
+               matchExpressions <- decodeMaybe "matchExpressions" a
+               matchLabels <- decodeMaybe "matchLabels" a
                pure $ LabelSelector { matchExpressions, matchLabels }
 instance encodeLabelSelector :: Encode LabelSelector where
   encode (LabelSelector a) = encode $ StrMap.fromFoldable $
-               [ Tuple "matchExpressions" (encode a.matchExpressions)
-               , Tuple "matchLabels" (encode a.matchLabels) ]
+               [ Tuple "matchExpressions" (encodeMaybe a.matchExpressions)
+               , Tuple "matchLabels" (encodeMaybe a.matchLabels) ]
 
 
 instance defaultLabelSelector :: Default LabelSelector where
   default = LabelSelector
-    { matchExpressions: NullOrUndefined Nothing
-    , matchLabels: NullOrUndefined Nothing }
+    { matchExpressions: Nothing
+    , matchLabels: Nothing }
 
 -- | A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
 -- |
@@ -400,31 +399,31 @@ instance defaultLabelSelector :: Default LabelSelector where
 -- | - `operator`: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
 -- | - `values`: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
 newtype LabelSelectorRequirement = LabelSelectorRequirement
-  { key :: (NullOrUndefined String)
-  , operator :: (NullOrUndefined String)
-  , values :: (NullOrUndefined (Array String)) }
+  { key :: (Maybe String)
+  , operator :: (Maybe String)
+  , values :: (Maybe (Array String)) }
 
 derive instance newtypeLabelSelectorRequirement :: Newtype LabelSelectorRequirement _
 derive instance genericLabelSelectorRequirement :: Generic LabelSelectorRequirement _
 instance showLabelSelectorRequirement :: Show LabelSelectorRequirement where show a = genericShow a
 instance decodeLabelSelectorRequirement :: Decode LabelSelectorRequirement where
   decode a = do
-               key <- readProp "key" a >>= decode
-               operator <- readProp "operator" a >>= decode
-               values <- readProp "values" a >>= decode
+               key <- decodeMaybe "key" a
+               operator <- decodeMaybe "operator" a
+               values <- decodeMaybe "values" a
                pure $ LabelSelectorRequirement { key, operator, values }
 instance encodeLabelSelectorRequirement :: Encode LabelSelectorRequirement where
   encode (LabelSelectorRequirement a) = encode $ StrMap.fromFoldable $
-               [ Tuple "key" (encode a.key)
-               , Tuple "operator" (encode a.operator)
-               , Tuple "values" (encode a.values) ]
+               [ Tuple "key" (encodeMaybe a.key)
+               , Tuple "operator" (encodeMaybe a.operator)
+               , Tuple "values" (encodeMaybe a.values) ]
 
 
 instance defaultLabelSelectorRequirement :: Default LabelSelectorRequirement where
   default = LabelSelectorRequirement
-    { key: NullOrUndefined Nothing
-    , operator: NullOrUndefined Nothing
-    , values: NullOrUndefined Nothing }
+    { key: Nothing
+    , operator: Nothing
+    , values: Nothing }
 
 -- | ListMeta describes metadata that synthetic resources must have, including lists and various status objects. A resource may have only one of {ObjectMeta, ListMeta}.
 -- |
@@ -433,31 +432,31 @@ instance defaultLabelSelectorRequirement :: Default LabelSelectorRequirement whe
 -- | - `resourceVersion`: String that identifies the server's internal version of this object that can be used by clients to determine when objects have changed. Value must be treated as opaque by clients and passed unmodified back to the server. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency
 -- | - `selfLink`: selfLink is a URL representing this object. Populated by the system. Read-only.
 newtype ListMeta = ListMeta
-  { continue :: (NullOrUndefined String)
-  , resourceVersion :: (NullOrUndefined String)
-  , selfLink :: (NullOrUndefined String) }
+  { continue :: (Maybe String)
+  , resourceVersion :: (Maybe String)
+  , selfLink :: (Maybe String) }
 
 derive instance newtypeListMeta :: Newtype ListMeta _
 derive instance genericListMeta :: Generic ListMeta _
 instance showListMeta :: Show ListMeta where show a = genericShow a
 instance decodeListMeta :: Decode ListMeta where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               selfLink <- readProp "selfLink" a >>= decode
+               continue <- decodeMaybe "continue" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               selfLink <- decodeMaybe "selfLink" a
                pure $ ListMeta { continue, resourceVersion, selfLink }
 instance encodeListMeta :: Encode ListMeta where
   encode (ListMeta a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "selfLink" (encode a.selfLink) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "selfLink" (encodeMaybe a.selfLink) ]
 
 
 instance defaultListMeta :: Default ListMeta where
   default = ListMeta
-    { continue: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , selfLink: NullOrUndefined Nothing }
+    { continue: Nothing
+    , resourceVersion: Nothing
+    , selfLink: Nothing }
 
 newtype MicroTime = MicroTime String
 
@@ -505,83 +504,83 @@ instance encodeMicroTime :: Encode MicroTime where
 -- |    
 -- |    Populated by the system. Read-only. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
 newtype ObjectMeta = ObjectMeta
-  { annotations :: (NullOrUndefined (StrMap String))
-  , clusterName :: (NullOrUndefined String)
-  , creationTimestamp :: (NullOrUndefined Time)
-  , deletionGracePeriodSeconds :: (NullOrUndefined Int)
-  , deletionTimestamp :: (NullOrUndefined Time)
-  , finalizers :: (NullOrUndefined (Array String))
-  , generateName :: (NullOrUndefined String)
-  , generation :: (NullOrUndefined Int)
-  , initializers :: (NullOrUndefined Initializers)
-  , labels :: (NullOrUndefined (StrMap String))
-  , name :: (NullOrUndefined String)
-  , namespace :: (NullOrUndefined String)
-  , ownerReferences :: (NullOrUndefined (Array OwnerReference))
-  , resourceVersion :: (NullOrUndefined String)
-  , selfLink :: (NullOrUndefined String)
-  , uid :: (NullOrUndefined String) }
+  { annotations :: (Maybe (StrMap String))
+  , clusterName :: (Maybe String)
+  , creationTimestamp :: (Maybe Time)
+  , deletionGracePeriodSeconds :: (Maybe Int)
+  , deletionTimestamp :: (Maybe Time)
+  , finalizers :: (Maybe (Array String))
+  , generateName :: (Maybe String)
+  , generation :: (Maybe Int)
+  , initializers :: (Maybe Initializers)
+  , labels :: (Maybe (StrMap String))
+  , name :: (Maybe String)
+  , namespace :: (Maybe String)
+  , ownerReferences :: (Maybe (Array OwnerReference))
+  , resourceVersion :: (Maybe String)
+  , selfLink :: (Maybe String)
+  , uid :: (Maybe String) }
 
 derive instance newtypeObjectMeta :: Newtype ObjectMeta _
 derive instance genericObjectMeta :: Generic ObjectMeta _
 instance showObjectMeta :: Show ObjectMeta where show a = genericShow a
 instance decodeObjectMeta :: Decode ObjectMeta where
   decode a = do
-               annotations <- readProp "annotations" a >>= decode
-               clusterName <- readProp "clusterName" a >>= decode
-               creationTimestamp <- readProp "creationTimestamp" a >>= decode
-               deletionGracePeriodSeconds <- readProp "deletionGracePeriodSeconds" a >>= decode
-               deletionTimestamp <- readProp "deletionTimestamp" a >>= decode
-               finalizers <- readProp "finalizers" a >>= decode
-               generateName <- readProp "generateName" a >>= decode
-               generation <- readProp "generation" a >>= decode
-               initializers <- readProp "initializers" a >>= decode
-               labels <- readProp "labels" a >>= decode
-               name <- readProp "name" a >>= decode
-               namespace <- readProp "namespace" a >>= decode
-               ownerReferences <- readProp "ownerReferences" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               selfLink <- readProp "selfLink" a >>= decode
-               uid <- readProp "uid" a >>= decode
+               annotations <- decodeMaybe "annotations" a
+               clusterName <- decodeMaybe "clusterName" a
+               creationTimestamp <- decodeMaybe "creationTimestamp" a
+               deletionGracePeriodSeconds <- decodeMaybe "deletionGracePeriodSeconds" a
+               deletionTimestamp <- decodeMaybe "deletionTimestamp" a
+               finalizers <- decodeMaybe "finalizers" a
+               generateName <- decodeMaybe "generateName" a
+               generation <- decodeMaybe "generation" a
+               initializers <- decodeMaybe "initializers" a
+               labels <- decodeMaybe "labels" a
+               name <- decodeMaybe "name" a
+               namespace <- decodeMaybe "namespace" a
+               ownerReferences <- decodeMaybe "ownerReferences" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               selfLink <- decodeMaybe "selfLink" a
+               uid <- decodeMaybe "uid" a
                pure $ ObjectMeta { annotations, clusterName, creationTimestamp, deletionGracePeriodSeconds, deletionTimestamp, finalizers, generateName, generation, initializers, labels, name, namespace, ownerReferences, resourceVersion, selfLink, uid }
 instance encodeObjectMeta :: Encode ObjectMeta where
   encode (ObjectMeta a) = encode $ StrMap.fromFoldable $
-               [ Tuple "annotations" (encode a.annotations)
-               , Tuple "clusterName" (encode a.clusterName)
-               , Tuple "creationTimestamp" (encode a.creationTimestamp)
-               , Tuple "deletionGracePeriodSeconds" (encode a.deletionGracePeriodSeconds)
-               , Tuple "deletionTimestamp" (encode a.deletionTimestamp)
-               , Tuple "finalizers" (encode a.finalizers)
-               , Tuple "generateName" (encode a.generateName)
-               , Tuple "generation" (encode a.generation)
-               , Tuple "initializers" (encode a.initializers)
-               , Tuple "labels" (encode a.labels)
-               , Tuple "name" (encode a.name)
-               , Tuple "namespace" (encode a.namespace)
-               , Tuple "ownerReferences" (encode a.ownerReferences)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "selfLink" (encode a.selfLink)
-               , Tuple "uid" (encode a.uid) ]
+               [ Tuple "annotations" (encodeMaybe a.annotations)
+               , Tuple "clusterName" (encodeMaybe a.clusterName)
+               , Tuple "creationTimestamp" (encodeMaybe a.creationTimestamp)
+               , Tuple "deletionGracePeriodSeconds" (encodeMaybe a.deletionGracePeriodSeconds)
+               , Tuple "deletionTimestamp" (encodeMaybe a.deletionTimestamp)
+               , Tuple "finalizers" (encodeMaybe a.finalizers)
+               , Tuple "generateName" (encodeMaybe a.generateName)
+               , Tuple "generation" (encodeMaybe a.generation)
+               , Tuple "initializers" (encodeMaybe a.initializers)
+               , Tuple "labels" (encodeMaybe a.labels)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespace" (encodeMaybe a.namespace)
+               , Tuple "ownerReferences" (encodeMaybe a.ownerReferences)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "selfLink" (encodeMaybe a.selfLink)
+               , Tuple "uid" (encodeMaybe a.uid) ]
 
 
 instance defaultObjectMeta :: Default ObjectMeta where
   default = ObjectMeta
-    { annotations: NullOrUndefined Nothing
-    , clusterName: NullOrUndefined Nothing
-    , creationTimestamp: NullOrUndefined Nothing
-    , deletionGracePeriodSeconds: NullOrUndefined Nothing
-    , deletionTimestamp: NullOrUndefined Nothing
-    , finalizers: NullOrUndefined Nothing
-    , generateName: NullOrUndefined Nothing
-    , generation: NullOrUndefined Nothing
-    , initializers: NullOrUndefined Nothing
-    , labels: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , namespace: NullOrUndefined Nothing
-    , ownerReferences: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , selfLink: NullOrUndefined Nothing
-    , uid: NullOrUndefined Nothing }
+    { annotations: Nothing
+    , clusterName: Nothing
+    , creationTimestamp: Nothing
+    , deletionGracePeriodSeconds: Nothing
+    , deletionTimestamp: Nothing
+    , finalizers: Nothing
+    , generateName: Nothing
+    , generation: Nothing
+    , initializers: Nothing
+    , labels: Nothing
+    , name: Nothing
+    , namespace: Nothing
+    , ownerReferences: Nothing
+    , resourceVersion: Nothing
+    , selfLink: Nothing
+    , uid: Nothing }
 
 -- | OwnerReference contains enough information to let you identify an owning object. Currently, an owning object must be in the same namespace, so there is no namespace field.
 -- |
@@ -593,66 +592,66 @@ instance defaultObjectMeta :: Default ObjectMeta where
 -- | - `name`: Name of the referent. More info: http://kubernetes.io/docs/user-guide/identifiers#names
 -- | - `uid`: UID of the referent. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
 newtype OwnerReference = OwnerReference
-  { apiVersion :: (NullOrUndefined String)
-  , blockOwnerDeletion :: (NullOrUndefined Boolean)
-  , controller :: (NullOrUndefined Boolean)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , uid :: (NullOrUndefined String) }
+  { apiVersion :: (Maybe String)
+  , blockOwnerDeletion :: (Maybe Boolean)
+  , controller :: (Maybe Boolean)
+  , kind :: (Maybe String)
+  , name :: (Maybe String)
+  , uid :: (Maybe String) }
 
 derive instance newtypeOwnerReference :: Newtype OwnerReference _
 derive instance genericOwnerReference :: Generic OwnerReference _
 instance showOwnerReference :: Show OwnerReference where show a = genericShow a
 instance decodeOwnerReference :: Decode OwnerReference where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               blockOwnerDeletion <- readProp "blockOwnerDeletion" a >>= decode
-               controller <- readProp "controller" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
-               uid <- readProp "uid" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               blockOwnerDeletion <- decodeMaybe "blockOwnerDeletion" a
+               controller <- decodeMaybe "controller" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
+               uid <- decodeMaybe "uid" a
                pure $ OwnerReference { apiVersion, blockOwnerDeletion, controller, kind, name, uid }
 instance encodeOwnerReference :: Encode OwnerReference where
   encode (OwnerReference a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "blockOwnerDeletion" (encode a.blockOwnerDeletion)
-               , Tuple "controller" (encode a.controller)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name)
-               , Tuple "uid" (encode a.uid) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "blockOwnerDeletion" (encodeMaybe a.blockOwnerDeletion)
+               , Tuple "controller" (encodeMaybe a.controller)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "uid" (encodeMaybe a.uid) ]
 
 
 instance defaultOwnerReference :: Default OwnerReference where
   default = OwnerReference
-    { apiVersion: NullOrUndefined Nothing
-    , blockOwnerDeletion: NullOrUndefined Nothing
-    , controller: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , uid: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , blockOwnerDeletion: Nothing
+    , controller: Nothing
+    , kind: Nothing
+    , name: Nothing
+    , uid: Nothing }
 
 -- | Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
 -- |
 -- | Fields:
 -- | - `uid`: Specifies the target UID.
 newtype Preconditions = Preconditions
-  { uid :: (NullOrUndefined String) }
+  { uid :: (Maybe String) }
 
 derive instance newtypePreconditions :: Newtype Preconditions _
 derive instance genericPreconditions :: Generic Preconditions _
 instance showPreconditions :: Show Preconditions where show a = genericShow a
 instance decodePreconditions :: Decode Preconditions where
   decode a = do
-               uid <- readProp "uid" a >>= decode
+               uid <- decodeMaybe "uid" a
                pure $ Preconditions { uid }
 instance encodePreconditions :: Encode Preconditions where
   encode (Preconditions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "uid" (encode a.uid) ]
+               [ Tuple "uid" (encodeMaybe a.uid) ]
 
 
 instance defaultPreconditions :: Default Preconditions where
   default = Preconditions
-    { uid: NullOrUndefined Nothing }
+    { uid: Nothing }
 
 -- | ServerAddressByClientCIDR helps the client to determine the server address that they should use, depending on the clientCIDR that they match.
 -- |
@@ -660,27 +659,27 @@ instance defaultPreconditions :: Default Preconditions where
 -- | - `clientCIDR`: The CIDR with which clients can match their IP to figure out the server address that they should use.
 -- | - `serverAddress`: Address of this server, suitable for a client that matches the above CIDR. This can be a hostname, hostname:port, IP or IP:port.
 newtype ServerAddressByClientCIDR = ServerAddressByClientCIDR
-  { clientCIDR :: (NullOrUndefined String)
-  , serverAddress :: (NullOrUndefined String) }
+  { clientCIDR :: (Maybe String)
+  , serverAddress :: (Maybe String) }
 
 derive instance newtypeServerAddressByClientCIDR :: Newtype ServerAddressByClientCIDR _
 derive instance genericServerAddressByClientCIDR :: Generic ServerAddressByClientCIDR _
 instance showServerAddressByClientCIDR :: Show ServerAddressByClientCIDR where show a = genericShow a
 instance decodeServerAddressByClientCIDR :: Decode ServerAddressByClientCIDR where
   decode a = do
-               clientCIDR <- readProp "clientCIDR" a >>= decode
-               serverAddress <- readProp "serverAddress" a >>= decode
+               clientCIDR <- decodeMaybe "clientCIDR" a
+               serverAddress <- decodeMaybe "serverAddress" a
                pure $ ServerAddressByClientCIDR { clientCIDR, serverAddress }
 instance encodeServerAddressByClientCIDR :: Encode ServerAddressByClientCIDR where
   encode (ServerAddressByClientCIDR a) = encode $ StrMap.fromFoldable $
-               [ Tuple "clientCIDR" (encode a.clientCIDR)
-               , Tuple "serverAddress" (encode a.serverAddress) ]
+               [ Tuple "clientCIDR" (encodeMaybe a.clientCIDR)
+               , Tuple "serverAddress" (encodeMaybe a.serverAddress) ]
 
 
 instance defaultServerAddressByClientCIDR :: Default ServerAddressByClientCIDR where
   default = ServerAddressByClientCIDR
-    { clientCIDR: NullOrUndefined Nothing
-    , serverAddress: NullOrUndefined Nothing }
+    { clientCIDR: Nothing
+    , serverAddress: Nothing }
 
 -- | Status is a return value for calls that don't return other objects.
 -- |
@@ -694,51 +693,51 @@ instance defaultServerAddressByClientCIDR :: Default ServerAddressByClientCIDR w
 -- | - `reason`: A machine-readable description of why this operation is in the "Failure" status. If this value is empty there is no information available. A Reason clarifies an HTTP status code but does not override it.
 -- | - `status`: Status of the operation. One of: "Success" or "Failure". More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype Status = Status
-  { apiVersion :: (NullOrUndefined String)
-  , code :: (NullOrUndefined Int)
-  , details :: (NullOrUndefined StatusDetails)
-  , kind :: (NullOrUndefined String)
-  , message :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined ListMeta)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { apiVersion :: (Maybe String)
+  , code :: (Maybe Int)
+  , details :: (Maybe StatusDetails)
+  , kind :: (Maybe String)
+  , message :: (Maybe String)
+  , metadata :: (Maybe ListMeta)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeStatus :: Newtype Status _
 derive instance genericStatus :: Generic Status _
 instance showStatus :: Show Status where show a = genericShow a
 instance decodeStatus :: Decode Status where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               code <- readProp "code" a >>= decode
-               details <- readProp "details" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               message <- readProp "message" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               code <- decodeMaybe "code" a
+               details <- decodeMaybe "details" a
+               kind <- decodeMaybe "kind" a
+               message <- decodeMaybe "message" a
+               metadata <- decodeMaybe "metadata" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ Status { apiVersion, code, details, kind, message, metadata, reason, status }
 instance encodeStatus :: Encode Status where
   encode (Status a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "code" (encode a.code)
-               , Tuple "details" (encode a.details)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "message" (encode a.message)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "code" (encodeMaybe a.code)
+               , Tuple "details" (encodeMaybe a.details)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultStatus :: Default Status where
   default = Status
-    { apiVersion: NullOrUndefined Nothing
-    , code: NullOrUndefined Nothing
-    , details: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , code: Nothing
+    , details: Nothing
+    , kind: Nothing
+    , message: Nothing
+    , metadata: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | StatusCause provides more information about an api.Status failure, including cases when multiple errors are encountered.
 -- |
@@ -751,31 +750,31 @@ instance defaultStatus :: Default Status where
 -- | - `message`: A human-readable description of the cause of the error.  This field may be presented as-is to a reader.
 -- | - `reason`: A machine-readable description of the cause of the error. If this value is empty there is no information available.
 newtype StatusCause = StatusCause
-  { field :: (NullOrUndefined String)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String) }
+  { field :: (Maybe String)
+  , message :: (Maybe String)
+  , reason :: (Maybe String) }
 
 derive instance newtypeStatusCause :: Newtype StatusCause _
 derive instance genericStatusCause :: Generic StatusCause _
 instance showStatusCause :: Show StatusCause where show a = genericShow a
 instance decodeStatusCause :: Decode StatusCause where
   decode a = do
-               field <- readProp "field" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
+               field <- decodeMaybe "field" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
                pure $ StatusCause { field, message, reason }
 instance encodeStatusCause :: Encode StatusCause where
   encode (StatusCause a) = encode $ StrMap.fromFoldable $
-               [ Tuple "field" (encode a.field)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason) ]
+               [ Tuple "field" (encodeMaybe a.field)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason) ]
 
 
 instance defaultStatusCause :: Default StatusCause where
   default = StatusCause
-    { field: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing }
+    { field: Nothing
+    , message: Nothing
+    , reason: Nothing }
 
 -- | StatusDetails is a set of additional properties that MAY be set by the server to provide additional information about a response. The Reason field of a Status object defines what attributes will be set. Clients must ignore fields that do not match the defined type of each attribute, and should assume that any attribute may be empty, invalid, or under defined.
 -- |
@@ -787,43 +786,43 @@ instance defaultStatusCause :: Default StatusCause where
 -- | - `retryAfterSeconds`: If specified, the time in seconds before the operation should be retried. Some errors may indicate the client must take an alternate action - for those errors this field may indicate how long to wait before taking the alternate action.
 -- | - `uid`: UID of the resource. (when there is a single resource which can be described). More info: http://kubernetes.io/docs/user-guide/identifiers#uids
 newtype StatusDetails = StatusDetails
-  { causes :: (NullOrUndefined (Array StatusCause))
-  , group :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , retryAfterSeconds :: (NullOrUndefined Int)
-  , uid :: (NullOrUndefined String) }
+  { causes :: (Maybe (Array StatusCause))
+  , group :: (Maybe String)
+  , kind :: (Maybe String)
+  , name :: (Maybe String)
+  , retryAfterSeconds :: (Maybe Int)
+  , uid :: (Maybe String) }
 
 derive instance newtypeStatusDetails :: Newtype StatusDetails _
 derive instance genericStatusDetails :: Generic StatusDetails _
 instance showStatusDetails :: Show StatusDetails where show a = genericShow a
 instance decodeStatusDetails :: Decode StatusDetails where
   decode a = do
-               causes <- readProp "causes" a >>= decode
-               group <- readProp "group" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
-               retryAfterSeconds <- readProp "retryAfterSeconds" a >>= decode
-               uid <- readProp "uid" a >>= decode
+               causes <- decodeMaybe "causes" a
+               group <- decodeMaybe "group" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
+               retryAfterSeconds <- decodeMaybe "retryAfterSeconds" a
+               uid <- decodeMaybe "uid" a
                pure $ StatusDetails { causes, group, kind, name, retryAfterSeconds, uid }
 instance encodeStatusDetails :: Encode StatusDetails where
   encode (StatusDetails a) = encode $ StrMap.fromFoldable $
-               [ Tuple "causes" (encode a.causes)
-               , Tuple "group" (encode a.group)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name)
-               , Tuple "retryAfterSeconds" (encode a.retryAfterSeconds)
-               , Tuple "uid" (encode a.uid) ]
+               [ Tuple "causes" (encodeMaybe a.causes)
+               , Tuple "group" (encodeMaybe a.group)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "retryAfterSeconds" (encodeMaybe a.retryAfterSeconds)
+               , Tuple "uid" (encodeMaybe a.uid) ]
 
 
 instance defaultStatusDetails :: Default StatusDetails where
   default = StatusDetails
-    { causes: NullOrUndefined Nothing
-    , group: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , retryAfterSeconds: NullOrUndefined Nothing
-    , uid: NullOrUndefined Nothing }
+    { causes: Nothing
+    , group: Nothing
+    , kind: Nothing
+    , name: Nothing
+    , retryAfterSeconds: Nothing
+    , uid: Nothing }
 
 newtype Time = Time String
 
@@ -845,24 +844,24 @@ instance encodeTime :: Encode Time where
 -- |       depending on context.
 -- | - `_type`
 newtype WatchEvent = WatchEvent
-  { _type :: (NullOrUndefined String)
-  , object :: (NullOrUndefined Runtime.RawExtension) }
+  { _type :: (Maybe String)
+  , object :: (Maybe Runtime.RawExtension) }
 
 derive instance newtypeWatchEvent :: Newtype WatchEvent _
 derive instance genericWatchEvent :: Generic WatchEvent _
 instance showWatchEvent :: Show WatchEvent where show a = genericShow a
 instance decodeWatchEvent :: Decode WatchEvent where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               object <- readProp "object" a >>= decode
+               _type <- decodeMaybe "_type" a
+               object <- decodeMaybe "object" a
                pure $ WatchEvent { _type, object }
 instance encodeWatchEvent :: Encode WatchEvent where
   encode (WatchEvent a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "object" (encode a.object) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "object" (encodeMaybe a.object) ]
 
 
 instance defaultWatchEvent :: Default WatchEvent where
   default = WatchEvent
-    { _type: NullOrUndefined Nothing
-    , object: NullOrUndefined Nothing }
+    { _type: Nothing
+    , object: Nothing }

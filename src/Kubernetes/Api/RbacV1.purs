@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -21,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -30,23 +29,23 @@ import Prelude
 -- | Fields:
 -- | - `clusterRoleSelectors`: ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules. If any of the selectors match, then the ClusterRole's permissions will be added
 newtype AggregationRule = AggregationRule
-  { clusterRoleSelectors :: (NullOrUndefined (Array MetaV1.LabelSelector)) }
+  { clusterRoleSelectors :: (Maybe (Array MetaV1.LabelSelector)) }
 
 derive instance newtypeAggregationRule :: Newtype AggregationRule _
 derive instance genericAggregationRule :: Generic AggregationRule _
 instance showAggregationRule :: Show AggregationRule where show a = genericShow a
 instance decodeAggregationRule :: Decode AggregationRule where
   decode a = do
-               clusterRoleSelectors <- readProp "clusterRoleSelectors" a >>= decode
+               clusterRoleSelectors <- decodeMaybe "clusterRoleSelectors" a
                pure $ AggregationRule { clusterRoleSelectors }
 instance encodeAggregationRule :: Encode AggregationRule where
   encode (AggregationRule a) = encode $ StrMap.fromFoldable $
-               [ Tuple "clusterRoleSelectors" (encode a.clusterRoleSelectors) ]
+               [ Tuple "clusterRoleSelectors" (encodeMaybe a.clusterRoleSelectors) ]
 
 
 instance defaultAggregationRule :: Default AggregationRule where
   default = AggregationRule
-    { clusterRoleSelectors: NullOrUndefined Nothing }
+    { clusterRoleSelectors: Nothing }
 
 -- | ClusterRole is a cluster level, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding or ClusterRoleBinding.
 -- |
@@ -57,39 +56,39 @@ instance defaultAggregationRule :: Default AggregationRule where
 -- | - `metadata`: Standard object's metadata.
 -- | - `rules`: Rules holds all the PolicyRules for this ClusterRole
 newtype ClusterRole = ClusterRole
-  { aggregationRule :: (NullOrUndefined AggregationRule)
-  , apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , rules :: (NullOrUndefined (Array PolicyRule)) }
+  { aggregationRule :: (Maybe AggregationRule)
+  , apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , rules :: (Maybe (Array PolicyRule)) }
 
 derive instance newtypeClusterRole :: Newtype ClusterRole _
 derive instance genericClusterRole :: Generic ClusterRole _
 instance showClusterRole :: Show ClusterRole where show a = genericShow a
 instance decodeClusterRole :: Decode ClusterRole where
   decode a = do
-               aggregationRule <- readProp "aggregationRule" a >>= decode
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               rules <- readProp "rules" a >>= decode
+               aggregationRule <- decodeMaybe "aggregationRule" a
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               rules <- decodeMaybe "rules" a
                pure $ ClusterRole { aggregationRule, apiVersion, kind, metadata, rules }
 instance encodeClusterRole :: Encode ClusterRole where
   encode (ClusterRole a) = encode $ StrMap.fromFoldable $
-               [ Tuple "aggregationRule" (encode a.aggregationRule)
-               , Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "rules" (encode a.rules) ]
+               [ Tuple "aggregationRule" (encodeMaybe a.aggregationRule)
+               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "rules" (encodeMaybe a.rules) ]
 
 
 instance defaultClusterRole :: Default ClusterRole where
   default = ClusterRole
-    { aggregationRule: NullOrUndefined Nothing
-    , apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , rules: NullOrUndefined Nothing }
+    { aggregationRule: Nothing
+    , apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , rules: Nothing }
 
 -- | ClusterRoleBinding references a ClusterRole, but not contain it.  It can reference a ClusterRole in the global namespace, and adds who information via Subject.
 -- |
@@ -100,39 +99,39 @@ instance defaultClusterRole :: Default ClusterRole where
 -- | - `roleRef`: RoleRef can only reference a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
 -- | - `subjects`: Subjects holds references to the objects the role applies to.
 newtype ClusterRoleBinding = ClusterRoleBinding
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , roleRef :: (NullOrUndefined RoleRef)
-  , subjects :: (NullOrUndefined (Array Subject)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , roleRef :: (Maybe RoleRef)
+  , subjects :: (Maybe (Array Subject)) }
 
 derive instance newtypeClusterRoleBinding :: Newtype ClusterRoleBinding _
 derive instance genericClusterRoleBinding :: Generic ClusterRoleBinding _
 instance showClusterRoleBinding :: Show ClusterRoleBinding where show a = genericShow a
 instance decodeClusterRoleBinding :: Decode ClusterRoleBinding where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               roleRef <- readProp "roleRef" a >>= decode
-               subjects <- readProp "subjects" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               roleRef <- decodeMaybe "roleRef" a
+               subjects <- decodeMaybe "subjects" a
                pure $ ClusterRoleBinding { apiVersion, kind, metadata, roleRef, subjects }
 instance encodeClusterRoleBinding :: Encode ClusterRoleBinding where
   encode (ClusterRoleBinding a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "roleRef" (encode a.roleRef)
-               , Tuple "subjects" (encode a.subjects) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "roleRef" (encodeMaybe a.roleRef)
+               , Tuple "subjects" (encodeMaybe a.subjects) ]
 
 
 instance defaultClusterRoleBinding :: Default ClusterRoleBinding where
   default = ClusterRoleBinding
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , roleRef: NullOrUndefined Nothing
-    , subjects: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , roleRef: Nothing
+    , subjects: Nothing }
 
 -- | ClusterRoleBindingList is a collection of ClusterRoleBindings
 -- |
@@ -142,35 +141,35 @@ instance defaultClusterRoleBinding :: Default ClusterRoleBinding where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype ClusterRoleBindingList = ClusterRoleBindingList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ClusterRoleBinding))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ClusterRoleBinding))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeClusterRoleBindingList :: Newtype ClusterRoleBindingList _
 derive instance genericClusterRoleBindingList :: Generic ClusterRoleBindingList _
 instance showClusterRoleBindingList :: Show ClusterRoleBindingList where show a = genericShow a
 instance decodeClusterRoleBindingList :: Decode ClusterRoleBindingList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ClusterRoleBindingList { apiVersion, items, kind, metadata }
 instance encodeClusterRoleBindingList :: Encode ClusterRoleBindingList where
   encode (ClusterRoleBindingList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultClusterRoleBindingList :: Default ClusterRoleBindingList where
   default = ClusterRoleBindingList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | ClusterRoleList is a collection of ClusterRoles
 -- |
@@ -180,35 +179,35 @@ instance defaultClusterRoleBindingList :: Default ClusterRoleBindingList where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype ClusterRoleList = ClusterRoleList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ClusterRole))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ClusterRole))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeClusterRoleList :: Newtype ClusterRoleList _
 derive instance genericClusterRoleList :: Generic ClusterRoleList _
 instance showClusterRoleList :: Show ClusterRoleList where show a = genericShow a
 instance decodeClusterRoleList :: Decode ClusterRoleList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ClusterRoleList { apiVersion, items, kind, metadata }
 instance encodeClusterRoleList :: Encode ClusterRoleList where
   encode (ClusterRoleList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultClusterRoleList :: Default ClusterRoleList where
   default = ClusterRoleList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PolicyRule holds information that describes a policy rule, but does not contain information about who the rule applies to or which namespace the rule applies to.
 -- |
@@ -219,39 +218,39 @@ instance defaultClusterRoleList :: Default ClusterRoleList where
 -- | - `resources`: Resources is a list of resources this rule applies to.  ResourceAll represents all resources.
 -- | - `verbs`: Verbs is a list of Verbs that apply to ALL the ResourceKinds and AttributeRestrictions contained in this rule.  VerbAll represents all kinds.
 newtype PolicyRule = PolicyRule
-  { apiGroups :: (NullOrUndefined (Array String))
-  , nonResourceURLs :: (NullOrUndefined (Array String))
-  , resourceNames :: (NullOrUndefined (Array String))
-  , resources :: (NullOrUndefined (Array String))
-  , verbs :: (NullOrUndefined (Array String)) }
+  { apiGroups :: (Maybe (Array String))
+  , nonResourceURLs :: (Maybe (Array String))
+  , resourceNames :: (Maybe (Array String))
+  , resources :: (Maybe (Array String))
+  , verbs :: (Maybe (Array String)) }
 
 derive instance newtypePolicyRule :: Newtype PolicyRule _
 derive instance genericPolicyRule :: Generic PolicyRule _
 instance showPolicyRule :: Show PolicyRule where show a = genericShow a
 instance decodePolicyRule :: Decode PolicyRule where
   decode a = do
-               apiGroups <- readProp "apiGroups" a >>= decode
-               nonResourceURLs <- readProp "nonResourceURLs" a >>= decode
-               resourceNames <- readProp "resourceNames" a >>= decode
-               resources <- readProp "resources" a >>= decode
-               verbs <- readProp "verbs" a >>= decode
+               apiGroups <- decodeMaybe "apiGroups" a
+               nonResourceURLs <- decodeMaybe "nonResourceURLs" a
+               resourceNames <- decodeMaybe "resourceNames" a
+               resources <- decodeMaybe "resources" a
+               verbs <- decodeMaybe "verbs" a
                pure $ PolicyRule { apiGroups, nonResourceURLs, resourceNames, resources, verbs }
 instance encodePolicyRule :: Encode PolicyRule where
   encode (PolicyRule a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiGroups" (encode a.apiGroups)
-               , Tuple "nonResourceURLs" (encode a.nonResourceURLs)
-               , Tuple "resourceNames" (encode a.resourceNames)
-               , Tuple "resources" (encode a.resources)
-               , Tuple "verbs" (encode a.verbs) ]
+               [ Tuple "apiGroups" (encodeMaybe a.apiGroups)
+               , Tuple "nonResourceURLs" (encodeMaybe a.nonResourceURLs)
+               , Tuple "resourceNames" (encodeMaybe a.resourceNames)
+               , Tuple "resources" (encodeMaybe a.resources)
+               , Tuple "verbs" (encodeMaybe a.verbs) ]
 
 
 instance defaultPolicyRule :: Default PolicyRule where
   default = PolicyRule
-    { apiGroups: NullOrUndefined Nothing
-    , nonResourceURLs: NullOrUndefined Nothing
-    , resourceNames: NullOrUndefined Nothing
-    , resources: NullOrUndefined Nothing
-    , verbs: NullOrUndefined Nothing }
+    { apiGroups: Nothing
+    , nonResourceURLs: Nothing
+    , resourceNames: Nothing
+    , resources: Nothing
+    , verbs: Nothing }
 
 -- | Role is a namespaced, logical grouping of PolicyRules that can be referenced as a unit by a RoleBinding.
 -- |
@@ -261,35 +260,35 @@ instance defaultPolicyRule :: Default PolicyRule where
 -- | - `metadata`: Standard object's metadata.
 -- | - `rules`: Rules holds all the PolicyRules for this Role
 newtype Role = Role
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , rules :: (NullOrUndefined (Array PolicyRule)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , rules :: (Maybe (Array PolicyRule)) }
 
 derive instance newtypeRole :: Newtype Role _
 derive instance genericRole :: Generic Role _
 instance showRole :: Show Role where show a = genericShow a
 instance decodeRole :: Decode Role where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               rules <- readProp "rules" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               rules <- decodeMaybe "rules" a
                pure $ Role { apiVersion, kind, metadata, rules }
 instance encodeRole :: Encode Role where
   encode (Role a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "rules" (encode a.rules) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "rules" (encodeMaybe a.rules) ]
 
 
 instance defaultRole :: Default Role where
   default = Role
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , rules: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , rules: Nothing }
 
 -- | RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace. It adds who information via Subjects and namespace information by which namespace it exists in.  RoleBindings in a given namespace only have effect in that namespace.
 -- |
@@ -300,39 +299,39 @@ instance defaultRole :: Default Role where
 -- | - `roleRef`: RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace. If the RoleRef cannot be resolved, the Authorizer must return an error.
 -- | - `subjects`: Subjects holds references to the objects the role applies to.
 newtype RoleBinding = RoleBinding
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , roleRef :: (NullOrUndefined RoleRef)
-  , subjects :: (NullOrUndefined (Array Subject)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , roleRef :: (Maybe RoleRef)
+  , subjects :: (Maybe (Array Subject)) }
 
 derive instance newtypeRoleBinding :: Newtype RoleBinding _
 derive instance genericRoleBinding :: Generic RoleBinding _
 instance showRoleBinding :: Show RoleBinding where show a = genericShow a
 instance decodeRoleBinding :: Decode RoleBinding where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               roleRef <- readProp "roleRef" a >>= decode
-               subjects <- readProp "subjects" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               roleRef <- decodeMaybe "roleRef" a
+               subjects <- decodeMaybe "subjects" a
                pure $ RoleBinding { apiVersion, kind, metadata, roleRef, subjects }
 instance encodeRoleBinding :: Encode RoleBinding where
   encode (RoleBinding a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "roleRef" (encode a.roleRef)
-               , Tuple "subjects" (encode a.subjects) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "roleRef" (encodeMaybe a.roleRef)
+               , Tuple "subjects" (encodeMaybe a.subjects) ]
 
 
 instance defaultRoleBinding :: Default RoleBinding where
   default = RoleBinding
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , roleRef: NullOrUndefined Nothing
-    , subjects: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , roleRef: Nothing
+    , subjects: Nothing }
 
 -- | RoleBindingList is a collection of RoleBindings
 -- |
@@ -342,35 +341,35 @@ instance defaultRoleBinding :: Default RoleBinding where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype RoleBindingList = RoleBindingList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array RoleBinding))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array RoleBinding))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeRoleBindingList :: Newtype RoleBindingList _
 derive instance genericRoleBindingList :: Generic RoleBindingList _
 instance showRoleBindingList :: Show RoleBindingList where show a = genericShow a
 instance decodeRoleBindingList :: Decode RoleBindingList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ RoleBindingList { apiVersion, items, kind, metadata }
 instance encodeRoleBindingList :: Encode RoleBindingList where
   encode (RoleBindingList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultRoleBindingList :: Default RoleBindingList where
   default = RoleBindingList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | RoleList is a collection of Roles
 -- |
@@ -380,35 +379,35 @@ instance defaultRoleBindingList :: Default RoleBindingList where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard object's metadata.
 newtype RoleList = RoleList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Role))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Role))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeRoleList :: Newtype RoleList _
 derive instance genericRoleList :: Generic RoleList _
 instance showRoleList :: Show RoleList where show a = genericShow a
 instance decodeRoleList :: Decode RoleList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ RoleList { apiVersion, items, kind, metadata }
 instance encodeRoleList :: Encode RoleList where
   encode (RoleList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultRoleList :: Default RoleList where
   default = RoleList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | RoleRef contains information that points to the role being used
 -- |
@@ -417,31 +416,31 @@ instance defaultRoleList :: Default RoleList where
 -- | - `kind`: Kind is the type of resource being referenced
 -- | - `name`: Name is the name of resource being referenced
 newtype RoleRef = RoleRef
-  { apiGroup :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String) }
+  { apiGroup :: (Maybe String)
+  , kind :: (Maybe String)
+  , name :: (Maybe String) }
 
 derive instance newtypeRoleRef :: Newtype RoleRef _
 derive instance genericRoleRef :: Generic RoleRef _
 instance showRoleRef :: Show RoleRef where show a = genericShow a
 instance decodeRoleRef :: Decode RoleRef where
   decode a = do
-               apiGroup <- readProp "apiGroup" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
+               apiGroup <- decodeMaybe "apiGroup" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
                pure $ RoleRef { apiGroup, kind, name }
 instance encodeRoleRef :: Encode RoleRef where
   encode (RoleRef a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiGroup" (encode a.apiGroup)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name) ]
+               [ Tuple "apiGroup" (encodeMaybe a.apiGroup)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name) ]
 
 
 instance defaultRoleRef :: Default RoleRef where
   default = RoleRef
-    { apiGroup: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing }
+    { apiGroup: Nothing
+    , kind: Nothing
+    , name: Nothing }
 
 -- | Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference, or a value for non-objects such as user and group names.
 -- |
@@ -451,35 +450,35 @@ instance defaultRoleRef :: Default RoleRef where
 -- | - `name`: Name of the object being referenced.
 -- | - `namespace`: Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty the Authorizer should report an error.
 newtype Subject = Subject
-  { apiGroup :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , namespace :: (NullOrUndefined String) }
+  { apiGroup :: (Maybe String)
+  , kind :: (Maybe String)
+  , name :: (Maybe String)
+  , namespace :: (Maybe String) }
 
 derive instance newtypeSubject :: Newtype Subject _
 derive instance genericSubject :: Generic Subject _
 instance showSubject :: Show Subject where show a = genericShow a
 instance decodeSubject :: Decode Subject where
   decode a = do
-               apiGroup <- readProp "apiGroup" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
-               namespace <- readProp "namespace" a >>= decode
+               apiGroup <- decodeMaybe "apiGroup" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
+               namespace <- decodeMaybe "namespace" a
                pure $ Subject { apiGroup, kind, name, namespace }
 instance encodeSubject :: Encode Subject where
   encode (Subject a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiGroup" (encode a.apiGroup)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name)
-               , Tuple "namespace" (encode a.namespace) ]
+               [ Tuple "apiGroup" (encodeMaybe a.apiGroup)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "namespace" (encodeMaybe a.namespace) ]
 
 
 instance defaultSubject :: Default Subject where
   default = Subject
-    { apiGroup: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , namespace: NullOrUndefined Nothing }
+    { apiGroup: Nothing
+    , kind: Nothing
+    , name: Nothing
+    , namespace: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

@@ -6,7 +6,6 @@ import Data.Either (Either(Left,Right))
 import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -18,7 +17,7 @@ import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.CertificatesV1Beta1 as CertificatesV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
@@ -34,31 +33,31 @@ createCertificateSigningRequest cfg body = makeRequest (post cfg url (Just encod
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteCertificateSigningRequestOptions = DeleteCertificateSigningRequestOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
+  { gracePeriodSeconds :: (Maybe Int)
+  , orphanDependents :: (Maybe Boolean)
+  , propagationPolicy :: (Maybe String) }
 
 derive instance newtypeDeleteCertificateSigningRequestOptions :: Newtype DeleteCertificateSigningRequestOptions _
 derive instance genericDeleteCertificateSigningRequestOptions :: Generic DeleteCertificateSigningRequestOptions _
 instance showDeleteCertificateSigningRequestOptions :: Show DeleteCertificateSigningRequestOptions where show a = genericShow a
 instance decodeDeleteCertificateSigningRequestOptions :: Decode DeleteCertificateSigningRequestOptions where
   decode a = do
-               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
-               orphanDependents <- readProp "orphanDependents" a >>= decode
-               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteCertificateSigningRequestOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteCertificateSigningRequestOptions :: Encode DeleteCertificateSigningRequestOptions where
   encode (DeleteCertificateSigningRequestOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
-               , Tuple "orphanDependents" (encode a.orphanDependents)
-               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
 instance defaultDeleteCertificateSigningRequestOptions :: Default DeleteCertificateSigningRequestOptions where
   default = DeleteCertificateSigningRequestOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
+    { gracePeriodSeconds: Nothing
+    , orphanDependents: Nothing
+    , propagationPolicy: Nothing }
 
 -- | delete a CertificateSigningRequest
 deleteCertificateSigningRequest :: forall e. Config -> MetaV1.DeleteOptions -> DeleteCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -79,51 +78,51 @@ deleteCertificateSigningRequest cfg body options = makeRequest (delete cfg url (
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionCertificateSigningRequestOptions = DeleteCollectionCertificateSigningRequestOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeDeleteCollectionCertificateSigningRequestOptions :: Newtype DeleteCollectionCertificateSigningRequestOptions _
 derive instance genericDeleteCollectionCertificateSigningRequestOptions :: Generic DeleteCollectionCertificateSigningRequestOptions _
 instance showDeleteCollectionCertificateSigningRequestOptions :: Show DeleteCollectionCertificateSigningRequestOptions where show a = genericShow a
 instance decodeDeleteCollectionCertificateSigningRequestOptions :: Decode DeleteCollectionCertificateSigningRequestOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionCertificateSigningRequestOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionCertificateSigningRequestOptions :: Encode DeleteCollectionCertificateSigningRequestOptions where
   encode (DeleteCollectionCertificateSigningRequestOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultDeleteCollectionCertificateSigningRequestOptions :: Default DeleteCollectionCertificateSigningRequestOptions where
   default = DeleteCollectionCertificateSigningRequestOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | delete collection of CertificateSigningRequest
 deleteCollectionCertificateSigningRequest :: forall e. Config -> DeleteCollectionCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -143,51 +142,51 @@ deleteCollectionCertificateSigningRequest cfg options = makeRequest (delete cfg 
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListCertificateSigningRequestOptions = ListCertificateSigningRequestOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeListCertificateSigningRequestOptions :: Newtype ListCertificateSigningRequestOptions _
 derive instance genericListCertificateSigningRequestOptions :: Generic ListCertificateSigningRequestOptions _
 instance showListCertificateSigningRequestOptions :: Show ListCertificateSigningRequestOptions where show a = genericShow a
 instance decodeListCertificateSigningRequestOptions :: Decode ListCertificateSigningRequestOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ ListCertificateSigningRequestOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListCertificateSigningRequestOptions :: Encode ListCertificateSigningRequestOptions where
   encode (ListCertificateSigningRequestOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultListCertificateSigningRequestOptions :: Default ListCertificateSigningRequestOptions where
   default = ListCertificateSigningRequestOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | list or watch objects of kind CertificateSigningRequest
 listCertificateSigningRequest :: forall e. Config -> ListCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CertificatesV1Beta1.CertificateSigningRequestList)
@@ -199,27 +198,27 @@ listCertificateSigningRequest cfg options = makeRequest (get cfg url Nothing)
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadCertificateSigningRequestOptions = ReadCertificateSigningRequestOptions
-  { exact :: (NullOrUndefined Boolean)
-  , export :: (NullOrUndefined Boolean) }
+  { exact :: (Maybe Boolean)
+  , export :: (Maybe Boolean) }
 
 derive instance newtypeReadCertificateSigningRequestOptions :: Newtype ReadCertificateSigningRequestOptions _
 derive instance genericReadCertificateSigningRequestOptions :: Generic ReadCertificateSigningRequestOptions _
 instance showReadCertificateSigningRequestOptions :: Show ReadCertificateSigningRequestOptions where show a = genericShow a
 instance decodeReadCertificateSigningRequestOptions :: Decode ReadCertificateSigningRequestOptions where
   decode a = do
-               exact <- readProp "exact" a >>= decode
-               export <- readProp "export" a >>= decode
+               exact <- decodeMaybe "exact" a
+               export <- decodeMaybe "export" a
                pure $ ReadCertificateSigningRequestOptions { exact, export }
 instance encodeReadCertificateSigningRequestOptions :: Encode ReadCertificateSigningRequestOptions where
   encode (ReadCertificateSigningRequestOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "exact" (encode a.exact)
-               , Tuple "export" (encode a.export) ]
+               [ Tuple "exact" (encodeMaybe a.exact)
+               , Tuple "export" (encodeMaybe a.export) ]
 
 
 instance defaultReadCertificateSigningRequestOptions :: Default ReadCertificateSigningRequestOptions where
   default = ReadCertificateSigningRequestOptions
-    { exact: NullOrUndefined Nothing
-    , export: NullOrUndefined Nothing }
+    { exact: Nothing
+    , export: Nothing }
 
 -- | read the specified CertificateSigningRequest
 readCertificateSigningRequest :: forall e. Config -> ReadCertificateSigningRequestOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CertificatesV1Beta1.CertificateSigningRequest)

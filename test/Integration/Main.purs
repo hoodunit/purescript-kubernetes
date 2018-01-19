@@ -18,7 +18,6 @@ import Control.Monad.Loops (iterateUntil)
 import Data.Either (Either(..), either, hush)
 import Data.Foreign (MultipleErrors)
 import Data.Foreign as Foreign
-import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.Function.Uncurried (Fn3, runFn3)
 import Data.HTTP.Method as Method
 import Data.Lens
@@ -104,11 +103,11 @@ testNamespace = default
 -- Example: Without lenses there is a lot of boilerplate
 testNamespace2 :: Namespace
 testNamespace2 = default # (\(Namespace n) -> Namespace $ n
-    { apiVersion = NullOrUndefined (Just "v1")
-    , kind = NullOrUndefined (Just "v1")
-    , metadata = NullOrUndefined $ Just $
+    { apiVersion = Just "v1"
+    , kind = Just "v1"
+    , metadata = Just $
         default # (\(MetaV1.ObjectMeta m) -> MetaV1.ObjectMeta $ m
-          { name = NullOrUndefined (Just "test") }) })
+          { name = Just "test" }) })
  
 readDeploy :: Config -> String -> String -> Aff _ (Either MetaV1.Status Deployment)
 readDeploy cfg ns name = Deploy.readNamespacedDeployment cfg ns name default

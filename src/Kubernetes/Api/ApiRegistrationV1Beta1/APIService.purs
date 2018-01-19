@@ -6,7 +6,6 @@ import Data.Either (Either(Left,Right))
 import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -18,7 +17,7 @@ import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.ApiRegistrationV1Beta1 as ApiRegistrationV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
@@ -34,31 +33,31 @@ createAPIService cfg body = makeRequest (post cfg url (Just encodedBody))
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteAPIServiceOptions = DeleteAPIServiceOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
+  { gracePeriodSeconds :: (Maybe Int)
+  , orphanDependents :: (Maybe Boolean)
+  , propagationPolicy :: (Maybe String) }
 
 derive instance newtypeDeleteAPIServiceOptions :: Newtype DeleteAPIServiceOptions _
 derive instance genericDeleteAPIServiceOptions :: Generic DeleteAPIServiceOptions _
 instance showDeleteAPIServiceOptions :: Show DeleteAPIServiceOptions where show a = genericShow a
 instance decodeDeleteAPIServiceOptions :: Decode DeleteAPIServiceOptions where
   decode a = do
-               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
-               orphanDependents <- readProp "orphanDependents" a >>= decode
-               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteAPIServiceOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteAPIServiceOptions :: Encode DeleteAPIServiceOptions where
   encode (DeleteAPIServiceOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
-               , Tuple "orphanDependents" (encode a.orphanDependents)
-               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
 instance defaultDeleteAPIServiceOptions :: Default DeleteAPIServiceOptions where
   default = DeleteAPIServiceOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
+    { gracePeriodSeconds: Nothing
+    , orphanDependents: Nothing
+    , propagationPolicy: Nothing }
 
 -- | delete an APIService
 deleteAPIService :: forall e. Config -> MetaV1.DeleteOptions -> DeleteAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -79,51 +78,51 @@ deleteAPIService cfg body options = makeRequest (delete cfg url (Just encodedBod
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionAPIServiceOptions = DeleteCollectionAPIServiceOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeDeleteCollectionAPIServiceOptions :: Newtype DeleteCollectionAPIServiceOptions _
 derive instance genericDeleteCollectionAPIServiceOptions :: Generic DeleteCollectionAPIServiceOptions _
 instance showDeleteCollectionAPIServiceOptions :: Show DeleteCollectionAPIServiceOptions where show a = genericShow a
 instance decodeDeleteCollectionAPIServiceOptions :: Decode DeleteCollectionAPIServiceOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionAPIServiceOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionAPIServiceOptions :: Encode DeleteCollectionAPIServiceOptions where
   encode (DeleteCollectionAPIServiceOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultDeleteCollectionAPIServiceOptions :: Default DeleteCollectionAPIServiceOptions where
   default = DeleteCollectionAPIServiceOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | delete collection of APIService
 deleteCollectionAPIService :: forall e. Config -> DeleteCollectionAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -143,51 +142,51 @@ deleteCollectionAPIService cfg options = makeRequest (delete cfg url Nothing)
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListAPIServiceOptions = ListAPIServiceOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeListAPIServiceOptions :: Newtype ListAPIServiceOptions _
 derive instance genericListAPIServiceOptions :: Generic ListAPIServiceOptions _
 instance showListAPIServiceOptions :: Show ListAPIServiceOptions where show a = genericShow a
 instance decodeListAPIServiceOptions :: Decode ListAPIServiceOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ ListAPIServiceOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListAPIServiceOptions :: Encode ListAPIServiceOptions where
   encode (ListAPIServiceOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultListAPIServiceOptions :: Default ListAPIServiceOptions where
   default = ListAPIServiceOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | list or watch objects of kind APIService
 listAPIService :: forall e. Config -> ListAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status ApiRegistrationV1Beta1.APIServiceList)
@@ -199,27 +198,27 @@ listAPIService cfg options = makeRequest (get cfg url Nothing)
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
 newtype ReadAPIServiceOptions = ReadAPIServiceOptions
-  { exact :: (NullOrUndefined Boolean)
-  , export :: (NullOrUndefined Boolean) }
+  { exact :: (Maybe Boolean)
+  , export :: (Maybe Boolean) }
 
 derive instance newtypeReadAPIServiceOptions :: Newtype ReadAPIServiceOptions _
 derive instance genericReadAPIServiceOptions :: Generic ReadAPIServiceOptions _
 instance showReadAPIServiceOptions :: Show ReadAPIServiceOptions where show a = genericShow a
 instance decodeReadAPIServiceOptions :: Decode ReadAPIServiceOptions where
   decode a = do
-               exact <- readProp "exact" a >>= decode
-               export <- readProp "export" a >>= decode
+               exact <- decodeMaybe "exact" a
+               export <- decodeMaybe "export" a
                pure $ ReadAPIServiceOptions { exact, export }
 instance encodeReadAPIServiceOptions :: Encode ReadAPIServiceOptions where
   encode (ReadAPIServiceOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "exact" (encode a.exact)
-               , Tuple "export" (encode a.export) ]
+               [ Tuple "exact" (encodeMaybe a.exact)
+               , Tuple "export" (encodeMaybe a.export) ]
 
 
 instance defaultReadAPIServiceOptions :: Default ReadAPIServiceOptions where
   default = ReadAPIServiceOptions
-    { exact: NullOrUndefined Nothing
-    , export: NullOrUndefined Nothing }
+    { exact: Nothing
+    , export: Nothing }
 
 -- | read the specified APIService
 readAPIService :: forall e. Config -> ReadAPIServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status ApiRegistrationV1Beta1.APIService)

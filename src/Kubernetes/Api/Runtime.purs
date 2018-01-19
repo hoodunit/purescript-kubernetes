@@ -6,7 +6,6 @@ import Data.Foreign.Class (class Decode, class Encode, decode, encode)
 import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -15,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 
 -- | RawExtension is used to hold extensions in external versions.
 -- | 
@@ -49,20 +48,20 @@ import Kubernetes.Json (jsonOptions)
 -- | Fields:
 -- | - `_Raw`: Raw is the underlying serialization of this object.
 newtype RawExtension = RawExtension
-  { _Raw :: (NullOrUndefined String) }
+  { _Raw :: (Maybe String) }
 
 derive instance newtypeRawExtension :: Newtype RawExtension _
 derive instance genericRawExtension :: Generic RawExtension _
 instance showRawExtension :: Show RawExtension where show a = genericShow a
 instance decodeRawExtension :: Decode RawExtension where
   decode a = do
-               _Raw <- readProp "_Raw" a >>= decode
+               _Raw <- decodeMaybe "_Raw" a
                pure $ RawExtension { _Raw }
 instance encodeRawExtension :: Encode RawExtension where
   encode (RawExtension a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_Raw" (encode a._Raw) ]
+               [ Tuple "_Raw" (encodeMaybe a._Raw) ]
 
 
 instance defaultRawExtension :: Default RawExtension where
   default = RawExtension
-    { _Raw: NullOrUndefined Nothing }
+    { _Raw: Nothing }

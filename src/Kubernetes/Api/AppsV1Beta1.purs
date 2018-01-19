@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -24,7 +23,7 @@ import Kubernetes.Api.Util as Util
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -37,39 +36,39 @@ import Prelude
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `revision`: Revision indicates the revision of the state represented by Data.
 newtype ControllerRevision = ControllerRevision
-  { _data :: (NullOrUndefined Runtime.RawExtension)
-  , apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , revision :: (NullOrUndefined Int) }
+  { _data :: (Maybe Runtime.RawExtension)
+  , apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , revision :: (Maybe Int) }
 
 derive instance newtypeControllerRevision :: Newtype ControllerRevision _
 derive instance genericControllerRevision :: Generic ControllerRevision _
 instance showControllerRevision :: Show ControllerRevision where show a = genericShow a
 instance decodeControllerRevision :: Decode ControllerRevision where
   decode a = do
-               _data <- readProp "_data" a >>= decode
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               revision <- readProp "revision" a >>= decode
+               _data <- decodeMaybe "_data" a
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               revision <- decodeMaybe "revision" a
                pure $ ControllerRevision { _data, apiVersion, kind, metadata, revision }
 instance encodeControllerRevision :: Encode ControllerRevision where
   encode (ControllerRevision a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_data" (encode a._data)
-               , Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "revision" (encode a.revision) ]
+               [ Tuple "_data" (encodeMaybe a._data)
+               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "revision" (encodeMaybe a.revision) ]
 
 
 instance defaultControllerRevision :: Default ControllerRevision where
   default = ControllerRevision
-    { _data: NullOrUndefined Nothing
-    , apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , revision: NullOrUndefined Nothing }
+    { _data: Nothing
+    , apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , revision: Nothing }
 
 -- | ControllerRevisionList is a resource containing a list of ControllerRevision objects.
 -- |
@@ -79,35 +78,35 @@ instance defaultControllerRevision :: Default ControllerRevision where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ControllerRevisionList = ControllerRevisionList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array ControllerRevision))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array ControllerRevision))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeControllerRevisionList :: Newtype ControllerRevisionList _
 derive instance genericControllerRevisionList :: Generic ControllerRevisionList _
 instance showControllerRevisionList :: Show ControllerRevisionList where show a = genericShow a
 instance decodeControllerRevisionList :: Decode ControllerRevisionList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ ControllerRevisionList { apiVersion, items, kind, metadata }
 instance encodeControllerRevisionList :: Encode ControllerRevisionList where
   encode (ControllerRevisionList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultControllerRevisionList :: Default ControllerRevisionList where
   default = ControllerRevisionList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | DEPRECATED - This group version of Deployment is deprecated by apps/v1beta2/Deployment. See the release notes for more information. Deployment enables declarative updates for Pods and ReplicaSets.
 -- |
@@ -118,39 +117,39 @@ instance defaultControllerRevisionList :: Default ControllerRevisionList where
 -- | - `spec`: Specification of the desired behavior of the Deployment.
 -- | - `status`: Most recently observed status of the Deployment.
 newtype Deployment = Deployment
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined DeploymentSpec)
-  , status :: (NullOrUndefined DeploymentStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe DeploymentSpec)
+  , status :: (Maybe DeploymentStatus) }
 
 derive instance newtypeDeployment :: Newtype Deployment _
 derive instance genericDeployment :: Generic Deployment _
 instance showDeployment :: Show Deployment where show a = genericShow a
 instance decodeDeployment :: Decode Deployment where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ Deployment { apiVersion, kind, metadata, spec, status }
 instance encodeDeployment :: Encode Deployment where
   encode (Deployment a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultDeployment :: Default Deployment where
   default = Deployment
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | DeploymentCondition describes the state of a deployment at a certain point.
 -- |
@@ -162,43 +161,43 @@ instance defaultDeployment :: Default Deployment where
 -- | - `status`: Status of the condition, one of True, False, Unknown.
 -- | - `_type`: Type of deployment condition.
 newtype DeploymentCondition = DeploymentCondition
-  { _type :: (NullOrUndefined String)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , lastUpdateTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , lastUpdateTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeDeploymentCondition :: Newtype DeploymentCondition _
 derive instance genericDeploymentCondition :: Generic DeploymentCondition _
 instance showDeploymentCondition :: Show DeploymentCondition where show a = genericShow a
 instance decodeDeploymentCondition :: Decode DeploymentCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               lastUpdateTime <- readProp "lastUpdateTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               lastUpdateTime <- decodeMaybe "lastUpdateTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ DeploymentCondition { _type, lastTransitionTime, lastUpdateTime, message, reason, status }
 instance encodeDeploymentCondition :: Encode DeploymentCondition where
   encode (DeploymentCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "lastUpdateTime" (encode a.lastUpdateTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "lastUpdateTime" (encodeMaybe a.lastUpdateTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultDeploymentCondition :: Default DeploymentCondition where
   default = DeploymentCondition
-    { _type: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , lastUpdateTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastTransitionTime: Nothing
+    , lastUpdateTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | DeploymentList is a list of Deployments.
 -- |
@@ -208,35 +207,35 @@ instance defaultDeploymentCondition :: Default DeploymentCondition where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata.
 newtype DeploymentList = DeploymentList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Deployment))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Deployment))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeDeploymentList :: Newtype DeploymentList _
 derive instance genericDeploymentList :: Generic DeploymentList _
 instance showDeploymentList :: Show DeploymentList where show a = genericShow a
 instance decodeDeploymentList :: Decode DeploymentList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ DeploymentList { apiVersion, items, kind, metadata }
 instance encodeDeploymentList :: Encode DeploymentList where
   encode (DeploymentList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultDeploymentList :: Default DeploymentList where
   default = DeploymentList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | DEPRECATED. DeploymentRollback stores the information required to rollback a deployment.
 -- |
@@ -247,39 +246,39 @@ instance defaultDeploymentList :: Default DeploymentList where
 -- | - `rollbackTo`: The config of this deployment rollback.
 -- | - `updatedAnnotations`: The annotations to be updated to a deployment
 newtype DeploymentRollback = DeploymentRollback
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , name :: (NullOrUndefined String)
-  , rollbackTo :: (NullOrUndefined RollbackConfig)
-  , updatedAnnotations :: (NullOrUndefined (StrMap String)) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , name :: (Maybe String)
+  , rollbackTo :: (Maybe RollbackConfig)
+  , updatedAnnotations :: (Maybe (StrMap String)) }
 
 derive instance newtypeDeploymentRollback :: Newtype DeploymentRollback _
 derive instance genericDeploymentRollback :: Generic DeploymentRollback _
 instance showDeploymentRollback :: Show DeploymentRollback where show a = genericShow a
 instance decodeDeploymentRollback :: Decode DeploymentRollback where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               name <- readProp "name" a >>= decode
-               rollbackTo <- readProp "rollbackTo" a >>= decode
-               updatedAnnotations <- readProp "updatedAnnotations" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               name <- decodeMaybe "name" a
+               rollbackTo <- decodeMaybe "rollbackTo" a
+               updatedAnnotations <- decodeMaybe "updatedAnnotations" a
                pure $ DeploymentRollback { apiVersion, kind, name, rollbackTo, updatedAnnotations }
 instance encodeDeploymentRollback :: Encode DeploymentRollback where
   encode (DeploymentRollback a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "name" (encode a.name)
-               , Tuple "rollbackTo" (encode a.rollbackTo)
-               , Tuple "updatedAnnotations" (encode a.updatedAnnotations) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "name" (encodeMaybe a.name)
+               , Tuple "rollbackTo" (encodeMaybe a.rollbackTo)
+               , Tuple "updatedAnnotations" (encodeMaybe a.updatedAnnotations) ]
 
 
 instance defaultDeploymentRollback :: Default DeploymentRollback where
   default = DeploymentRollback
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , name: NullOrUndefined Nothing
-    , rollbackTo: NullOrUndefined Nothing
-    , updatedAnnotations: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , name: Nothing
+    , rollbackTo: Nothing
+    , updatedAnnotations: Nothing }
 
 -- | DeploymentSpec is the specification of the desired behavior of the Deployment.
 -- |
@@ -294,55 +293,55 @@ instance defaultDeploymentRollback :: Default DeploymentRollback where
 -- | - `strategy`: The deployment strategy to use to replace existing pods with new ones.
 -- | - `template`: Template describes the pods that will be created.
 newtype DeploymentSpec = DeploymentSpec
-  { minReadySeconds :: (NullOrUndefined Int)
-  , paused :: (NullOrUndefined Boolean)
-  , progressDeadlineSeconds :: (NullOrUndefined Int)
-  , replicas :: (NullOrUndefined Int)
-  , revisionHistoryLimit :: (NullOrUndefined Int)
-  , rollbackTo :: (NullOrUndefined RollbackConfig)
-  , selector :: (NullOrUndefined MetaV1.LabelSelector)
-  , strategy :: (NullOrUndefined DeploymentStrategy)
-  , template :: (NullOrUndefined CoreV1.PodTemplateSpec) }
+  { minReadySeconds :: (Maybe Int)
+  , paused :: (Maybe Boolean)
+  , progressDeadlineSeconds :: (Maybe Int)
+  , replicas :: (Maybe Int)
+  , revisionHistoryLimit :: (Maybe Int)
+  , rollbackTo :: (Maybe RollbackConfig)
+  , selector :: (Maybe MetaV1.LabelSelector)
+  , strategy :: (Maybe DeploymentStrategy)
+  , template :: (Maybe CoreV1.PodTemplateSpec) }
 
 derive instance newtypeDeploymentSpec :: Newtype DeploymentSpec _
 derive instance genericDeploymentSpec :: Generic DeploymentSpec _
 instance showDeploymentSpec :: Show DeploymentSpec where show a = genericShow a
 instance decodeDeploymentSpec :: Decode DeploymentSpec where
   decode a = do
-               minReadySeconds <- readProp "minReadySeconds" a >>= decode
-               paused <- readProp "paused" a >>= decode
-               progressDeadlineSeconds <- readProp "progressDeadlineSeconds" a >>= decode
-               replicas <- readProp "replicas" a >>= decode
-               revisionHistoryLimit <- readProp "revisionHistoryLimit" a >>= decode
-               rollbackTo <- readProp "rollbackTo" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               strategy <- readProp "strategy" a >>= decode
-               template <- readProp "template" a >>= decode
+               minReadySeconds <- decodeMaybe "minReadySeconds" a
+               paused <- decodeMaybe "paused" a
+               progressDeadlineSeconds <- decodeMaybe "progressDeadlineSeconds" a
+               replicas <- decodeMaybe "replicas" a
+               revisionHistoryLimit <- decodeMaybe "revisionHistoryLimit" a
+               rollbackTo <- decodeMaybe "rollbackTo" a
+               selector <- decodeMaybe "selector" a
+               strategy <- decodeMaybe "strategy" a
+               template <- decodeMaybe "template" a
                pure $ DeploymentSpec { minReadySeconds, paused, progressDeadlineSeconds, replicas, revisionHistoryLimit, rollbackTo, selector, strategy, template }
 instance encodeDeploymentSpec :: Encode DeploymentSpec where
   encode (DeploymentSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "minReadySeconds" (encode a.minReadySeconds)
-               , Tuple "paused" (encode a.paused)
-               , Tuple "progressDeadlineSeconds" (encode a.progressDeadlineSeconds)
-               , Tuple "replicas" (encode a.replicas)
-               , Tuple "revisionHistoryLimit" (encode a.revisionHistoryLimit)
-               , Tuple "rollbackTo" (encode a.rollbackTo)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "strategy" (encode a.strategy)
-               , Tuple "template" (encode a.template) ]
+               [ Tuple "minReadySeconds" (encodeMaybe a.minReadySeconds)
+               , Tuple "paused" (encodeMaybe a.paused)
+               , Tuple "progressDeadlineSeconds" (encodeMaybe a.progressDeadlineSeconds)
+               , Tuple "replicas" (encodeMaybe a.replicas)
+               , Tuple "revisionHistoryLimit" (encodeMaybe a.revisionHistoryLimit)
+               , Tuple "rollbackTo" (encodeMaybe a.rollbackTo)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "strategy" (encodeMaybe a.strategy)
+               , Tuple "template" (encodeMaybe a.template) ]
 
 
 instance defaultDeploymentSpec :: Default DeploymentSpec where
   default = DeploymentSpec
-    { minReadySeconds: NullOrUndefined Nothing
-    , paused: NullOrUndefined Nothing
-    , progressDeadlineSeconds: NullOrUndefined Nothing
-    , replicas: NullOrUndefined Nothing
-    , revisionHistoryLimit: NullOrUndefined Nothing
-    , rollbackTo: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , strategy: NullOrUndefined Nothing
-    , template: NullOrUndefined Nothing }
+    { minReadySeconds: Nothing
+    , paused: Nothing
+    , progressDeadlineSeconds: Nothing
+    , replicas: Nothing
+    , revisionHistoryLimit: Nothing
+    , rollbackTo: Nothing
+    , selector: Nothing
+    , strategy: Nothing
+    , template: Nothing }
 
 -- | DeploymentStatus is the most recently observed status of the Deployment.
 -- |
@@ -356,51 +355,51 @@ instance defaultDeploymentSpec :: Default DeploymentSpec where
 -- | - `unavailableReplicas`: Total number of unavailable pods targeted by this deployment. This is the total number of pods that are still required for the deployment to have 100% available capacity. They may either be pods that are running but not yet available or pods that still have not been created.
 -- | - `updatedReplicas`: Total number of non-terminated pods targeted by this deployment that have the desired template spec.
 newtype DeploymentStatus = DeploymentStatus
-  { availableReplicas :: (NullOrUndefined Int)
-  , collisionCount :: (NullOrUndefined Int)
-  , conditions :: (NullOrUndefined (Array DeploymentCondition))
-  , observedGeneration :: (NullOrUndefined Int)
-  , readyReplicas :: (NullOrUndefined Int)
-  , replicas :: (NullOrUndefined Int)
-  , unavailableReplicas :: (NullOrUndefined Int)
-  , updatedReplicas :: (NullOrUndefined Int) }
+  { availableReplicas :: (Maybe Int)
+  , collisionCount :: (Maybe Int)
+  , conditions :: (Maybe (Array DeploymentCondition))
+  , observedGeneration :: (Maybe Int)
+  , readyReplicas :: (Maybe Int)
+  , replicas :: (Maybe Int)
+  , unavailableReplicas :: (Maybe Int)
+  , updatedReplicas :: (Maybe Int) }
 
 derive instance newtypeDeploymentStatus :: Newtype DeploymentStatus _
 derive instance genericDeploymentStatus :: Generic DeploymentStatus _
 instance showDeploymentStatus :: Show DeploymentStatus where show a = genericShow a
 instance decodeDeploymentStatus :: Decode DeploymentStatus where
   decode a = do
-               availableReplicas <- readProp "availableReplicas" a >>= decode
-               collisionCount <- readProp "collisionCount" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
-               observedGeneration <- readProp "observedGeneration" a >>= decode
-               readyReplicas <- readProp "readyReplicas" a >>= decode
-               replicas <- readProp "replicas" a >>= decode
-               unavailableReplicas <- readProp "unavailableReplicas" a >>= decode
-               updatedReplicas <- readProp "updatedReplicas" a >>= decode
+               availableReplicas <- decodeMaybe "availableReplicas" a
+               collisionCount <- decodeMaybe "collisionCount" a
+               conditions <- decodeMaybe "conditions" a
+               observedGeneration <- decodeMaybe "observedGeneration" a
+               readyReplicas <- decodeMaybe "readyReplicas" a
+               replicas <- decodeMaybe "replicas" a
+               unavailableReplicas <- decodeMaybe "unavailableReplicas" a
+               updatedReplicas <- decodeMaybe "updatedReplicas" a
                pure $ DeploymentStatus { availableReplicas, collisionCount, conditions, observedGeneration, readyReplicas, replicas, unavailableReplicas, updatedReplicas }
 instance encodeDeploymentStatus :: Encode DeploymentStatus where
   encode (DeploymentStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "availableReplicas" (encode a.availableReplicas)
-               , Tuple "collisionCount" (encode a.collisionCount)
-               , Tuple "conditions" (encode a.conditions)
-               , Tuple "observedGeneration" (encode a.observedGeneration)
-               , Tuple "readyReplicas" (encode a.readyReplicas)
-               , Tuple "replicas" (encode a.replicas)
-               , Tuple "unavailableReplicas" (encode a.unavailableReplicas)
-               , Tuple "updatedReplicas" (encode a.updatedReplicas) ]
+               [ Tuple "availableReplicas" (encodeMaybe a.availableReplicas)
+               , Tuple "collisionCount" (encodeMaybe a.collisionCount)
+               , Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "observedGeneration" (encodeMaybe a.observedGeneration)
+               , Tuple "readyReplicas" (encodeMaybe a.readyReplicas)
+               , Tuple "replicas" (encodeMaybe a.replicas)
+               , Tuple "unavailableReplicas" (encodeMaybe a.unavailableReplicas)
+               , Tuple "updatedReplicas" (encodeMaybe a.updatedReplicas) ]
 
 
 instance defaultDeploymentStatus :: Default DeploymentStatus where
   default = DeploymentStatus
-    { availableReplicas: NullOrUndefined Nothing
-    , collisionCount: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing
-    , observedGeneration: NullOrUndefined Nothing
-    , readyReplicas: NullOrUndefined Nothing
-    , replicas: NullOrUndefined Nothing
-    , unavailableReplicas: NullOrUndefined Nothing
-    , updatedReplicas: NullOrUndefined Nothing }
+    { availableReplicas: Nothing
+    , collisionCount: Nothing
+    , conditions: Nothing
+    , observedGeneration: Nothing
+    , readyReplicas: Nothing
+    , replicas: Nothing
+    , unavailableReplicas: Nothing
+    , updatedReplicas: Nothing }
 
 -- | DeploymentStrategy describes how to replace existing pods with new ones.
 -- |
@@ -408,50 +407,50 @@ instance defaultDeploymentStatus :: Default DeploymentStatus where
 -- | - `rollingUpdate`: Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate.
 -- | - `_type`: Type of deployment. Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
 newtype DeploymentStrategy = DeploymentStrategy
-  { _type :: (NullOrUndefined String)
-  , rollingUpdate :: (NullOrUndefined RollingUpdateDeployment) }
+  { _type :: (Maybe String)
+  , rollingUpdate :: (Maybe RollingUpdateDeployment) }
 
 derive instance newtypeDeploymentStrategy :: Newtype DeploymentStrategy _
 derive instance genericDeploymentStrategy :: Generic DeploymentStrategy _
 instance showDeploymentStrategy :: Show DeploymentStrategy where show a = genericShow a
 instance decodeDeploymentStrategy :: Decode DeploymentStrategy where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               rollingUpdate <- readProp "rollingUpdate" a >>= decode
+               _type <- decodeMaybe "_type" a
+               rollingUpdate <- decodeMaybe "rollingUpdate" a
                pure $ DeploymentStrategy { _type, rollingUpdate }
 instance encodeDeploymentStrategy :: Encode DeploymentStrategy where
   encode (DeploymentStrategy a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "rollingUpdate" (encode a.rollingUpdate) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "rollingUpdate" (encodeMaybe a.rollingUpdate) ]
 
 
 instance defaultDeploymentStrategy :: Default DeploymentStrategy where
   default = DeploymentStrategy
-    { _type: NullOrUndefined Nothing
-    , rollingUpdate: NullOrUndefined Nothing }
+    { _type: Nothing
+    , rollingUpdate: Nothing }
 
 -- | DEPRECATED.
 -- |
 -- | Fields:
 -- | - `revision`: The revision to rollback to. If set to 0, rollback to the last revision.
 newtype RollbackConfig = RollbackConfig
-  { revision :: (NullOrUndefined Int) }
+  { revision :: (Maybe Int) }
 
 derive instance newtypeRollbackConfig :: Newtype RollbackConfig _
 derive instance genericRollbackConfig :: Generic RollbackConfig _
 instance showRollbackConfig :: Show RollbackConfig where show a = genericShow a
 instance decodeRollbackConfig :: Decode RollbackConfig where
   decode a = do
-               revision <- readProp "revision" a >>= decode
+               revision <- decodeMaybe "revision" a
                pure $ RollbackConfig { revision }
 instance encodeRollbackConfig :: Encode RollbackConfig where
   encode (RollbackConfig a) = encode $ StrMap.fromFoldable $
-               [ Tuple "revision" (encode a.revision) ]
+               [ Tuple "revision" (encodeMaybe a.revision) ]
 
 
 instance defaultRollbackConfig :: Default RollbackConfig where
   default = RollbackConfig
-    { revision: NullOrUndefined Nothing }
+    { revision: Nothing }
 
 -- | Spec to control the desired behavior of rolling update.
 -- |
@@ -459,50 +458,50 @@ instance defaultRollbackConfig :: Default RollbackConfig where
 -- | - `maxSurge`: The maximum number of pods that can be scheduled above the desired number of pods. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up. Defaults to 25%. Example: when this is set to 30%, the new RC can be scaled up immediately when the rolling update starts, such that the total number of old and new pods do not exceed 130% of desired pods. Once old pods have been killed, new RC can be scaled up further, ensuring that total number of pods running at any time during the update is atmost 130% of desired pods.
 -- | - `maxUnavailable`: The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). Absolute number is calculated from percentage by rounding down. This can not be 0 if MaxSurge is 0. Defaults to 25%. Example: when this is set to 30%, the old RC can be scaled down to 70% of desired pods immediately when the rolling update starts. Once new pods are ready, old RC can be scaled down further, followed by scaling up the new RC, ensuring that the total number of pods available at all times during the update is at least 70% of desired pods.
 newtype RollingUpdateDeployment = RollingUpdateDeployment
-  { maxSurge :: (NullOrUndefined Util.IntOrString)
-  , maxUnavailable :: (NullOrUndefined Util.IntOrString) }
+  { maxSurge :: (Maybe Util.IntOrString)
+  , maxUnavailable :: (Maybe Util.IntOrString) }
 
 derive instance newtypeRollingUpdateDeployment :: Newtype RollingUpdateDeployment _
 derive instance genericRollingUpdateDeployment :: Generic RollingUpdateDeployment _
 instance showRollingUpdateDeployment :: Show RollingUpdateDeployment where show a = genericShow a
 instance decodeRollingUpdateDeployment :: Decode RollingUpdateDeployment where
   decode a = do
-               maxSurge <- readProp "maxSurge" a >>= decode
-               maxUnavailable <- readProp "maxUnavailable" a >>= decode
+               maxSurge <- decodeMaybe "maxSurge" a
+               maxUnavailable <- decodeMaybe "maxUnavailable" a
                pure $ RollingUpdateDeployment { maxSurge, maxUnavailable }
 instance encodeRollingUpdateDeployment :: Encode RollingUpdateDeployment where
   encode (RollingUpdateDeployment a) = encode $ StrMap.fromFoldable $
-               [ Tuple "maxSurge" (encode a.maxSurge)
-               , Tuple "maxUnavailable" (encode a.maxUnavailable) ]
+               [ Tuple "maxSurge" (encodeMaybe a.maxSurge)
+               , Tuple "maxUnavailable" (encodeMaybe a.maxUnavailable) ]
 
 
 instance defaultRollingUpdateDeployment :: Default RollingUpdateDeployment where
   default = RollingUpdateDeployment
-    { maxSurge: NullOrUndefined Nothing
-    , maxUnavailable: NullOrUndefined Nothing }
+    { maxSurge: Nothing
+    , maxUnavailable: Nothing }
 
 -- | RollingUpdateStatefulSetStrategy is used to communicate parameter for RollingUpdateStatefulSetStrategyType.
 -- |
 -- | Fields:
 -- | - `partition`: Partition indicates the ordinal at which the StatefulSet should be partitioned.
 newtype RollingUpdateStatefulSetStrategy = RollingUpdateStatefulSetStrategy
-  { partition :: (NullOrUndefined Int) }
+  { partition :: (Maybe Int) }
 
 derive instance newtypeRollingUpdateStatefulSetStrategy :: Newtype RollingUpdateStatefulSetStrategy _
 derive instance genericRollingUpdateStatefulSetStrategy :: Generic RollingUpdateStatefulSetStrategy _
 instance showRollingUpdateStatefulSetStrategy :: Show RollingUpdateStatefulSetStrategy where show a = genericShow a
 instance decodeRollingUpdateStatefulSetStrategy :: Decode RollingUpdateStatefulSetStrategy where
   decode a = do
-               partition <- readProp "partition" a >>= decode
+               partition <- decodeMaybe "partition" a
                pure $ RollingUpdateStatefulSetStrategy { partition }
 instance encodeRollingUpdateStatefulSetStrategy :: Encode RollingUpdateStatefulSetStrategy where
   encode (RollingUpdateStatefulSetStrategy a) = encode $ StrMap.fromFoldable $
-               [ Tuple "partition" (encode a.partition) ]
+               [ Tuple "partition" (encodeMaybe a.partition) ]
 
 
 instance defaultRollingUpdateStatefulSetStrategy :: Default RollingUpdateStatefulSetStrategy where
   default = RollingUpdateStatefulSetStrategy
-    { partition: NullOrUndefined Nothing }
+    { partition: Nothing }
 
 -- | Scale represents a scaling request for a resource.
 -- |
@@ -513,62 +512,62 @@ instance defaultRollingUpdateStatefulSetStrategy :: Default RollingUpdateStatefu
 -- | - `spec`: defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status.
 -- | - `status`: current status of the scale. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status. Read-only.
 newtype Scale = Scale
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined ScaleSpec)
-  , status :: (NullOrUndefined ScaleStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe ScaleSpec)
+  , status :: (Maybe ScaleStatus) }
 
 derive instance newtypeScale :: Newtype Scale _
 derive instance genericScale :: Generic Scale _
 instance showScale :: Show Scale where show a = genericShow a
 instance decodeScale :: Decode Scale where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ Scale { apiVersion, kind, metadata, spec, status }
 instance encodeScale :: Encode Scale where
   encode (Scale a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultScale :: Default Scale where
   default = Scale
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | ScaleSpec describes the attributes of a scale subresource
 -- |
 -- | Fields:
 -- | - `replicas`: desired number of instances for the scaled object.
 newtype ScaleSpec = ScaleSpec
-  { replicas :: (NullOrUndefined Int) }
+  { replicas :: (Maybe Int) }
 
 derive instance newtypeScaleSpec :: Newtype ScaleSpec _
 derive instance genericScaleSpec :: Generic ScaleSpec _
 instance showScaleSpec :: Show ScaleSpec where show a = genericShow a
 instance decodeScaleSpec :: Decode ScaleSpec where
   decode a = do
-               replicas <- readProp "replicas" a >>= decode
+               replicas <- decodeMaybe "replicas" a
                pure $ ScaleSpec { replicas }
 instance encodeScaleSpec :: Encode ScaleSpec where
   encode (ScaleSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "replicas" (encode a.replicas) ]
+               [ Tuple "replicas" (encodeMaybe a.replicas) ]
 
 
 instance defaultScaleSpec :: Default ScaleSpec where
   default = ScaleSpec
-    { replicas: NullOrUndefined Nothing }
+    { replicas: Nothing }
 
 -- | ScaleStatus represents the current status of a scale subresource.
 -- |
@@ -577,31 +576,31 @@ instance defaultScaleSpec :: Default ScaleSpec where
 -- | - `selector`: label query over pods that should match the replicas count. More info: http://kubernetes.io/docs/user-guide/labels#label-selectors
 -- | - `targetSelector`: label selector for pods that should match the replicas count. This is a serializated version of both map-based and more expressive set-based selectors. This is done to avoid introspection in the clients. The string will be in the same format as the query-param syntax. If the target type only supports map-based selectors, both this field and map-based selector field are populated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 newtype ScaleStatus = ScaleStatus
-  { replicas :: (NullOrUndefined Int)
-  , selector :: (NullOrUndefined (StrMap String))
-  , targetSelector :: (NullOrUndefined String) }
+  { replicas :: (Maybe Int)
+  , selector :: (Maybe (StrMap String))
+  , targetSelector :: (Maybe String) }
 
 derive instance newtypeScaleStatus :: Newtype ScaleStatus _
 derive instance genericScaleStatus :: Generic ScaleStatus _
 instance showScaleStatus :: Show ScaleStatus where show a = genericShow a
 instance decodeScaleStatus :: Decode ScaleStatus where
   decode a = do
-               replicas <- readProp "replicas" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               targetSelector <- readProp "targetSelector" a >>= decode
+               replicas <- decodeMaybe "replicas" a
+               selector <- decodeMaybe "selector" a
+               targetSelector <- decodeMaybe "targetSelector" a
                pure $ ScaleStatus { replicas, selector, targetSelector }
 instance encodeScaleStatus :: Encode ScaleStatus where
   encode (ScaleStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "replicas" (encode a.replicas)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "targetSelector" (encode a.targetSelector) ]
+               [ Tuple "replicas" (encodeMaybe a.replicas)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "targetSelector" (encodeMaybe a.targetSelector) ]
 
 
 instance defaultScaleStatus :: Default ScaleStatus where
   default = ScaleStatus
-    { replicas: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , targetSelector: NullOrUndefined Nothing }
+    { replicas: Nothing
+    , selector: Nothing
+    , targetSelector: Nothing }
 
 -- | DEPRECATED - This group version of StatefulSet is deprecated by apps/v1beta2/StatefulSet. See the release notes for more information. StatefulSet represents a set of pods with consistent identities. Identities are defined as:
 -- |  - Network: A single stable DNS and hostname.
@@ -615,39 +614,39 @@ instance defaultScaleStatus :: Default ScaleStatus where
 -- | - `spec`: Spec defines the desired identities of pods in this set.
 -- | - `status`: Status is the current status of Pods in this StatefulSet. This data may be out of date by some window of time.
 newtype StatefulSet = StatefulSet
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined StatefulSetSpec)
-  , status :: (NullOrUndefined StatefulSetStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe StatefulSetSpec)
+  , status :: (Maybe StatefulSetStatus) }
 
 derive instance newtypeStatefulSet :: Newtype StatefulSet _
 derive instance genericStatefulSet :: Generic StatefulSet _
 instance showStatefulSet :: Show StatefulSet where show a = genericShow a
 instance decodeStatefulSet :: Decode StatefulSet where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ StatefulSet { apiVersion, kind, metadata, spec, status }
 instance encodeStatefulSet :: Encode StatefulSet where
   encode (StatefulSet a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultStatefulSet :: Default StatefulSet where
   default = StatefulSet
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | StatefulSetCondition describes the state of a statefulset at a certain point.
 -- |
@@ -658,39 +657,39 @@ instance defaultStatefulSet :: Default StatefulSet where
 -- | - `status`: Status of the condition, one of True, False, Unknown.
 -- | - `_type`: Type of statefulset condition.
 newtype StatefulSetCondition = StatefulSetCondition
-  { _type :: (NullOrUndefined String)
-  , lastTransitionTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , status :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastTransitionTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String)
+  , status :: (Maybe String) }
 
 derive instance newtypeStatefulSetCondition :: Newtype StatefulSetCondition _
 derive instance genericStatefulSetCondition :: Generic StatefulSetCondition _
 instance showStatefulSetCondition :: Show StatefulSetCondition where show a = genericShow a
 instance decodeStatefulSetCondition :: Decode StatefulSetCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastTransitionTime <- readProp "lastTransitionTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               status <- readProp "status" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastTransitionTime <- decodeMaybe "lastTransitionTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
+               status <- decodeMaybe "status" a
                pure $ StatefulSetCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeStatefulSetCondition :: Encode StatefulSetCondition where
   encode (StatefulSetCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastTransitionTime" (encode a.lastTransitionTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultStatefulSetCondition :: Default StatefulSetCondition where
   default = StatefulSetCondition
-    { _type: NullOrUndefined Nothing
-    , lastTransitionTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastTransitionTime: Nothing
+    , message: Nothing
+    , reason: Nothing
+    , status: Nothing }
 
 -- | StatefulSetList is a collection of StatefulSets.
 -- |
@@ -700,35 +699,35 @@ instance defaultStatefulSetCondition :: Default StatefulSetCondition where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 newtype StatefulSetList = StatefulSetList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array StatefulSet))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array StatefulSet))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeStatefulSetList :: Newtype StatefulSetList _
 derive instance genericStatefulSetList :: Generic StatefulSetList _
 instance showStatefulSetList :: Show StatefulSetList where show a = genericShow a
 instance decodeStatefulSetList :: Decode StatefulSetList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ StatefulSetList { apiVersion, items, kind, metadata }
 instance encodeStatefulSetList :: Encode StatefulSetList where
   encode (StatefulSetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultStatefulSetList :: Default StatefulSetList where
   default = StatefulSetList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | A StatefulSetSpec is the specification of a StatefulSet.
 -- |
@@ -742,51 +741,51 @@ instance defaultStatefulSetList :: Default StatefulSetList where
 -- | - `updateStrategy`: updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.
 -- | - `volumeClaimTemplates`: volumeClaimTemplates is a list of claims that pods are allowed to reference. The StatefulSet controller is responsible for mapping network identities to claims in a way that maintains the identity of a pod. Every claim in this list must have at least one matching (by name) volumeMount in one container in the template. A claim in this list takes precedence over any volumes in the template, with the same name.
 newtype StatefulSetSpec = StatefulSetSpec
-  { podManagementPolicy :: (NullOrUndefined String)
-  , replicas :: (NullOrUndefined Int)
-  , revisionHistoryLimit :: (NullOrUndefined Int)
-  , selector :: (NullOrUndefined MetaV1.LabelSelector)
-  , serviceName :: (NullOrUndefined String)
-  , template :: (NullOrUndefined CoreV1.PodTemplateSpec)
-  , updateStrategy :: (NullOrUndefined StatefulSetUpdateStrategy)
-  , volumeClaimTemplates :: (NullOrUndefined (Array CoreV1.PersistentVolumeClaim)) }
+  { podManagementPolicy :: (Maybe String)
+  , replicas :: (Maybe Int)
+  , revisionHistoryLimit :: (Maybe Int)
+  , selector :: (Maybe MetaV1.LabelSelector)
+  , serviceName :: (Maybe String)
+  , template :: (Maybe CoreV1.PodTemplateSpec)
+  , updateStrategy :: (Maybe StatefulSetUpdateStrategy)
+  , volumeClaimTemplates :: (Maybe (Array CoreV1.PersistentVolumeClaim)) }
 
 derive instance newtypeStatefulSetSpec :: Newtype StatefulSetSpec _
 derive instance genericStatefulSetSpec :: Generic StatefulSetSpec _
 instance showStatefulSetSpec :: Show StatefulSetSpec where show a = genericShow a
 instance decodeStatefulSetSpec :: Decode StatefulSetSpec where
   decode a = do
-               podManagementPolicy <- readProp "podManagementPolicy" a >>= decode
-               replicas <- readProp "replicas" a >>= decode
-               revisionHistoryLimit <- readProp "revisionHistoryLimit" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               serviceName <- readProp "serviceName" a >>= decode
-               template <- readProp "template" a >>= decode
-               updateStrategy <- readProp "updateStrategy" a >>= decode
-               volumeClaimTemplates <- readProp "volumeClaimTemplates" a >>= decode
+               podManagementPolicy <- decodeMaybe "podManagementPolicy" a
+               replicas <- decodeMaybe "replicas" a
+               revisionHistoryLimit <- decodeMaybe "revisionHistoryLimit" a
+               selector <- decodeMaybe "selector" a
+               serviceName <- decodeMaybe "serviceName" a
+               template <- decodeMaybe "template" a
+               updateStrategy <- decodeMaybe "updateStrategy" a
+               volumeClaimTemplates <- decodeMaybe "volumeClaimTemplates" a
                pure $ StatefulSetSpec { podManagementPolicy, replicas, revisionHistoryLimit, selector, serviceName, template, updateStrategy, volumeClaimTemplates }
 instance encodeStatefulSetSpec :: Encode StatefulSetSpec where
   encode (StatefulSetSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "podManagementPolicy" (encode a.podManagementPolicy)
-               , Tuple "replicas" (encode a.replicas)
-               , Tuple "revisionHistoryLimit" (encode a.revisionHistoryLimit)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "serviceName" (encode a.serviceName)
-               , Tuple "template" (encode a.template)
-               , Tuple "updateStrategy" (encode a.updateStrategy)
-               , Tuple "volumeClaimTemplates" (encode a.volumeClaimTemplates) ]
+               [ Tuple "podManagementPolicy" (encodeMaybe a.podManagementPolicy)
+               , Tuple "replicas" (encodeMaybe a.replicas)
+               , Tuple "revisionHistoryLimit" (encodeMaybe a.revisionHistoryLimit)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "serviceName" (encodeMaybe a.serviceName)
+               , Tuple "template" (encodeMaybe a.template)
+               , Tuple "updateStrategy" (encodeMaybe a.updateStrategy)
+               , Tuple "volumeClaimTemplates" (encodeMaybe a.volumeClaimTemplates) ]
 
 
 instance defaultStatefulSetSpec :: Default StatefulSetSpec where
   default = StatefulSetSpec
-    { podManagementPolicy: NullOrUndefined Nothing
-    , replicas: NullOrUndefined Nothing
-    , revisionHistoryLimit: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , serviceName: NullOrUndefined Nothing
-    , template: NullOrUndefined Nothing
-    , updateStrategy: NullOrUndefined Nothing
-    , volumeClaimTemplates: NullOrUndefined Nothing }
+    { podManagementPolicy: Nothing
+    , replicas: Nothing
+    , revisionHistoryLimit: Nothing
+    , selector: Nothing
+    , serviceName: Nothing
+    , template: Nothing
+    , updateStrategy: Nothing
+    , volumeClaimTemplates: Nothing }
 
 -- | StatefulSetStatus represents the current state of a StatefulSet.
 -- |
@@ -801,55 +800,55 @@ instance defaultStatefulSetSpec :: Default StatefulSetSpec where
 -- | - `updateRevision`: updateRevision, if not empty, indicates the version of the StatefulSet used to generate Pods in the sequence [replicas-updatedReplicas,replicas)
 -- | - `updatedReplicas`: updatedReplicas is the number of Pods created by the StatefulSet controller from the StatefulSet version indicated by updateRevision.
 newtype StatefulSetStatus = StatefulSetStatus
-  { collisionCount :: (NullOrUndefined Int)
-  , conditions :: (NullOrUndefined (Array StatefulSetCondition))
-  , currentReplicas :: (NullOrUndefined Int)
-  , currentRevision :: (NullOrUndefined String)
-  , observedGeneration :: (NullOrUndefined Int)
-  , readyReplicas :: (NullOrUndefined Int)
-  , replicas :: (NullOrUndefined Int)
-  , updateRevision :: (NullOrUndefined String)
-  , updatedReplicas :: (NullOrUndefined Int) }
+  { collisionCount :: (Maybe Int)
+  , conditions :: (Maybe (Array StatefulSetCondition))
+  , currentReplicas :: (Maybe Int)
+  , currentRevision :: (Maybe String)
+  , observedGeneration :: (Maybe Int)
+  , readyReplicas :: (Maybe Int)
+  , replicas :: (Maybe Int)
+  , updateRevision :: (Maybe String)
+  , updatedReplicas :: (Maybe Int) }
 
 derive instance newtypeStatefulSetStatus :: Newtype StatefulSetStatus _
 derive instance genericStatefulSetStatus :: Generic StatefulSetStatus _
 instance showStatefulSetStatus :: Show StatefulSetStatus where show a = genericShow a
 instance decodeStatefulSetStatus :: Decode StatefulSetStatus where
   decode a = do
-               collisionCount <- readProp "collisionCount" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
-               currentReplicas <- readProp "currentReplicas" a >>= decode
-               currentRevision <- readProp "currentRevision" a >>= decode
-               observedGeneration <- readProp "observedGeneration" a >>= decode
-               readyReplicas <- readProp "readyReplicas" a >>= decode
-               replicas <- readProp "replicas" a >>= decode
-               updateRevision <- readProp "updateRevision" a >>= decode
-               updatedReplicas <- readProp "updatedReplicas" a >>= decode
+               collisionCount <- decodeMaybe "collisionCount" a
+               conditions <- decodeMaybe "conditions" a
+               currentReplicas <- decodeMaybe "currentReplicas" a
+               currentRevision <- decodeMaybe "currentRevision" a
+               observedGeneration <- decodeMaybe "observedGeneration" a
+               readyReplicas <- decodeMaybe "readyReplicas" a
+               replicas <- decodeMaybe "replicas" a
+               updateRevision <- decodeMaybe "updateRevision" a
+               updatedReplicas <- decodeMaybe "updatedReplicas" a
                pure $ StatefulSetStatus { collisionCount, conditions, currentReplicas, currentRevision, observedGeneration, readyReplicas, replicas, updateRevision, updatedReplicas }
 instance encodeStatefulSetStatus :: Encode StatefulSetStatus where
   encode (StatefulSetStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "collisionCount" (encode a.collisionCount)
-               , Tuple "conditions" (encode a.conditions)
-               , Tuple "currentReplicas" (encode a.currentReplicas)
-               , Tuple "currentRevision" (encode a.currentRevision)
-               , Tuple "observedGeneration" (encode a.observedGeneration)
-               , Tuple "readyReplicas" (encode a.readyReplicas)
-               , Tuple "replicas" (encode a.replicas)
-               , Tuple "updateRevision" (encode a.updateRevision)
-               , Tuple "updatedReplicas" (encode a.updatedReplicas) ]
+               [ Tuple "collisionCount" (encodeMaybe a.collisionCount)
+               , Tuple "conditions" (encodeMaybe a.conditions)
+               , Tuple "currentReplicas" (encodeMaybe a.currentReplicas)
+               , Tuple "currentRevision" (encodeMaybe a.currentRevision)
+               , Tuple "observedGeneration" (encodeMaybe a.observedGeneration)
+               , Tuple "readyReplicas" (encodeMaybe a.readyReplicas)
+               , Tuple "replicas" (encodeMaybe a.replicas)
+               , Tuple "updateRevision" (encodeMaybe a.updateRevision)
+               , Tuple "updatedReplicas" (encodeMaybe a.updatedReplicas) ]
 
 
 instance defaultStatefulSetStatus :: Default StatefulSetStatus where
   default = StatefulSetStatus
-    { collisionCount: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing
-    , currentReplicas: NullOrUndefined Nothing
-    , currentRevision: NullOrUndefined Nothing
-    , observedGeneration: NullOrUndefined Nothing
-    , readyReplicas: NullOrUndefined Nothing
-    , replicas: NullOrUndefined Nothing
-    , updateRevision: NullOrUndefined Nothing
-    , updatedReplicas: NullOrUndefined Nothing }
+    { collisionCount: Nothing
+    , conditions: Nothing
+    , currentReplicas: Nothing
+    , currentRevision: Nothing
+    , observedGeneration: Nothing
+    , readyReplicas: Nothing
+    , replicas: Nothing
+    , updateRevision: Nothing
+    , updatedReplicas: Nothing }
 
 -- | StatefulSetUpdateStrategy indicates the strategy that the StatefulSet controller will use to perform updates. It includes any additional parameters necessary to perform the update for the indicated strategy.
 -- |
@@ -857,27 +856,27 @@ instance defaultStatefulSetStatus :: Default StatefulSetStatus where
 -- | - `rollingUpdate`: RollingUpdate is used to communicate parameters when Type is RollingUpdateStatefulSetStrategyType.
 -- | - `_type`: Type indicates the type of the StatefulSetUpdateStrategy.
 newtype StatefulSetUpdateStrategy = StatefulSetUpdateStrategy
-  { _type :: (NullOrUndefined String)
-  , rollingUpdate :: (NullOrUndefined RollingUpdateStatefulSetStrategy) }
+  { _type :: (Maybe String)
+  , rollingUpdate :: (Maybe RollingUpdateStatefulSetStrategy) }
 
 derive instance newtypeStatefulSetUpdateStrategy :: Newtype StatefulSetUpdateStrategy _
 derive instance genericStatefulSetUpdateStrategy :: Generic StatefulSetUpdateStrategy _
 instance showStatefulSetUpdateStrategy :: Show StatefulSetUpdateStrategy where show a = genericShow a
 instance decodeStatefulSetUpdateStrategy :: Decode StatefulSetUpdateStrategy where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               rollingUpdate <- readProp "rollingUpdate" a >>= decode
+               _type <- decodeMaybe "_type" a
+               rollingUpdate <- decodeMaybe "rollingUpdate" a
                pure $ StatefulSetUpdateStrategy { _type, rollingUpdate }
 instance encodeStatefulSetUpdateStrategy :: Encode StatefulSetUpdateStrategy where
   encode (StatefulSetUpdateStrategy a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "rollingUpdate" (encode a.rollingUpdate) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "rollingUpdate" (encodeMaybe a.rollingUpdate) ]
 
 
 instance defaultStatefulSetUpdateStrategy :: Default StatefulSetUpdateStrategy where
   default = StatefulSetUpdateStrategy
-    { _type: NullOrUndefined Nothing
-    , rollingUpdate: NullOrUndefined Nothing }
+    { _type: Nothing
+    , rollingUpdate: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

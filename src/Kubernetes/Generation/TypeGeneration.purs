@@ -123,7 +123,6 @@ sharedImports moduleNs moduleName deps =
   , "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
   , "Data.Foreign.Generic.Types (Options)"
   , "Data.Foreign.Index (readProp)"
-  , "Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))"
   , "Data.Generic.Rep (class Generic)"
   , "Data.Generic.Rep.Show (genericShow)"
   , "Data.Maybe (Maybe(Just,Nothing))"
@@ -132,7 +131,7 @@ sharedImports moduleNs moduleName deps =
   , "Data.StrMap as StrMap"
   , "Data.Tuple (Tuple(Tuple))"
   , "Kubernetes.Default (class Default)"
-  , "Kubernetes.Json (jsonOptions)" ] <> depImports
+  , "Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
   where
     depImports = mkImport <$> deps
     moduleAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable

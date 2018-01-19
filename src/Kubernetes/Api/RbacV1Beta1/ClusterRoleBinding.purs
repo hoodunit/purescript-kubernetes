@@ -6,7 +6,6 @@ import Data.Either (Either(Left,Right))
 import Data.Foreign.Class (class Decode, class Encode, encode, decode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -18,7 +17,7 @@ import Node.HTTP (HTTP)
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.RbacV1Beta1 as RbacV1Beta1
 
@@ -34,31 +33,31 @@ createClusterRoleBinding cfg body = makeRequest (post cfg url (Just encodedBody)
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 newtype DeleteClusterRoleBindingOptions = DeleteClusterRoleBindingOptions
-  { gracePeriodSeconds :: (NullOrUndefined Int)
-  , orphanDependents :: (NullOrUndefined Boolean)
-  , propagationPolicy :: (NullOrUndefined String) }
+  { gracePeriodSeconds :: (Maybe Int)
+  , orphanDependents :: (Maybe Boolean)
+  , propagationPolicy :: (Maybe String) }
 
 derive instance newtypeDeleteClusterRoleBindingOptions :: Newtype DeleteClusterRoleBindingOptions _
 derive instance genericDeleteClusterRoleBindingOptions :: Generic DeleteClusterRoleBindingOptions _
 instance showDeleteClusterRoleBindingOptions :: Show DeleteClusterRoleBindingOptions where show a = genericShow a
 instance decodeDeleteClusterRoleBindingOptions :: Decode DeleteClusterRoleBindingOptions where
   decode a = do
-               gracePeriodSeconds <- readProp "gracePeriodSeconds" a >>= decode
-               orphanDependents <- readProp "orphanDependents" a >>= decode
-               propagationPolicy <- readProp "propagationPolicy" a >>= decode
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteClusterRoleBindingOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteClusterRoleBindingOptions :: Encode DeleteClusterRoleBindingOptions where
   encode (DeleteClusterRoleBindingOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "gracePeriodSeconds" (encode a.gracePeriodSeconds)
-               , Tuple "orphanDependents" (encode a.orphanDependents)
-               , Tuple "propagationPolicy" (encode a.propagationPolicy) ]
+               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
 instance defaultDeleteClusterRoleBindingOptions :: Default DeleteClusterRoleBindingOptions where
   default = DeleteClusterRoleBindingOptions
-    { gracePeriodSeconds: NullOrUndefined Nothing
-    , orphanDependents: NullOrUndefined Nothing
-    , propagationPolicy: NullOrUndefined Nothing }
+    { gracePeriodSeconds: Nothing
+    , orphanDependents: Nothing
+    , propagationPolicy: Nothing }
 
 -- | delete a ClusterRoleBinding
 deleteClusterRoleBinding :: forall e. Config -> MetaV1.DeleteOptions -> DeleteClusterRoleBindingOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -79,51 +78,51 @@ deleteClusterRoleBinding cfg body options = makeRequest (delete cfg url (Just en
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype DeleteCollectionClusterRoleBindingOptions = DeleteCollectionClusterRoleBindingOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeDeleteCollectionClusterRoleBindingOptions :: Newtype DeleteCollectionClusterRoleBindingOptions _
 derive instance genericDeleteCollectionClusterRoleBindingOptions :: Generic DeleteCollectionClusterRoleBindingOptions _
 instance showDeleteCollectionClusterRoleBindingOptions :: Show DeleteCollectionClusterRoleBindingOptions where show a = genericShow a
 instance decodeDeleteCollectionClusterRoleBindingOptions :: Decode DeleteCollectionClusterRoleBindingOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionClusterRoleBindingOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionClusterRoleBindingOptions :: Encode DeleteCollectionClusterRoleBindingOptions where
   encode (DeleteCollectionClusterRoleBindingOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultDeleteCollectionClusterRoleBindingOptions :: Default DeleteCollectionClusterRoleBindingOptions where
   default = DeleteCollectionClusterRoleBindingOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | delete collection of ClusterRoleBinding
 deleteCollectionClusterRoleBinding :: forall e. Config -> DeleteCollectionClusterRoleBindingOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
@@ -143,51 +142,51 @@ deleteCollectionClusterRoleBinding cfg options = makeRequest (delete cfg url Not
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
 newtype ListClusterRoleBindingOptions = ListClusterRoleBindingOptions
-  { continue :: (NullOrUndefined String)
-  , fieldSelector :: (NullOrUndefined String)
-  , includeUninitialized :: (NullOrUndefined Boolean)
-  , labelSelector :: (NullOrUndefined String)
-  , limit :: (NullOrUndefined Int)
-  , resourceVersion :: (NullOrUndefined String)
-  , timeoutSeconds :: (NullOrUndefined Int)
-  , watch :: (NullOrUndefined Boolean) }
+  { continue :: (Maybe String)
+  , fieldSelector :: (Maybe String)
+  , includeUninitialized :: (Maybe Boolean)
+  , labelSelector :: (Maybe String)
+  , limit :: (Maybe Int)
+  , resourceVersion :: (Maybe String)
+  , timeoutSeconds :: (Maybe Int)
+  , watch :: (Maybe Boolean) }
 
 derive instance newtypeListClusterRoleBindingOptions :: Newtype ListClusterRoleBindingOptions _
 derive instance genericListClusterRoleBindingOptions :: Generic ListClusterRoleBindingOptions _
 instance showListClusterRoleBindingOptions :: Show ListClusterRoleBindingOptions where show a = genericShow a
 instance decodeListClusterRoleBindingOptions :: Decode ListClusterRoleBindingOptions where
   decode a = do
-               continue <- readProp "continue" a >>= decode
-               fieldSelector <- readProp "fieldSelector" a >>= decode
-               includeUninitialized <- readProp "includeUninitialized" a >>= decode
-               labelSelector <- readProp "labelSelector" a >>= decode
-               limit <- readProp "limit" a >>= decode
-               resourceVersion <- readProp "resourceVersion" a >>= decode
-               timeoutSeconds <- readProp "timeoutSeconds" a >>= decode
-               watch <- readProp "watch" a >>= decode
+               continue <- decodeMaybe "continue" a
+               fieldSelector <- decodeMaybe "fieldSelector" a
+               includeUninitialized <- decodeMaybe "includeUninitialized" a
+               labelSelector <- decodeMaybe "labelSelector" a
+               limit <- decodeMaybe "limit" a
+               resourceVersion <- decodeMaybe "resourceVersion" a
+               timeoutSeconds <- decodeMaybe "timeoutSeconds" a
+               watch <- decodeMaybe "watch" a
                pure $ ListClusterRoleBindingOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListClusterRoleBindingOptions :: Encode ListClusterRoleBindingOptions where
   encode (ListClusterRoleBindingOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "continue" (encode a.continue)
-               , Tuple "fieldSelector" (encode a.fieldSelector)
-               , Tuple "includeUninitialized" (encode a.includeUninitialized)
-               , Tuple "labelSelector" (encode a.labelSelector)
-               , Tuple "limit" (encode a.limit)
-               , Tuple "resourceVersion" (encode a.resourceVersion)
-               , Tuple "timeoutSeconds" (encode a.timeoutSeconds)
-               , Tuple "watch" (encode a.watch) ]
+               [ Tuple "continue" (encodeMaybe a.continue)
+               , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
+               , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
+               , Tuple "labelSelector" (encodeMaybe a.labelSelector)
+               , Tuple "limit" (encodeMaybe a.limit)
+               , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
+               , Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds)
+               , Tuple "watch" (encodeMaybe a.watch) ]
 
 
 instance defaultListClusterRoleBindingOptions :: Default ListClusterRoleBindingOptions where
   default = ListClusterRoleBindingOptions
-    { continue: NullOrUndefined Nothing
-    , fieldSelector: NullOrUndefined Nothing
-    , includeUninitialized: NullOrUndefined Nothing
-    , labelSelector: NullOrUndefined Nothing
-    , limit: NullOrUndefined Nothing
-    , resourceVersion: NullOrUndefined Nothing
-    , timeoutSeconds: NullOrUndefined Nothing
-    , watch: NullOrUndefined Nothing }
+    { continue: Nothing
+    , fieldSelector: Nothing
+    , includeUninitialized: Nothing
+    , labelSelector: Nothing
+    , limit: Nothing
+    , resourceVersion: Nothing
+    , timeoutSeconds: Nothing
+    , watch: Nothing }
 
 -- | list or watch objects of kind ClusterRoleBinding
 listClusterRoleBinding :: forall e. Config -> ListClusterRoleBindingOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRoleBindingList)

@@ -127,7 +127,6 @@ mkModule moduleNs moduleName decls =
     , "Data.Foreign.Class (class Decode, class Encode, encode, decode)"
     , "Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
     , "Data.Foreign.Index (readProp)"
-    , "Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))"
     , "Data.Generic.Rep (class Generic)"
     , "Data.Generic.Rep.Show (genericShow)"
     , "Data.Maybe (Maybe(Just,Nothing))"
@@ -139,7 +138,7 @@ mkModule moduleNs moduleName decls =
     , "Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)"
     , "Kubernetes.Config (Config)"
     , "Kubernetes.Default (class Default)"
-    , "Kubernetes.Json (jsonOptions)" ] <> depImports
+    , "Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
   , declarations: (mapDeclRefs fixRefName) <$> decls }
   where
     depImports = decls >>= declRefs

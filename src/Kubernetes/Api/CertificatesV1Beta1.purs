@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -21,7 +20,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -34,39 +33,39 @@ import Prelude
 -- | - `spec`: The certificate request itself and any additional information.
 -- | - `status`: Derived information about the request.
 newtype CertificateSigningRequest = CertificateSigningRequest
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined CertificateSigningRequestSpec)
-  , status :: (NullOrUndefined CertificateSigningRequestStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe CertificateSigningRequestSpec)
+  , status :: (Maybe CertificateSigningRequestStatus) }
 
 derive instance newtypeCertificateSigningRequest :: Newtype CertificateSigningRequest _
 derive instance genericCertificateSigningRequest :: Generic CertificateSigningRequest _
 instance showCertificateSigningRequest :: Show CertificateSigningRequest where show a = genericShow a
 instance decodeCertificateSigningRequest :: Decode CertificateSigningRequest where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ CertificateSigningRequest { apiVersion, kind, metadata, spec, status }
 instance encodeCertificateSigningRequest :: Encode CertificateSigningRequest where
   encode (CertificateSigningRequest a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultCertificateSigningRequest :: Default CertificateSigningRequest where
   default = CertificateSigningRequest
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | Fields:
 -- | - `lastUpdateTime`: timestamp for the last update to this condition
@@ -74,35 +73,35 @@ instance defaultCertificateSigningRequest :: Default CertificateSigningRequest w
 -- | - `reason`: brief reason for the request state
 -- | - `_type`: request approval state, currently Approved or Denied.
 newtype CertificateSigningRequestCondition = CertificateSigningRequestCondition
-  { _type :: (NullOrUndefined String)
-  , lastUpdateTime :: (NullOrUndefined MetaV1.Time)
-  , message :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String) }
+  { _type :: (Maybe String)
+  , lastUpdateTime :: (Maybe MetaV1.Time)
+  , message :: (Maybe String)
+  , reason :: (Maybe String) }
 
 derive instance newtypeCertificateSigningRequestCondition :: Newtype CertificateSigningRequestCondition _
 derive instance genericCertificateSigningRequestCondition :: Generic CertificateSigningRequestCondition _
 instance showCertificateSigningRequestCondition :: Show CertificateSigningRequestCondition where show a = genericShow a
 instance decodeCertificateSigningRequestCondition :: Decode CertificateSigningRequestCondition where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               lastUpdateTime <- readProp "lastUpdateTime" a >>= decode
-               message <- readProp "message" a >>= decode
-               reason <- readProp "reason" a >>= decode
+               _type <- decodeMaybe "_type" a
+               lastUpdateTime <- decodeMaybe "lastUpdateTime" a
+               message <- decodeMaybe "message" a
+               reason <- decodeMaybe "reason" a
                pure $ CertificateSigningRequestCondition { _type, lastUpdateTime, message, reason }
 instance encodeCertificateSigningRequestCondition :: Encode CertificateSigningRequestCondition where
   encode (CertificateSigningRequestCondition a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "lastUpdateTime" (encode a.lastUpdateTime)
-               , Tuple "message" (encode a.message)
-               , Tuple "reason" (encode a.reason) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "lastUpdateTime" (encodeMaybe a.lastUpdateTime)
+               , Tuple "message" (encodeMaybe a.message)
+               , Tuple "reason" (encodeMaybe a.reason) ]
 
 
 instance defaultCertificateSigningRequestCondition :: Default CertificateSigningRequestCondition where
   default = CertificateSigningRequestCondition
-    { _type: NullOrUndefined Nothing
-    , lastUpdateTime: NullOrUndefined Nothing
-    , message: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing }
+    { _type: Nothing
+    , lastUpdateTime: Nothing
+    , message: Nothing
+    , reason: Nothing }
 
 -- | Fields:
 -- | - `apiVersion`: APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
@@ -110,35 +109,35 @@ instance defaultCertificateSigningRequestCondition :: Default CertificateSigning
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`
 newtype CertificateSigningRequestList = CertificateSigningRequestList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array CertificateSigningRequest))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array CertificateSigningRequest))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeCertificateSigningRequestList :: Newtype CertificateSigningRequestList _
 derive instance genericCertificateSigningRequestList :: Generic CertificateSigningRequestList _
 instance showCertificateSigningRequestList :: Show CertificateSigningRequestList where show a = genericShow a
 instance decodeCertificateSigningRequestList :: Decode CertificateSigningRequestList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ CertificateSigningRequestList { apiVersion, items, kind, metadata }
 instance encodeCertificateSigningRequestList :: Encode CertificateSigningRequestList where
   encode (CertificateSigningRequestList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultCertificateSigningRequestList :: Default CertificateSigningRequestList where
   default = CertificateSigningRequestList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | This information is immutable after the request is created. Only the Request and Usages fields can be set on creation, other fields are derived by Kubernetes and cannot be modified by users.
 -- |
@@ -151,69 +150,69 @@ instance defaultCertificateSigningRequestList :: Default CertificateSigningReque
 -- |         https://tools.ietf.org/html/rfc5280#section-4.2.1.12
 -- | - `username`: Information about the requesting user. See user.Info interface for details.
 newtype CertificateSigningRequestSpec = CertificateSigningRequestSpec
-  { extra :: (NullOrUndefined (StrMap (Array String)))
-  , groups :: (NullOrUndefined (Array String))
-  , request :: (NullOrUndefined String)
-  , uid :: (NullOrUndefined String)
-  , usages :: (NullOrUndefined (Array String))
-  , username :: (NullOrUndefined String) }
+  { extra :: (Maybe (StrMap (Array String)))
+  , groups :: (Maybe (Array String))
+  , request :: (Maybe String)
+  , uid :: (Maybe String)
+  , usages :: (Maybe (Array String))
+  , username :: (Maybe String) }
 
 derive instance newtypeCertificateSigningRequestSpec :: Newtype CertificateSigningRequestSpec _
 derive instance genericCertificateSigningRequestSpec :: Generic CertificateSigningRequestSpec _
 instance showCertificateSigningRequestSpec :: Show CertificateSigningRequestSpec where show a = genericShow a
 instance decodeCertificateSigningRequestSpec :: Decode CertificateSigningRequestSpec where
   decode a = do
-               extra <- readProp "extra" a >>= decode
-               groups <- readProp "groups" a >>= decode
-               request <- readProp "request" a >>= decode
-               uid <- readProp "uid" a >>= decode
-               usages <- readProp "usages" a >>= decode
-               username <- readProp "username" a >>= decode
+               extra <- decodeMaybe "extra" a
+               groups <- decodeMaybe "groups" a
+               request <- decodeMaybe "request" a
+               uid <- decodeMaybe "uid" a
+               usages <- decodeMaybe "usages" a
+               username <- decodeMaybe "username" a
                pure $ CertificateSigningRequestSpec { extra, groups, request, uid, usages, username }
 instance encodeCertificateSigningRequestSpec :: Encode CertificateSigningRequestSpec where
   encode (CertificateSigningRequestSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "extra" (encode a.extra)
-               , Tuple "groups" (encode a.groups)
-               , Tuple "request" (encode a.request)
-               , Tuple "uid" (encode a.uid)
-               , Tuple "usages" (encode a.usages)
-               , Tuple "username" (encode a.username) ]
+               [ Tuple "extra" (encodeMaybe a.extra)
+               , Tuple "groups" (encodeMaybe a.groups)
+               , Tuple "request" (encodeMaybe a.request)
+               , Tuple "uid" (encodeMaybe a.uid)
+               , Tuple "usages" (encodeMaybe a.usages)
+               , Tuple "username" (encodeMaybe a.username) ]
 
 
 instance defaultCertificateSigningRequestSpec :: Default CertificateSigningRequestSpec where
   default = CertificateSigningRequestSpec
-    { extra: NullOrUndefined Nothing
-    , groups: NullOrUndefined Nothing
-    , request: NullOrUndefined Nothing
-    , uid: NullOrUndefined Nothing
-    , usages: NullOrUndefined Nothing
-    , username: NullOrUndefined Nothing }
+    { extra: Nothing
+    , groups: Nothing
+    , request: Nothing
+    , uid: Nothing
+    , usages: Nothing
+    , username: Nothing }
 
 -- | Fields:
 -- | - `certificate`: If request was approved, the controller will place the issued certificate here.
 -- | - `conditions`: Conditions applied to the request, such as approval or denial.
 newtype CertificateSigningRequestStatus = CertificateSigningRequestStatus
-  { certificate :: (NullOrUndefined String)
-  , conditions :: (NullOrUndefined (Array CertificateSigningRequestCondition)) }
+  { certificate :: (Maybe String)
+  , conditions :: (Maybe (Array CertificateSigningRequestCondition)) }
 
 derive instance newtypeCertificateSigningRequestStatus :: Newtype CertificateSigningRequestStatus _
 derive instance genericCertificateSigningRequestStatus :: Generic CertificateSigningRequestStatus _
 instance showCertificateSigningRequestStatus :: Show CertificateSigningRequestStatus where show a = genericShow a
 instance decodeCertificateSigningRequestStatus :: Decode CertificateSigningRequestStatus where
   decode a = do
-               certificate <- readProp "certificate" a >>= decode
-               conditions <- readProp "conditions" a >>= decode
+               certificate <- decodeMaybe "certificate" a
+               conditions <- decodeMaybe "conditions" a
                pure $ CertificateSigningRequestStatus { certificate, conditions }
 instance encodeCertificateSigningRequestStatus :: Encode CertificateSigningRequestStatus where
   encode (CertificateSigningRequestStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "certificate" (encode a.certificate)
-               , Tuple "conditions" (encode a.conditions) ]
+               [ Tuple "certificate" (encodeMaybe a.certificate)
+               , Tuple "conditions" (encodeMaybe a.conditions) ]
 
 
 instance defaultCertificateSigningRequestStatus :: Default CertificateSigningRequestStatus where
   default = CertificateSigningRequestStatus
-    { certificate: NullOrUndefined Nothing
-    , conditions: NullOrUndefined Nothing }
+    { certificate: Nothing
+    , conditions: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

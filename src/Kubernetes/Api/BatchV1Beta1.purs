@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -23,7 +22,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -36,39 +35,39 @@ import Prelude
 -- | - `spec`: Specification of the desired behavior of a cron job, including the schedule. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 -- | - `status`: Current status of a cron job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype CronJob = CronJob
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined CronJobSpec)
-  , status :: (NullOrUndefined CronJobStatus) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe CronJobSpec)
+  , status :: (Maybe CronJobStatus) }
 
 derive instance newtypeCronJob :: Newtype CronJob _
 derive instance genericCronJob :: Generic CronJob _
 instance showCronJob :: Show CronJob where show a = genericShow a
 instance decodeCronJob :: Decode CronJob where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
-               status <- readProp "status" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
+               status <- decodeMaybe "status" a
                pure $ CronJob { apiVersion, kind, metadata, spec, status }
 instance encodeCronJob :: Encode CronJob where
   encode (CronJob a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec)
-               , Tuple "status" (encode a.status) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec)
+               , Tuple "status" (encodeMaybe a.status) ]
 
 
 instance defaultCronJob :: Default CronJob where
   default = CronJob
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing
-    , status: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing
+    , status: Nothing }
 
 -- | CronJobList is a collection of cron jobs.
 -- |
@@ -78,35 +77,35 @@ instance defaultCronJob :: Default CronJob where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype CronJobList = CronJobList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array CronJob))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array CronJob))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeCronJobList :: Newtype CronJobList _
 derive instance genericCronJobList :: Generic CronJobList _
 instance showCronJobList :: Show CronJobList where show a = genericShow a
 instance decodeCronJobList :: Decode CronJobList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ CronJobList { apiVersion, items, kind, metadata }
 instance encodeCronJobList :: Encode CronJobList where
   encode (CronJobList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultCronJobList :: Default CronJobList where
   default = CronJobList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | CronJobSpec describes how the job execution will look like and when it will actually run.
 -- |
@@ -119,47 +118,47 @@ instance defaultCronJobList :: Default CronJobList where
 -- | - `successfulJobsHistoryLimit`: The number of successful finished jobs to retain. This is a pointer to distinguish between explicit zero and not specified. Defaults to 3.
 -- | - `suspend`: This flag tells the controller to suspend subsequent executions, it does not apply to already started executions.  Defaults to false.
 newtype CronJobSpec = CronJobSpec
-  { concurrencyPolicy :: (NullOrUndefined String)
-  , failedJobsHistoryLimit :: (NullOrUndefined Int)
-  , jobTemplate :: (NullOrUndefined JobTemplateSpec)
-  , schedule :: (NullOrUndefined String)
-  , startingDeadlineSeconds :: (NullOrUndefined Int)
-  , successfulJobsHistoryLimit :: (NullOrUndefined Int)
-  , suspend :: (NullOrUndefined Boolean) }
+  { concurrencyPolicy :: (Maybe String)
+  , failedJobsHistoryLimit :: (Maybe Int)
+  , jobTemplate :: (Maybe JobTemplateSpec)
+  , schedule :: (Maybe String)
+  , startingDeadlineSeconds :: (Maybe Int)
+  , successfulJobsHistoryLimit :: (Maybe Int)
+  , suspend :: (Maybe Boolean) }
 
 derive instance newtypeCronJobSpec :: Newtype CronJobSpec _
 derive instance genericCronJobSpec :: Generic CronJobSpec _
 instance showCronJobSpec :: Show CronJobSpec where show a = genericShow a
 instance decodeCronJobSpec :: Decode CronJobSpec where
   decode a = do
-               concurrencyPolicy <- readProp "concurrencyPolicy" a >>= decode
-               failedJobsHistoryLimit <- readProp "failedJobsHistoryLimit" a >>= decode
-               jobTemplate <- readProp "jobTemplate" a >>= decode
-               schedule <- readProp "schedule" a >>= decode
-               startingDeadlineSeconds <- readProp "startingDeadlineSeconds" a >>= decode
-               successfulJobsHistoryLimit <- readProp "successfulJobsHistoryLimit" a >>= decode
-               suspend <- readProp "suspend" a >>= decode
+               concurrencyPolicy <- decodeMaybe "concurrencyPolicy" a
+               failedJobsHistoryLimit <- decodeMaybe "failedJobsHistoryLimit" a
+               jobTemplate <- decodeMaybe "jobTemplate" a
+               schedule <- decodeMaybe "schedule" a
+               startingDeadlineSeconds <- decodeMaybe "startingDeadlineSeconds" a
+               successfulJobsHistoryLimit <- decodeMaybe "successfulJobsHistoryLimit" a
+               suspend <- decodeMaybe "suspend" a
                pure $ CronJobSpec { concurrencyPolicy, failedJobsHistoryLimit, jobTemplate, schedule, startingDeadlineSeconds, successfulJobsHistoryLimit, suspend }
 instance encodeCronJobSpec :: Encode CronJobSpec where
   encode (CronJobSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "concurrencyPolicy" (encode a.concurrencyPolicy)
-               , Tuple "failedJobsHistoryLimit" (encode a.failedJobsHistoryLimit)
-               , Tuple "jobTemplate" (encode a.jobTemplate)
-               , Tuple "schedule" (encode a.schedule)
-               , Tuple "startingDeadlineSeconds" (encode a.startingDeadlineSeconds)
-               , Tuple "successfulJobsHistoryLimit" (encode a.successfulJobsHistoryLimit)
-               , Tuple "suspend" (encode a.suspend) ]
+               [ Tuple "concurrencyPolicy" (encodeMaybe a.concurrencyPolicy)
+               , Tuple "failedJobsHistoryLimit" (encodeMaybe a.failedJobsHistoryLimit)
+               , Tuple "jobTemplate" (encodeMaybe a.jobTemplate)
+               , Tuple "schedule" (encodeMaybe a.schedule)
+               , Tuple "startingDeadlineSeconds" (encodeMaybe a.startingDeadlineSeconds)
+               , Tuple "successfulJobsHistoryLimit" (encodeMaybe a.successfulJobsHistoryLimit)
+               , Tuple "suspend" (encodeMaybe a.suspend) ]
 
 
 instance defaultCronJobSpec :: Default CronJobSpec where
   default = CronJobSpec
-    { concurrencyPolicy: NullOrUndefined Nothing
-    , failedJobsHistoryLimit: NullOrUndefined Nothing
-    , jobTemplate: NullOrUndefined Nothing
-    , schedule: NullOrUndefined Nothing
-    , startingDeadlineSeconds: NullOrUndefined Nothing
-    , successfulJobsHistoryLimit: NullOrUndefined Nothing
-    , suspend: NullOrUndefined Nothing }
+    { concurrencyPolicy: Nothing
+    , failedJobsHistoryLimit: Nothing
+    , jobTemplate: Nothing
+    , schedule: Nothing
+    , startingDeadlineSeconds: Nothing
+    , successfulJobsHistoryLimit: Nothing
+    , suspend: Nothing }
 
 -- | CronJobStatus represents the current state of a cron job.
 -- |
@@ -167,27 +166,27 @@ instance defaultCronJobSpec :: Default CronJobSpec where
 -- | - `active`: A list of pointers to currently running jobs.
 -- | - `lastScheduleTime`: Information when was the last time the job was successfully scheduled.
 newtype CronJobStatus = CronJobStatus
-  { active :: (NullOrUndefined (Array CoreV1.ObjectReference))
-  , lastScheduleTime :: (NullOrUndefined MetaV1.Time) }
+  { active :: (Maybe (Array CoreV1.ObjectReference))
+  , lastScheduleTime :: (Maybe MetaV1.Time) }
 
 derive instance newtypeCronJobStatus :: Newtype CronJobStatus _
 derive instance genericCronJobStatus :: Generic CronJobStatus _
 instance showCronJobStatus :: Show CronJobStatus where show a = genericShow a
 instance decodeCronJobStatus :: Decode CronJobStatus where
   decode a = do
-               active <- readProp "active" a >>= decode
-               lastScheduleTime <- readProp "lastScheduleTime" a >>= decode
+               active <- decodeMaybe "active" a
+               lastScheduleTime <- decodeMaybe "lastScheduleTime" a
                pure $ CronJobStatus { active, lastScheduleTime }
 instance encodeCronJobStatus :: Encode CronJobStatus where
   encode (CronJobStatus a) = encode $ StrMap.fromFoldable $
-               [ Tuple "active" (encode a.active)
-               , Tuple "lastScheduleTime" (encode a.lastScheduleTime) ]
+               [ Tuple "active" (encodeMaybe a.active)
+               , Tuple "lastScheduleTime" (encodeMaybe a.lastScheduleTime) ]
 
 
 instance defaultCronJobStatus :: Default CronJobStatus where
   default = CronJobStatus
-    { active: NullOrUndefined Nothing
-    , lastScheduleTime: NullOrUndefined Nothing }
+    { active: Nothing
+    , lastScheduleTime: Nothing }
 
 -- | JobTemplateSpec describes the data a Job should have when created from a template
 -- |
@@ -195,27 +194,27 @@ instance defaultCronJobStatus :: Default CronJobStatus where
 -- | - `metadata`: Standard object's metadata of the jobs created from this template. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `spec`: Specification of the desired behavior of the job. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status
 newtype JobTemplateSpec = JobTemplateSpec
-  { metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined BatchV1.JobSpec) }
+  { metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe BatchV1.JobSpec) }
 
 derive instance newtypeJobTemplateSpec :: Newtype JobTemplateSpec _
 derive instance genericJobTemplateSpec :: Generic JobTemplateSpec _
 instance showJobTemplateSpec :: Show JobTemplateSpec where show a = genericShow a
 instance decodeJobTemplateSpec :: Decode JobTemplateSpec where
   decode a = do
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
                pure $ JobTemplateSpec { metadata, spec }
 instance encodeJobTemplateSpec :: Encode JobTemplateSpec where
   encode (JobTemplateSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec) ]
+               [ Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultJobTemplateSpec :: Default JobTemplateSpec where
   default = JobTemplateSpec
-    { metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing }
+    { metadata: Nothing
+    , spec: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)

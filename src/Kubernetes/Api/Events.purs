@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -22,7 +21,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -47,87 +46,87 @@ import Prelude
 -- | - `series`: Data about the Event series this event represents or nil if it's a singleton Event.
 -- | - `_type`: Type of this event (Normal, Warning), new types could be added in the future.
 newtype Event = Event
-  { _type :: (NullOrUndefined String)
-  , action :: (NullOrUndefined String)
-  , apiVersion :: (NullOrUndefined String)
-  , deprecatedCount :: (NullOrUndefined Int)
-  , deprecatedFirstTimestamp :: (NullOrUndefined MetaV1.Time)
-  , deprecatedLastTimestamp :: (NullOrUndefined MetaV1.Time)
-  , deprecatedSource :: (NullOrUndefined CoreV1.EventSource)
-  , eventTime :: (NullOrUndefined MetaV1.MicroTime)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , note :: (NullOrUndefined String)
-  , reason :: (NullOrUndefined String)
-  , regarding :: (NullOrUndefined CoreV1.ObjectReference)
-  , related :: (NullOrUndefined CoreV1.ObjectReference)
-  , reportingController :: (NullOrUndefined String)
-  , reportingInstance :: (NullOrUndefined String)
-  , series :: (NullOrUndefined EventSeries) }
+  { _type :: (Maybe String)
+  , action :: (Maybe String)
+  , apiVersion :: (Maybe String)
+  , deprecatedCount :: (Maybe Int)
+  , deprecatedFirstTimestamp :: (Maybe MetaV1.Time)
+  , deprecatedLastTimestamp :: (Maybe MetaV1.Time)
+  , deprecatedSource :: (Maybe CoreV1.EventSource)
+  , eventTime :: (Maybe MetaV1.MicroTime)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , note :: (Maybe String)
+  , reason :: (Maybe String)
+  , regarding :: (Maybe CoreV1.ObjectReference)
+  , related :: (Maybe CoreV1.ObjectReference)
+  , reportingController :: (Maybe String)
+  , reportingInstance :: (Maybe String)
+  , series :: (Maybe EventSeries) }
 
 derive instance newtypeEvent :: Newtype Event _
 derive instance genericEvent :: Generic Event _
 instance showEvent :: Show Event where show a = genericShow a
 instance decodeEvent :: Decode Event where
   decode a = do
-               _type <- readProp "_type" a >>= decode
-               action <- readProp "action" a >>= decode
-               apiVersion <- readProp "apiVersion" a >>= decode
-               deprecatedCount <- readProp "deprecatedCount" a >>= decode
-               deprecatedFirstTimestamp <- readProp "deprecatedFirstTimestamp" a >>= decode
-               deprecatedLastTimestamp <- readProp "deprecatedLastTimestamp" a >>= decode
-               deprecatedSource <- readProp "deprecatedSource" a >>= decode
-               eventTime <- readProp "eventTime" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               note <- readProp "note" a >>= decode
-               reason <- readProp "reason" a >>= decode
-               regarding <- readProp "regarding" a >>= decode
-               related <- readProp "related" a >>= decode
-               reportingController <- readProp "reportingController" a >>= decode
-               reportingInstance <- readProp "reportingInstance" a >>= decode
-               series <- readProp "series" a >>= decode
+               _type <- decodeMaybe "_type" a
+               action <- decodeMaybe "action" a
+               apiVersion <- decodeMaybe "apiVersion" a
+               deprecatedCount <- decodeMaybe "deprecatedCount" a
+               deprecatedFirstTimestamp <- decodeMaybe "deprecatedFirstTimestamp" a
+               deprecatedLastTimestamp <- decodeMaybe "deprecatedLastTimestamp" a
+               deprecatedSource <- decodeMaybe "deprecatedSource" a
+               eventTime <- decodeMaybe "eventTime" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               note <- decodeMaybe "note" a
+               reason <- decodeMaybe "reason" a
+               regarding <- decodeMaybe "regarding" a
+               related <- decodeMaybe "related" a
+               reportingController <- decodeMaybe "reportingController" a
+               reportingInstance <- decodeMaybe "reportingInstance" a
+               series <- decodeMaybe "series" a
                pure $ Event { _type, action, apiVersion, deprecatedCount, deprecatedFirstTimestamp, deprecatedLastTimestamp, deprecatedSource, eventTime, kind, metadata, note, reason, regarding, related, reportingController, reportingInstance, series }
 instance encodeEvent :: Encode Event where
   encode (Event a) = encode $ StrMap.fromFoldable $
-               [ Tuple "_type" (encode a._type)
-               , Tuple "action" (encode a.action)
-               , Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "deprecatedCount" (encode a.deprecatedCount)
-               , Tuple "deprecatedFirstTimestamp" (encode a.deprecatedFirstTimestamp)
-               , Tuple "deprecatedLastTimestamp" (encode a.deprecatedLastTimestamp)
-               , Tuple "deprecatedSource" (encode a.deprecatedSource)
-               , Tuple "eventTime" (encode a.eventTime)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "note" (encode a.note)
-               , Tuple "reason" (encode a.reason)
-               , Tuple "regarding" (encode a.regarding)
-               , Tuple "related" (encode a.related)
-               , Tuple "reportingController" (encode a.reportingController)
-               , Tuple "reportingInstance" (encode a.reportingInstance)
-               , Tuple "series" (encode a.series) ]
+               [ Tuple "_type" (encodeMaybe a._type)
+               , Tuple "action" (encodeMaybe a.action)
+               , Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "deprecatedCount" (encodeMaybe a.deprecatedCount)
+               , Tuple "deprecatedFirstTimestamp" (encodeMaybe a.deprecatedFirstTimestamp)
+               , Tuple "deprecatedLastTimestamp" (encodeMaybe a.deprecatedLastTimestamp)
+               , Tuple "deprecatedSource" (encodeMaybe a.deprecatedSource)
+               , Tuple "eventTime" (encodeMaybe a.eventTime)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "note" (encodeMaybe a.note)
+               , Tuple "reason" (encodeMaybe a.reason)
+               , Tuple "regarding" (encodeMaybe a.regarding)
+               , Tuple "related" (encodeMaybe a.related)
+               , Tuple "reportingController" (encodeMaybe a.reportingController)
+               , Tuple "reportingInstance" (encodeMaybe a.reportingInstance)
+               , Tuple "series" (encodeMaybe a.series) ]
 
 
 instance defaultEvent :: Default Event where
   default = Event
-    { _type: NullOrUndefined Nothing
-    , action: NullOrUndefined Nothing
-    , apiVersion: NullOrUndefined Nothing
-    , deprecatedCount: NullOrUndefined Nothing
-    , deprecatedFirstTimestamp: NullOrUndefined Nothing
-    , deprecatedLastTimestamp: NullOrUndefined Nothing
-    , deprecatedSource: NullOrUndefined Nothing
-    , eventTime: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , note: NullOrUndefined Nothing
-    , reason: NullOrUndefined Nothing
-    , regarding: NullOrUndefined Nothing
-    , related: NullOrUndefined Nothing
-    , reportingController: NullOrUndefined Nothing
-    , reportingInstance: NullOrUndefined Nothing
-    , series: NullOrUndefined Nothing }
+    { _type: Nothing
+    , action: Nothing
+    , apiVersion: Nothing
+    , deprecatedCount: Nothing
+    , deprecatedFirstTimestamp: Nothing
+    , deprecatedLastTimestamp: Nothing
+    , deprecatedSource: Nothing
+    , eventTime: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , note: Nothing
+    , reason: Nothing
+    , regarding: Nothing
+    , related: Nothing
+    , reportingController: Nothing
+    , reportingInstance: Nothing
+    , series: Nothing }
 
 -- | EventList is a list of Event objects.
 -- |
@@ -137,35 +136,35 @@ instance defaultEvent :: Default Event where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype EventList = EventList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array Event))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array Event))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypeEventList :: Newtype EventList _
 derive instance genericEventList :: Generic EventList _
 instance showEventList :: Show EventList where show a = genericShow a
 instance decodeEventList :: Decode EventList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ EventList { apiVersion, items, kind, metadata }
 instance encodeEventList :: Encode EventList where
   encode (EventList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultEventList :: Default EventList where
   default = EventList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | EventSeries contain information on series of events, i.e. thing that was/is happening continously for some time.
 -- |
@@ -174,31 +173,31 @@ instance defaultEventList :: Default EventList where
 -- | - `lastObservedTime`: Time when last Event from the series was seen before last heartbeat.
 -- | - `state`: Information whether this series is ongoing or finished.
 newtype EventSeries = EventSeries
-  { count :: (NullOrUndefined Int)
-  , lastObservedTime :: (NullOrUndefined MetaV1.MicroTime)
-  , state :: (NullOrUndefined String) }
+  { count :: (Maybe Int)
+  , lastObservedTime :: (Maybe MetaV1.MicroTime)
+  , state :: (Maybe String) }
 
 derive instance newtypeEventSeries :: Newtype EventSeries _
 derive instance genericEventSeries :: Generic EventSeries _
 instance showEventSeries :: Show EventSeries where show a = genericShow a
 instance decodeEventSeries :: Decode EventSeries where
   decode a = do
-               count <- readProp "count" a >>= decode
-               lastObservedTime <- readProp "lastObservedTime" a >>= decode
-               state <- readProp "state" a >>= decode
+               count <- decodeMaybe "count" a
+               lastObservedTime <- decodeMaybe "lastObservedTime" a
+               state <- decodeMaybe "state" a
                pure $ EventSeries { count, lastObservedTime, state }
 instance encodeEventSeries :: Encode EventSeries where
   encode (EventSeries a) = encode $ StrMap.fromFoldable $
-               [ Tuple "count" (encode a.count)
-               , Tuple "lastObservedTime" (encode a.lastObservedTime)
-               , Tuple "state" (encode a.state) ]
+               [ Tuple "count" (encodeMaybe a.count)
+               , Tuple "lastObservedTime" (encodeMaybe a.lastObservedTime)
+               , Tuple "state" (encodeMaybe a.state) ]
 
 
 instance defaultEventSeries :: Default EventSeries where
   default = EventSeries
-    { count: NullOrUndefined Nothing
-    , lastObservedTime: NullOrUndefined Nothing
-    , state: NullOrUndefined Nothing }
+    { count: Nothing
+    , lastObservedTime: Nothing
+    , state: Nothing }
 
 -- | get information of a group
 getAPIGroup :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIGroup)

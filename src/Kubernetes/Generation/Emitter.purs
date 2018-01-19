@@ -24,7 +24,7 @@ emitTypeDecl (TypeRef t) = t
 
 emitOptionalField :: OptionalField -> String
 emitOptionalField {name, innerType} =
-  sanitizedName <> " :: " <> "(NullOrUndefined " <> emitTypeDecl innerType <> ")"
+  sanitizedName <> " :: " <> "(Maybe " <> emitTypeDecl innerType <> ")"
   where
     sanitizedName = if startsWithUpperCase name then "\"" <> name <> "\"" else name
 
@@ -73,8 +73,8 @@ emitDeclaration (AliasType {qualifiedName, description, innerType}) =
     docs = formatDescription description
     name = typeUnqualifiedName qualifiedName
 emitDeclaration (LensHelper {name}) =
-  underscoreName <> " :: forall s a r r'. Newtype s { " <> name <> " :: r | r' } => Newtype r a => Lens' s a\n" <>
-  underscoreName <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> name <> "\") <<< _Newtype"
+  underscoreName <> " :: forall s a r. Newtype s { " <> name <> " :: a | r } => Lens' s a\n" <>
+  underscoreName <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> name <> "\")"
   where
     underscoreName = if startsWith "_" name then name else "_" <> name
 emitDeclaration (Endpoint
@@ -186,7 +186,7 @@ decodeInstance name fieldNames =
     fieldPrefix = "\n               "
     decodeFields = fieldPrefix <> (String.joinWith fieldPrefix $ decodeField <$> fieldNames)
     fields = String.joinWith ", " fieldNames
-    decodeField f = f <> " <- readProp \"" <> f <> "\" a >>= decode"
+    decodeField f = f <> " <- decodeMaybe \"" <> f <> "\" a"
   
 encodeInstance :: String -> Array String -> String
 encodeInstance name fieldNames = 
@@ -197,7 +197,7 @@ encodeInstance name fieldNames =
     fieldSep = "\n               , "
     encodeFields = String.joinWith fieldSep <<< map encodeField
     fields = String.joinWith ", " fieldNames
-    encodeField f = "Tuple \"" <> f <> "\" (encode a." <> f <> ")"
+    encodeField f = "Tuple \"" <> f <> "\" (encodeMaybe a." <> f <> ")"
 
 genericTypeClassBoilerplate :: String -> String
 genericTypeClassBoilerplate name = 
@@ -240,7 +240,7 @@ defaultRecordValue indents fieldNames = indentStr <> "{ " <> fieldVals  <> " }"
     indentStr = fold $ Array.replicate indents " "
 
 defaultFieldValue :: String -> String
-defaultFieldValue name = name <> ": NullOrUndefined Nothing"
+defaultFieldValue name = name <> ": Nothing"
 
 emitImport :: String -> String
 emitImport i = "import " <> i

@@ -9,7 +9,6 @@ import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
 import Data.Foreign.Generic.Types (Options)
 import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
@@ -22,7 +21,7 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
-import Kubernetes.Json (jsonOptions)
+import Kubernetes.Json (decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
 
@@ -34,35 +33,35 @@ import Prelude
 -- | - `metadata`
 -- | - `spec`
 newtype PodPreset = PodPreset
-  { apiVersion :: (NullOrUndefined String)
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ObjectMeta)
-  , spec :: (NullOrUndefined PodPresetSpec) }
+  { apiVersion :: (Maybe String)
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ObjectMeta)
+  , spec :: (Maybe PodPresetSpec) }
 
 derive instance newtypePodPreset :: Newtype PodPreset _
 derive instance genericPodPreset :: Generic PodPreset _
 instance showPodPreset :: Show PodPreset where show a = genericShow a
 instance decodePodPreset :: Decode PodPreset where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
-               spec <- readProp "spec" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
+               spec <- decodeMaybe "spec" a
                pure $ PodPreset { apiVersion, kind, metadata, spec }
 instance encodePodPreset :: Encode PodPreset where
   encode (PodPreset a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata)
-               , Tuple "spec" (encode a.spec) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata)
+               , Tuple "spec" (encodeMaybe a.spec) ]
 
 
 instance defaultPodPreset :: Default PodPreset where
   default = PodPreset
-    { apiVersion: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing
-    , spec: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , kind: Nothing
+    , metadata: Nothing
+    , spec: Nothing }
 
 -- | PodPresetList is a list of PodPreset objects.
 -- |
@@ -72,35 +71,35 @@ instance defaultPodPreset :: Default PodPreset where
 -- | - `kind`: Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
 -- | - `metadata`: Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype PodPresetList = PodPresetList
-  { apiVersion :: (NullOrUndefined String)
-  , items :: (NullOrUndefined (Array PodPreset))
-  , kind :: (NullOrUndefined String)
-  , metadata :: (NullOrUndefined MetaV1.ListMeta) }
+  { apiVersion :: (Maybe String)
+  , items :: (Maybe (Array PodPreset))
+  , kind :: (Maybe String)
+  , metadata :: (Maybe MetaV1.ListMeta) }
 
 derive instance newtypePodPresetList :: Newtype PodPresetList _
 derive instance genericPodPresetList :: Generic PodPresetList _
 instance showPodPresetList :: Show PodPresetList where show a = genericShow a
 instance decodePodPresetList :: Decode PodPresetList where
   decode a = do
-               apiVersion <- readProp "apiVersion" a >>= decode
-               items <- readProp "items" a >>= decode
-               kind <- readProp "kind" a >>= decode
-               metadata <- readProp "metadata" a >>= decode
+               apiVersion <- decodeMaybe "apiVersion" a
+               items <- decodeMaybe "items" a
+               kind <- decodeMaybe "kind" a
+               metadata <- decodeMaybe "metadata" a
                pure $ PodPresetList { apiVersion, items, kind, metadata }
 instance encodePodPresetList :: Encode PodPresetList where
   encode (PodPresetList a) = encode $ StrMap.fromFoldable $
-               [ Tuple "apiVersion" (encode a.apiVersion)
-               , Tuple "items" (encode a.items)
-               , Tuple "kind" (encode a.kind)
-               , Tuple "metadata" (encode a.metadata) ]
+               [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
+               , Tuple "items" (encodeMaybe a.items)
+               , Tuple "kind" (encodeMaybe a.kind)
+               , Tuple "metadata" (encodeMaybe a.metadata) ]
 
 
 instance defaultPodPresetList :: Default PodPresetList where
   default = PodPresetList
-    { apiVersion: NullOrUndefined Nothing
-    , items: NullOrUndefined Nothing
-    , kind: NullOrUndefined Nothing
-    , metadata: NullOrUndefined Nothing }
+    { apiVersion: Nothing
+    , items: Nothing
+    , kind: Nothing
+    , metadata: Nothing }
 
 -- | PodPresetSpec is a description of a pod preset.
 -- |
@@ -111,39 +110,39 @@ instance defaultPodPresetList :: Default PodPresetList where
 -- | - `volumeMounts`: VolumeMounts defines the collection of VolumeMount to inject into containers.
 -- | - `volumes`: Volumes defines the collection of Volume to inject into the pod.
 newtype PodPresetSpec = PodPresetSpec
-  { env :: (NullOrUndefined (Array CoreV1.EnvVar))
-  , envFrom :: (NullOrUndefined (Array CoreV1.EnvFromSource))
-  , selector :: (NullOrUndefined MetaV1.LabelSelector)
-  , volumeMounts :: (NullOrUndefined (Array CoreV1.VolumeMount))
-  , volumes :: (NullOrUndefined (Array CoreV1.Volume)) }
+  { env :: (Maybe (Array CoreV1.EnvVar))
+  , envFrom :: (Maybe (Array CoreV1.EnvFromSource))
+  , selector :: (Maybe MetaV1.LabelSelector)
+  , volumeMounts :: (Maybe (Array CoreV1.VolumeMount))
+  , volumes :: (Maybe (Array CoreV1.Volume)) }
 
 derive instance newtypePodPresetSpec :: Newtype PodPresetSpec _
 derive instance genericPodPresetSpec :: Generic PodPresetSpec _
 instance showPodPresetSpec :: Show PodPresetSpec where show a = genericShow a
 instance decodePodPresetSpec :: Decode PodPresetSpec where
   decode a = do
-               env <- readProp "env" a >>= decode
-               envFrom <- readProp "envFrom" a >>= decode
-               selector <- readProp "selector" a >>= decode
-               volumeMounts <- readProp "volumeMounts" a >>= decode
-               volumes <- readProp "volumes" a >>= decode
+               env <- decodeMaybe "env" a
+               envFrom <- decodeMaybe "envFrom" a
+               selector <- decodeMaybe "selector" a
+               volumeMounts <- decodeMaybe "volumeMounts" a
+               volumes <- decodeMaybe "volumes" a
                pure $ PodPresetSpec { env, envFrom, selector, volumeMounts, volumes }
 instance encodePodPresetSpec :: Encode PodPresetSpec where
   encode (PodPresetSpec a) = encode $ StrMap.fromFoldable $
-               [ Tuple "env" (encode a.env)
-               , Tuple "envFrom" (encode a.envFrom)
-               , Tuple "selector" (encode a.selector)
-               , Tuple "volumeMounts" (encode a.volumeMounts)
-               , Tuple "volumes" (encode a.volumes) ]
+               [ Tuple "env" (encodeMaybe a.env)
+               , Tuple "envFrom" (encodeMaybe a.envFrom)
+               , Tuple "selector" (encodeMaybe a.selector)
+               , Tuple "volumeMounts" (encodeMaybe a.volumeMounts)
+               , Tuple "volumes" (encodeMaybe a.volumes) ]
 
 
 instance defaultPodPresetSpec :: Default PodPresetSpec where
   default = PodPresetSpec
-    { env: NullOrUndefined Nothing
-    , envFrom: NullOrUndefined Nothing
-    , selector: NullOrUndefined Nothing
-    , volumeMounts: NullOrUndefined Nothing
-    , volumes: NullOrUndefined Nothing }
+    { env: Nothing
+    , envFrom: Nothing
+    , selector: Nothing
+    , volumeMounts: Nothing
+    , volumes: Nothing }
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
