@@ -2,8 +2,8 @@
   "name": "purescript-kubernetes",
   "devDependencies": {
     "bower": "1.8.2",
-    "pulp": "11.0.0",
-    "purescript": "0.11.6"
+    "pulp": "12.0.1",
+    "purescript": "0.11.7"
   },
   "scripts": {
     "clean": "rm -rf output .pulp-cache",
@@ -21,5 +21,9 @@
     "test:integration:local": "./scripts/start_minikube.sh && CA_CERT=~/.minikube/ca.crt CLIENT_CERT=~/.minikube/client.crt CLIENT_KEY=~/.minikube/client.key K8S_HOST=localhost K8S_PORT=8443 K8S_PROTOCOL=https npm run test:integration",
     "test:unit": "pulp test --main Kubernetes.Test.Unit.Main",
     "test:unit:watch": "pulp --watch test --main Kubernetes.Test.Unit.Main"
+  },
+  "dependencies": {
+    "mute-stream": "0.0.7",
+    "read": "1.0.7"
   }
 }

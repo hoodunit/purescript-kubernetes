@@ -13,12 +13,13 @@
   "ignore": [
     "**/.*",
     "*.nix",
-    "nixpkgs.json",
     "bower",
-    "definitions",
-    "node_modules",
     "bower_components",
+    "definitions",
+    "nixpkgs.json",
+    "node_modules",
     "output",
+    "package.json",
     "scripts",
     "test"
   ],
