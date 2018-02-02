@@ -16,7 +16,7 @@ import Data.NonEmpty ((:|))
 import Data.String as String
 import Data.Traversable (sequence)
 import Kubernetes.Generation.AST (ApiModule, ApiModuleName)
-import Kubernetes.Generation.ApiGeneration as Gen
+import Kubernetes.Generation.Generation as Gen
 import Kubernetes.Generation.Emitter as Emit
 import Kubernetes.Generation.Swagger (Swagger)
 import Node.Encoding (Encoding(..))
