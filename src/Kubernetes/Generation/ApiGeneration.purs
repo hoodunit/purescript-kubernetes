@@ -17,6 +17,7 @@ import Data.Monoid (mempty)
 import Data.NonEmpty (NonEmpty(..), (:|))
 import Data.NonEmpty as NonEmpty
 import Data.Record as Record
+import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.String as String
 import Data.Symbol (SProxy(..))
@@ -25,40 +26,35 @@ import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, refName, refName', stripTagFromId, typeModule', typeQualifiedName, uppercaseFirstChar)
 import Kubernetes.Generation.PathParsing as PathParsing
-import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Swagger, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
+import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Swagger, Response, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
 import Kubernetes.Generation.TypeGeneration (generateApiTypes)
 import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
 import Partial.Unsafe (unsafeCrashWith, unsafePartial)
 import Simple.JSON (writeJSON)
     
-type ApiEndpoint =
-  { operations :: Array ApiOperation
-  , path :: String }
-
-type ApiOperation =
-  { body :: Maybe AST.TypeDecl
-  , description :: Maybe String
-  , method :: AST.HttpMethod
-  , moduleName :: AST.ApiModuleName
-  , name :: String
-  , params :: Maybe AST.ObjectType
-  , responses :: Array ApiResponse }
-
 type ApiResponse =
   { responseCode :: String
   , "type" :: Maybe String
   , typeRef :: Maybe String }
 
+type DeclWithModule =
+  { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
+
 generateApi :: Partial => AST.ApiModuleName -> Swagger -> AST.ApiAst
 generateApi moduleNs swagger = mergeAsts endpointsAst definitionsAst
   where
-    endpointsAst = { modules: endpointsModules }
-    endpointsModules = mkModules moduleNs endpoints
-    endpoints = (uncurry generatePathFns) <$> (StrMap.toUnfoldable swagger.paths)
+    endpointsAst = mkEndpointsAst swagger.paths
+    mkEndpointsAst paths = { modules: mkModules moduleNs (parseEndpoints paths) }
     
-    definitionsAst = unsafePartial $ generateApiTypes moduleNs schemas
-    schemas = (\(Tuple name schema) -> {name, schema}) <$> inputDefs
-    inputDefs = StrMap.toUnfoldable swagger.definitions
+    parseEndpoints :: StrMap PathItem -> Array DeclWithModule
+    parseEndpoints = StrMap.toUnfoldable
+      >>> map (uncurry $ generateEndpointDecls moduleNs)
+      >>> Array.concat
+    
+    definitionsAst = unsafePartial $ mkDefinitionsAst swagger.definitions
+    mkDefinitionsAst = parseSchemas >>> generateApiTypes moduleNs
+    parseSchemas = StrMap.toUnfoldable
+      >>> map (\(Tuple name schema) -> {name, schema})
 
 mergeAsts :: AST.ApiAst -> AST.ApiAst -> AST.ApiAst
 mergeAsts {modules: endpointsModules} {modules: defsModules} =
@@ -84,13 +80,11 @@ mergeModules {name, imports: endpointsImports, declarations: endpointsDecls}
     imports = Array.nub $ Array.sort $ endpointsImports <> defsImports
     declarations = endpointsDecls <> defsDecls
 
-mkModules :: Partial => AST.ApiModuleName -> Array ApiEndpoint -> Array AST.ApiModule
+mkModules :: Partial => AST.ApiModuleName -> Array DeclWithModule -> Array AST.ApiModule
 mkModules moduleNs endpoints = maybe [] (groupEndpointsByModule moduleNs) endpointDecls
   where
-    endpointDecls = NonEmptyList.fromFoldable $ Array.concat (mkEndpointDecls <$> endpoints)
-
-type DeclWithModule =
-  { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
+    endpointDecls :: Maybe (NonEmptyList DeclWithModule)
+    endpointDecls = NonEmptyList.fromFoldable endpoints
 
 groupEndpointsByModule ::
   AST.ApiModuleName
@@ -190,56 +184,42 @@ mapTypeDeclRef :: (AST.TypeDecl -> AST.TypeDecl) -> AST.TypeDecl -> AST.TypeDecl
 mapTypeDeclRef f t@(AST.TypeRef _) = f t
 mapTypeDeclRef _ t = t
 
-mkEndpointDecls :: Partial => ApiEndpoint -> Array { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
-mkEndpointDecls {operations, path} = endpointDecl url <$> operations
-  where
-    url = PathParsing.parse path
+generateEndpointDecls :: Partial => AST.ApiModuleName -> String -> PathItem -> Array DeclWithModule
+generateEndpointDecls moduleNs path item =
+  item
+  # pathOperations
+  # map (generateOperation moduleNs path)
+  # Array.catMaybes
 
-endpointDecl :: Partial => AST.UrlWithParams -> ApiOperation -> { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
-endpointDecl urlWithParams op@{description, name, body, method, moduleName, params, responses} =
-  { moduleName
-  , decl: AST.Endpoint { description, method, name, body, queryParams, returnType, urlWithParams } }
-  where
-    queryParams = params
-    returnType = endpointReturnType moduleName op
-
-endpointReturnType :: Partial => AST.ApiModuleName -> ApiOperation -> AST.TypeDecl
-endpointReturnType modName {responses} =
-  case find (((==) "200") <<< _.responseCode) responses of
-    Just {typeRef: Just ref} -> AST.TypeRef (refName (NonEmptyList.last modName) ref)
-    Just {"type": Just simpleType} -> parseType simpleType
-    _ -> AST.TypeString
-
-generatePathFns :: Partial => String -> PathItem -> ApiEndpoint
-generatePathFns path item =
-  { operations: Array.catMaybes $ generateOperation <$> pathOperations item
-  , path }
-
-generateOperation :: Partial => Tuple String Operation -> Maybe ApiOperation
+generateOperation :: Partial => AST.ApiModuleName -> String -> Tuple String Operation -> Maybe DeclWithModule
 -- Not generating patch functions for now as it requires special handling
-generateOperation (Tuple "patch" _) = Nothing
-generateOperation (Tuple method
-                         op@{ operationId: NullOrUndefined (Just id)
-                            , responses: NullOrUndefined (Just responses)
-                            , description: NullOrUndefined description
-                            , tags: NullOrUndefined tags }) =
-  Just { body
-       , method: parseMethod method
-       , description
-       , moduleName: parseModuleName op
-       , name
-       , params
-       , responses: parsedResponses}
+generateOperation _ _ (Tuple "patch" _) = Nothing
+generateOperation moduleNs path (Tuple _method
+                                op@{ operationId: NullOrUndefined (Just id)
+                                    , responses: NullOrUndefined (Just responses)
+                                    , description: NullOrUndefined description
+                                    , tags: NullOrUndefined tags }) =
+  
+  Just { moduleName
+       , decl: AST.Endpoint { description, method, name, body, queryParams, returnType, urlWithParams } }
   where
+    moduleName = parseModuleName op
+    method = parseMethod _method
     name = operationName id tags
+    body = parseOperationBody op
+    queryParams = parseOperationParams (uppercaseFirstChar $ name <> "Options") op
+    returnType = endpointReturnType moduleName parsedResponses
+    urlWithParams = PathParsing.parse path
+
+    parsedResponses :: Array ApiResponse
+    parsedResponses = parseResp <$> StrMap.toUnfoldable responses
+    
+    parseResp :: Tuple String Response -> ApiResponse
     parseResp (Tuple responseCode r) =
       { responseCode
       , typeRef: L.view (_schema <<< L._Just <<< _ref) r
       , "type": L.view (_schema <<< L._Just <<< _type) r }
-    parsedResponses = parseResp <$> StrMap.toUnfoldable responses
-    params = parseOperationParams (uppercaseFirstChar $ name <> "Options") op
-    body = parseOperationBody op
-generateOperation (Tuple name op) = unsafeCrashWith $ "Could not parse operation: " <> show (writeJSON op)
+generateOperation _ _ (Tuple name op) = unsafeCrashWith $ "Could not parse operation: " <> show (writeJSON op)
 
 parseModuleName :: Partial => Operation -> AST.ApiModuleName
 parseModuleName op@{"x-kubernetes-group-version-kind":
@@ -255,6 +235,13 @@ parseModuleName op@{tags: NullOrUndefined (Just [tag])} =
       show (writeJSON op)
 parseModuleName op = unsafeCrashWith $ "Could not module name from op: " <>
   show (writeJSON op)
+
+endpointReturnType :: Partial => AST.ApiModuleName -> Array ApiResponse -> AST.TypeDecl
+endpointReturnType modName responses =
+  case find (((==) "200") <<< _.responseCode) responses of
+    Just {typeRef: Just ref} -> AST.TypeRef (refName (NonEmptyList.last modName) ref)
+    Just {"type": Just simpleType} -> parseType simpleType
+    _ -> AST.TypeString
 
 operationName :: String -> Maybe (Array String) -> String
 operationName opId (Just [tag]) = stripTagFromId opId tag
