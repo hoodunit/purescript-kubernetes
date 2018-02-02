@@ -366,9 +366,7 @@ stripTagFromId opId tag =
   Str.replace (Str.Pattern $ snakeCaseToPascalCase tag) (Str.Replacement "") opId
 
 snakeCaseToPascalCase :: String -> String
-snakeCaseToPascalCase s = s
-  # Str.split (Str.Pattern "_")
-  # map uppercaseFirstChar
-  # Str.joinWith ""
-  where
-    split = Str.split (Str.Pattern "_") s
+snakeCaseToPascalCase =
+  Str.split (Str.Pattern "_")
+  >>> map uppercaseFirstChar
+  >>> Str.joinWith ""
