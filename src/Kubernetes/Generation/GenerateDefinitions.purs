@@ -17,6 +17,7 @@ import Data.String as String
 import Data.Tuple (Tuple(..), fst)
 import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
+import Kubernetes.Generation.GenerateSchemaType (generateTypeForSchema)
 import Kubernetes.Generation.JsonSchema (Schema(..), SchemaType(..), TypeValidator(..))
 import Kubernetes.Generation.Names (apiModule, jsonFieldToPsField, modulePrefix, refName, startsWith, typeModule)
 import Partial.Unsafe (unsafeCrashWith)
@@ -25,9 +26,6 @@ import Unsafe.Coerce (unsafeCoerce)
 type KubernetesSchema =
   { name :: String
   , schema :: Schema }
-
-type GeneratedSchema =
-  { output :: AST.Declaration, lenses :: Array String }
 
 type GeneratedModule =
   { output :: AST.ApiModule, lenses :: Array String }
@@ -75,6 +73,28 @@ generateModule moduleNs allModules moduleName schemas = { output: mod, lenses }
     moduleRefs = Array.catMaybes $ typeModule <$> (schemas >>= (schemaRefs <<< _.schema))
     moduleDeps = Array.filter ((/=) moduleName) $ Array.nub moduleRefs
 
+sharedImports :: AST.ApiModuleName -> String -> Array String -> Array String
+sharedImports moduleNs moduleName deps =
+  [ "Prelude"
+  , "Control.Alt ((<|>))"
+  , "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
+  , "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
+  , "Data.Foreign.Generic.Types (Options)"
+  , "Data.Foreign.Index (readProp)"
+  , "Data.Generic.Rep (class Generic)"
+  , "Data.Generic.Rep.Show (genericShow)"
+  , "Data.Maybe (Maybe(Just,Nothing))"
+  , "Data.Newtype (class Newtype)"
+  , "Data.StrMap (StrMap)"
+  , "Data.StrMap as StrMap"
+  , "Data.Tuple (Tuple(Tuple))"
+  , "Kubernetes.Default (class Default)"
+  , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
+  where
+    depImports = mkImport <$> deps
+    moduleAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable
+    mkImport modName = moduleAsStr moduleNs <> "." <> modName <> " as " <> modName
+
 schemaRefs :: Schema -> Array String
 schemaRefs (Schema {additionalProperties, items, oneOf: _oneOf, properties, ref}) =
   extract ref <> (childSchemas >>= schemaRefs)
@@ -117,111 +137,3 @@ groupSchemasByModule schemas = case StrMap.lookup "Unknown" groups of
 
 byNamePrefix :: forall f. {name :: String | f} -> {name :: String | f} -> Boolean
 byNamePrefix {name: name1} {name: name2} = apiModule name1 == apiModule name2
-
-generateTypeForSchema :: Partial => String -> String -> Schema -> Maybe GeneratedSchema
-generateTypeForSchema mod qualifiedName (Schema {description, properties: (NullOrUndefined (Just properties)), "x-kubernetes-group-version-kind": (NullOrUndefined groupVersionKind)}) =
-  Just {output, lenses: fst <$> sortedFields}
-  where
-    output = AST.NewtypeDecl $ AST.ObjectType
-      { description: unwrap description
-      , groupVersionKind: fromMaybe [] groupVersionKind
-      , qualifiedName
-      , fields: generateField mod <$> sortedFields }
-    sortedFields = sortFields properties
-    sortFields = StrMap.toUnfoldable
-      >>> Array.sortWith fst
-      >>> map (lmap jsonFieldToPsField)
-generateTypeForSchema mod qualifiedName (Schema {description, oneOf: NullOrUndefined (Just schemas)}) =
-  Just {output, lenses: []}
-  where
-    output = AST.AdtType
-      { description: unwrap description
-      , qualifiedName
-      , constructors: constructors }
-    constructors = generateType mod <$> schemas
-generateTypeForSchema mod qualifiedName s@(Schema { description
-                                                  , _type: NullOrUndefined (Just _)
-                                                  , format: NullOrUndefined (Just "int-or-string")}) =
-  Just {output, lenses: []}
-  where
-    output = AST.AdtType
-      { description: unwrap description
-      , qualifiedName
-      , constructors: [AST.TypeString, AST.TypeInt] }
-generateTypeForSchema mod qualifiedName s@(Schema {description, _type: NullOrUndefined (Just _)}) =
-  Just {output, lenses: []}
-  where
-    output = AST.AliasType
-      { description: unwrap description
-      , qualifiedName
-      , innerType }
-    innerType = generateType mod s
-generateTypeForSchema _ _ (Schema { description: NullOrUndefined (Just _)
-                                  , _type: NullOrUndefined Nothing
-                                  , additionalProperties: NullOrUndefined Nothing
-                                  , items: NullOrUndefined Nothing
-                                  , oneOf: NullOrUndefined Nothing
-                                  , properties: NullOrUndefined Nothing
-                                  , ref: NullOrUndefined Nothing
-                                  , required: NullOrUndefined Nothing }) = Nothing
-generateTypeForSchema _ _ (Schema { description: NullOrUndefined (Just d) })
-  | startsWith "Deprecated" d = Nothing
-generateTypeForSchema _ name schema =
-  unsafeCrashWith $ "Could not generate type for schema " <> name <>
-    "\n  Missing fields needed for generation\n" <> (unsafeCoerce $ Debug.spy schema)
-
-generateField :: Partial => String -> Tuple String Schema -> AST.OptionalField
-generateField mod (Tuple name schema@(Schema {description: d})) = {description: unwrap d, name, innerType}
-  where
-    innerType = generateType mod schema
-
-generateType :: Partial => String -> Schema -> AST.TypeDecl
-generateType _ (Schema {_type: NullOrUndefined (Just (TypeValidatorString SchemaString))}) = AST.TypeString
-generateType _ (Schema {_type: NullOrUndefined (Just (TypeValidatorString SchemaNumber))}) = AST.TypeNumber
-generateType _ (Schema {_type: NullOrUndefined (Just (TypeValidatorString SchemaInteger))}) = AST.TypeInt
-generateType _ (Schema {_type: NullOrUndefined (Just (TypeValidatorString SchemaBoolean))}) = AST.TypeBoolean
-generateType mod (Schema { _type: NullOrUndefined (Just (TypeValidatorString SchemaArray))
-                         , items: NullOrUndefined (Just inner)}) =
-  AST.TypeArray (generateType mod inner)
-generateType mod (Schema {_type: NullOrUndefined (Just (TypeValidatorString SchemaObject)),
-                      additionalProperties: NullOrUndefined (Just valType)})
-  = AST.TypeObject (generateType mod valType)
-generateType mod s@(Schema {_type: NullOrUndefined (Just (TypeValidatorArray arr))})
-  | elem SchemaNull arr && Array.length arr == 2
-  = AST.TypeNullable (typeName mod s (TypeValidatorString innerType))
-    where
-      innerType = fromMaybe SchemaNull $ find ((/=) SchemaNull) arr
-generateType mod (Schema {ref: NullOrUndefined (Just fullyQualifiedName)})
-  = AST.TypeRef (refName mod fullyQualifiedName)
-generateType _ s = unsafeCrashWith $ "Could not generate type for schema " <> show s
-
-typeName :: Partial => String -> Schema -> TypeValidator -> AST.TypeDecl
-typeName _ _ (TypeValidatorString SchemaString) = AST.TypeString
-typeName _ _ (TypeValidatorString SchemaNumber) = AST.TypeNumber
-typeName _ _ (TypeValidatorString SchemaInteger) = AST.TypeInt
-typeName _ _ (TypeValidatorString SchemaBoolean) = AST.TypeBoolean
-typeName mod (Schema {items: NullOrUndefined (Just s)}) (TypeValidatorString SchemaArray) =
-  AST.TypeArray (generateType mod s)
-typeName _ s _ = unsafeCrashWith $ "Could not get type name for schema " <> show s
-
-sharedImports :: AST.ApiModuleName -> String -> Array String -> Array String
-sharedImports moduleNs moduleName deps =
-  [ "Prelude"
-  , "Control.Alt ((<|>))"
-  , "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
-  , "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
-  , "Data.Foreign.Generic.Types (Options)"
-  , "Data.Foreign.Index (readProp)"
-  , "Data.Generic.Rep (class Generic)"
-  , "Data.Generic.Rep.Show (genericShow)"
-  , "Data.Maybe (Maybe(Just,Nothing))"
-  , "Data.Newtype (class Newtype)"
-  , "Data.StrMap (StrMap)"
-  , "Data.StrMap as StrMap"
-  , "Data.Tuple (Tuple(Tuple))"
-  , "Kubernetes.Default (class Default)"
-  , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
-  where
-    depImports = mkImport <$> deps
-    moduleAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable
-    mkImport modName = moduleAsStr moduleNs <> "." <> modName <> " as " <> modName
