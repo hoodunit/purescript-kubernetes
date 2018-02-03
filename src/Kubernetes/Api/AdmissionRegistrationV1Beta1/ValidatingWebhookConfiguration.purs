@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,10 +22,48 @@ import Kubernetes.Api.AdmissionRegistrationV1Beta1 as AdmissionRegistrationV1Bet
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a ValidatingWebhookConfiguration
-createValidatingWebhookConfiguration :: forall e. Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
-createValidatingWebhookConfiguration cfg body = makeRequest (post cfg url (Just encodedBody))
+create :: forall e. Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
+create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations"
+    encodedBody = encodeJSON body
+
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
+newtype DeleteOptions = DeleteOptions
+  { gracePeriodSeconds :: (Maybe Int)
+  , orphanDependents :: (Maybe Boolean)
+  , propagationPolicy :: (Maybe String) }
+
+derive instance newtypeDeleteOptions :: Newtype DeleteOptions _
+derive instance genericDeleteOptions :: Generic DeleteOptions _
+instance showDeleteOptions :: Show DeleteOptions where show a = genericShow a
+instance decodeDeleteOptions :: Decode DeleteOptions where
+  decode a = do
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
+               pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteOptions :: Encode DeleteOptions where
+  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
+
+
+instance defaultDeleteOptions :: Default DeleteOptions where
+  default = DeleteOptions
+    { gracePeriodSeconds: Nothing
+    , orphanDependents: Nothing
+    , propagationPolicy: Nothing }
+
+-- | delete a ValidatingWebhookConfiguration
+delete :: forall e. Config -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+delete cfg body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
+  where
+    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | Fields:
@@ -39,7 +77,7 @@ createValidatingWebhookConfiguration cfg body = makeRequest (post cfg url (Just 
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionValidatingWebhookConfigurationOptions = DeleteCollectionValidatingWebhookConfigurationOptions
+newtype DeleteCollectionOptions = DeleteCollectionOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -49,10 +87,10 @@ newtype DeleteCollectionValidatingWebhookConfigurationOptions = DeleteCollection
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionValidatingWebhookConfigurationOptions :: Newtype DeleteCollectionValidatingWebhookConfigurationOptions _
-derive instance genericDeleteCollectionValidatingWebhookConfigurationOptions :: Generic DeleteCollectionValidatingWebhookConfigurationOptions _
-instance showDeleteCollectionValidatingWebhookConfigurationOptions :: Show DeleteCollectionValidatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeDeleteCollectionValidatingWebhookConfigurationOptions :: Decode DeleteCollectionValidatingWebhookConfigurationOptions where
+derive instance newtypeDeleteCollectionOptions :: Newtype DeleteCollectionOptions _
+derive instance genericDeleteCollectionOptions :: Generic DeleteCollectionOptions _
+instance showDeleteCollectionOptions :: Show DeleteCollectionOptions where show a = genericShow a
+instance decodeDeleteCollectionOptions :: Decode DeleteCollectionOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -62,9 +100,9 @@ instance decodeDeleteCollectionValidatingWebhookConfigurationOptions :: Decode D
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionValidatingWebhookConfigurationOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionValidatingWebhookConfigurationOptions :: Encode DeleteCollectionValidatingWebhookConfigurationOptions where
-  encode (DeleteCollectionValidatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionOptions :: Encode DeleteCollectionOptions where
+  encode (DeleteCollectionOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -75,8 +113,8 @@ instance encodeDeleteCollectionValidatingWebhookConfigurationOptions :: Encode D
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionValidatingWebhookConfigurationOptions :: Default DeleteCollectionValidatingWebhookConfigurationOptions where
-  default = DeleteCollectionValidatingWebhookConfigurationOptions
+instance defaultDeleteCollectionOptions :: Default DeleteCollectionOptions where
+  default = DeleteCollectionOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -87,48 +125,10 @@ instance defaultDeleteCollectionValidatingWebhookConfigurationOptions :: Default
     , watch: Nothing }
 
 -- | delete collection of ValidatingWebhookConfiguration
-deleteCollectionValidatingWebhookConfiguration :: forall e. Config -> DeleteCollectionValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionValidatingWebhookConfiguration cfg options = makeRequest (delete cfg url Nothing)
+deleteCollection :: forall e. Config -> DeleteCollectionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollection cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> formatQueryString options
-
--- | Fields:
--- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
--- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
--- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteValidatingWebhookConfigurationOptions = DeleteValidatingWebhookConfigurationOptions
-  { gracePeriodSeconds :: (Maybe Int)
-  , orphanDependents :: (Maybe Boolean)
-  , propagationPolicy :: (Maybe String) }
-
-derive instance newtypeDeleteValidatingWebhookConfigurationOptions :: Newtype DeleteValidatingWebhookConfigurationOptions _
-derive instance genericDeleteValidatingWebhookConfigurationOptions :: Generic DeleteValidatingWebhookConfigurationOptions _
-instance showDeleteValidatingWebhookConfigurationOptions :: Show DeleteValidatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeDeleteValidatingWebhookConfigurationOptions :: Decode DeleteValidatingWebhookConfigurationOptions where
-  decode a = do
-               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
-               orphanDependents <- decodeMaybe "orphanDependents" a
-               propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteValidatingWebhookConfigurationOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteValidatingWebhookConfigurationOptions :: Encode DeleteValidatingWebhookConfigurationOptions where
-  encode (DeleteValidatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
-               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
-               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
-
-
-instance defaultDeleteValidatingWebhookConfigurationOptions :: Default DeleteValidatingWebhookConfigurationOptions where
-  default = DeleteValidatingWebhookConfigurationOptions
-    { gracePeriodSeconds: Nothing
-    , orphanDependents: Nothing
-    , propagationPolicy: Nothing }
-
--- | delete a ValidatingWebhookConfiguration
-deleteValidatingWebhookConfiguration :: forall e. Config -> MetaV1.DeleteOptions -> DeleteValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteValidatingWebhookConfiguration cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
+    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
@@ -141,7 +141,7 @@ deleteValidatingWebhookConfiguration cfg body options = makeRequest (delete cfg 
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListValidatingWebhookConfigurationOptions = ListValidatingWebhookConfigurationOptions
+newtype ListOptions = ListOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -151,10 +151,10 @@ newtype ListValidatingWebhookConfigurationOptions = ListValidatingWebhookConfigu
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListValidatingWebhookConfigurationOptions :: Newtype ListValidatingWebhookConfigurationOptions _
-derive instance genericListValidatingWebhookConfigurationOptions :: Generic ListValidatingWebhookConfigurationOptions _
-instance showListValidatingWebhookConfigurationOptions :: Show ListValidatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeListValidatingWebhookConfigurationOptions :: Decode ListValidatingWebhookConfigurationOptions where
+derive instance newtypeListOptions :: Newtype ListOptions _
+derive instance genericListOptions :: Generic ListOptions _
+instance showListOptions :: Show ListOptions where show a = genericShow a
+instance decodeListOptions :: Decode ListOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -164,9 +164,9 @@ instance decodeListValidatingWebhookConfigurationOptions :: Decode ListValidatin
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListValidatingWebhookConfigurationOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListValidatingWebhookConfigurationOptions :: Encode ListValidatingWebhookConfigurationOptions where
-  encode (ListValidatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListOptions :: Encode ListOptions where
+  encode (ListOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -177,8 +177,8 @@ instance encodeListValidatingWebhookConfigurationOptions :: Encode ListValidatin
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListValidatingWebhookConfigurationOptions :: Default ListValidatingWebhookConfigurationOptions where
-  default = ListValidatingWebhookConfigurationOptions
+instance defaultListOptions :: Default ListOptions where
+  default = ListOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -189,58 +189,58 @@ instance defaultListValidatingWebhookConfigurationOptions :: Default ListValidat
     , watch: Nothing }
 
 -- | list or watch objects of kind ValidatingWebhookConfiguration
-listValidatingWebhookConfiguration :: forall e. Config -> ListValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfigurationList)
-listValidatingWebhookConfiguration cfg options = makeRequest (get cfg url Nothing)
+list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfigurationList)
+list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> formatQueryString options
+    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadValidatingWebhookConfigurationOptions = ReadValidatingWebhookConfigurationOptions
+newtype ReadOptions = ReadOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadValidatingWebhookConfigurationOptions :: Newtype ReadValidatingWebhookConfigurationOptions _
-derive instance genericReadValidatingWebhookConfigurationOptions :: Generic ReadValidatingWebhookConfigurationOptions _
-instance showReadValidatingWebhookConfigurationOptions :: Show ReadValidatingWebhookConfigurationOptions where show a = genericShow a
-instance decodeReadValidatingWebhookConfigurationOptions :: Decode ReadValidatingWebhookConfigurationOptions where
+derive instance newtypeReadOptions :: Newtype ReadOptions _
+derive instance genericReadOptions :: Generic ReadOptions _
+instance showReadOptions :: Show ReadOptions where show a = genericShow a
+instance decodeReadOptions :: Decode ReadOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadValidatingWebhookConfigurationOptions { exact, export }
-instance encodeReadValidatingWebhookConfigurationOptions :: Encode ReadValidatingWebhookConfigurationOptions where
-  encode (ReadValidatingWebhookConfigurationOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadOptions { exact, export }
+instance encodeReadOptions :: Encode ReadOptions where
+  encode (ReadOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadValidatingWebhookConfigurationOptions :: Default ReadValidatingWebhookConfigurationOptions where
-  default = ReadValidatingWebhookConfigurationOptions
+instance defaultReadOptions :: Default ReadOptions where
+  default = ReadOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified ValidatingWebhookConfiguration
-readValidatingWebhookConfiguration :: forall e. Config -> ReadValidatingWebhookConfigurationOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
-readValidatingWebhookConfiguration cfg options = makeRequest (get cfg url Nothing)
+read :: forall e. Config -> ReadOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
+read cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> formatQueryString options
+    url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> Client.formatQueryString options
 
 -- | replace the specified ValidatingWebhookConfiguration
-replaceValidatingWebhookConfiguration :: forall e. Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
-replaceValidatingWebhookConfiguration cfg body = makeRequest (put cfg url (Just encodedBody))
+replace :: forall e. Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
+replace cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}"
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind ValidatingWebhookConfiguration
-watchValidatingWebhookConfiguration :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchValidatingWebhookConfiguration cfg = makeRequest (get cfg url Nothing)
+watch :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/watch/validatingwebhookconfigurations/{name}"
 
 -- | watch individual changes to a list of ValidatingWebhookConfiguration
-watchValidatingWebhookConfigurationList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchValidatingWebhookConfigurationList cfg = makeRequest (get cfg url Nothing)
+watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/watch/validatingwebhookconfigurations"

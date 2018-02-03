@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.BatchV1 as BatchV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a Job
-createNamespacedJob :: forall e. Config -> String -> BatchV1.Job -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
-createNamespacedJob cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> String -> BatchV1.Job -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
+createNamespaced cfg namespace body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs"
     encodedBody = encodeJSON body
@@ -39,7 +39,7 @@ createNamespacedJob cfg namespace body = makeRequest (post cfg url (Just encoded
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionNamespacedJobOptions = DeleteCollectionNamespacedJobOptions
+newtype DeleteCollectionNamespacedOptions = DeleteCollectionNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -49,10 +49,10 @@ newtype DeleteCollectionNamespacedJobOptions = DeleteCollectionNamespacedJobOpti
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionNamespacedJobOptions :: Newtype DeleteCollectionNamespacedJobOptions _
-derive instance genericDeleteCollectionNamespacedJobOptions :: Generic DeleteCollectionNamespacedJobOptions _
-instance showDeleteCollectionNamespacedJobOptions :: Show DeleteCollectionNamespacedJobOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedJobOptions :: Decode DeleteCollectionNamespacedJobOptions where
+derive instance newtypeDeleteCollectionNamespacedOptions :: Newtype DeleteCollectionNamespacedOptions _
+derive instance genericDeleteCollectionNamespacedOptions :: Generic DeleteCollectionNamespacedOptions _
+instance showDeleteCollectionNamespacedOptions :: Show DeleteCollectionNamespacedOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -62,9 +62,9 @@ instance decodeDeleteCollectionNamespacedJobOptions :: Decode DeleteCollectionNa
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionNamespacedJobOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionNamespacedJobOptions :: Encode DeleteCollectionNamespacedJobOptions where
-  encode (DeleteCollectionNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
+  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -75,8 +75,8 @@ instance encodeDeleteCollectionNamespacedJobOptions :: Encode DeleteCollectionNa
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionNamespacedJobOptions :: Default DeleteCollectionNamespacedJobOptions where
-  default = DeleteCollectionNamespacedJobOptions
+instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNamespacedOptions where
+  default = DeleteCollectionNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -87,52 +87,52 @@ instance defaultDeleteCollectionNamespacedJobOptions :: Default DeleteCollection
     , watch: Nothing }
 
 -- | delete collection of Job
-deleteCollectionNamespacedJob :: forall e. Config -> String -> DeleteCollectionNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedJob cfg namespace options = makeRequest (delete cfg url Nothing)
+deleteCollectionNamespaced :: forall e. Config -> String -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced cfg namespace options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> formatQueryString options
+    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteNamespacedJobOptions = DeleteNamespacedJobOptions
+newtype DeleteNamespacedOptions = DeleteNamespacedOptions
   { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , propagationPolicy :: (Maybe String) }
 
-derive instance newtypeDeleteNamespacedJobOptions :: Newtype DeleteNamespacedJobOptions _
-derive instance genericDeleteNamespacedJobOptions :: Generic DeleteNamespacedJobOptions _
-instance showDeleteNamespacedJobOptions :: Show DeleteNamespacedJobOptions where show a = genericShow a
-instance decodeDeleteNamespacedJobOptions :: Decode DeleteNamespacedJobOptions where
+derive instance newtypeDeleteNamespacedOptions :: Newtype DeleteNamespacedOptions _
+derive instance genericDeleteNamespacedOptions :: Generic DeleteNamespacedOptions _
+instance showDeleteNamespacedOptions :: Show DeleteNamespacedOptions where show a = genericShow a
+instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
   decode a = do
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteNamespacedJobOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteNamespacedJobOptions :: Encode DeleteNamespacedJobOptions where
-  encode (DeleteNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
+  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
-instance defaultDeleteNamespacedJobOptions :: Default DeleteNamespacedJobOptions where
-  default = DeleteNamespacedJobOptions
+instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
+  default = DeleteNamespacedOptions
     { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , propagationPolicy: Nothing }
 
 -- | delete a Job
-deleteNamespacedJob :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedJob cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+deleteNamespaced :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced cfg namespace name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
-    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "" <> formatQueryString options
+    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | list or watch objects of kind Job
-listJobForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.JobList)
-listJobForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.JobList)
+listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1/jobs"
 
@@ -147,7 +147,7 @@ listJobForAllNamespaces cfg = makeRequest (get cfg url Nothing)
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListNamespacedJobOptions = ListNamespacedJobOptions
+newtype ListNamespacedOptions = ListNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -157,10 +157,10 @@ newtype ListNamespacedJobOptions = ListNamespacedJobOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListNamespacedJobOptions :: Newtype ListNamespacedJobOptions _
-derive instance genericListNamespacedJobOptions :: Generic ListNamespacedJobOptions _
-instance showListNamespacedJobOptions :: Show ListNamespacedJobOptions where show a = genericShow a
-instance decodeListNamespacedJobOptions :: Decode ListNamespacedJobOptions where
+derive instance newtypeListNamespacedOptions :: Newtype ListNamespacedOptions _
+derive instance genericListNamespacedOptions :: Generic ListNamespacedOptions _
+instance showListNamespacedOptions :: Show ListNamespacedOptions where show a = genericShow a
+instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -170,9 +170,9 @@ instance decodeListNamespacedJobOptions :: Decode ListNamespacedJobOptions where
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListNamespacedJobOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListNamespacedJobOptions :: Encode ListNamespacedJobOptions where
-  encode (ListNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
+  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -183,8 +183,8 @@ instance encodeListNamespacedJobOptions :: Encode ListNamespacedJobOptions where
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListNamespacedJobOptions :: Default ListNamespacedJobOptions where
-  default = ListNamespacedJobOptions
+instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
+  default = ListNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -195,77 +195,77 @@ instance defaultListNamespacedJobOptions :: Default ListNamespacedJobOptions whe
     , watch: Nothing }
 
 -- | list or watch objects of kind Job
-listNamespacedJob :: forall e. Config -> String -> ListNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.JobList)
-listNamespacedJob cfg namespace options = makeRequest (get cfg url Nothing)
+listNamespaced :: forall e. Config -> String -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.JobList)
+listNamespaced cfg namespace options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> formatQueryString options
+    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadNamespacedJobOptions = ReadNamespacedJobOptions
+newtype ReadNamespacedOptions = ReadNamespacedOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadNamespacedJobOptions :: Newtype ReadNamespacedJobOptions _
-derive instance genericReadNamespacedJobOptions :: Generic ReadNamespacedJobOptions _
-instance showReadNamespacedJobOptions :: Show ReadNamespacedJobOptions where show a = genericShow a
-instance decodeReadNamespacedJobOptions :: Decode ReadNamespacedJobOptions where
+derive instance newtypeReadNamespacedOptions :: Newtype ReadNamespacedOptions _
+derive instance genericReadNamespacedOptions :: Generic ReadNamespacedOptions _
+instance showReadNamespacedOptions :: Show ReadNamespacedOptions where show a = genericShow a
+instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadNamespacedJobOptions { exact, export }
-instance encodeReadNamespacedJobOptions :: Encode ReadNamespacedJobOptions where
-  encode (ReadNamespacedJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadNamespacedOptions { exact, export }
+instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
+  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadNamespacedJobOptions :: Default ReadNamespacedJobOptions where
-  default = ReadNamespacedJobOptions
+instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
+  default = ReadNamespacedOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified Job
-readNamespacedJob :: forall e. Config -> String -> String -> ReadNamespacedJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
-readNamespacedJob cfg namespace name options = makeRequest (get cfg url Nothing)
+readNamespaced :: forall e. Config -> String -> String -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
+readNamespaced cfg namespace name options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "" <> formatQueryString options
+    url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "" <> Client.formatQueryString options
 
 -- | read status of the specified Job
-readNamespacedJobStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
-readNamespacedJobStatus cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
+readNamespacedStatus cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "/status"
 
 -- | replace the specified Job
-replaceNamespacedJob :: forall e. Config -> String -> String -> BatchV1.Job -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
-replaceNamespacedJob cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespaced :: forall e. Config -> String -> String -> BatchV1.Job -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
+replaceNamespaced cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | replace status of the specified Job
-replaceNamespacedJobStatus :: forall e. Config -> String -> String -> BatchV1.Job -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
-replaceNamespacedJobStatus cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedStatus :: forall e. Config -> String -> String -> BatchV1.Job -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1.Job)
+replaceNamespacedStatus cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/batch/v1/namespaces/" <> namespace <> "/jobs/" <> name <> "/status"
     encodedBody = encodeJSON body
 
 -- | watch individual changes to a list of Job
-watchJobListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchJobListForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1/watch/jobs"
 
 -- | watch changes to an object of kind Job
-watchNamespacedJob :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedJob cfg namespace name = makeRequest (get cfg url Nothing)
+watchNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1/watch/namespaces/" <> namespace <> "/jobs/" <> name <> ""
 
 -- | watch individual changes to a list of Job
-watchNamespacedJobList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedJobList cfg namespace = makeRequest (get cfg url Nothing)
+watchNamespacedList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList cfg namespace = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1/watch/namespaces/" <> namespace <> "/jobs"

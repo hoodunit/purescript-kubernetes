@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,10 +22,48 @@ import Kubernetes.Api.APIExtensionsV1Beta1 as APIExtensionsV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a CustomResourceDefinition
-createCustomResourceDefinition :: forall e. Config -> APIExtensionsV1Beta1.CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
-createCustomResourceDefinition cfg body = makeRequest (post cfg url (Just encodedBody))
+create :: forall e. Config -> APIExtensionsV1Beta1.CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
+create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"
+    encodedBody = encodeJSON body
+
+-- | Fields:
+-- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
+-- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
+-- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
+newtype DeleteOptions = DeleteOptions
+  { gracePeriodSeconds :: (Maybe Int)
+  , orphanDependents :: (Maybe Boolean)
+  , propagationPolicy :: (Maybe String) }
+
+derive instance newtypeDeleteOptions :: Newtype DeleteOptions _
+derive instance genericDeleteOptions :: Generic DeleteOptions _
+instance showDeleteOptions :: Show DeleteOptions where show a = genericShow a
+instance decodeDeleteOptions :: Decode DeleteOptions where
+  decode a = do
+               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
+               orphanDependents <- decodeMaybe "orphanDependents" a
+               propagationPolicy <- decodeMaybe "propagationPolicy" a
+               pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteOptions :: Encode DeleteOptions where
+  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
+               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
+               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
+
+
+instance defaultDeleteOptions :: Default DeleteOptions where
+  default = DeleteOptions
+    { gracePeriodSeconds: Nothing
+    , orphanDependents: Nothing
+    , propagationPolicy: Nothing }
+
+-- | delete a CustomResourceDefinition
+delete :: forall e. Config -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+delete cfg body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
+  where
+    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | Fields:
@@ -39,7 +77,7 @@ createCustomResourceDefinition cfg body = makeRequest (post cfg url (Just encode
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionCustomResourceDefinitionOptions = DeleteCollectionCustomResourceDefinitionOptions
+newtype DeleteCollectionOptions = DeleteCollectionOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -49,10 +87,10 @@ newtype DeleteCollectionCustomResourceDefinitionOptions = DeleteCollectionCustom
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionCustomResourceDefinitionOptions :: Newtype DeleteCollectionCustomResourceDefinitionOptions _
-derive instance genericDeleteCollectionCustomResourceDefinitionOptions :: Generic DeleteCollectionCustomResourceDefinitionOptions _
-instance showDeleteCollectionCustomResourceDefinitionOptions :: Show DeleteCollectionCustomResourceDefinitionOptions where show a = genericShow a
-instance decodeDeleteCollectionCustomResourceDefinitionOptions :: Decode DeleteCollectionCustomResourceDefinitionOptions where
+derive instance newtypeDeleteCollectionOptions :: Newtype DeleteCollectionOptions _
+derive instance genericDeleteCollectionOptions :: Generic DeleteCollectionOptions _
+instance showDeleteCollectionOptions :: Show DeleteCollectionOptions where show a = genericShow a
+instance decodeDeleteCollectionOptions :: Decode DeleteCollectionOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -62,9 +100,9 @@ instance decodeDeleteCollectionCustomResourceDefinitionOptions :: Decode DeleteC
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionCustomResourceDefinitionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionCustomResourceDefinitionOptions :: Encode DeleteCollectionCustomResourceDefinitionOptions where
-  encode (DeleteCollectionCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionOptions :: Encode DeleteCollectionOptions where
+  encode (DeleteCollectionOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -75,8 +113,8 @@ instance encodeDeleteCollectionCustomResourceDefinitionOptions :: Encode DeleteC
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionCustomResourceDefinitionOptions :: Default DeleteCollectionCustomResourceDefinitionOptions where
-  default = DeleteCollectionCustomResourceDefinitionOptions
+instance defaultDeleteCollectionOptions :: Default DeleteCollectionOptions where
+  default = DeleteCollectionOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -87,48 +125,10 @@ instance defaultDeleteCollectionCustomResourceDefinitionOptions :: Default Delet
     , watch: Nothing }
 
 -- | delete collection of CustomResourceDefinition
-deleteCollectionCustomResourceDefinition :: forall e. Config -> DeleteCollectionCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionCustomResourceDefinition cfg options = makeRequest (delete cfg url Nothing)
+deleteCollection :: forall e. Config -> DeleteCollectionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollection cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions" <> formatQueryString options
-
--- | Fields:
--- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
--- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
--- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteCustomResourceDefinitionOptions = DeleteCustomResourceDefinitionOptions
-  { gracePeriodSeconds :: (Maybe Int)
-  , orphanDependents :: (Maybe Boolean)
-  , propagationPolicy :: (Maybe String) }
-
-derive instance newtypeDeleteCustomResourceDefinitionOptions :: Newtype DeleteCustomResourceDefinitionOptions _
-derive instance genericDeleteCustomResourceDefinitionOptions :: Generic DeleteCustomResourceDefinitionOptions _
-instance showDeleteCustomResourceDefinitionOptions :: Show DeleteCustomResourceDefinitionOptions where show a = genericShow a
-instance decodeDeleteCustomResourceDefinitionOptions :: Decode DeleteCustomResourceDefinitionOptions where
-  decode a = do
-               gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
-               orphanDependents <- decodeMaybe "orphanDependents" a
-               propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteCustomResourceDefinitionOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteCustomResourceDefinitionOptions :: Encode DeleteCustomResourceDefinitionOptions where
-  encode (DeleteCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
-               [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
-               , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
-               , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
-
-
-instance defaultDeleteCustomResourceDefinitionOptions :: Default DeleteCustomResourceDefinitionOptions where
-  default = DeleteCustomResourceDefinitionOptions
-    { gracePeriodSeconds: Nothing
-    , orphanDependents: Nothing
-    , propagationPolicy: Nothing }
-
--- | delete a CustomResourceDefinition
-deleteCustomResourceDefinition :: forall e. Config -> MetaV1.DeleteOptions -> DeleteCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCustomResourceDefinition cfg body options = makeRequest (delete cfg url (Just encodedBody))
-  where
-    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}" <> formatQueryString options
-    encodedBody = encodeJSON body
+    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
@@ -141,7 +141,7 @@ deleteCustomResourceDefinition cfg body options = makeRequest (delete cfg url (J
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListCustomResourceDefinitionOptions = ListCustomResourceDefinitionOptions
+newtype ListOptions = ListOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -151,10 +151,10 @@ newtype ListCustomResourceDefinitionOptions = ListCustomResourceDefinitionOption
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListCustomResourceDefinitionOptions :: Newtype ListCustomResourceDefinitionOptions _
-derive instance genericListCustomResourceDefinitionOptions :: Generic ListCustomResourceDefinitionOptions _
-instance showListCustomResourceDefinitionOptions :: Show ListCustomResourceDefinitionOptions where show a = genericShow a
-instance decodeListCustomResourceDefinitionOptions :: Decode ListCustomResourceDefinitionOptions where
+derive instance newtypeListOptions :: Newtype ListOptions _
+derive instance genericListOptions :: Generic ListOptions _
+instance showListOptions :: Show ListOptions where show a = genericShow a
+instance decodeListOptions :: Decode ListOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -164,9 +164,9 @@ instance decodeListCustomResourceDefinitionOptions :: Decode ListCustomResourceD
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListCustomResourceDefinitionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListCustomResourceDefinitionOptions :: Encode ListCustomResourceDefinitionOptions where
-  encode (ListCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListOptions :: Encode ListOptions where
+  encode (ListOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -177,8 +177,8 @@ instance encodeListCustomResourceDefinitionOptions :: Encode ListCustomResourceD
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListCustomResourceDefinitionOptions :: Default ListCustomResourceDefinitionOptions where
-  default = ListCustomResourceDefinitionOptions
+instance defaultListOptions :: Default ListOptions where
+  default = ListOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -189,65 +189,65 @@ instance defaultListCustomResourceDefinitionOptions :: Default ListCustomResourc
     , watch: Nothing }
 
 -- | list or watch objects of kind CustomResourceDefinition
-listCustomResourceDefinition :: forall e. Config -> ListCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinitionList)
-listCustomResourceDefinition cfg options = makeRequest (get cfg url Nothing)
+list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinitionList)
+list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions" <> formatQueryString options
+    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadCustomResourceDefinitionOptions = ReadCustomResourceDefinitionOptions
+newtype ReadOptions = ReadOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadCustomResourceDefinitionOptions :: Newtype ReadCustomResourceDefinitionOptions _
-derive instance genericReadCustomResourceDefinitionOptions :: Generic ReadCustomResourceDefinitionOptions _
-instance showReadCustomResourceDefinitionOptions :: Show ReadCustomResourceDefinitionOptions where show a = genericShow a
-instance decodeReadCustomResourceDefinitionOptions :: Decode ReadCustomResourceDefinitionOptions where
+derive instance newtypeReadOptions :: Newtype ReadOptions _
+derive instance genericReadOptions :: Generic ReadOptions _
+instance showReadOptions :: Show ReadOptions where show a = genericShow a
+instance decodeReadOptions :: Decode ReadOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadCustomResourceDefinitionOptions { exact, export }
-instance encodeReadCustomResourceDefinitionOptions :: Encode ReadCustomResourceDefinitionOptions where
-  encode (ReadCustomResourceDefinitionOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadOptions { exact, export }
+instance encodeReadOptions :: Encode ReadOptions where
+  encode (ReadOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadCustomResourceDefinitionOptions :: Default ReadCustomResourceDefinitionOptions where
-  default = ReadCustomResourceDefinitionOptions
+instance defaultReadOptions :: Default ReadOptions where
+  default = ReadOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified CustomResourceDefinition
-readCustomResourceDefinition :: forall e. Config -> ReadCustomResourceDefinitionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
-readCustomResourceDefinition cfg options = makeRequest (get cfg url Nothing)
+read :: forall e. Config -> ReadOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
+read cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}" <> formatQueryString options
+    url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}" <> Client.formatQueryString options
 
 -- | replace the specified CustomResourceDefinition
-replaceCustomResourceDefinition :: forall e. Config -> APIExtensionsV1Beta1.CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
-replaceCustomResourceDefinition cfg body = makeRequest (put cfg url (Just encodedBody))
+replace :: forall e. Config -> APIExtensionsV1Beta1.CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
+replace cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}"
     encodedBody = encodeJSON body
 
 -- | replace status of the specified CustomResourceDefinition
-replaceCustomResourceDefinitionStatus :: forall e. Config -> APIExtensionsV1Beta1.CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
-replaceCustomResourceDefinitionStatus cfg body = makeRequest (put cfg url (Just encodedBody))
+replaceStatus :: forall e. Config -> APIExtensionsV1Beta1.CustomResourceDefinition -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.CustomResourceDefinition)
+replaceStatus cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}/status"
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind CustomResourceDefinition
-watchCustomResourceDefinition :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchCustomResourceDefinition cfg = makeRequest (get cfg url Nothing)
+watch :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apiextensions.k8s.io/v1beta1/watch/customresourcedefinitions/{name}"
 
 -- | watch individual changes to a list of CustomResourceDefinition
-watchCustomResourceDefinitionList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchCustomResourceDefinitionList cfg = makeRequest (get cfg url Nothing)
+watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apiextensions.k8s.io/v1beta1/watch/customresourcedefinitions"

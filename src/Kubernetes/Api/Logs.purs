@@ -14,18 +14,18 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.MetaV1 as MetaV1
 
 logFileHandler :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-logFileHandler cfg logpath = makeRequest (get cfg url Nothing)
+logFileHandler cfg logpath = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/logs/" <> logpath <> ""
 
 logFileListHandler :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-logFileListHandler cfg = makeRequest (get cfg url Nothing)
+logFileListHandler cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/logs/"

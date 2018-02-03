@@ -19,7 +19,7 @@ import Data.Tuple (Tuple(Tuple))
 import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.Util as Util
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -2444,6 +2444,6 @@ instance defaultJSONSchemaPropsOrStringArray :: Default JSONSchemaPropsOrStringA
 
 -- | get available resources
 getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
-getAPIResources cfg = makeRequest (get cfg url Nothing)
+getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apiextensions.k8s.io/v1beta1/"

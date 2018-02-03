@@ -15,18 +15,18 @@ tests :: forall e. TestSuite (avar :: AVAR, console :: CONSOLE, random :: RANDOM
 tests = do
   suite "stripTagFromId" do
     test "removes tag, in camel case, from operation ID" do
-      Assert.equal "listNamespacedPod" (stripTagFromId "listCoreV1NamespacedPod" "core_v1")
+      Assert.equal "listNamespacedPod" (stripTagFromId "core_v1" "listCoreV1NamespacedPod")
     test "does not strip version tag" do
-      Assert.equal "getCodeVersion" (stripTagFromId "getCodeVersion" "version")
+      Assert.equal "getCodeVersion" (stripTagFromId "version" "getCodeVersion")
     test "works for short core tag" do
-      Assert.equal "getAPIVersions" (stripTagFromId "getCoreAPIVersions" "core")
+      Assert.equal "getAPIVersions" (stripTagFromId "core" "getCoreAPIVersions")
     test "removes tag, in camel case, from operation ID" do
-      Assert.equal "watchStorageClass" (stripTagFromId "watchStorageV1beta1StorageClass" "storage_v1beta1")
+      Assert.equal "watchStorageClass" (stripTagFromId "storage_v1beta1" "watchStorageV1beta1StorageClass")
     test "removes tag, in camel case, from operation ID" do
       Assert.equal "watchRoleBindingListForAllNamespaces"
         (stripTagFromId
-         "watchRbacAuthorizationV1beta1RoleBindingListForAllNamespaces"
-         "rbacAuthorization_v1beta1")
+         "rbacAuthorization_v1beta1"
+         "watchRbacAuthorizationV1beta1RoleBindingListForAllNamespaces")
   suite "snakeCaseToPascalCase" do
     test "converts to Pascal case" do
       Assert.equal "CoreV1" (snakeCaseToPascalCase "core_v1")

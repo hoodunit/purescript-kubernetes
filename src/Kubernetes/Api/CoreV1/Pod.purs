@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,116 +22,116 @@ import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | connect DELETE requests to proxy of Pod
-connectDeleteNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedPodProxy cfg namespace name = makeRequest (delete cfg url Nothing)
+connectDeleteNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedProxy cfg namespace name = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
 
 -- | connect DELETE requests to proxy of Pod
-connectDeleteNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedPodProxyWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
+connectDeleteNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect GET requests to attach of Pod
-connectGetNamespacedPodAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodAttach cfg namespace name = makeRequest (get cfg url Nothing)
+connectGetNamespacedAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedAttach cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/attach"
 
 -- | connect GET requests to exec of Pod
-connectGetNamespacedPodExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodExec cfg namespace name = makeRequest (get cfg url Nothing)
+connectGetNamespacedExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedExec cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/exec"
 
 -- | connect GET requests to portforward of Pod
-connectGetNamespacedPodPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodPortforward cfg namespace name = makeRequest (get cfg url Nothing)
+connectGetNamespacedPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedPortforward cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/portforward"
 
 -- | connect GET requests to proxy of Pod
-connectGetNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodProxy cfg namespace name = makeRequest (get cfg url Nothing)
+connectGetNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedProxy cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
 
 -- | connect GET requests to proxy of Pod
-connectGetNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedPodProxyWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
+connectGetNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect HEAD requests to proxy of Pod
-connectHeadNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedPodProxy cfg namespace name = makeRequest (head cfg url Nothing)
+connectHeadNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedProxy cfg namespace name = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
 
 -- | connect HEAD requests to proxy of Pod
-connectHeadNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedPodProxyWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
+connectHeadNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect OPTIONS requests to proxy of Pod
-connectOptionsNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedPodProxy cfg namespace name = makeRequest (options cfg url Nothing)
+connectOptionsNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedProxy cfg namespace name = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
 
 -- | connect OPTIONS requests to proxy of Pod
-connectOptionsNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedPodProxyWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
+connectOptionsNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect POST requests to attach of Pod
-connectPostNamespacedPodAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodAttach cfg namespace name = makeRequest (post cfg url Nothing)
+connectPostNamespacedAttach :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedAttach cfg namespace name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/attach"
 
 -- | connect POST requests to exec of Pod
-connectPostNamespacedPodExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodExec cfg namespace name = makeRequest (post cfg url Nothing)
+connectPostNamespacedExec :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedExec cfg namespace name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/exec"
 
 -- | connect POST requests to portforward of Pod
-connectPostNamespacedPodPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodPortforward cfg namespace name = makeRequest (post cfg url Nothing)
+connectPostNamespacedPortforward :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedPortforward cfg namespace name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/portforward"
 
 -- | connect POST requests to proxy of Pod
-connectPostNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodProxy cfg namespace name = makeRequest (post cfg url Nothing)
+connectPostNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedProxy cfg namespace name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
 
 -- | connect POST requests to proxy of Pod
-connectPostNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedPodProxyWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
+connectPostNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect PUT requests to proxy of Pod
-connectPutNamespacedPodProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedPodProxy cfg namespace name = makeRequest (put cfg url Nothing)
+connectPutNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedProxy cfg namespace name = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy"
 
 -- | connect PUT requests to proxy of Pod
-connectPutNamespacedPodProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedPodProxyWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
+connectPutNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/proxy/" <> path <> ""
 
 -- | create a Pod
-createNamespacedPod :: forall e. Config -> String -> CoreV1.Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
-createNamespacedPod cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> String -> CoreV1.Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
+createNamespaced cfg namespace body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods"
     encodedBody = encodeJSON body
@@ -147,7 +147,7 @@ createNamespacedPod cfg namespace body = makeRequest (post cfg url (Just encoded
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionNamespacedPodOptions = DeleteCollectionNamespacedPodOptions
+newtype DeleteCollectionNamespacedOptions = DeleteCollectionNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -157,10 +157,10 @@ newtype DeleteCollectionNamespacedPodOptions = DeleteCollectionNamespacedPodOpti
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionNamespacedPodOptions :: Newtype DeleteCollectionNamespacedPodOptions _
-derive instance genericDeleteCollectionNamespacedPodOptions :: Generic DeleteCollectionNamespacedPodOptions _
-instance showDeleteCollectionNamespacedPodOptions :: Show DeleteCollectionNamespacedPodOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedPodOptions :: Decode DeleteCollectionNamespacedPodOptions where
+derive instance newtypeDeleteCollectionNamespacedOptions :: Newtype DeleteCollectionNamespacedOptions _
+derive instance genericDeleteCollectionNamespacedOptions :: Generic DeleteCollectionNamespacedOptions _
+instance showDeleteCollectionNamespacedOptions :: Show DeleteCollectionNamespacedOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -170,9 +170,9 @@ instance decodeDeleteCollectionNamespacedPodOptions :: Decode DeleteCollectionNa
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionNamespacedPodOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionNamespacedPodOptions :: Encode DeleteCollectionNamespacedPodOptions where
-  encode (DeleteCollectionNamespacedPodOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
+  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -183,8 +183,8 @@ instance encodeDeleteCollectionNamespacedPodOptions :: Encode DeleteCollectionNa
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionNamespacedPodOptions :: Default DeleteCollectionNamespacedPodOptions where
-  default = DeleteCollectionNamespacedPodOptions
+instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNamespacedOptions where
+  default = DeleteCollectionNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -195,48 +195,54 @@ instance defaultDeleteCollectionNamespacedPodOptions :: Default DeleteCollection
     , watch: Nothing }
 
 -- | delete collection of Pod
-deleteCollectionNamespacedPod :: forall e. Config -> String -> DeleteCollectionNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedPod cfg namespace options = makeRequest (delete cfg url Nothing)
+deleteCollectionNamespaced :: forall e. Config -> String -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced cfg namespace options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/pods" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteNamespacedPodOptions = DeleteNamespacedPodOptions
+newtype DeleteNamespacedOptions = DeleteNamespacedOptions
   { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , propagationPolicy :: (Maybe String) }
 
-derive instance newtypeDeleteNamespacedPodOptions :: Newtype DeleteNamespacedPodOptions _
-derive instance genericDeleteNamespacedPodOptions :: Generic DeleteNamespacedPodOptions _
-instance showDeleteNamespacedPodOptions :: Show DeleteNamespacedPodOptions where show a = genericShow a
-instance decodeDeleteNamespacedPodOptions :: Decode DeleteNamespacedPodOptions where
+derive instance newtypeDeleteNamespacedOptions :: Newtype DeleteNamespacedOptions _
+derive instance genericDeleteNamespacedOptions :: Generic DeleteNamespacedOptions _
+instance showDeleteNamespacedOptions :: Show DeleteNamespacedOptions where show a = genericShow a
+instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
   decode a = do
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteNamespacedPodOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteNamespacedPodOptions :: Encode DeleteNamespacedPodOptions where
-  encode (DeleteNamespacedPodOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
+  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
-instance defaultDeleteNamespacedPodOptions :: Default DeleteNamespacedPodOptions where
-  default = DeleteNamespacedPodOptions
+instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
+  default = DeleteNamespacedOptions
     { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , propagationPolicy: Nothing }
 
 -- | delete a Pod
-deleteNamespacedPod :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedPod cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+deleteNamespaced :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced cfg namespace name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "" <> Client.formatQueryString options
     encodedBody = encodeJSON body
+
+-- | list or watch objects of kind Pod
+listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.PodList)
+listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
+  where
+    url = "/api/v1/pods"
 
 -- | Fields:
 -- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
@@ -249,7 +255,7 @@ deleteNamespacedPod cfg namespace name body options = makeRequest (delete cfg ur
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListNamespacedPodOptions = ListNamespacedPodOptions
+newtype ListNamespacedOptions = ListNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -259,10 +265,10 @@ newtype ListNamespacedPodOptions = ListNamespacedPodOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListNamespacedPodOptions :: Newtype ListNamespacedPodOptions _
-derive instance genericListNamespacedPodOptions :: Generic ListNamespacedPodOptions _
-instance showListNamespacedPodOptions :: Show ListNamespacedPodOptions where show a = genericShow a
-instance decodeListNamespacedPodOptions :: Decode ListNamespacedPodOptions where
+derive instance newtypeListNamespacedOptions :: Newtype ListNamespacedOptions _
+derive instance genericListNamespacedOptions :: Generic ListNamespacedOptions _
+instance showListNamespacedOptions :: Show ListNamespacedOptions where show a = genericShow a
+instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -272,9 +278,9 @@ instance decodeListNamespacedPodOptions :: Decode ListNamespacedPodOptions where
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListNamespacedPodOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListNamespacedPodOptions :: Encode ListNamespacedPodOptions where
-  encode (ListNamespacedPodOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
+  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -285,8 +291,8 @@ instance encodeListNamespacedPodOptions :: Encode ListNamespacedPodOptions where
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListNamespacedPodOptions :: Default ListNamespacedPodOptions where
-  default = ListNamespacedPodOptions
+instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
+  default = ListNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -297,161 +303,155 @@ instance defaultListNamespacedPodOptions :: Default ListNamespacedPodOptions whe
     , watch: Nothing }
 
 -- | list or watch objects of kind Pod
-listNamespacedPod :: forall e. Config -> String -> ListNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.PodList)
-listNamespacedPod cfg namespace options = makeRequest (get cfg url Nothing)
+listNamespaced :: forall e. Config -> String -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.PodList)
+listNamespaced cfg namespace options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods" <> formatQueryString options
-
--- | list or watch objects of kind Pod
-listPodForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.PodList)
-listPodForAllNamespaces cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/pods"
+    url = "/api/v1/namespaces/" <> namespace <> "/pods" <> Client.formatQueryString options
 
 -- | proxy DELETE requests to Pod
-proxyDELETENamespacedPod :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyDELETENamespacedPod cfg namespace name = makeRequest (delete cfg url Nothing)
+proxyDELETENamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyDELETENamespaced cfg namespace name = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> ""
 
 -- | proxy DELETE requests to Pod
-proxyDELETENamespacedPodWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyDELETENamespacedPodWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
+proxyDELETENamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyDELETENamespacedWithPath cfg namespace name path = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> "/" <> path <> ""
 
 -- | proxy GET requests to Pod
-proxyGETNamespacedPod :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyGETNamespacedPod cfg namespace name = makeRequest (get cfg url Nothing)
+proxyGETNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyGETNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> ""
 
 -- | proxy GET requests to Pod
-proxyGETNamespacedPodWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyGETNamespacedPodWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
+proxyGETNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyGETNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> "/" <> path <> ""
 
 -- | proxy HEAD requests to Pod
-proxyHEADNamespacedPod :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyHEADNamespacedPod cfg namespace name = makeRequest (head cfg url Nothing)
+proxyHEADNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyHEADNamespaced cfg namespace name = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> ""
 
 -- | proxy HEAD requests to Pod
-proxyHEADNamespacedPodWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyHEADNamespacedPodWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
+proxyHEADNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyHEADNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> "/" <> path <> ""
 
 -- | proxy OPTIONS requests to Pod
-proxyOPTIONSNamespacedPod :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyOPTIONSNamespacedPod cfg namespace name = makeRequest (options cfg url Nothing)
+proxyOPTIONSNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyOPTIONSNamespaced cfg namespace name = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> ""
 
 -- | proxy OPTIONS requests to Pod
-proxyOPTIONSNamespacedPodWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyOPTIONSNamespacedPodWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
+proxyOPTIONSNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyOPTIONSNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> "/" <> path <> ""
 
 -- | proxy POST requests to Pod
-proxyPOSTNamespacedPod :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPOSTNamespacedPod cfg namespace name = makeRequest (post cfg url Nothing)
+proxyPOSTNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPOSTNamespaced cfg namespace name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> ""
 
 -- | proxy POST requests to Pod
-proxyPOSTNamespacedPodWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPOSTNamespacedPodWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
+proxyPOSTNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPOSTNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> "/" <> path <> ""
 
 -- | proxy PUT requests to Pod
-proxyPUTNamespacedPod :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPUTNamespacedPod cfg namespace name = makeRequest (put cfg url Nothing)
+proxyPUTNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPUTNamespaced cfg namespace name = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> ""
 
 -- | proxy PUT requests to Pod
-proxyPUTNamespacedPodWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPUTNamespacedPodWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
+proxyPUTNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPUTNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/pods/" <> name <> "/" <> path <> ""
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadNamespacedPodOptions = ReadNamespacedPodOptions
+newtype ReadNamespacedOptions = ReadNamespacedOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadNamespacedPodOptions :: Newtype ReadNamespacedPodOptions _
-derive instance genericReadNamespacedPodOptions :: Generic ReadNamespacedPodOptions _
-instance showReadNamespacedPodOptions :: Show ReadNamespacedPodOptions where show a = genericShow a
-instance decodeReadNamespacedPodOptions :: Decode ReadNamespacedPodOptions where
+derive instance newtypeReadNamespacedOptions :: Newtype ReadNamespacedOptions _
+derive instance genericReadNamespacedOptions :: Generic ReadNamespacedOptions _
+instance showReadNamespacedOptions :: Show ReadNamespacedOptions where show a = genericShow a
+instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadNamespacedPodOptions { exact, export }
-instance encodeReadNamespacedPodOptions :: Encode ReadNamespacedPodOptions where
-  encode (ReadNamespacedPodOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadNamespacedOptions { exact, export }
+instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
+  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadNamespacedPodOptions :: Default ReadNamespacedPodOptions where
-  default = ReadNamespacedPodOptions
+instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
+  default = ReadNamespacedOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified Pod
-readNamespacedPod :: forall e. Config -> String -> String -> ReadNamespacedPodOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
-readNamespacedPod cfg namespace name options = makeRequest (get cfg url Nothing)
+readNamespaced :: forall e. Config -> String -> String -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
+readNamespaced cfg namespace name options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "" <> Client.formatQueryString options
 
 -- | read log of the specified Pod
-readNamespacedPodLog :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-readNamespacedPodLog cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedLog :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+readNamespacedLog cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/log"
 
 -- | read status of the specified Pod
-readNamespacedPodStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
-readNamespacedPodStatus cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
+readNamespacedStatus cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/status"
 
 -- | replace the specified Pod
-replaceNamespacedPod :: forall e. Config -> String -> String -> CoreV1.Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
-replaceNamespacedPod cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespaced :: forall e. Config -> String -> String -> CoreV1.Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
+replaceNamespaced cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | replace status of the specified Pod
-replaceNamespacedPodStatus :: forall e. Config -> String -> String -> CoreV1.Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
-replaceNamespacedPodStatus cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedStatus :: forall e. Config -> String -> String -> CoreV1.Pod -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Pod)
+replaceNamespacedStatus cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/status"
     encodedBody = encodeJSON body
 
+-- | watch individual changes to a list of Pod
+watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
+  where
+    url = "/api/v1/watch/pods"
+
 -- | watch changes to an object of kind Pod
-watchNamespacedPod :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedPod cfg namespace name = makeRequest (get cfg url Nothing)
+watchNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces/" <> namespace <> "/pods/" <> name <> ""
 
 -- | watch individual changes to a list of Pod
-watchNamespacedPodList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedPodList cfg namespace = makeRequest (get cfg url Nothing)
+watchNamespacedList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList cfg namespace = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces/" <> namespace <> "/pods"
-
--- | watch individual changes to a list of Pod
-watchPodListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchPodListForAllNamespaces cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/watch/pods"

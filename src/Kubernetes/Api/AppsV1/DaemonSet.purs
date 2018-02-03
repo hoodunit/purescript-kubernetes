@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.AppsV1 as AppsV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a DaemonSet
-createNamespacedDaemonSet :: forall e. Config -> String -> AppsV1.DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
-createNamespacedDaemonSet cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> String -> AppsV1.DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
+createNamespaced cfg namespace body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets"
     encodedBody = encodeJSON body
@@ -39,7 +39,7 @@ createNamespacedDaemonSet cfg namespace body = makeRequest (post cfg url (Just e
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionNamespacedDaemonSetOptions = DeleteCollectionNamespacedDaemonSetOptions
+newtype DeleteCollectionNamespacedOptions = DeleteCollectionNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -49,10 +49,10 @@ newtype DeleteCollectionNamespacedDaemonSetOptions = DeleteCollectionNamespacedD
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionNamespacedDaemonSetOptions :: Newtype DeleteCollectionNamespacedDaemonSetOptions _
-derive instance genericDeleteCollectionNamespacedDaemonSetOptions :: Generic DeleteCollectionNamespacedDaemonSetOptions _
-instance showDeleteCollectionNamespacedDaemonSetOptions :: Show DeleteCollectionNamespacedDaemonSetOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedDaemonSetOptions :: Decode DeleteCollectionNamespacedDaemonSetOptions where
+derive instance newtypeDeleteCollectionNamespacedOptions :: Newtype DeleteCollectionNamespacedOptions _
+derive instance genericDeleteCollectionNamespacedOptions :: Generic DeleteCollectionNamespacedOptions _
+instance showDeleteCollectionNamespacedOptions :: Show DeleteCollectionNamespacedOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -62,9 +62,9 @@ instance decodeDeleteCollectionNamespacedDaemonSetOptions :: Decode DeleteCollec
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionNamespacedDaemonSetOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionNamespacedDaemonSetOptions :: Encode DeleteCollectionNamespacedDaemonSetOptions where
-  encode (DeleteCollectionNamespacedDaemonSetOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
+  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -75,8 +75,8 @@ instance encodeDeleteCollectionNamespacedDaemonSetOptions :: Encode DeleteCollec
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionNamespacedDaemonSetOptions :: Default DeleteCollectionNamespacedDaemonSetOptions where
-  default = DeleteCollectionNamespacedDaemonSetOptions
+instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNamespacedOptions where
+  default = DeleteCollectionNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -87,52 +87,52 @@ instance defaultDeleteCollectionNamespacedDaemonSetOptions :: Default DeleteColl
     , watch: Nothing }
 
 -- | delete collection of DaemonSet
-deleteCollectionNamespacedDaemonSet :: forall e. Config -> String -> DeleteCollectionNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedDaemonSet cfg namespace options = makeRequest (delete cfg url Nothing)
+deleteCollectionNamespaced :: forall e. Config -> String -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced cfg namespace options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets" <> formatQueryString options
+    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteNamespacedDaemonSetOptions = DeleteNamespacedDaemonSetOptions
+newtype DeleteNamespacedOptions = DeleteNamespacedOptions
   { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , propagationPolicy :: (Maybe String) }
 
-derive instance newtypeDeleteNamespacedDaemonSetOptions :: Newtype DeleteNamespacedDaemonSetOptions _
-derive instance genericDeleteNamespacedDaemonSetOptions :: Generic DeleteNamespacedDaemonSetOptions _
-instance showDeleteNamespacedDaemonSetOptions :: Show DeleteNamespacedDaemonSetOptions where show a = genericShow a
-instance decodeDeleteNamespacedDaemonSetOptions :: Decode DeleteNamespacedDaemonSetOptions where
+derive instance newtypeDeleteNamespacedOptions :: Newtype DeleteNamespacedOptions _
+derive instance genericDeleteNamespacedOptions :: Generic DeleteNamespacedOptions _
+instance showDeleteNamespacedOptions :: Show DeleteNamespacedOptions where show a = genericShow a
+instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
   decode a = do
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteNamespacedDaemonSetOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteNamespacedDaemonSetOptions :: Encode DeleteNamespacedDaemonSetOptions where
-  encode (DeleteNamespacedDaemonSetOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
+  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
-instance defaultDeleteNamespacedDaemonSetOptions :: Default DeleteNamespacedDaemonSetOptions where
-  default = DeleteNamespacedDaemonSetOptions
+instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
+  default = DeleteNamespacedOptions
     { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , propagationPolicy: Nothing }
 
 -- | delete a DaemonSet
-deleteNamespacedDaemonSet :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedDaemonSet cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+deleteNamespaced :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced cfg namespace name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
-    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "" <> formatQueryString options
+    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | list or watch objects of kind DaemonSet
-listDaemonSetForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSetList)
-listDaemonSetForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSetList)
+listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1/daemonsets"
 
@@ -147,7 +147,7 @@ listDaemonSetForAllNamespaces cfg = makeRequest (get cfg url Nothing)
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListNamespacedDaemonSetOptions = ListNamespacedDaemonSetOptions
+newtype ListNamespacedOptions = ListNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -157,10 +157,10 @@ newtype ListNamespacedDaemonSetOptions = ListNamespacedDaemonSetOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListNamespacedDaemonSetOptions :: Newtype ListNamespacedDaemonSetOptions _
-derive instance genericListNamespacedDaemonSetOptions :: Generic ListNamespacedDaemonSetOptions _
-instance showListNamespacedDaemonSetOptions :: Show ListNamespacedDaemonSetOptions where show a = genericShow a
-instance decodeListNamespacedDaemonSetOptions :: Decode ListNamespacedDaemonSetOptions where
+derive instance newtypeListNamespacedOptions :: Newtype ListNamespacedOptions _
+derive instance genericListNamespacedOptions :: Generic ListNamespacedOptions _
+instance showListNamespacedOptions :: Show ListNamespacedOptions where show a = genericShow a
+instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -170,9 +170,9 @@ instance decodeListNamespacedDaemonSetOptions :: Decode ListNamespacedDaemonSetO
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListNamespacedDaemonSetOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListNamespacedDaemonSetOptions :: Encode ListNamespacedDaemonSetOptions where
-  encode (ListNamespacedDaemonSetOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
+  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -183,8 +183,8 @@ instance encodeListNamespacedDaemonSetOptions :: Encode ListNamespacedDaemonSetO
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListNamespacedDaemonSetOptions :: Default ListNamespacedDaemonSetOptions where
-  default = ListNamespacedDaemonSetOptions
+instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
+  default = ListNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -195,77 +195,77 @@ instance defaultListNamespacedDaemonSetOptions :: Default ListNamespacedDaemonSe
     , watch: Nothing }
 
 -- | list or watch objects of kind DaemonSet
-listNamespacedDaemonSet :: forall e. Config -> String -> ListNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSetList)
-listNamespacedDaemonSet cfg namespace options = makeRequest (get cfg url Nothing)
+listNamespaced :: forall e. Config -> String -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSetList)
+listNamespaced cfg namespace options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets" <> formatQueryString options
+    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadNamespacedDaemonSetOptions = ReadNamespacedDaemonSetOptions
+newtype ReadNamespacedOptions = ReadNamespacedOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadNamespacedDaemonSetOptions :: Newtype ReadNamespacedDaemonSetOptions _
-derive instance genericReadNamespacedDaemonSetOptions :: Generic ReadNamespacedDaemonSetOptions _
-instance showReadNamespacedDaemonSetOptions :: Show ReadNamespacedDaemonSetOptions where show a = genericShow a
-instance decodeReadNamespacedDaemonSetOptions :: Decode ReadNamespacedDaemonSetOptions where
+derive instance newtypeReadNamespacedOptions :: Newtype ReadNamespacedOptions _
+derive instance genericReadNamespacedOptions :: Generic ReadNamespacedOptions _
+instance showReadNamespacedOptions :: Show ReadNamespacedOptions where show a = genericShow a
+instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadNamespacedDaemonSetOptions { exact, export }
-instance encodeReadNamespacedDaemonSetOptions :: Encode ReadNamespacedDaemonSetOptions where
-  encode (ReadNamespacedDaemonSetOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadNamespacedOptions { exact, export }
+instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
+  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadNamespacedDaemonSetOptions :: Default ReadNamespacedDaemonSetOptions where
-  default = ReadNamespacedDaemonSetOptions
+instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
+  default = ReadNamespacedOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified DaemonSet
-readNamespacedDaemonSet :: forall e. Config -> String -> String -> ReadNamespacedDaemonSetOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
-readNamespacedDaemonSet cfg namespace name options = makeRequest (get cfg url Nothing)
+readNamespaced :: forall e. Config -> String -> String -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
+readNamespaced cfg namespace name options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "" <> formatQueryString options
+    url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "" <> Client.formatQueryString options
 
 -- | read status of the specified DaemonSet
-readNamespacedDaemonSetStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
-readNamespacedDaemonSetStatus cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
+readNamespacedStatus cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "/status"
 
 -- | replace the specified DaemonSet
-replaceNamespacedDaemonSet :: forall e. Config -> String -> String -> AppsV1.DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
-replaceNamespacedDaemonSet cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespaced :: forall e. Config -> String -> String -> AppsV1.DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
+replaceNamespaced cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | replace status of the specified DaemonSet
-replaceNamespacedDaemonSetStatus :: forall e. Config -> String -> String -> AppsV1.DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
-replaceNamespacedDaemonSetStatus cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedStatus :: forall e. Config -> String -> String -> AppsV1.DaemonSet -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1.DaemonSet)
+replaceNamespacedStatus cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1/namespaces/" <> namespace <> "/daemonsets/" <> name <> "/status"
     encodedBody = encodeJSON body
 
 -- | watch individual changes to a list of DaemonSet
-watchDaemonSetListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchDaemonSetListForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1/watch/daemonsets"
 
 -- | watch changes to an object of kind DaemonSet
-watchNamespacedDaemonSet :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedDaemonSet cfg namespace name = makeRequest (get cfg url Nothing)
+watchNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1/watch/namespaces/" <> namespace <> "/daemonsets/" <> name <> ""
 
 -- | watch individual changes to a list of DaemonSet
-watchNamespacedDaemonSetList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedDaemonSetList cfg namespace = makeRequest (get cfg url Nothing)
+watchNamespacedList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList cfg namespace = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1/watch/namespaces/" <> namespace <> "/daemonsets"

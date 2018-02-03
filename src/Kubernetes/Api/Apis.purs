@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,6 +22,6 @@ import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | get available API versions
 getAPIVersions :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIGroupList)
-getAPIVersions cfg = makeRequest (get cfg url Nothing)
+getAPIVersions cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/"

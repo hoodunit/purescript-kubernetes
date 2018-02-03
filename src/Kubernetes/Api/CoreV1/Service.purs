@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,89 +22,95 @@ import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | connect DELETE requests to proxy of Service
-connectDeleteNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedServiceProxy cfg namespace name = makeRequest (delete cfg url Nothing)
+connectDeleteNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedProxy cfg namespace name = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
 
 -- | connect DELETE requests to proxy of Service
-connectDeleteNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectDeleteNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
+connectDeleteNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect GET requests to proxy of Service
-connectGetNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedServiceProxy cfg namespace name = makeRequest (get cfg url Nothing)
+connectGetNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedProxy cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
 
 -- | connect GET requests to proxy of Service
-connectGetNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectGetNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
+connectGetNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect HEAD requests to proxy of Service
-connectHeadNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedServiceProxy cfg namespace name = makeRequest (head cfg url Nothing)
+connectHeadNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedProxy cfg namespace name = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
 
 -- | connect HEAD requests to proxy of Service
-connectHeadNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectHeadNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
+connectHeadNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect OPTIONS requests to proxy of Service
-connectOptionsNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedServiceProxy cfg namespace name = makeRequest (options cfg url Nothing)
+connectOptionsNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedProxy cfg namespace name = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
 
 -- | connect OPTIONS requests to proxy of Service
-connectOptionsNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectOptionsNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
+connectOptionsNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect POST requests to proxy of Service
-connectPostNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedServiceProxy cfg namespace name = makeRequest (post cfg url Nothing)
+connectPostNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedProxy cfg namespace name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
 
 -- | connect POST requests to proxy of Service
-connectPostNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPostNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
+connectPostNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect PUT requests to proxy of Service
-connectPutNamespacedServiceProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedServiceProxy cfg namespace name = makeRequest (put cfg url Nothing)
+connectPutNamespacedProxy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedProxy cfg namespace name = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy"
 
 -- | connect PUT requests to proxy of Service
-connectPutNamespacedServiceProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-connectPutNamespacedServiceProxyWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
+connectPutNamespacedProxyWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutNamespacedProxyWithPath cfg namespace name path = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/proxy/" <> path <> ""
 
 -- | create a Service
-createNamespacedService :: forall e. Config -> String -> CoreV1.Service -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
-createNamespacedService cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> String -> CoreV1.Service -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
+createNamespaced cfg namespace body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services"
     encodedBody = encodeJSON body
 
 -- | delete a Service
-deleteNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedService cfg namespace name = makeRequest (delete cfg url Nothing)
+deleteNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced cfg namespace name = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> ""
+
+-- | list or watch objects of kind Service
+listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ServiceList)
+listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
+  where
+    url = "/api/v1/services"
 
 -- | Fields:
 -- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
@@ -117,7 +123,7 @@ deleteNamespacedService cfg namespace name = makeRequest (delete cfg url Nothing
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListNamespacedServiceOptions = ListNamespacedServiceOptions
+newtype ListNamespacedOptions = ListNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -127,10 +133,10 @@ newtype ListNamespacedServiceOptions = ListNamespacedServiceOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListNamespacedServiceOptions :: Newtype ListNamespacedServiceOptions _
-derive instance genericListNamespacedServiceOptions :: Generic ListNamespacedServiceOptions _
-instance showListNamespacedServiceOptions :: Show ListNamespacedServiceOptions where show a = genericShow a
-instance decodeListNamespacedServiceOptions :: Decode ListNamespacedServiceOptions where
+derive instance newtypeListNamespacedOptions :: Newtype ListNamespacedOptions _
+derive instance genericListNamespacedOptions :: Generic ListNamespacedOptions _
+instance showListNamespacedOptions :: Show ListNamespacedOptions where show a = genericShow a
+instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -140,9 +146,9 @@ instance decodeListNamespacedServiceOptions :: Decode ListNamespacedServiceOptio
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListNamespacedServiceOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListNamespacedServiceOptions :: Encode ListNamespacedServiceOptions where
-  encode (ListNamespacedServiceOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
+  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -153,8 +159,8 @@ instance encodeListNamespacedServiceOptions :: Encode ListNamespacedServiceOptio
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListNamespacedServiceOptions :: Default ListNamespacedServiceOptions where
-  default = ListNamespacedServiceOptions
+instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
+  default = ListNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -165,155 +171,149 @@ instance defaultListNamespacedServiceOptions :: Default ListNamespacedServiceOpt
     , watch: Nothing }
 
 -- | list or watch objects of kind Service
-listNamespacedService :: forall e. Config -> String -> ListNamespacedServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ServiceList)
-listNamespacedService cfg namespace options = makeRequest (get cfg url Nothing)
+listNamespaced :: forall e. Config -> String -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ServiceList)
+listNamespaced cfg namespace options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/services" <> formatQueryString options
-
--- | list or watch objects of kind Service
-listServiceForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ServiceList)
-listServiceForAllNamespaces cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/services"
+    url = "/api/v1/namespaces/" <> namespace <> "/services" <> Client.formatQueryString options
 
 -- | proxy DELETE requests to Service
-proxyDELETENamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyDELETENamespacedService cfg namespace name = makeRequest (delete cfg url Nothing)
+proxyDELETENamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyDELETENamespaced cfg namespace name = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> ""
 
 -- | proxy DELETE requests to Service
-proxyDELETENamespacedServiceWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyDELETENamespacedServiceWithPath cfg namespace name path = makeRequest (delete cfg url Nothing)
+proxyDELETENamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyDELETENamespacedWithPath cfg namespace name path = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> "/" <> path <> ""
 
 -- | proxy GET requests to Service
-proxyGETNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyGETNamespacedService cfg namespace name = makeRequest (get cfg url Nothing)
+proxyGETNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyGETNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> ""
 
 -- | proxy GET requests to Service
-proxyGETNamespacedServiceWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyGETNamespacedServiceWithPath cfg namespace name path = makeRequest (get cfg url Nothing)
+proxyGETNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyGETNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> "/" <> path <> ""
 
 -- | proxy HEAD requests to Service
-proxyHEADNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyHEADNamespacedService cfg namespace name = makeRequest (head cfg url Nothing)
+proxyHEADNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyHEADNamespaced cfg namespace name = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> ""
 
 -- | proxy HEAD requests to Service
-proxyHEADNamespacedServiceWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyHEADNamespacedServiceWithPath cfg namespace name path = makeRequest (head cfg url Nothing)
+proxyHEADNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyHEADNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> "/" <> path <> ""
 
 -- | proxy OPTIONS requests to Service
-proxyOPTIONSNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyOPTIONSNamespacedService cfg namespace name = makeRequest (options cfg url Nothing)
+proxyOPTIONSNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyOPTIONSNamespaced cfg namespace name = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> ""
 
 -- | proxy OPTIONS requests to Service
-proxyOPTIONSNamespacedServiceWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyOPTIONSNamespacedServiceWithPath cfg namespace name path = makeRequest (options cfg url Nothing)
+proxyOPTIONSNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyOPTIONSNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> "/" <> path <> ""
 
 -- | proxy POST requests to Service
-proxyPOSTNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPOSTNamespacedService cfg namespace name = makeRequest (post cfg url Nothing)
+proxyPOSTNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPOSTNamespaced cfg namespace name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> ""
 
 -- | proxy POST requests to Service
-proxyPOSTNamespacedServiceWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPOSTNamespacedServiceWithPath cfg namespace name path = makeRequest (post cfg url Nothing)
+proxyPOSTNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPOSTNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> "/" <> path <> ""
 
 -- | proxy PUT requests to Service
-proxyPUTNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPUTNamespacedService cfg namespace name = makeRequest (put cfg url Nothing)
+proxyPUTNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPUTNamespaced cfg namespace name = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> ""
 
 -- | proxy PUT requests to Service
-proxyPUTNamespacedServiceWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
-proxyPUTNamespacedServiceWithPath cfg namespace name path = makeRequest (put cfg url Nothing)
+proxyPUTNamespacedWithPath :: forall e. Config -> String -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPUTNamespacedWithPath cfg namespace name path = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/proxy/namespaces/" <> namespace <> "/services/" <> name <> "/" <> path <> ""
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadNamespacedServiceOptions = ReadNamespacedServiceOptions
+newtype ReadNamespacedOptions = ReadNamespacedOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadNamespacedServiceOptions :: Newtype ReadNamespacedServiceOptions _
-derive instance genericReadNamespacedServiceOptions :: Generic ReadNamespacedServiceOptions _
-instance showReadNamespacedServiceOptions :: Show ReadNamespacedServiceOptions where show a = genericShow a
-instance decodeReadNamespacedServiceOptions :: Decode ReadNamespacedServiceOptions where
+derive instance newtypeReadNamespacedOptions :: Newtype ReadNamespacedOptions _
+derive instance genericReadNamespacedOptions :: Generic ReadNamespacedOptions _
+instance showReadNamespacedOptions :: Show ReadNamespacedOptions where show a = genericShow a
+instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadNamespacedServiceOptions { exact, export }
-instance encodeReadNamespacedServiceOptions :: Encode ReadNamespacedServiceOptions where
-  encode (ReadNamespacedServiceOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadNamespacedOptions { exact, export }
+instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
+  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadNamespacedServiceOptions :: Default ReadNamespacedServiceOptions where
-  default = ReadNamespacedServiceOptions
+instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
+  default = ReadNamespacedOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified Service
-readNamespacedService :: forall e. Config -> String -> String -> ReadNamespacedServiceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
-readNamespacedService cfg namespace name options = makeRequest (get cfg url Nothing)
+readNamespaced :: forall e. Config -> String -> String -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
+readNamespaced cfg namespace name options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "" <> Client.formatQueryString options
 
 -- | read status of the specified Service
-readNamespacedServiceStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
-readNamespacedServiceStatus cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
+readNamespacedStatus cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/status"
 
 -- | replace the specified Service
-replaceNamespacedService :: forall e. Config -> String -> String -> CoreV1.Service -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
-replaceNamespacedService cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespaced :: forall e. Config -> String -> String -> CoreV1.Service -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
+replaceNamespaced cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | replace status of the specified Service
-replaceNamespacedServiceStatus :: forall e. Config -> String -> String -> CoreV1.Service -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
-replaceNamespacedServiceStatus cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedStatus :: forall e. Config -> String -> String -> CoreV1.Service -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Service)
+replaceNamespacedStatus cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/services/" <> name <> "/status"
     encodedBody = encodeJSON body
 
+-- | watch individual changes to a list of Service
+watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
+  where
+    url = "/api/v1/watch/services"
+
 -- | watch changes to an object of kind Service
-watchNamespacedService :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedService cfg namespace name = makeRequest (get cfg url Nothing)
+watchNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces/" <> namespace <> "/services/" <> name <> ""
 
 -- | watch individual changes to a list of Service
-watchNamespacedServiceList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedServiceList cfg namespace = makeRequest (get cfg url Nothing)
+watchNamespacedList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList cfg namespace = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces/" <> namespace <> "/services"
-
--- | watch individual changes to a list of Service
-watchServiceListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchServiceListForAllNamespaces cfg = makeRequest (get cfg url Nothing)
-  where
-    url = "/api/v1/watch/services"

@@ -325,6 +325,11 @@ startsWith prefix str = case Regex.regex ("^" <> prefix) RegexFlags.noFlags of
   Left _ -> false
   Right matcher -> Regex.test matcher str
 
+endsWith :: String -> String -> Boolean
+endsWith suffix str = case Regex.regex (suffix <> "$") RegexFlags.noFlags of
+  Left _ -> false
+  Right matcher -> Regex.test matcher str
+
 reservedKeywords :: Array FieldMapping
 reservedKeywords =
   [ {json: "$ref", ps: "_ref"}
@@ -361,9 +366,14 @@ startsWithUpperCase s = case Regex.regex "^[A-Z]" RegexFlags.noFlags of
   Right matcher -> Regex.test matcher s
 
 stripTagFromId :: String -> String -> String
-stripTagFromId opId "version" = opId
-stripTagFromId opId tag =
+stripTagFromId "version" opId = opId
+stripTagFromId tag opId =
   Str.replace (Str.Pattern $ snakeCaseToPascalCase tag) (Str.Replacement "") opId
+
+stripModuleFromId :: ApiModuleName -> String -> String
+stripModuleFromId modName opId =
+  Str.replace (Str.Pattern $ NonEmptyList.last modName) (Str.Replacement "") opId
+stripModuleFromId _ opId = opId
 
 snakeCaseToPascalCase :: String -> String
 snakeCaseToPascalCase =

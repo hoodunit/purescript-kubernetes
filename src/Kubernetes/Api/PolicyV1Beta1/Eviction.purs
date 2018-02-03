@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.PolicyV1Beta1 as PolicyV1Beta1
 
 -- | create eviction of a Pod
-createNamespacedPodEviction :: forall e. Config -> String -> String -> PolicyV1Beta1.Eviction -> Aff (http :: HTTP | e) (Either MetaV1.Status PolicyV1Beta1.Eviction)
-createNamespacedPodEviction cfg namespace name body = makeRequest (post cfg url (Just encodedBody))
+createNamespacedPod :: forall e. Config -> String -> String -> PolicyV1Beta1.Eviction -> Aff (http :: HTTP | e) (Either MetaV1.Status PolicyV1Beta1.Eviction)
+createNamespacedPod cfg namespace name body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/pods/" <> name <> "/eviction"
     encodedBody = encodeJSON body

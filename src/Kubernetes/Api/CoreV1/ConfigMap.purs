@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a ConfigMap
-createNamespacedConfigMap :: forall e. Config -> String -> CoreV1.ConfigMap -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMap)
-createNamespacedConfigMap cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> String -> CoreV1.ConfigMap -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMap)
+createNamespaced cfg namespace body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/configmaps"
     encodedBody = encodeJSON body
@@ -39,7 +39,7 @@ createNamespacedConfigMap cfg namespace body = makeRequest (post cfg url (Just e
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionNamespacedConfigMapOptions = DeleteCollectionNamespacedConfigMapOptions
+newtype DeleteCollectionNamespacedOptions = DeleteCollectionNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -49,10 +49,10 @@ newtype DeleteCollectionNamespacedConfigMapOptions = DeleteCollectionNamespacedC
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionNamespacedConfigMapOptions :: Newtype DeleteCollectionNamespacedConfigMapOptions _
-derive instance genericDeleteCollectionNamespacedConfigMapOptions :: Generic DeleteCollectionNamespacedConfigMapOptions _
-instance showDeleteCollectionNamespacedConfigMapOptions :: Show DeleteCollectionNamespacedConfigMapOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedConfigMapOptions :: Decode DeleteCollectionNamespacedConfigMapOptions where
+derive instance newtypeDeleteCollectionNamespacedOptions :: Newtype DeleteCollectionNamespacedOptions _
+derive instance genericDeleteCollectionNamespacedOptions :: Generic DeleteCollectionNamespacedOptions _
+instance showDeleteCollectionNamespacedOptions :: Show DeleteCollectionNamespacedOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -62,9 +62,9 @@ instance decodeDeleteCollectionNamespacedConfigMapOptions :: Decode DeleteCollec
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionNamespacedConfigMapOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionNamespacedConfigMapOptions :: Encode DeleteCollectionNamespacedConfigMapOptions where
-  encode (DeleteCollectionNamespacedConfigMapOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
+  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -75,8 +75,8 @@ instance encodeDeleteCollectionNamespacedConfigMapOptions :: Encode DeleteCollec
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionNamespacedConfigMapOptions :: Default DeleteCollectionNamespacedConfigMapOptions where
-  default = DeleteCollectionNamespacedConfigMapOptions
+instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNamespacedOptions where
+  default = DeleteCollectionNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -87,52 +87,52 @@ instance defaultDeleteCollectionNamespacedConfigMapOptions :: Default DeleteColl
     , watch: Nothing }
 
 -- | delete collection of ConfigMap
-deleteCollectionNamespacedConfigMap :: forall e. Config -> String -> DeleteCollectionNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedConfigMap cfg namespace options = makeRequest (delete cfg url Nothing)
+deleteCollectionNamespaced :: forall e. Config -> String -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced cfg namespace options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteNamespacedConfigMapOptions = DeleteNamespacedConfigMapOptions
+newtype DeleteNamespacedOptions = DeleteNamespacedOptions
   { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , propagationPolicy :: (Maybe String) }
 
-derive instance newtypeDeleteNamespacedConfigMapOptions :: Newtype DeleteNamespacedConfigMapOptions _
-derive instance genericDeleteNamespacedConfigMapOptions :: Generic DeleteNamespacedConfigMapOptions _
-instance showDeleteNamespacedConfigMapOptions :: Show DeleteNamespacedConfigMapOptions where show a = genericShow a
-instance decodeDeleteNamespacedConfigMapOptions :: Decode DeleteNamespacedConfigMapOptions where
+derive instance newtypeDeleteNamespacedOptions :: Newtype DeleteNamespacedOptions _
+derive instance genericDeleteNamespacedOptions :: Generic DeleteNamespacedOptions _
+instance showDeleteNamespacedOptions :: Show DeleteNamespacedOptions where show a = genericShow a
+instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
   decode a = do
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteNamespacedConfigMapOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteNamespacedConfigMapOptions :: Encode DeleteNamespacedConfigMapOptions where
-  encode (DeleteNamespacedConfigMapOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
+  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
-instance defaultDeleteNamespacedConfigMapOptions :: Default DeleteNamespacedConfigMapOptions where
-  default = DeleteNamespacedConfigMapOptions
+instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
+  default = DeleteNamespacedOptions
     { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , propagationPolicy: Nothing }
 
 -- | delete a ConfigMap
-deleteNamespacedConfigMap :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedConfigMap cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+deleteNamespaced :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced cfg namespace name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | list or watch objects of kind ConfigMap
-listConfigMapForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMapList)
-listConfigMapForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMapList)
+listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/configmaps"
 
@@ -147,7 +147,7 @@ listConfigMapForAllNamespaces cfg = makeRequest (get cfg url Nothing)
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListNamespacedConfigMapOptions = ListNamespacedConfigMapOptions
+newtype ListNamespacedOptions = ListNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -157,10 +157,10 @@ newtype ListNamespacedConfigMapOptions = ListNamespacedConfigMapOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListNamespacedConfigMapOptions :: Newtype ListNamespacedConfigMapOptions _
-derive instance genericListNamespacedConfigMapOptions :: Generic ListNamespacedConfigMapOptions _
-instance showListNamespacedConfigMapOptions :: Show ListNamespacedConfigMapOptions where show a = genericShow a
-instance decodeListNamespacedConfigMapOptions :: Decode ListNamespacedConfigMapOptions where
+derive instance newtypeListNamespacedOptions :: Newtype ListNamespacedOptions _
+derive instance genericListNamespacedOptions :: Generic ListNamespacedOptions _
+instance showListNamespacedOptions :: Show ListNamespacedOptions where show a = genericShow a
+instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -170,9 +170,9 @@ instance decodeListNamespacedConfigMapOptions :: Decode ListNamespacedConfigMapO
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListNamespacedConfigMapOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListNamespacedConfigMapOptions :: Encode ListNamespacedConfigMapOptions where
-  encode (ListNamespacedConfigMapOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
+  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -183,8 +183,8 @@ instance encodeListNamespacedConfigMapOptions :: Encode ListNamespacedConfigMapO
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListNamespacedConfigMapOptions :: Default ListNamespacedConfigMapOptions where
-  default = ListNamespacedConfigMapOptions
+instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
+  default = ListNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -195,64 +195,64 @@ instance defaultListNamespacedConfigMapOptions :: Default ListNamespacedConfigMa
     , watch: Nothing }
 
 -- | list or watch objects of kind ConfigMap
-listNamespacedConfigMap :: forall e. Config -> String -> ListNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMapList)
-listNamespacedConfigMap cfg namespace options = makeRequest (get cfg url Nothing)
+listNamespaced :: forall e. Config -> String -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMapList)
+listNamespaced cfg namespace options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/configmaps" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadNamespacedConfigMapOptions = ReadNamespacedConfigMapOptions
+newtype ReadNamespacedOptions = ReadNamespacedOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadNamespacedConfigMapOptions :: Newtype ReadNamespacedConfigMapOptions _
-derive instance genericReadNamespacedConfigMapOptions :: Generic ReadNamespacedConfigMapOptions _
-instance showReadNamespacedConfigMapOptions :: Show ReadNamespacedConfigMapOptions where show a = genericShow a
-instance decodeReadNamespacedConfigMapOptions :: Decode ReadNamespacedConfigMapOptions where
+derive instance newtypeReadNamespacedOptions :: Newtype ReadNamespacedOptions _
+derive instance genericReadNamespacedOptions :: Generic ReadNamespacedOptions _
+instance showReadNamespacedOptions :: Show ReadNamespacedOptions where show a = genericShow a
+instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadNamespacedConfigMapOptions { exact, export }
-instance encodeReadNamespacedConfigMapOptions :: Encode ReadNamespacedConfigMapOptions where
-  encode (ReadNamespacedConfigMapOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadNamespacedOptions { exact, export }
+instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
+  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadNamespacedConfigMapOptions :: Default ReadNamespacedConfigMapOptions where
-  default = ReadNamespacedConfigMapOptions
+instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
+  default = ReadNamespacedOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified ConfigMap
-readNamespacedConfigMap :: forall e. Config -> String -> String -> ReadNamespacedConfigMapOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMap)
-readNamespacedConfigMap cfg namespace name options = makeRequest (get cfg url Nothing)
+readNamespaced :: forall e. Config -> String -> String -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMap)
+readNamespaced cfg namespace name options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> "" <> Client.formatQueryString options
 
 -- | replace the specified ConfigMap
-replaceNamespacedConfigMap :: forall e. Config -> String -> String -> CoreV1.ConfigMap -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMap)
-replaceNamespacedConfigMap cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespaced :: forall e. Config -> String -> String -> CoreV1.ConfigMap -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ConfigMap)
+replaceNamespaced cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> namespace <> "/configmaps/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | watch individual changes to a list of ConfigMap
-watchConfigMapListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchConfigMapListForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/configmaps"
 
 -- | watch changes to an object of kind ConfigMap
-watchNamespacedConfigMap :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedConfigMap cfg namespace name = makeRequest (get cfg url Nothing)
+watchNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces/" <> namespace <> "/configmaps/" <> name <> ""
 
 -- | watch individual changes to a list of ConfigMap
-watchNamespacedConfigMapList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedConfigMapList cfg namespace = makeRequest (get cfg url Nothing)
+watchNamespacedList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList cfg namespace = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces/" <> namespace <> "/configmaps"

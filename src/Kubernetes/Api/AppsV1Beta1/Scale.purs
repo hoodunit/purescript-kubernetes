@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,27 +22,27 @@ import Kubernetes.Api.AppsV1Beta1 as AppsV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | read scale of the specified Deployment
-readNamespacedDeploymentScale :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
-readNamespacedDeploymentScale cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedDeployment :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
+readNamespacedDeployment cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta1/namespaces/" <> namespace <> "/deployments/" <> name <> "/scale"
 
 -- | read scale of the specified StatefulSet
-readNamespacedStatefulSetScale :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
-readNamespacedStatefulSetScale cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedStatefulSet :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
+readNamespacedStatefulSet cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta1/namespaces/" <> namespace <> "/statefulsets/" <> name <> "/scale"
 
 -- | replace scale of the specified Deployment
-replaceNamespacedDeploymentScale :: forall e. Config -> String -> String -> AppsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
-replaceNamespacedDeploymentScale cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedDeployment :: forall e. Config -> String -> String -> AppsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
+replaceNamespacedDeployment cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1beta1/namespaces/" <> namespace <> "/deployments/" <> name <> "/scale"
     encodedBody = encodeJSON body
 
 -- | replace scale of the specified StatefulSet
-replaceNamespacedStatefulSetScale :: forall e. Config -> String -> String -> AppsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
-replaceNamespacedStatefulSetScale cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedStatefulSet :: forall e. Config -> String -> String -> AppsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta1.Scale)
+replaceNamespacedStatefulSet cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1beta1/namespaces/" <> namespace <> "/statefulsets/" <> name <> "/scale"
     encodedBody = encodeJSON body

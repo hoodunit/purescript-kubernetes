@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.MetaV1 as MetaV1
 import Kubernetes.Api.RbacV1Beta1 as RbacV1Beta1
 
 -- | create a ClusterRole
-createClusterRole :: forall e. Config -> RbacV1Beta1.ClusterRole -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRole)
-createClusterRole cfg body = makeRequest (post cfg url (Just encodedBody))
+create :: forall e. Config -> RbacV1Beta1.ClusterRole -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRole)
+create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles"
     encodedBody = encodeJSON body
@@ -32,38 +32,38 @@ createClusterRole cfg body = makeRequest (post cfg url (Just encodedBody))
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteClusterRoleOptions = DeleteClusterRoleOptions
+newtype DeleteOptions = DeleteOptions
   { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , propagationPolicy :: (Maybe String) }
 
-derive instance newtypeDeleteClusterRoleOptions :: Newtype DeleteClusterRoleOptions _
-derive instance genericDeleteClusterRoleOptions :: Generic DeleteClusterRoleOptions _
-instance showDeleteClusterRoleOptions :: Show DeleteClusterRoleOptions where show a = genericShow a
-instance decodeDeleteClusterRoleOptions :: Decode DeleteClusterRoleOptions where
+derive instance newtypeDeleteOptions :: Newtype DeleteOptions _
+derive instance genericDeleteOptions :: Generic DeleteOptions _
+instance showDeleteOptions :: Show DeleteOptions where show a = genericShow a
+instance decodeDeleteOptions :: Decode DeleteOptions where
   decode a = do
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteClusterRoleOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteClusterRoleOptions :: Encode DeleteClusterRoleOptions where
-  encode (DeleteClusterRoleOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteOptions :: Encode DeleteOptions where
+  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
-instance defaultDeleteClusterRoleOptions :: Default DeleteClusterRoleOptions where
-  default = DeleteClusterRoleOptions
+instance defaultDeleteOptions :: Default DeleteOptions where
+  default = DeleteOptions
     { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , propagationPolicy: Nothing }
 
 -- | delete a ClusterRole
-deleteClusterRole :: forall e. Config -> MetaV1.DeleteOptions -> DeleteClusterRoleOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteClusterRole cfg body options = makeRequest (delete cfg url (Just encodedBody))
+delete :: forall e. Config -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+delete cfg body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
-    url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}" <> formatQueryString options
+    url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | Fields:
@@ -77,7 +77,7 @@ deleteClusterRole cfg body options = makeRequest (delete cfg url (Just encodedBo
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionClusterRoleOptions = DeleteCollectionClusterRoleOptions
+newtype DeleteCollectionOptions = DeleteCollectionOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -87,10 +87,10 @@ newtype DeleteCollectionClusterRoleOptions = DeleteCollectionClusterRoleOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionClusterRoleOptions :: Newtype DeleteCollectionClusterRoleOptions _
-derive instance genericDeleteCollectionClusterRoleOptions :: Generic DeleteCollectionClusterRoleOptions _
-instance showDeleteCollectionClusterRoleOptions :: Show DeleteCollectionClusterRoleOptions where show a = genericShow a
-instance decodeDeleteCollectionClusterRoleOptions :: Decode DeleteCollectionClusterRoleOptions where
+derive instance newtypeDeleteCollectionOptions :: Newtype DeleteCollectionOptions _
+derive instance genericDeleteCollectionOptions :: Generic DeleteCollectionOptions _
+instance showDeleteCollectionOptions :: Show DeleteCollectionOptions where show a = genericShow a
+instance decodeDeleteCollectionOptions :: Decode DeleteCollectionOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -100,9 +100,9 @@ instance decodeDeleteCollectionClusterRoleOptions :: Decode DeleteCollectionClus
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionClusterRoleOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionClusterRoleOptions :: Encode DeleteCollectionClusterRoleOptions where
-  encode (DeleteCollectionClusterRoleOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionOptions :: Encode DeleteCollectionOptions where
+  encode (DeleteCollectionOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -113,8 +113,8 @@ instance encodeDeleteCollectionClusterRoleOptions :: Encode DeleteCollectionClus
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionClusterRoleOptions :: Default DeleteCollectionClusterRoleOptions where
-  default = DeleteCollectionClusterRoleOptions
+instance defaultDeleteCollectionOptions :: Default DeleteCollectionOptions where
+  default = DeleteCollectionOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -125,10 +125,10 @@ instance defaultDeleteCollectionClusterRoleOptions :: Default DeleteCollectionCl
     , watch: Nothing }
 
 -- | delete collection of ClusterRole
-deleteCollectionClusterRole :: forall e. Config -> DeleteCollectionClusterRoleOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionClusterRole cfg options = makeRequest (delete cfg url Nothing)
+deleteCollection :: forall e. Config -> DeleteCollectionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollection cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles" <> formatQueryString options
+    url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `continue`: The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.
@@ -141,7 +141,7 @@ deleteCollectionClusterRole cfg options = makeRequest (delete cfg url Nothing)
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListClusterRoleOptions = ListClusterRoleOptions
+newtype ListOptions = ListOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -151,10 +151,10 @@ newtype ListClusterRoleOptions = ListClusterRoleOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListClusterRoleOptions :: Newtype ListClusterRoleOptions _
-derive instance genericListClusterRoleOptions :: Generic ListClusterRoleOptions _
-instance showListClusterRoleOptions :: Show ListClusterRoleOptions where show a = genericShow a
-instance decodeListClusterRoleOptions :: Decode ListClusterRoleOptions where
+derive instance newtypeListOptions :: Newtype ListOptions _
+derive instance genericListOptions :: Generic ListOptions _
+instance showListOptions :: Show ListOptions where show a = genericShow a
+instance decodeListOptions :: Decode ListOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -164,9 +164,9 @@ instance decodeListClusterRoleOptions :: Decode ListClusterRoleOptions where
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListClusterRoleOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListClusterRoleOptions :: Encode ListClusterRoleOptions where
-  encode (ListClusterRoleOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListOptions :: Encode ListOptions where
+  encode (ListOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -177,8 +177,8 @@ instance encodeListClusterRoleOptions :: Encode ListClusterRoleOptions where
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListClusterRoleOptions :: Default ListClusterRoleOptions where
-  default = ListClusterRoleOptions
+instance defaultListOptions :: Default ListOptions where
+  default = ListOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -189,32 +189,32 @@ instance defaultListClusterRoleOptions :: Default ListClusterRoleOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind ClusterRole
-listClusterRole :: forall e. Config -> ListClusterRoleOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRoleList)
-listClusterRole cfg options = makeRequest (get cfg url Nothing)
+list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRoleList)
+list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles" <> formatQueryString options
+    url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles" <> Client.formatQueryString options
 
 -- | read the specified ClusterRole
-readClusterRole :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRole)
-readClusterRole cfg = makeRequest (get cfg url Nothing)
+read :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRole)
+read cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
 
 -- | replace the specified ClusterRole
-replaceClusterRole :: forall e. Config -> RbacV1Beta1.ClusterRole -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRole)
-replaceClusterRole cfg body = makeRequest (put cfg url (Just encodedBody))
+replace :: forall e. Config -> RbacV1Beta1.ClusterRole -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1Beta1.ClusterRole)
+replace cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind ClusterRole
-watchClusterRole :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchClusterRole cfg = makeRequest (get cfg url Nothing)
+watch :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles/{name}"
 
 -- | watch individual changes to a list of ClusterRole
-watchClusterRoleList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchClusterRoleList cfg = makeRequest (get cfg url Nothing)
+watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles"

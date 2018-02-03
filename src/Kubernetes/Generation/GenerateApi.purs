@@ -18,7 +18,7 @@ import Data.Symbol (SProxy(..))
 import Data.Tuple (Tuple(..), uncurry)
 import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
-import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, refName, refName', stripTagFromId, typeModule', typeQualifiedName, uppercaseFirstChar)
+import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, refName, refName', stripTagFromId, stripModuleFromId, typeModule', typeQualifiedName, uppercaseFirstChar)
 import Kubernetes.Generation.PathParsing as PathParsing
 import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Response, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
 import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
@@ -69,7 +69,7 @@ parsePathMethod moduleNs path (Tuple _method
   where
     moduleName = parseModuleName op
     method = parseMethod _method
-    name = operationName id tags
+    name = operationName op moduleName id tags
     body = parseOperationBody op
     queryParams = parseOperationParams (uppercaseFirstChar $ name <> "Options") op
     returnType = endpointReturnType moduleName parsedResponses
@@ -108,12 +108,14 @@ endpointReturnType modName responses =
     Just {"type": Just simpleType} -> parseType simpleType
     _ -> AST.TypeString
 
-operationName :: String -> Maybe (Array String) -> String
-operationName opId (Just [tag]) = stripTagFromId opId tag
-operationName opId (Just []) = opId
-operationName opId (Just tags) = unsafeCrashWith $ "Operation '" <> opId <>
+operationName :: Operation -> AST.ApiModuleName -> String -> Maybe (Array String) -> String
+operationName {"x-kubernetes-action": NullOrUndefined (Just _)} modName opId (Just [tag]) =
+  opId # stripTagFromId tag # stripModuleFromId modName
+operationName op modName opId (Just [tag]) = opId # stripTagFromId tag
+operationName _ modName opId (Just []) = opId
+operationName _ modName opId (Just tags) = unsafeCrashWith $ "Operation '" <> opId <>
                                  "' has multiple tags: " <> show tags
-operationName opId Nothing = opId
+operationName _ modName opId Nothing = opId
 
 parseMethod :: Partial => String -> AST.HttpMethod
 parseMethod "get" = AST.GET
@@ -223,7 +225,7 @@ mkModule moduleNs moduleName decls =
     , "Data.StrMap as StrMap"
     , "Data.Tuple (Tuple(Tuple))"
     , "Node.HTTP (HTTP)"
-    , "Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)"
+    , "Kubernetes.Client as Client"
     , "Kubernetes.Config (Config)"
     , "Kubernetes.Default (class Default)"
     , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports

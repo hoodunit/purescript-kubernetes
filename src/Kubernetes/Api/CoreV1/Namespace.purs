@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a Namespace
-createNamespace :: forall e. Config -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
-createNamespace cfg body = makeRequest (post cfg url (Just encodedBody))
+create :: forall e. Config -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
+create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces"
     encodedBody = encodeJSON body
@@ -32,38 +32,38 @@ createNamespace cfg body = makeRequest (post cfg url (Just encodedBody))
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteNamespaceOptions = DeleteNamespaceOptions
+newtype DeleteOptions = DeleteOptions
   { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , propagationPolicy :: (Maybe String) }
 
-derive instance newtypeDeleteNamespaceOptions :: Newtype DeleteNamespaceOptions _
-derive instance genericDeleteNamespaceOptions :: Generic DeleteNamespaceOptions _
-instance showDeleteNamespaceOptions :: Show DeleteNamespaceOptions where show a = genericShow a
-instance decodeDeleteNamespaceOptions :: Decode DeleteNamespaceOptions where
+derive instance newtypeDeleteOptions :: Newtype DeleteOptions _
+derive instance genericDeleteOptions :: Generic DeleteOptions _
+instance showDeleteOptions :: Show DeleteOptions where show a = genericShow a
+instance decodeDeleteOptions :: Decode DeleteOptions where
   decode a = do
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteNamespaceOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteNamespaceOptions :: Encode DeleteNamespaceOptions where
-  encode (DeleteNamespaceOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteOptions :: Encode DeleteOptions where
+  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
-instance defaultDeleteNamespaceOptions :: Default DeleteNamespaceOptions where
-  default = DeleteNamespaceOptions
+instance defaultDeleteOptions :: Default DeleteOptions where
+  default = DeleteOptions
     { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , propagationPolicy: Nothing }
 
 -- | delete a Namespace
-deleteNamespace :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteNamespaceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
-deleteNamespace cfg name body options = makeRequest (delete cfg url (Just encodedBody))
+delete :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
+delete cfg name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
-    url = "/api/v1/namespaces/" <> name <> "" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> name <> "" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | Fields:
@@ -77,7 +77,7 @@ deleteNamespace cfg name body options = makeRequest (delete cfg url (Just encode
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListNamespaceOptions = ListNamespaceOptions
+newtype ListOptions = ListOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -87,10 +87,10 @@ newtype ListNamespaceOptions = ListNamespaceOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListNamespaceOptions :: Newtype ListNamespaceOptions _
-derive instance genericListNamespaceOptions :: Generic ListNamespaceOptions _
-instance showListNamespaceOptions :: Show ListNamespaceOptions where show a = genericShow a
-instance decodeListNamespaceOptions :: Decode ListNamespaceOptions where
+derive instance newtypeListOptions :: Newtype ListOptions _
+derive instance genericListOptions :: Generic ListOptions _
+instance showListOptions :: Show ListOptions where show a = genericShow a
+instance decodeListOptions :: Decode ListOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -100,9 +100,9 @@ instance decodeListNamespaceOptions :: Decode ListNamespaceOptions where
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListNamespaceOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListNamespaceOptions :: Encode ListNamespaceOptions where
-  encode (ListNamespaceOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListOptions :: Encode ListOptions where
+  encode (ListOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -113,8 +113,8 @@ instance encodeListNamespaceOptions :: Encode ListNamespaceOptions where
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListNamespaceOptions :: Default ListNamespaceOptions where
-  default = ListNamespaceOptions
+instance defaultListOptions :: Default ListOptions where
+  default = ListOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -125,78 +125,78 @@ instance defaultListNamespaceOptions :: Default ListNamespaceOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind Namespace
-listNamespace :: forall e. Config -> ListNamespaceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.NamespaceList)
-listNamespace cfg options = makeRequest (get cfg url Nothing)
+list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.NamespaceList)
+list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces" <> formatQueryString options
+    url = "/api/v1/namespaces" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadNamespaceOptions = ReadNamespaceOptions
+newtype ReadOptions = ReadOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadNamespaceOptions :: Newtype ReadNamespaceOptions _
-derive instance genericReadNamespaceOptions :: Generic ReadNamespaceOptions _
-instance showReadNamespaceOptions :: Show ReadNamespaceOptions where show a = genericShow a
-instance decodeReadNamespaceOptions :: Decode ReadNamespaceOptions where
+derive instance newtypeReadOptions :: Newtype ReadOptions _
+derive instance genericReadOptions :: Generic ReadOptions _
+instance showReadOptions :: Show ReadOptions where show a = genericShow a
+instance decodeReadOptions :: Decode ReadOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadNamespaceOptions { exact, export }
-instance encodeReadNamespaceOptions :: Encode ReadNamespaceOptions where
-  encode (ReadNamespaceOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadOptions { exact, export }
+instance encodeReadOptions :: Encode ReadOptions where
+  encode (ReadOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadNamespaceOptions :: Default ReadNamespaceOptions where
-  default = ReadNamespaceOptions
+instance defaultReadOptions :: Default ReadOptions where
+  default = ReadOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified Namespace
-readNamespace :: forall e. Config -> String -> ReadNamespaceOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
-readNamespace cfg name options = makeRequest (get cfg url Nothing)
+read :: forall e. Config -> String -> ReadOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
+read cfg name options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/api/v1/namespaces/" <> name <> "" <> formatQueryString options
+    url = "/api/v1/namespaces/" <> name <> "" <> Client.formatQueryString options
 
 -- | read status of the specified Namespace
-readNamespaceStatus :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
-readNamespaceStatus cfg name = makeRequest (get cfg url Nothing)
+readStatus :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
+readStatus cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/namespaces/" <> name <> "/status"
 
 -- | replace the specified Namespace
-replaceNamespace :: forall e. Config -> String -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
-replaceNamespace cfg name body = makeRequest (put cfg url (Just encodedBody))
+replace :: forall e. Config -> String -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
+replace cfg name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | replace finalize of the specified Namespace
-replaceNamespaceFinalize :: forall e. Config -> String -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
-replaceNamespaceFinalize cfg name body = makeRequest (put cfg url (Just encodedBody))
+replaceFinalize :: forall e. Config -> String -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
+replaceFinalize cfg name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> name <> "/finalize"
     encodedBody = encodeJSON body
 
 -- | replace status of the specified Namespace
-replaceNamespaceStatus :: forall e. Config -> String -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
-replaceNamespaceStatus cfg name body = makeRequest (put cfg url (Just encodedBody))
+replaceStatus :: forall e. Config -> String -> CoreV1.Namespace -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Namespace)
+replaceStatus cfg name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/namespaces/" <> name <> "/status"
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind Namespace
-watchNamespace :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespace cfg name = makeRequest (get cfg url Nothing)
+watch :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces/" <> name <> ""
 
 -- | watch individual changes to a list of Namespace
-watchNamespaceList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespaceList cfg = makeRequest (get cfg url Nothing)
+watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/namespaces"

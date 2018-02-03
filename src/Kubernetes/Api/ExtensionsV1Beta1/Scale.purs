@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,40 +22,40 @@ import Kubernetes.Api.APIExtensionsV1Beta1 as APIExtensionsV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | read scale of the specified Deployment
-readNamespacedDeploymentScale :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
-readNamespacedDeploymentScale cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedDeployment :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
+readNamespacedDeployment cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/namespaces/" <> namespace <> "/deployments/" <> name <> "/scale"
 
 -- | read scale of the specified ReplicaSet
-readNamespacedReplicaSetScale :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
-readNamespacedReplicaSetScale cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedReplicaSet :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
+readNamespacedReplicaSet cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/namespaces/" <> namespace <> "/replicasets/" <> name <> "/scale"
 
 -- | read scale of the specified ReplicationControllerDummy
-readNamespacedReplicationControllerDummyScale :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
-readNamespacedReplicationControllerDummyScale cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedReplicationControllerDummy :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
+readNamespacedReplicationControllerDummy cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/namespaces/" <> namespace <> "/replicationcontrollers/" <> name <> "/scale"
 
 -- | replace scale of the specified Deployment
-replaceNamespacedDeploymentScale :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
-replaceNamespacedDeploymentScale cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedDeployment :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
+replaceNamespacedDeployment cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/extensions/v1beta1/namespaces/" <> namespace <> "/deployments/" <> name <> "/scale"
     encodedBody = encodeJSON body
 
 -- | replace scale of the specified ReplicaSet
-replaceNamespacedReplicaSetScale :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
-replaceNamespacedReplicaSetScale cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedReplicaSet :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
+replaceNamespacedReplicaSet cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/extensions/v1beta1/namespaces/" <> namespace <> "/replicasets/" <> name <> "/scale"
     encodedBody = encodeJSON body
 
 -- | replace scale of the specified ReplicationControllerDummy
-replaceNamespacedReplicationControllerDummyScale :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
-replaceNamespacedReplicationControllerDummyScale cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedReplicationControllerDummy :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.Scale -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.Scale)
+replaceNamespacedReplicationControllerDummy cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/extensions/v1beta1/namespaces/" <> namespace <> "/replicationcontrollers/" <> name <> "/scale"
     encodedBody = encodeJSON body

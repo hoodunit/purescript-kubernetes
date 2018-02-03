@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.AuthorizationV1 as AuthorizationV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a LocalSubjectAccessReview
-createNamespacedLocalSubjectAccessReview :: forall e. Config -> AuthorizationV1.LocalSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status AuthorizationV1.LocalSubjectAccessReview)
-createNamespacedLocalSubjectAccessReview cfg body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> AuthorizationV1.LocalSubjectAccessReview -> Aff (http :: HTTP | e) (Either MetaV1.Status AuthorizationV1.LocalSubjectAccessReview)
+createNamespaced cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/authorization.k8s.io/v1/namespaces/{namespace}/localsubjectaccessreviews"
     encodedBody = encodeJSON body

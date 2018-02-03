@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.APIExtensionsV1Beta1 as APIExtensionsV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create rollback of a Deployment
-createNamespacedDeploymentRollback :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.DeploymentRollback -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.DeploymentRollback)
-createNamespacedDeploymentRollback cfg namespace name body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> String -> String -> APIExtensionsV1Beta1.DeploymentRollback -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.DeploymentRollback)
+createNamespaced cfg namespace name body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/extensions/v1beta1/namespaces/" <> namespace <> "/deployments/" <> name <> "/rollback"
     encodedBody = encodeJSON body

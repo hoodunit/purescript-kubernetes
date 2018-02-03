@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,13 +22,13 @@ import Kubernetes.Api.CoreV1 as CoreV1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | list objects of kind ComponentStatus
-listComponentStatus :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ComponentStatusList)
-listComponentStatus cfg = makeRequest (get cfg url Nothing)
+list :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ComponentStatusList)
+list cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/componentstatuses"
 
 -- | read the specified ComponentStatus
-readComponentStatus :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ComponentStatus)
-readComponentStatus cfg name = makeRequest (get cfg url Nothing)
+read :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.ComponentStatus)
+read cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/componentstatuses/" <> name <> ""

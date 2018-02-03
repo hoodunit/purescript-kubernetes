@@ -96,7 +96,7 @@ emitDeclaration (Endpoint
   optionsDecl queryParams <>
   formatDescription description <>
   name <> " :: forall e. " <> fnParamTypes <> "Aff (http :: HTTP | e) " <> returnType' <> "\n" <>
-  name <> " " <> paramNamesStr <> "= makeRequest (" <> methodCall <> ")\n" <>
+  name <> " " <> paramNamesStr <> "= Client.makeRequest (" <> methodCall <> ")\n" <>
   "  where\n" <>
   "    url = " <> buildUrlStr <>
   buildBodyStr body
@@ -121,17 +121,17 @@ emitDeclaration (Endpoint
     methodCall = methodName method <> " cfg url" <> maybe " Nothing" (const " (Just encodedBody)") body
     
     buildUrlStr = urlBuilderStr urlWithParams <> formatQueryStr queryParams
-    formatQueryStr = maybe "" (const " <> formatQueryString options") 
+    formatQueryStr = maybe "" (const " <> Client.formatQueryString options") 
     buildBodyStr = maybe "" (const "\n    encodedBody = encodeJSON body")
 
 methodName :: HttpMethod -> String
-methodName GET = "get"
-methodName DELETE = "delete"
-methodName HEAD = "head"
-methodName OPTIONS = "options"
-methodName PATCH = "patch"
-methodName POST = "post"
-methodName PUT = "put"
+methodName GET = "Client.get"
+methodName DELETE = "Client.delete"
+methodName HEAD = "Client.head"
+methodName OPTIONS = "Client.options"
+methodName PATCH = "Client.patch"
+methodName POST = "Client.post"
+methodName PUT = "Client.put"
 
 urlParamNames :: UrlWithParams -> Array String
 urlParamNames (EndUrl _) = []

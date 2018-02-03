@@ -14,7 +14,7 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
 import Node.HTTP (HTTP)
-import Kubernetes.Client (delete, formatQueryString, get, head, options, patch, post, put, makeRequest)
+import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
@@ -22,8 +22,8 @@ import Kubernetes.Api.BatchV1Beta1 as BatchV1Beta1
 import Kubernetes.Api.MetaV1 as MetaV1
 
 -- | create a CronJob
-createNamespacedCronJob :: forall e. Config -> String -> BatchV1Beta1.CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
-createNamespacedCronJob cfg namespace body = makeRequest (post cfg url (Just encodedBody))
+createNamespaced :: forall e. Config -> String -> BatchV1Beta1.CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
+createNamespaced cfg namespace body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs"
     encodedBody = encodeJSON body
@@ -39,7 +39,7 @@ createNamespacedCronJob cfg namespace body = makeRequest (post cfg url (Just enc
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype DeleteCollectionNamespacedCronJobOptions = DeleteCollectionNamespacedCronJobOptions
+newtype DeleteCollectionNamespacedOptions = DeleteCollectionNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -49,10 +49,10 @@ newtype DeleteCollectionNamespacedCronJobOptions = DeleteCollectionNamespacedCro
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeDeleteCollectionNamespacedCronJobOptions :: Newtype DeleteCollectionNamespacedCronJobOptions _
-derive instance genericDeleteCollectionNamespacedCronJobOptions :: Generic DeleteCollectionNamespacedCronJobOptions _
-instance showDeleteCollectionNamespacedCronJobOptions :: Show DeleteCollectionNamespacedCronJobOptions where show a = genericShow a
-instance decodeDeleteCollectionNamespacedCronJobOptions :: Decode DeleteCollectionNamespacedCronJobOptions where
+derive instance newtypeDeleteCollectionNamespacedOptions :: Newtype DeleteCollectionNamespacedOptions _
+derive instance genericDeleteCollectionNamespacedOptions :: Generic DeleteCollectionNamespacedOptions _
+instance showDeleteCollectionNamespacedOptions :: Show DeleteCollectionNamespacedOptions where show a = genericShow a
+instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -62,9 +62,9 @@ instance decodeDeleteCollectionNamespacedCronJobOptions :: Decode DeleteCollecti
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ DeleteCollectionNamespacedCronJobOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeDeleteCollectionNamespacedCronJobOptions :: Encode DeleteCollectionNamespacedCronJobOptions where
-  encode (DeleteCollectionNamespacedCronJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
+  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -75,8 +75,8 @@ instance encodeDeleteCollectionNamespacedCronJobOptions :: Encode DeleteCollecti
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultDeleteCollectionNamespacedCronJobOptions :: Default DeleteCollectionNamespacedCronJobOptions where
-  default = DeleteCollectionNamespacedCronJobOptions
+instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNamespacedOptions where
+  default = DeleteCollectionNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -87,52 +87,52 @@ instance defaultDeleteCollectionNamespacedCronJobOptions :: Default DeleteCollec
     , watch: Nothing }
 
 -- | delete collection of CronJob
-deleteCollectionNamespacedCronJob :: forall e. Config -> String -> DeleteCollectionNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteCollectionNamespacedCronJob cfg namespace options = makeRequest (delete cfg url Nothing)
+deleteCollectionNamespaced :: forall e. Config -> String -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced cfg namespace options = Client.makeRequest (Client.delete cfg url Nothing)
   where
-    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs" <> formatQueryString options
+    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `gracePeriodSeconds`: The duration in seconds before the object should be deleted. Value must be non-negative integer. The value zero indicates delete immediately. If this value is nil, the default grace period for the specified type will be used. Defaults to a per object value if not specified. zero means delete immediately.
 -- | - `orphanDependents`: Deprecated: please use the PropagationPolicy, this field will be deprecated in 1.7. Should the dependent objects be orphaned. If true/false, the "orphan" finalizer will be added to/removed from the object's finalizers list. Either this field or PropagationPolicy may be set, but not both.
 -- | - `propagationPolicy`: Whether and how garbage collection will be performed. Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
-newtype DeleteNamespacedCronJobOptions = DeleteNamespacedCronJobOptions
+newtype DeleteNamespacedOptions = DeleteNamespacedOptions
   { gracePeriodSeconds :: (Maybe Int)
   , orphanDependents :: (Maybe Boolean)
   , propagationPolicy :: (Maybe String) }
 
-derive instance newtypeDeleteNamespacedCronJobOptions :: Newtype DeleteNamespacedCronJobOptions _
-derive instance genericDeleteNamespacedCronJobOptions :: Generic DeleteNamespacedCronJobOptions _
-instance showDeleteNamespacedCronJobOptions :: Show DeleteNamespacedCronJobOptions where show a = genericShow a
-instance decodeDeleteNamespacedCronJobOptions :: Decode DeleteNamespacedCronJobOptions where
+derive instance newtypeDeleteNamespacedOptions :: Newtype DeleteNamespacedOptions _
+derive instance genericDeleteNamespacedOptions :: Generic DeleteNamespacedOptions _
+instance showDeleteNamespacedOptions :: Show DeleteNamespacedOptions where show a = genericShow a
+instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
   decode a = do
                gracePeriodSeconds <- decodeMaybe "gracePeriodSeconds" a
                orphanDependents <- decodeMaybe "orphanDependents" a
                propagationPolicy <- decodeMaybe "propagationPolicy" a
-               pure $ DeleteNamespacedCronJobOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
-instance encodeDeleteNamespacedCronJobOptions :: Encode DeleteNamespacedCronJobOptions where
-  encode (DeleteNamespacedCronJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
+instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
+  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
 
 
-instance defaultDeleteNamespacedCronJobOptions :: Default DeleteNamespacedCronJobOptions where
-  default = DeleteNamespacedCronJobOptions
+instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
+  default = DeleteNamespacedOptions
     { gracePeriodSeconds: Nothing
     , orphanDependents: Nothing
     , propagationPolicy: Nothing }
 
 -- | delete a CronJob
-deleteNamespacedCronJob :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
-deleteNamespacedCronJob cfg namespace name body options = makeRequest (delete cfg url (Just encodedBody))
+deleteNamespaced :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced cfg namespace name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
-    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "" <> formatQueryString options
+    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | list or watch objects of kind CronJob
-listCronJobForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJobList)
-listCronJobForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJobList)
+listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1beta1/cronjobs"
 
@@ -147,7 +147,7 @@ listCronJobForAllNamespaces cfg = makeRequest (get cfg url Nothing)
 -- | - `resourceVersion`: When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.
 -- | - `timeoutSeconds`: Timeout for the list/watch call.
 -- | - `watch`: Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.
-newtype ListNamespacedCronJobOptions = ListNamespacedCronJobOptions
+newtype ListNamespacedOptions = ListNamespacedOptions
   { continue :: (Maybe String)
   , fieldSelector :: (Maybe String)
   , includeUninitialized :: (Maybe Boolean)
@@ -157,10 +157,10 @@ newtype ListNamespacedCronJobOptions = ListNamespacedCronJobOptions
   , timeoutSeconds :: (Maybe Int)
   , watch :: (Maybe Boolean) }
 
-derive instance newtypeListNamespacedCronJobOptions :: Newtype ListNamespacedCronJobOptions _
-derive instance genericListNamespacedCronJobOptions :: Generic ListNamespacedCronJobOptions _
-instance showListNamespacedCronJobOptions :: Show ListNamespacedCronJobOptions where show a = genericShow a
-instance decodeListNamespacedCronJobOptions :: Decode ListNamespacedCronJobOptions where
+derive instance newtypeListNamespacedOptions :: Newtype ListNamespacedOptions _
+derive instance genericListNamespacedOptions :: Generic ListNamespacedOptions _
+instance showListNamespacedOptions :: Show ListNamespacedOptions where show a = genericShow a
+instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
   decode a = do
                continue <- decodeMaybe "continue" a
                fieldSelector <- decodeMaybe "fieldSelector" a
@@ -170,9 +170,9 @@ instance decodeListNamespacedCronJobOptions :: Decode ListNamespacedCronJobOptio
                resourceVersion <- decodeMaybe "resourceVersion" a
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                watch <- decodeMaybe "watch" a
-               pure $ ListNamespacedCronJobOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
-instance encodeListNamespacedCronJobOptions :: Encode ListNamespacedCronJobOptions where
-  encode (ListNamespacedCronJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
+instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
+  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -183,8 +183,8 @@ instance encodeListNamespacedCronJobOptions :: Encode ListNamespacedCronJobOptio
                , Tuple "watch" (encodeMaybe a.watch) ]
 
 
-instance defaultListNamespacedCronJobOptions :: Default ListNamespacedCronJobOptions where
-  default = ListNamespacedCronJobOptions
+instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
+  default = ListNamespacedOptions
     { continue: Nothing
     , fieldSelector: Nothing
     , includeUninitialized: Nothing
@@ -195,77 +195,77 @@ instance defaultListNamespacedCronJobOptions :: Default ListNamespacedCronJobOpt
     , watch: Nothing }
 
 -- | list or watch objects of kind CronJob
-listNamespacedCronJob :: forall e. Config -> String -> ListNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJobList)
-listNamespacedCronJob cfg namespace options = makeRequest (get cfg url Nothing)
+listNamespaced :: forall e. Config -> String -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJobList)
+listNamespaced cfg namespace options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs" <> formatQueryString options
+    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs" <> Client.formatQueryString options
 
 -- | Fields:
 -- | - `exact`: Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'.
 -- | - `export`: Should this value be exported.  Export strips fields that a user can not specify.
-newtype ReadNamespacedCronJobOptions = ReadNamespacedCronJobOptions
+newtype ReadNamespacedOptions = ReadNamespacedOptions
   { exact :: (Maybe Boolean)
   , export :: (Maybe Boolean) }
 
-derive instance newtypeReadNamespacedCronJobOptions :: Newtype ReadNamespacedCronJobOptions _
-derive instance genericReadNamespacedCronJobOptions :: Generic ReadNamespacedCronJobOptions _
-instance showReadNamespacedCronJobOptions :: Show ReadNamespacedCronJobOptions where show a = genericShow a
-instance decodeReadNamespacedCronJobOptions :: Decode ReadNamespacedCronJobOptions where
+derive instance newtypeReadNamespacedOptions :: Newtype ReadNamespacedOptions _
+derive instance genericReadNamespacedOptions :: Generic ReadNamespacedOptions _
+instance showReadNamespacedOptions :: Show ReadNamespacedOptions where show a = genericShow a
+instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
   decode a = do
                exact <- decodeMaybe "exact" a
                export <- decodeMaybe "export" a
-               pure $ ReadNamespacedCronJobOptions { exact, export }
-instance encodeReadNamespacedCronJobOptions :: Encode ReadNamespacedCronJobOptions where
-  encode (ReadNamespacedCronJobOptions a) = encode $ StrMap.fromFoldable $
+               pure $ ReadNamespacedOptions { exact, export }
+instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
+  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
 
-instance defaultReadNamespacedCronJobOptions :: Default ReadNamespacedCronJobOptions where
-  default = ReadNamespacedCronJobOptions
+instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
+  default = ReadNamespacedOptions
     { exact: Nothing
     , export: Nothing }
 
 -- | read the specified CronJob
-readNamespacedCronJob :: forall e. Config -> String -> String -> ReadNamespacedCronJobOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
-readNamespacedCronJob cfg namespace name options = makeRequest (get cfg url Nothing)
+readNamespaced :: forall e. Config -> String -> String -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
+readNamespaced cfg namespace name options = Client.makeRequest (Client.get cfg url Nothing)
   where
-    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "" <> formatQueryString options
+    url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "" <> Client.formatQueryString options
 
 -- | read status of the specified CronJob
-readNamespacedCronJobStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
-readNamespacedCronJobStatus cfg namespace name = makeRequest (get cfg url Nothing)
+readNamespacedStatus :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
+readNamespacedStatus cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "/status"
 
 -- | replace the specified CronJob
-replaceNamespacedCronJob :: forall e. Config -> String -> String -> BatchV1Beta1.CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
-replaceNamespacedCronJob cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespaced :: forall e. Config -> String -> String -> BatchV1Beta1.CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
+replaceNamespaced cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | replace status of the specified CronJob
-replaceNamespacedCronJobStatus :: forall e. Config -> String -> String -> BatchV1Beta1.CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
-replaceNamespacedCronJobStatus cfg namespace name body = makeRequest (put cfg url (Just encodedBody))
+replaceNamespacedStatus :: forall e. Config -> String -> String -> BatchV1Beta1.CronJob -> Aff (http :: HTTP | e) (Either MetaV1.Status BatchV1Beta1.CronJob)
+replaceNamespacedStatus cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/batch/v1beta1/namespaces/" <> namespace <> "/cronjobs/" <> name <> "/status"
     encodedBody = encodeJSON body
 
 -- | watch individual changes to a list of CronJob
-watchCronJobListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchCronJobListForAllNamespaces cfg = makeRequest (get cfg url Nothing)
+watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1beta1/watch/cronjobs"
 
 -- | watch changes to an object of kind CronJob
-watchNamespacedCronJob :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedCronJob cfg namespace name = makeRequest (get cfg url Nothing)
+watchNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1beta1/watch/namespaces/" <> namespace <> "/cronjobs/" <> name <> ""
 
 -- | watch individual changes to a list of CronJob
-watchNamespacedCronJobList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
-watchNamespacedCronJobList cfg namespace = makeRequest (get cfg url Nothing)
+watchNamespacedList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList cfg namespace = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1beta1/watch/namespaces/" <> namespace <> "/cronjobs"

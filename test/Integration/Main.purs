@@ -102,7 +102,7 @@ testNamespace2 = default # (\(Namespace n) -> Namespace $ n
           { name = Just "test" }) })
  
 readDeploy :: Config -> String -> String -> Aff _ (Either MetaV1.Status Deployment)
-readDeploy cfg ns name = Deploy.readNamespacedDeployment cfg ns name default
+readDeploy cfg ns name = Deploy.readNamespaced cfg ns name default
 
 isReadyDeploy :: (Either MetaV1.Status Deployment) -> Boolean
 isReadyDeploy = L.preview (L._Right <<< readyReplicas)
@@ -183,15 +183,15 @@ podHelloWorld cfg = Aff.finally cleanup do
   _ <- deleteNs testNs
   
   log "Creating test namespace"
-  ns <- NS.createNamespace cfg testNamespace >>= unwrapEither
+  ns <- NS.create cfg testNamespace >>= unwrapEither
   
   log "Creating new deployment"
-  deployment <- Deploy.createNamespacedDeployment cfg testNs echoDeployment >>= unwrapEither
+  deployment <- Deploy.createNamespaced cfg testNs echoDeployment >>= unwrapEither
   log "Waiting for deployment to be ready"
   result <- iterateUntil isReadyDeploy $ shortDelay *> readDeploy cfg testNs "echoserver" 
   log $ "Deployment ready with status: " <> show (result ^? (L._Right <<< _status))
   log "Creating new service"
-  service <- Service.createNamespacedService cfg testNs echoService >>= unwrapEither
+  service <- Service.createNamespaced cfg testNs echoService >>= unwrapEither
   case service ^. _spec <<< L._Just <<< _clusterIP of
     Just ip -> pingEndpoint ip 9200
     Nothing -> throwError $ Exception.error "Failure: No cluster IP on service"
@@ -202,13 +202,13 @@ podHelloWorld cfg = Aff.finally cleanup do
     testNs = "test"
     deleteNs ns = do
       log $ "Deleting namespace '" <> ns <> "'"
-      deleteRes <- NS.deleteNamespace cfg "test" default default
+      deleteRes <- NS.delete cfg "test" default default
       _ <- iterateUntil notFound $ shortDelay *> log "Check: does namespace exist?" *> readNs cfg "test"
       log $ "Deleted test namespace with result: " <> show deleteRes
     shortDelay = Aff.delay (Milliseconds 500.0)
     
 readNs :: Config -> String -> Aff _ (Either MetaV1.Status Namespace)
-readNs cfg name = NS.readNamespace cfg name default
+readNs cfg name = NS.read cfg name default
       
 notFound :: (Either MetaV1.Status Namespace) -> Boolean
 notFound = L.preview (L._Left <<< _code <<< L._Just)
