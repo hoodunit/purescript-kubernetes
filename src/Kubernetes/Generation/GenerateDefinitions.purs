@@ -1,4 +1,4 @@
-module Kubernetes.Generation.TypeGeneration where
+module Kubernetes.Generation.GenerateDefinitions where
 
 import Prelude
 

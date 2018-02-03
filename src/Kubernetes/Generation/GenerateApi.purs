@@ -1,4 +1,4 @@
-module Kubernetes.Generation.ApiGeneration where
+module Kubernetes.Generation.GenerateApi where
 
 import Prelude
 

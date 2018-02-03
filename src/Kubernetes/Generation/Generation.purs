@@ -9,10 +9,10 @@ import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(..))
 import Kubernetes.Generation.AST as AST
-import Kubernetes.Generation.ApiGeneration (generateEndpointModules)
+import Kubernetes.Generation.GenerateApi (generateEndpointModules)
+import Kubernetes.Generation.GenerateDefinitions (KubernetesSchema, generateDefinitionModules)
 import Kubernetes.Generation.JsonSchema (Schema)
 import Kubernetes.Generation.Swagger (Swagger)
-import Kubernetes.Generation.TypeGeneration (KubernetesSchema, generateDefinitionModules)
 import Partial.Unsafe (unsafePartial)
 
 generateApi :: Partial => AST.ApiModuleName -> Swagger -> AST.ApiAst
