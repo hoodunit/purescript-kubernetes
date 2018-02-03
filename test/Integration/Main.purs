@@ -100,6 +100,74 @@ testNamespace2 = default # (\(Namespace n) -> Namespace $ n
     { metadata = Just $
         default # (\(MetaV1.ObjectMeta m) -> MetaV1.ObjectMeta $ m
           { name = Just "test" }) })
+
+loadConfig :: Aff _ Config
+loadConfig = do
+  host <- envVar "K8S_HOST"
+  portStr <- envVar "K8S_PORT"
+  let port = fromMaybe 80 (portStr >>= parseInt)
+  protocolStr <- envVar "K8S_PROTOCOL"
+  let protocol = maybe Request.ProtocolHTTP parseProtocol protocolStr
+  let cluster = { host: fromMaybe "localhost" host, protocol, port }
+  caCert <- envVar "CA_CERT" >>= loadFile
+  clientCert <- envVar "CLIENT_CERT" >>= loadFile
+  clientKey <- envVar "CLIENT_KEY" >>= loadFile
+  user <- envVar "BASIC_AUTH_USER"
+  pass <- envVar "BASIC_AUTH_PASS"
+  let basicAuth = {user: _, password: _} <$> user <*> pass
+  bearerTokenFromFile <- envVar "BEARER_TOKEN_FILE" >>= loadFile
+  bearerTokenInline <- envVar "BEARER_TOKEN"
+  let bearerToken = bearerTokenFromFile <|> bearerTokenInline
+  pure $ Config $
+    { basicAuth
+    , bearerToken
+    , cluster
+    , tls: {caCert, clientCert, clientKey, verifyServerCert: true} }
+  where
+    envVar v = liftEff (Process.lookupEnv v)
+    loadFile = maybe (pure mempty) (map Just <<< Cfg.loadFile)
+    parseProtocol p = if p == "https"
+                    then Request.ProtocolHTTPS
+                    else Request.ProtocolHTTP
+  
+podHelloWorld :: Config -> Aff _ Unit
+podHelloWorld cfg = Aff.finally cleanup do
+  _ <- deleteNs testNs
+  log "Creating test namespace"
+  ns <- NS.create cfg testNamespace >>= unwrapEither
+  log "Creating new deployment"
+  deployment <- Deploy.createNamespaced cfg testNs echoDeployment >>= unwrapEither
+  log "Waiting for deployment to be ready"
+  result <- iterateUntil isReadyDeploy $ shortDelay *> readDeploy cfg testNs "echoserver" 
+  log $ "Deployment ready with status: " <> show (result ^? (L._Right <<< _status))
+  log "Creating new service"
+  service <- Service.createNamespaced cfg testNs echoService >>= unwrapEither
+  case service ^. _spec <<< L._Just <<< _clusterIP of
+    Just ip -> pingEndpoint ip 9200
+    Nothing -> throwError $ Exception.error "Failure: No cluster IP on service"
+  where
+    cleanup = do
+      log "Cleaning up"
+      deleteNs testNs
+    testNs = "test"
+    deleteNs ns = do
+      log $ "Deleting namespace '" <> ns <> "'"
+      deleteRes <- NS.delete cfg "test" default default
+      _ <- iterateUntil notFound $ shortDelay *> log "Check: does namespace exist?" *> readNs cfg "test"
+      log $ "Deleted test namespace with result: " <> show deleteRes
+    shortDelay = Aff.delay (Milliseconds 500.0)
+
+foreign import parseIntImpl :: Fn3 (Int -> Maybe Int) (Maybe Int) String (Maybe Int)
+
+parseInt :: String -> Maybe Int
+parseInt = runFn3 parseIntImpl Just Nothing
+    
+readNs :: Config -> String -> Aff _ (Either MetaV1.Status Namespace)
+readNs cfg name = NS.read cfg name default
+      
+notFound :: (Either MetaV1.Status Namespace) -> Boolean
+notFound = L.preview (L._Left <<< _code <<< L._Just)
+           >>> maybe false (eq 404)
  
 readDeploy :: Config -> String -> String -> Aff _ (Either MetaV1.Status Deployment)
 readDeploy cfg ns name = Deploy.readNamespaced cfg ns name default
@@ -143,76 +211,6 @@ pingEndpoint ip port = do
 unwrapEither :: forall a b. Show a => Either a b -> Aff _ b
 unwrapEither (Left error) = throwError (Exception.error $ show error)
 unwrapEither (Right val) = pure val
-
-loadConfig :: Aff _ Config
-loadConfig = do
-  host <- envVar "K8S_HOST"
-  portStr <- envVar "K8S_PORT"
-  let port = fromMaybe 80 (portStr >>= parseInt)
-  protocolStr <- envVar "K8S_PROTOCOL"
-  let protocol = maybe Request.ProtocolHTTP parseProtocol protocolStr
-  let cluster = { host: fromMaybe "localhost" host, protocol, port }
-  caCert <- envVar "CA_CERT" >>= loadFile
-  clientCert <- envVar "CLIENT_CERT" >>= loadFile
-  clientKey <- envVar "CLIENT_KEY" >>= loadFile
-  user <- envVar "BASIC_AUTH_USER"
-  pass <- envVar "BASIC_AUTH_PASS"
-  let basicAuth = {user: _, password: _} <$> user <*> pass
-  bearerTokenFromFile <- envVar "BEARER_TOKEN_FILE" >>= loadFile
-  bearerTokenInline <- envVar "BEARER_TOKEN"
-  let bearerToken = bearerTokenFromFile <|> bearerTokenInline
-  pure $ Config $
-    { basicAuth
-    , bearerToken
-    , cluster
-    , tls: {caCert, clientCert, clientKey, verifyServerCert: true} }
-  where
-    envVar v = liftEff (Process.lookupEnv v)
-    loadFile = maybe (pure mempty) (map Just <<< Cfg.loadFile)
-    parseProtocol p = if p == "https"
-                    then Request.ProtocolHTTPS
-                    else Request.ProtocolHTTP
-
-foreign import parseIntImpl :: Fn3 (Int -> Maybe Int) (Maybe Int) String (Maybe Int)
-
-parseInt :: String -> Maybe Int
-parseInt = runFn3 parseIntImpl Just Nothing
-  
-podHelloWorld :: Config -> Aff _ Unit
-podHelloWorld cfg = Aff.finally cleanup do
-  _ <- deleteNs testNs
-  
-  log "Creating test namespace"
-  ns <- NS.create cfg testNamespace >>= unwrapEither
-  
-  log "Creating new deployment"
-  deployment <- Deploy.createNamespaced cfg testNs echoDeployment >>= unwrapEither
-  log "Waiting for deployment to be ready"
-  result <- iterateUntil isReadyDeploy $ shortDelay *> readDeploy cfg testNs "echoserver" 
-  log $ "Deployment ready with status: " <> show (result ^? (L._Right <<< _status))
-  log "Creating new service"
-  service <- Service.createNamespaced cfg testNs echoService >>= unwrapEither
-  case service ^. _spec <<< L._Just <<< _clusterIP of
-    Just ip -> pingEndpoint ip 9200
-    Nothing -> throwError $ Exception.error "Failure: No cluster IP on service"
-  where
-    cleanup = do
-      log "Cleaning up"
-      deleteNs testNs
-    testNs = "test"
-    deleteNs ns = do
-      log $ "Deleting namespace '" <> ns <> "'"
-      deleteRes <- NS.delete cfg "test" default default
-      _ <- iterateUntil notFound $ shortDelay *> log "Check: does namespace exist?" *> readNs cfg "test"
-      log $ "Deleted test namespace with result: " <> show deleteRes
-    shortDelay = Aff.delay (Milliseconds 500.0)
-    
-readNs :: Config -> String -> Aff _ (Either MetaV1.Status Namespace)
-readNs cfg name = NS.read cfg name default
-      
-notFound :: (Either MetaV1.Status Namespace) -> Boolean
-notFound = L.preview (L._Left <<< _code <<< L._Just)
-           >>> maybe false (eq 404)
 
 main :: Eff _ Unit
 main = launchAff_ do
