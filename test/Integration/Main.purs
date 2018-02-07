@@ -1,7 +1,7 @@
 module Kubernetes.Test.Integration.Main where
 
-import Kubernetes.Api.BatchV1
-import Kubernetes.Api.CoreV1
+import Kubernetes.Api.Batch.V1
+import Kubernetes.Api.Core.V1
 import Kubernetes.Api.Lens
 import Prelude
 
@@ -28,11 +28,11 @@ import Data.StrMap as StrMap
 import Data.Time.Duration (Milliseconds(..))
 import Data.Tuple (Tuple(..))
 import Debug.Trace as Debug
-import Kubernetes.Api.CoreV1.Namespace as NS
-import Kubernetes.Api.CoreV1.Service as Service
-import Kubernetes.Api.ExtensionsV1Beta1.Deployment as Deploy
-import Kubernetes.Api.APIExtensionsV1Beta1 (Deployment(Deployment))
-import Kubernetes.Api.MetaV1 as MetaV1
+import Kubernetes.Api.Core.V1.Namespace as NS
+import Kubernetes.Api.Core.V1.Service as Service
+import Kubernetes.Api.Extensions.V1Beta1.Deployment as Deploy
+import Kubernetes.Api.APIExtensions.V1Beta1 (Deployment(Deployment))
+import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Util (IntOrString(..))
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config(Config))

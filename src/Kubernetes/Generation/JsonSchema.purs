@@ -21,7 +21,7 @@ newtype Schema = Schema
   , items :: NullOrUndefined Schema
   , oneOf :: NullOrUndefined (Array Schema)
   , properties :: NullOrUndefined (StrMap Schema)
-  , ref :: NullOrUndefined String
+  , ref :: NullOrUndefined SchemaRef
   , required :: NullOrUndefined (Array String)
   , "x-kubernetes-group-version-kind" :: NullOrUndefined (Array GroupVersionKind) }
 instance readForeignSchema :: ReadForeign Schema where
@@ -51,6 +51,12 @@ instance showSchema :: Show Schema where
     ",\n  ref: " <> show ref <>
     ",\n  required: " <> show required <>
     ",\n  x-kubernetes-group-version-kind: " <> (Debug.traceAny groupVersion \_ -> "") <> "}"
+
+newtype SchemaRef = SchemaRef String
+instance decodeSchemaRef :: Decode SchemaRef where
+  decode f = SchemaRef <$> decode f
+instance showSchemaRef :: Show SchemaRef where
+  show (SchemaRef ref) = show ref
 
 data TypeValidator = TypeValidatorString SchemaType | TypeValidatorArray (Array SchemaType)
 instance decodeTypeValidator :: Decode TypeValidator where

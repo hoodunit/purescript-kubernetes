@@ -4,22 +4,23 @@ import Prelude
 
 import Data.Array as Array
 import Data.Bifunctor (lmap)
-import Data.Foldable (elem, find, foldl)
+import Data.Foldable (any, elem, find, foldl)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.FunctorWithIndex (mapWithIndex)
 import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Newtype (unwrap)
+import Data.NonEmpty (NonEmpty(..))
 import Data.NonEmpty as NonEmpty
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.String as String
-import Data.Tuple (Tuple(..), fst)
+import Data.Tuple (Tuple(..), fst, uncurry)
 import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.GenerateSchemaType (generateTypeForSchema)
-import Kubernetes.Generation.JsonSchema (Schema(..), SchemaType(..), TypeValidator(..))
-import Kubernetes.Generation.Names (apiModule, jsonFieldToPsField, modulePrefix, refName, startsWith, typeModule)
+import Kubernetes.Generation.JsonSchema (Schema(..), SchemaRef(..), SchemaType(..), TypeValidator(..))
+import Kubernetes.Generation.Names (apiModule, modNameAsQualifiedStr, modNameAsStr, modulePrefix, schemaRefToQualifiedName)
 import Partial.Unsafe (unsafeCrashWith)
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -30,12 +31,12 @@ type KubernetesSchema =
 type GeneratedModule =
   { output :: AST.ApiModule, lenses :: Array String }
 
-generateDefinitionModules :: Partial => AST.ApiModuleName -> Array KubernetesSchema -> Array AST.ApiModule
+generateDefinitionModules :: Partial => AST.ModuleName -> Array KubernetesSchema -> Array AST.ApiModule
 generateDefinitionModules moduleNs schemas = k8sTypeModules <> [lensModule]
   where
     modules = groupSchemasByModule schemas
-    moduleNames = StrMap.keys modules
-    generated = StrMap.values $ mapWithIndex (generateModule moduleNs moduleNames) modules
+    moduleNames = fst <$> modules
+    generated = (uncurry $ generateModule moduleNs moduleNames) <$> modules
     k8sTypeModules = _.output <$> generated
     lensNames = Array.nub $ Array.concat $ _.lenses <$> generated
     lensModule = generateLensModule moduleNs lensNames
@@ -43,7 +44,7 @@ generateDefinitionModules moduleNs schemas = k8sTypeModules <> [lensModule]
     dumpModule :: Tuple String (Array KubernetesSchema) -> String
     dumpModule (Tuple mod arr) = mod <> "\n" <> (String.joinWith "\n" (_.name <$> arr))
 
-generateLensModule :: AST.ApiModuleName -> Array String -> AST.ApiModule
+generateLensModule :: AST.ModuleName -> Array String -> AST.ApiModule
 generateLensModule moduleNs lensNames =
   { name: NonEmptyList.snoc moduleNs "Lens"
   , imports:
@@ -60,21 +61,34 @@ generateLensModule moduleNs lensNames =
     declarations = (\name -> AST.LensHelper {name}) <$> sortedLenses
     sortedLenses = Array.sort lensNames
 
-generateModule :: Partial => AST.ApiModuleName -> Array String -> String -> Array KubernetesSchema -> GeneratedModule
+generateModule :: Partial => AST.ModuleName -> Array AST.ModuleName -> AST.ModuleName -> Array KubernetesSchema -> GeneratedModule
 generateModule moduleNs allModules moduleName schemas = { output: mod, lenses }
   where
     mod =
-      { name: NonEmptyList.snoc moduleNs moduleName
-      , imports: sharedImports moduleNs moduleName moduleDeps
+      { name: moduleNs <> moduleName
+      , imports: sharedImports moduleNs moduleDeps
       , declarations: typeDeclarations }
     typeDeclarations = _.output <$> typeOutputs
-    typeOutputs = Array.catMaybes $ (\({name, schema}) -> generateTypeForSchema moduleName name schema) <$> schemas
-    lenses = Array.nub $ Array.concat $ _.lenses <$> typeOutputs
-    moduleRefs = Array.catMaybes $ typeModule <$> (schemas >>= (schemaRefs <<< _.schema))
-    moduleDeps = Array.filter ((/=) moduleName) $ Array.nub moduleRefs
+    typeOutputs =
+      schemas
+      # map (\({name, schema}) -> generateTypeForSchema moduleName (AST.K8SQualifiedName name) schema)
+      # Array.catMaybes
+    lenses = typeOutputs
+      # map _.lenses
+      # Array.concat
+      # Array.nub
+    moduleDeps =
+      schemas
+      # map _.schema
+      >>= schemaRefs
+      # map schemaRefToQualifiedName
+      # Array.catMaybes
+      # map _.moduleName
+      # Array.nub
+      # Array.filter ((/=) moduleName)
 
-sharedImports :: AST.ApiModuleName -> String -> Array String -> Array String
-sharedImports moduleNs moduleName deps =
+sharedImports :: AST.ModuleName -> Array AST.ModuleName -> Array String
+sharedImports moduleNs deps =
   [ "Prelude"
   , "Control.Alt ((<|>))"
   , "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
@@ -91,11 +105,14 @@ sharedImports moduleNs moduleName deps =
   , "Kubernetes.Default (class Default)"
   , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
   where
-    depImports = mkImport <$> deps
-    moduleAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable
-    mkImport modName = moduleAsStr moduleNs <> "." <> modName <> " as " <> modName
+    depImports = deps
+      # Array.sort
+      # Array.nub
+      # map mkImport
+    mkImport modName = modNameAsQualifiedStr (moduleNs <> modName) <>
+                       " as " <> modNameAsStr modName
 
-schemaRefs :: Schema -> Array String
+schemaRefs :: Schema -> Array SchemaRef
 schemaRefs (Schema {additionalProperties, items, oneOf: _oneOf, properties, ref}) =
   extract ref <> (childSchemas >>= schemaRefs)
   where
@@ -113,27 +130,44 @@ schemaRefs (Schema {additionalProperties, items, oneOf: _oneOf, properties, ref}
     extractMap (NullOrUndefined (Just v)) = StrMap.values v
     extractMap (NullOrUndefined Nothing) = []
 
-groupSchemasByModule :: forall f. Partial => Array {name :: String | f} -> StrMap (Array {name :: String | f})
-groupSchemasByModule schemas = case StrMap.lookup "Unknown" groups of
-  Just unknown -> let unknownNames = modNames unknown
-                  in unsafeCrashWith $
-                    "No module found for " <> show (Array.length unknown) <>
-                    " names: \n" <> String.joinWith "\n" unknownNames <>
-                    "\n -> " <> show (Array.length unknownNames) <> " modules not found"
+groupSchemasByModule :: forall f. Partial => Array {name :: String | f}
+  -> (Array (Tuple AST.ModuleName (Array {name :: String | f})))
+groupSchemasByModule schemas = case find (eq (pure "Unknown") <<< fst) groups of
+  Just (Tuple _ unknowns) -> let unknownNames = modNames unknowns
+    in unsafeCrashWith $
+      "No module found for " <> show (Array.length unknowns) <>
+      " names: \n" <> String.joinWith "\n" unknownNames <>
+      "\n -> " <> show (Array.length unknownNames) <> " modules not found"
   Nothing -> groups
   where
-    groups = StrMap.fromFoldable tupleGroups
-    tupleGroups = mkTupleGroup <$> arrayGroups
-    arrayGroups = Array.groupBy byNamePrefix $ Array.sortWith (\{name} -> moduleName name) schemas
+    groups :: Array (Tuple AST.ModuleName (Array {name :: String | f}))
+    groups = mkTupleGroup <$> arrayGroups
+
+    arrayGroups :: Array (NonEmpty Array {name :: String | f})
+    arrayGroups = schemas
+      # Array.sortWith (\{name} -> moduleName name)
+      # Array.groupBy byNamePrefix
+
+    mkTupleGroup :: NonEmpty Array {name :: String | f}
+      -> (Tuple AST.ModuleName (Array {name :: String | f}))
     mkTupleGroup group = foldl
                          (\(Tuple n xs) x -> Tuple n (xs <> [x]))
                          (Tuple (groupName group) [])
                          group
+
+    groupName :: NonEmpty Array {name :: String | f} -> AST.ModuleName
     groupName g = moduleName (NonEmpty.head g).name
-    moduleName n = case apiModule n of
+
+    moduleName :: String -> AST.ModuleName
+    moduleName n = case apiModule (AST.K8SQualifiedName n) of
                      Just mod -> mod
-                     Nothing -> "Unknown"
-    modNames = Array.sort <<< Array.nub <<< (map $ modulePrefix <<< _.name)
+                     Nothing -> pure "Unknown"
+    modNames :: Array {name :: String | f} -> Array String
+    modNames =
+      map (modulePrefix <<< AST.K8SQualifiedName <<< _.name)
+      >>> Array.nub
+      >>> Array.sort
 
 byNamePrefix :: forall f. {name :: String | f} -> {name :: String | f} -> Boolean
-byNamePrefix {name: name1} {name: name2} = apiModule name1 == apiModule name2
+byNamePrefix {name: name1} {name: name2} =
+  apiModule (AST.K8SQualifiedName name1) == apiModule (AST.K8SQualifiedName name2)

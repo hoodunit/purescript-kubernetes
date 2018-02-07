@@ -11,22 +11,22 @@ type ApiAst =
   { modules :: Array ApiModule }
 
 type ApiModule =
-  { name :: ApiModuleName
+  { name :: ModuleName
   , imports :: Array String
   , declarations :: Array Declaration }
 
-type ApiModuleName = NonEmptyList String
+type ModuleName = NonEmptyList String
 
 data Declaration
   = NewtypeDecl ObjectType
   | RecordDecl ObjectType
   | AdtType
     { description :: Maybe String
-    , qualifiedName :: String
+    , name :: String
     , constructors :: Array TypeDecl }
   | AliasType
     { description :: Maybe String
-    , qualifiedName :: String
+    , name :: String
     , innerType :: TypeDecl }
   | LensHelper
     { name :: String }
@@ -55,17 +55,17 @@ instance ordDeclaration :: Ord Declaration where
       priority (LensHelper _) = 3
       
 declarationName :: Declaration -> String
-declarationName (NewtypeDecl (ObjectType {qualifiedName})) = qualifiedName
-declarationName (RecordDecl (ObjectType {qualifiedName})) = qualifiedName
-declarationName (AdtType {qualifiedName}) = qualifiedName
-declarationName (AliasType {qualifiedName}) = qualifiedName
+declarationName (NewtypeDecl (ObjectType {name})) = name
+declarationName (RecordDecl (ObjectType {name})) = name
+declarationName (AdtType {name}) = name
+declarationName (AliasType {name}) = name
 declarationName (LensHelper {name}) = name
 declarationName (Endpoint {name}) = name
 
 newtype ObjectType = ObjectType
   { description :: Maybe String
   , groupVersionKind :: Array GroupVersionKind
-  , qualifiedName :: String
+  , name :: String
   , fields :: Array OptionalField }
 derive instance newtypeObjectType :: Newtype ObjectType _
 
@@ -93,7 +93,21 @@ data TypeDecl
   | TypeArray TypeDecl
   | TypeObject TypeDecl
   | TypeNullable TypeDecl
-  | TypeRef String
+  | TypeRef QualifiedName
+
+-- Generated module + name
+-- E.g. Storage.V1 StorageClass
+type QualifiedName =
+  { moduleName :: ModuleName
+  , k8sTypeName :: K8STypeName }
+
+-- Kubernetes definition name
+-- E.g. StorageClass
+type K8STypeName = String
+
+-- Kubernetes fully-qualified reference
+-- E.g. io.k8s.kubernetes.pkg.apis.storage.v1.StorageClass
+newtype K8SQualifiedName = K8SQualifiedName String
 
 data HttpMethod 
   = GET

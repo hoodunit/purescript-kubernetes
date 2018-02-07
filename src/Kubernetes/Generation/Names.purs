@@ -4,17 +4,21 @@ import Prelude
 
 import Data.Array as Array
 import Data.Either (Either(..))
-import Data.Foldable (find, any)
+import Data.Foldable (any, find, fold)
+import Data.List as List
+import Data.List.NonEmpty (NonEmptyList(..))
 import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String as Str
+import Data.String as String
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags as RegexFlags
-import Kubernetes.Generation.AST (ApiModuleName)
+import Kubernetes.Generation.AST (ModuleName, K8SQualifiedName(K8SQualifiedName), K8STypeName, QualifiedName)
+import Kubernetes.Generation.JsonSchema (SchemaRef(..))
 
 type ApiMapping =
   { groupVersion :: Maybe GroupVersion
-  , moduleName :: String
+  , moduleName :: ModuleName
   , prefixes :: Array String
   , tag :: Maybe String }
 type GroupVersion = { group :: String, version :: String }
@@ -24,298 +28,294 @@ type FieldMapping = {json :: String, ps :: String}
 apiMappings :: Array ApiMapping
 apiMappings = 
   [ { groupVersion: Just { group: "admissionregistration.k8s.io", version: "" }
-    , moduleName: "AdmissionRegistration"
+    , moduleName: pure "AdmissionRegistration"
     , prefixes: []
     , tag: Just "admissionregistration" }
   , { groupVersion: Just { group: "admissionregistration.k8s.io", version: "v1alpha1" }
-    , moduleName: "AdmissionRegistrationV1Alpha1"
+    , moduleName: pure "AdmissionRegistration" <> pure "V1Alpha1"
     , prefixes:
       [ "io.k8s.kubernetes.pkg.apis.admissionregistration.v1alpha1"
       , "io.k8s.api.admissionregistration.v1alpha1"]
     , tag: Just "admissionregistration_v1alpha1" }
   , { groupVersion: Just { group: "admissionregistration.k8s.io", version: "v1beta1" }
-    , moduleName: "AdmissionRegistrationV1Beta1"
+    , moduleName: pure "AdmissionRegistration" <> pure "V1Beta1"
     , prefixes: ["io.k8s.api.admissionregistration.v1beta1"]
     , tag: Just "admissionregistration_v1beta1" }
   , { groupVersion: Nothing
-    , moduleName: "APIExtensions"
+    , moduleName: pure "APIExtensions"
     , prefixes: []
     , tag: Just "apiextensions" }
   , { groupVersion: Just { group: "apiextensions.k8s.io", version: "v1beta1" }
-    , moduleName: "APIExtensionsV1Beta1"
+    , moduleName: pure "APIExtensions" <> pure "V1Beta1"
     , prefixes:
       [ "io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1"
       , "io.k8s.api.extensions.v1beta1"]
     , tag: Just "apiextensions_v1beta1" }
   , { groupVersion: Nothing
-    , moduleName: "ApiRegistration"
+    , moduleName: pure "ApiRegistration"
     , prefixes: []
     , tag: Just "apiregistration" }
   , { groupVersion: Just { group: "apiregistration.k8s.io", version: "v1beta1" }
-    , moduleName: "ApiRegistrationV1Beta1"
+    , moduleName: pure "ApiRegistration" <> pure "V1Beta1"
     , prefixes: ["io.k8s.kube-aggregator.pkg.apis.apiregistration.v1beta1"]
     , tag: Just "apiregistration_v1beta1" }
   , { groupVersion: Nothing
-    , moduleName: "Apis"
+    , moduleName: pure "Apis"
     , prefixes: []
     , tag: Just "apis" }
   , { groupVersion: Just { group: "apps", version: "" }
-    , moduleName: "Apps"
+    , moduleName: pure "Apps"
     , prefixes: []
     , tag: Just "apps" }
   , { groupVersion: Just { group: "apps", version:  "v1" }
-    , moduleName: "AppsV1"
+    , moduleName: pure "Apps" <> pure "V1"
     , prefixes: ["io.k8s.api.apps.v1"]
     , tag: Just "apps_v1" }
   , { groupVersion: Just { group: "apps", version: "v1beta1" }
-    , moduleName: "AppsV1Beta1"
+    , moduleName: pure "Apps" <> pure "V1Beta1"
     , prefixes:["io.k8s.kubernetes.pkg.apis.apps.v1beta1", "io.k8s.api.apps.v1beta1"]
     , tag: Just "apps_v1beta1" }
   , { groupVersion: Just { group: "apps", version:  "v1beta2" }
-    , moduleName: "AppsV1Beta2"
+    , moduleName: pure "Apps" <> pure "V1Beta2"
     , prefixes: ["io.k8s.api.apps.v1beta2"]
     , tag: Just "apps_v1beta2" }
   , { groupVersion: Just { group: "authentication.k8s.io", version: "" }
-    , moduleName: "Authentication"
+    , moduleName: pure "Authentication"
     , prefixes: []
     , tag: Just "authentication" }
   , { groupVersion: Just { group: "authentication.k8s.io", version: "v1" }
-    , moduleName: "AuthenticationV1"
+    , moduleName: pure "Authentication" <> pure "V1"
     , prefixes:
       [ "io.k8s.api.authentication.v1"
       , "io.k8s.kubernetes.pkg.apis.authentication.v1" ]
     , tag: Just "authentication_v1" }
   , { groupVersion: Just { group: "authentication.k8s.io", version: "v1beta1" }
-    , moduleName: "AuthenticationV1Beta1"
+    , moduleName: pure "Authentication" <> pure "V1Beta1"
     , prefixes:
       [ "io.k8s.api.authentication.v1beta1"
       , "io.k8s.kubernetes.pkg.apis.authentication.v1beta1" ]
     , tag: Just "authentication_v1beta1" }
   , { groupVersion: Just { group: "authorization.k8s.io", version: "" }
-    , moduleName: "Authorization"
+    , moduleName: pure "Authorization"
     , prefixes: []
     , tag: Just "authorization" }
   , { groupVersion: Just { group: "authorization.k8s.io", version: "v1" }
-    , moduleName: "AuthorizationV1"
+    , moduleName: pure "Authorization" <> pure "V1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.authorization.v1", "io.k8s.api.authorization.v1"]
     , tag: Just "authorization_v1" }
   , { groupVersion: Just { group: "authorization.k8s.io", version: "v1beta1" }
-    , moduleName: "AuthorizationV1Beta1"
+    , moduleName: pure "Authorization" <> pure "V1Beta1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.authorization.v1beta1", "io.k8s.api.authorization.v1beta1"]
     , tag: Just "authorization_v1beta1" }
   , { groupVersion: Just { group: "autoscaling", version: "" }
-    , moduleName: "Autoscaling"
+    , moduleName: pure "Autoscaling"
     , prefixes: []
     , tag: Just "autoscaling" }
   , { groupVersion: Just { group: "autoscaling", version: "v1" }
-    , moduleName: "AutoscalingV1"
+    , moduleName: pure "Autoscaling" <> pure "V1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.autoscaling.v1", "io.k8s.api.autoscaling.v1"]
     , tag: Just "autoscaling_v1" }
   , { groupVersion: Just { group: "autoscaling", version: "v2alpha1" }
-    , moduleName: "AutoscalingV2Alpha1"
+    , moduleName: pure "Autoscaling" <> pure "V2Alpha1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.autoscaling.v2alpha1"]
     , tag: Just "autoscaling_v2alpha1" }
   , { groupVersion: Just { group: "autoscaling", version: "v2beta1" }
-    , moduleName: "AutoscalingV2Beta1"
+    , moduleName: pure "Autoscaling" <> pure "V2Beta1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.autoscaling.v2beta1", "io.k8s.api.autoscaling.v2beta1"]
     , tag: Just "autoscaling_v2beta1" }
   , { groupVersion: Just { group: "batch", version: "" }
-    , moduleName: "Batch"
+    , moduleName: pure "Batch"
     , prefixes: []
     , tag: Just "batch" }
   , { groupVersion: Just { group: "batch", version: "v1" }
-    , moduleName: "BatchV1"
+    , moduleName: pure "Batch" <> pure "V1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.batch.v1", "io.k8s.api.batch.v1"]
     , tag: Just "batch_v1" }
   , { groupVersion: Just { group: "batch", version: "v1beta1" }
-    , moduleName: "BatchV1Beta1"
+    , moduleName: pure "Batch" <> pure "V1Beta1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.batch.v1beta1", "io.k8s.api.batch.v1beta1"]
     , tag: Just "batch_v1beta1" }
   , { groupVersion: Just { group: "batch", version: "v2alpha1" }
-    , moduleName: "BatchV2Alpha1"
+    , moduleName: pure "Batch" <> pure "V2Alpha1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.batch.v2alpha1", "io.k8s.api.batch.v2alpha1"]
     , tag: Just "batch_v2alpha1" }
   , { groupVersion: Just { group: "certificates.k8s.io", version: "" }
-    , moduleName: "Certificates"
+    , moduleName: pure "Certificates"
     , prefixes: []
     , tag: Just "certificates" }
   , { groupVersion: Just { group: "certificates.k8s.io", version: "v1beta1" }
-    , moduleName: "CertificatesV1Beta1"
+    , moduleName: pure "Certificates" <> pure "V1Beta1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.certificates.v1beta1", "io.k8s.api.certificates.v1beta1"]
     , tag: Just "certificates_v1beta1" }
   , { groupVersion: Nothing
-    , moduleName: "Core"
+    , moduleName: pure "Core"
     , prefixes: []
     , tag: Just "core" }
   , { groupVersion: Just { group: "", version: "v1" }
-    , moduleName: "CoreV1"
+    , moduleName: pure "Core" <> pure "V1"
     , prefixes:
       [ "io.k8s.api.core.v1"
       , "io.k8s.kubernetes.pkg.api.v1" ]
     , tag: Just "core_v1" }
   , { groupVersion: Nothing
-    , moduleName: "Events"
+    , moduleName: pure "Events"
     , prefixes: []
     , tag: Just "events" }
   , { groupVersion: Just { group: "events.k8s.io", version: "v1beta1" }
-    , moduleName: "Events"
+    , moduleName: pure "Events"
     , prefixes: ["io.k8s.api.events.v1beta1"]
     , tag: Just "events_v1beta1" }
   , { groupVersion: Just { group: "extensions", version: "" }
-    , moduleName: "Extensions"
+    , moduleName: pure "Extensions"
     , prefixes: []
     , tag: Just "extensions" }
   , { groupVersion: Just { group: "extensions", version: "v1beta1" }
-    , moduleName: "ExtensionsV1Beta1"
+    , moduleName: pure "Extensions" <> pure "V1Beta1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.extensions.v1beta1"]
     , tag: Just "extensions_v1beta1" }
   , { groupVersion: Nothing
-    , moduleName: "Logs"
+    , moduleName: pure "Logs"
     , prefixes: []
     , tag: Just "logs" }
   , { groupVersion: Nothing
-    , moduleName: "MetaV1"
+    , moduleName: pure "Meta" <> pure "V1"
     , prefixes: ["io.k8s.apimachinery.pkg.apis.meta.v1"]
     , tag: Nothing }
   , { groupVersion: Just { group: "networking.k8s.io", version: "" }
-    , moduleName: "Networking"
+    , moduleName: pure "Networking"
     , prefixes: []
     , tag: Just "networking" }
   , { groupVersion: Just { group: "networking.k8s.io", version: "v1" }
-    , moduleName: "NetworkingV1"
+    , moduleName: pure "Networking" <> pure "V1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.networking.v1", "io.k8s.api.networking.v1"]
     , tag: Just "networking_v1" }
   , { groupVersion: Just { group: "policy", version: "" }
-    , moduleName: "Policy"
+    , moduleName: pure "Policy"
     , prefixes: []
     , tag: Just "policy" }
   , { groupVersion: Just { group: "policy", version: "v1beta1" }
-    , moduleName: "PolicyV1Beta1"
+    , moduleName: pure "Policy" <> pure "V1Beta1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.policy.v1beta1", "io.k8s.api.policy.v1beta1"]
     , tag: Just "policy_v1beta1" }
   , { groupVersion: Just { group: "rbac.authorization.k8s.io", version: "" }
-    , moduleName: "Rbac"
+    , moduleName: pure "Rbac"
     , prefixes: []
     , tag: Just "rbacAuthorization" }
   , { groupVersion: Just { group: "rbac.authorization.k8s.io", version: "v1" }
-    , moduleName: "RbacV1"
+    , moduleName: pure "Rbac" <> pure "V1"
     , prefixes: ["io.k8s.api.rbac.v1"]
     , tag: Just "rbacAuthorization_v1" }
   , { groupVersion: Just { group: "rbac.authorization.k8s.io", version: "v1alpha1" }
-    , moduleName: "RbacV1Alpha1"
+    , moduleName: pure "Rbac" <> pure "V1Alpha1"
     , prefixes:
       [ "io.k8s.api.rbac.v1alpha1"
       , "io.k8s.kubernetes.pkg.apis.rbac.v1alpha1" ]
     , tag: Just "rbacAuthorization_v1alpha1" }
   , { groupVersion: Just { group: "rbac.authorization.k8s.io", version: "v1beta1" }
-    , moduleName: "RbacV1Beta1"
+    , moduleName: pure "Rbac" <> pure "V1Beta1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.rbac.v1beta1", "io.k8s.api.rbac.v1beta1"]
     , tag: Just "rbacAuthorization_v1beta1" }
   , { groupVersion: Nothing
-    , moduleName: "Resource"
+    , moduleName: pure "Resource"
     , prefixes: ["io.k8s.apimachinery.pkg.api.resource"]
     , tag: Nothing }
   , { groupVersion: Nothing
-    , moduleName: "Runtime"
+    , moduleName: pure "Runtime"
     , prefixes: ["io.k8s.apimachinery.pkg.runtime"]
     , tag: Nothing }
   , { groupVersion: Nothing
-    , moduleName: "Scheduling"
+    , moduleName: pure "Scheduling"
     , prefixes: []
     , tag: Just "scheduling" }
   , { groupVersion: Just { group: "scheduling.k8s.io", version: "v1alpha1" }
-    , moduleName: "SchedulingV1Alpha1"
+    , moduleName: pure "Scheduling" <> pure "V1Alpha1"
     , prefixes: ["io.k8s.api.scheduling.v1alpha1"]
     , tag: Just "scheduling_v1alpha1" }
   , { groupVersion: Just { group: "settings.k8s.io", version: "" }
-    , moduleName: "Settings"
+    , moduleName: pure "Settings"
     , prefixes: []
     , tag: Just "settings" }
   , { groupVersion: Just { group: "storage.k8s.io", version: "" }
-    , moduleName: "Storage"
+    , moduleName: pure "Storage"
     , prefixes: []
     , tag: Just "storage" }
   , { groupVersion: Just { group: "storage.k8s.io", version: "v1" }
-    , moduleName: "StorageV1"
+    , moduleName: pure "Storage" <> pure "V1"
     , prefixes:
         [ "io.k8s.kubernetes.pkg.apis.storage.v1"
         , "io.k8s.api.storage.v1" ]
     , tag: Just "storage_v1" }
   , { groupVersion: Just { group: "settings.k8s.io", version: "v1alpha1" }
-    , moduleName: "SettingsV1Alpha1"
+    , moduleName: pure "Settings" <> pure "V1Alpha1"
     , prefixes: ["io.k8s.kubernetes.pkg.apis.settings.v1alpha1", "io.k8s.api.settings.v1alpha1"]
     , tag: Just "settings_v1alpha1" }
   , { groupVersion: Just { group: "storage.k8s.io", version: "v1alpha1" }
-    , moduleName: "StorageV1Alpha1"
+    , moduleName: pure "Storage" <> pure "V1Alpha1"
     , prefixes:
         [ "io.k8s.kubernetes.pkg.apis.storage.v1alpha1"
         , "io.k8s.api.storage.v1alpha1" ]
     , tag: Just "storage_v1alpha1" }
   , { groupVersion: Just { group: "storage.k8s.io", version: "v1beta1" }
-    , moduleName: "StorageV1Beta1"
+    , moduleName: pure "Storage" <> pure "V1Beta1"
     , prefixes:
         [ "io.k8s.kubernetes.pkg.apis.storage.v1beta1"
         , "io.k8s.api.storage.v1beta1" ]
     , tag: Just "storage_v1beta1" }
   , { groupVersion: Nothing
-    , moduleName: "Util"
+    , moduleName: pure "Util"
     , prefixes:
       [ "io.k8s.apimachinery.pkg.util"
       , "io.k8s.apimachinery.pkg.util.intstr" ]
     , tag: Nothing }
   , { groupVersion: Nothing
-    , moduleName: "Version"
+    , moduleName: pure "Version"
     , prefixes: ["io.k8s.apimachinery.pkg.version"]
     , tag: Just "version" } ]
 
-typeUnqualifiedName :: String -> String
-typeUnqualifiedName full = fromMaybe full finalName
+-- E.g. io.k8s.kubernetes.pkg.apis.storage.v1.StorageClass -> StorageClass
+-- TODO: Remove this as it hides problems
+typeUnqualifiedName :: K8SQualifiedName -> K8STypeName
+typeUnqualifiedName qualified@(K8SQualifiedName name) = fromMaybe name $ k8sTypeName qualified
+
+typeQualifiedName :: K8SQualifiedName -> Maybe QualifiedName
+typeQualifiedName name =
+  { moduleName: _, k8sTypeName: _ } <$> apiModule name <*> k8sTypeName name
+
+k8sTypeName :: K8SQualifiedName -> Maybe K8STypeName
+k8sTypeName (K8SQualifiedName name) = name
+  # Str.split (Str.Pattern ".")
+  # Array.last
+
+schemaRefToQualifiedName :: SchemaRef -> Maybe QualifiedName
+schemaRefToQualifiedName (SchemaRef ref) = do
+  qualifiedName <- stripSwaggerPrefixes ref # map K8SQualifiedName
+  { moduleName: _, k8sTypeName: _ } <$> apiModule qualifiedName <*> k8sTypeName qualifiedName
   where
-    finalName = Array.last $ Str.split (Str.Pattern ".") full
+    stripSwaggerPrefixes :: String -> Maybe String
+    stripSwaggerPrefixes = Str.split (Str.Pattern "/") >>> Array.last
 
-typeQualifiedName :: String -> String
-typeQualifiedName full = fromMaybe full (mkName <$> typeModule full <*> finalName)
-  where
-    mkName mod name = mod <> "." <> name
-    finalName = Array.last $ Str.split (Str.Pattern ".") full
-
-refName :: String -> String -> String
-refName moduleName fullRefName | (Just moduleName) == typeModule fullRefName = typeUnqualifiedName fullRefName
-refName _ fullRefName = typeQualifiedName fullRefName
-
-refName' :: String -> String -> String
-refName' moduleName qualifiedRefName | (Just moduleName) == typeModule' qualifiedRefName = typeUnqualifiedName qualifiedRefName
-refName' _ qualifiedRefName = qualifiedRefName
-
-typeModule :: String -> Maybe String
-typeModule fullyQualifiedName = stripPrefixes fullyQualifiedName >>= apiModule
-  where
-    stripPrefixes s = Array.last $ Str.split (Str.Pattern "/") s
-
-typeModule' :: String -> Maybe String
-typeModule' qualifiedName = case Str.split (Str.Pattern ".") qualifiedName of
-  [moduleName, typeName] -> Just moduleName
-  _ -> Nothing
-
-apiModule :: String -> Maybe String
-apiModule qualifiedName = _.moduleName <$> find hasPrefix apiMappings
+apiModule :: K8SQualifiedName -> Maybe ModuleName
+apiModule name = _.moduleName <$> find hasPrefix apiMappings
   where
     hasPrefix {prefixes: []} = false
-    hasPrefix {prefixes} = any (_ == modulePrefix qualifiedName) prefixes
+    hasPrefix {prefixes} = any (_ == modulePrefix name) prefixes
 
-modulePrefix :: String -> String
-modulePrefix = Str.split (Str.Pattern ".") >>> Array.dropEnd 1 >>> Str.joinWith "."
+modulePrefix :: K8SQualifiedName -> String
+modulePrefix (K8SQualifiedName name) = name
+  # Str.split (Str.Pattern ".")
+  # Array.dropEnd 1
+  # Str.joinWith "."
 
-apiModuleFromGroupVersion :: forall f. {group :: String, version :: String, kind :: String | f} -> Maybe ApiModuleName
+apiModuleFromGroupVersion :: forall f. {group :: String, version :: String, kind :: String | f} -> Maybe ModuleName
 apiModuleFromGroupVersion {group, version, kind} =
-  ((\m -> NonEmptyList.snoc m kind) <<< pure <<< _.moduleName) <$> find hasGroupVersion apiMappings
+  ((\m -> NonEmptyList.snoc m kind) <<< _.moduleName) <$> find hasGroupVersion apiMappings
   where
     hasGroupVersion {groupVersion: Just {group: g, version: v}} = g == group && v == version
     hasGroupVersion {groupVersion: Nothing} = false
 
-apiModuleFromTag :: String -> Maybe ApiModuleName
+apiModuleFromTag :: String -> Maybe ModuleName
 apiModuleFromTag tag =
-  (pure <<< _.moduleName) <$> find hasTag apiMappings
+  _.moduleName <$> find hasTag apiMappings
   where
     hasTag {tag: Just t} = t == tag
     hasTag {tag: Nothing} = false
@@ -370,7 +370,7 @@ stripTagFromId "version" opId = opId
 stripTagFromId tag opId =
   Str.replace (Str.Pattern $ snakeCaseToPascalCase tag) (Str.Replacement "") opId
 
-stripModuleFromId :: ApiModuleName -> String -> String
+stripModuleFromId :: ModuleName -> String -> String
 stripModuleFromId modName opId =
   Str.replace (Str.Pattern $ NonEmptyList.last modName) (Str.Replacement "") opId
 stripModuleFromId _ opId = opId
@@ -380,3 +380,9 @@ snakeCaseToPascalCase =
   Str.split (Str.Pattern "_")
   >>> map uppercaseFirstChar
   >>> Str.joinWith ""
+
+modNameAsQualifiedStr :: ModuleName -> String
+modNameAsQualifiedStr = String.joinWith "." <<< NonEmptyList.toUnfoldable
+
+modNameAsStr :: ModuleName -> String
+modNameAsStr = fold

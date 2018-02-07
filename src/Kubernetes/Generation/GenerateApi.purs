@@ -3,13 +3,15 @@ module Kubernetes.Generation.GenerateApi where
 import Prelude
 
 import Data.Array as Array
-import Data.Foldable (find, findMap)
+import Data.Foldable (find, findMap, fold)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.Lens ((^.))
 import Data.Lens as L
-import Data.List.NonEmpty (NonEmptyList)
+import Data.List as List
+import Data.List.NonEmpty (NonEmptyList(..))
 import Data.List.NonEmpty as NonEmptyList
-import Data.Maybe (Maybe(Just,Nothing))
+import Data.Maybe (Maybe(Just, Nothing))
+import Data.NonEmpty ((:|))
 import Data.Record as Record
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
@@ -18,7 +20,8 @@ import Data.Symbol (SProxy(..))
 import Data.Tuple (Tuple(..), uncurry)
 import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
-import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, refName, refName', stripTagFromId, stripModuleFromId, typeModule', typeQualifiedName, uppercaseFirstChar)
+import Kubernetes.Generation.JsonSchema (SchemaRef(SchemaRef))
+import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, modNameAsQualifiedStr, modNameAsStr, schemaRefToQualifiedName, stripModuleFromId, stripTagFromId, typeQualifiedName, uppercaseFirstChar)
 import Kubernetes.Generation.PathParsing as PathParsing
 import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Response, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
 import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
@@ -26,14 +29,14 @@ import Partial.Unsafe (unsafeCrashWith)
 import Simple.JSON (writeJSON)
 
 type DeclWithModule =
-  { moduleName :: AST.ApiModuleName, decl :: AST.Declaration }
+  { moduleName :: AST.ModuleName, decl :: AST.Declaration }
 
 type ApiResponse =
   { responseCode :: String
   , "type" :: Maybe String
   , typeRef :: Maybe String }
 
-generateEndpointModules :: Partial => AST.ApiModuleName -> StrMap PathItem -> Array AST.ApiModule
+generateEndpointModules :: Partial => AST.ModuleName -> StrMap PathItem -> Array AST.ApiModule
 generateEndpointModules moduleNs paths = groupEndpointsByModule moduleNs (parseEndpoints paths)
   where
     parseEndpoints :: StrMap PathItem -> Array DeclWithModule
@@ -41,14 +44,14 @@ generateEndpointModules moduleNs paths = groupEndpointsByModule moduleNs (parseE
       >>> map (uncurry $ parsePathMethods moduleNs)
       >>> Array.concat
 
-parsePathMethods :: Partial => AST.ApiModuleName -> String -> PathItem -> Array DeclWithModule
+parsePathMethods :: Partial => AST.ModuleName -> String -> PathItem -> Array DeclWithModule
 parsePathMethods moduleNs path item =
   item
   # pathOperations
   # map (parsePathMethod moduleNs path)
   # Array.catMaybes
 
-parsePathMethod :: Partial => AST.ApiModuleName -> String -> Tuple String Operation -> Maybe DeclWithModule
+parsePathMethod :: Partial => AST.ModuleName -> String -> Tuple String Operation -> Maybe DeclWithModule
 -- Not generating patch functions for now as it requires special handling
 parsePathMethod _ _ (Tuple "patch" _) = Nothing
 parsePathMethod moduleNs path (Tuple _method
@@ -86,7 +89,7 @@ parsePathMethod moduleNs path (Tuple _method
 parsePathMethod _ _ (Tuple name op) =
   unsafeCrashWith $ "Could not parse operation: " <> show (writeJSON op)
 
-parseModuleName :: Partial => Operation -> AST.ApiModuleName
+parseModuleName :: Partial => Operation -> AST.ModuleName
 parseModuleName op@{"x-kubernetes-group-version-kind":
                     NullOrUndefined (Just (GroupVersionKind v))} =
   case apiModuleFromGroupVersion v of
@@ -101,14 +104,16 @@ parseModuleName op@{tags: NullOrUndefined (Just [tag])} =
 parseModuleName op = unsafeCrashWith $ "Could not module name from op: " <>
   show (writeJSON op)
 
-endpointReturnType :: Partial => AST.ApiModuleName -> Array ApiResponse -> AST.TypeDecl
+endpointReturnType :: Partial => AST.ModuleName -> Array ApiResponse -> AST.TypeDecl
 endpointReturnType modName responses =
   case find (((==) "200") <<< _.responseCode) responses of
-    Just {typeRef: Just ref} -> AST.TypeRef (refName (NonEmptyList.last modName) ref)
+    Just {typeRef: Just ref} -> case schemaRefToQualifiedName (SchemaRef ref) of
+      Just name -> AST.TypeRef name
+      Nothing -> unsafeCrashWith $ "Could not parse type ref to qualified name: " <> ref
     Just {"type": Just simpleType} -> parseType simpleType
     _ -> AST.TypeString
 
-operationName :: Operation -> AST.ApiModuleName -> String -> Maybe (Array String) -> String
+operationName :: Operation -> AST.ModuleName -> String -> Maybe (Array String) -> String
 operationName {"x-kubernetes-action": NullOrUndefined (Just _)} modName opId (Just [tag]) =
   opId # stripTagFromId tag # stripModuleFromId modName
 operationName op modName opId (Just [tag]) = opId # stripTagFromId tag
@@ -135,7 +140,7 @@ parseOperationParams name {parameters: NullOrUndefined (Just params)} =
      else Just $ AST.ObjectType $
        { description: Nothing
        , groupVersionKind: []
-       , qualifiedName: name
+       , name
        , fields }
   where fields = Array.catMaybes (parseParam <$> params)
 
@@ -151,17 +156,19 @@ parseParam { name: "body"
 parseParam p = unsafeCrashWith $ "Could not parse param " <>
                show (writeJSON $ Record.delete (SProxy :: SProxy "schema") p)
 
-parseOperationBody :: Operation -> Maybe AST.TypeDecl
+parseOperationBody :: Partial => Operation -> Maybe AST.TypeDecl
 parseOperationBody {parameters: NullOrUndefined (Just params)} =
   findMap bodyParamAsDecl params
 parseOperationBody _ = Nothing
 
-bodyParamAsDecl :: Param -> Maybe AST.TypeDecl
+bodyParamAsDecl :: Partial => Param -> Maybe AST.TypeDecl
 bodyParamAsDecl
   { name: "body"
   , "in": "body"
   , schema: NullOrUndefined (Just {"$ref": NullOrUndefined (Just ref)}) } =
-    Just (AST.TypeRef $ typeQualifiedName ref)
+    case schemaRefToQualifiedName (SchemaRef ref) of
+      Just name -> Just $ AST.TypeRef name
+      Nothing -> unsafeCrashWith $ "Could not parse body ref to qualified name: " <> ref
 bodyParamAsDecl _ = Nothing
 
 parseType :: Partial => String -> AST.TypeDecl
@@ -182,7 +189,7 @@ pathOperations s = Array.catMaybes
   where
     pair name m = (Tuple name) <$> m
 
-groupEndpointsByModule :: Partial => AST.ApiModuleName -> Array DeclWithModule -> Array AST.ApiModule
+groupEndpointsByModule :: Partial => AST.ModuleName -> Array DeclWithModule -> Array AST.ApiModule
 groupEndpointsByModule moduleNs endpoints =
   case NonEmptyList.fromFoldable endpoints of
     Just endpointDecls ->
@@ -191,7 +198,7 @@ groupEndpointsByModule moduleNs endpoints =
       # NonEmptyList.toUnfoldable
     Nothing -> []
   where
-    modName :: NonEmptyList DeclWithModule -> AST.ApiModuleName
+    modName :: NonEmptyList DeclWithModule -> AST.ModuleName
     modName = NonEmptyList.head >>> _.moduleName
     
     decls :: NonEmptyList DeclWithModule -> Array AST.Declaration
@@ -207,7 +214,7 @@ groupEndpointsByModule moduleNs endpoints =
     orderByModName :: DeclWithModule -> DeclWithModule -> Boolean
     orderByModName {moduleName: m1} {moduleName: m2} = m1 == m2
 
-mkModule :: AST.ApiModuleName -> AST.ApiModuleName -> Array AST.Declaration -> AST.ApiModule
+mkModule :: AST.ModuleName -> AST.ModuleName -> Array AST.Declaration -> AST.ApiModule
 mkModule moduleNs moduleName decls =
   { name: moduleNs <> moduleName
   , imports:
@@ -229,22 +236,21 @@ mkModule moduleNs moduleName decls =
     , "Kubernetes.Config (Config)"
     , "Kubernetes.Default (class Default)"
     , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
-  , declarations: (mapDeclRefs fixRefName) <$> decls }
+  , declarations: decls }
   where
     depImports = decls >>= declRefs
-      # map typeModule' -- Dropping refs for which we can't parse a module
-      # Array.catMaybes
+      # map _.moduleName
       # Array.sort
-      # Array.insert "MetaV1"
+      # Array.insert (NonEmptyList $ "Meta" :| pure "V1")
       # Array.nub
-      # Array.filter ((/=) (modNameAsStr moduleName))
-      <#> mkImport
-    fixRefName (AST.TypeRef r) = AST.TypeRef (refName' (NonEmptyList.last moduleName) r)
-    fixRefName t = t
-    modNameAsStr = String.joinWith "." <<< NonEmptyList.toUnfoldable
-    mkImport dep = modNameAsStr moduleNs <> "." <> dep <> " as " <> dep
+      # Array.filter ((/=) moduleName)
+      # map mkImport
 
-declRefs :: AST.Declaration -> Array String
+    mkImport :: AST.ModuleName -> String
+    mkImport dep = modNameAsQualifiedStr (moduleNs <> dep) <>
+                   " as " <> modNameAsStr dep
+
+declRefs :: AST.Declaration -> Array AST.QualifiedName
 declRefs (AST.Endpoint {body, queryParams, returnType}) =
   Array.catMaybes $ [bodyRef] <> queryRefs <> [returnRef]
   where
@@ -253,11 +259,11 @@ declRefs (AST.Endpoint {body, queryParams, returnType}) =
     returnRef = typeDeclRef returnType
 declRefs _ = []
 
-queryParamRefs :: Maybe AST.ObjectType -> Array (Maybe String)
+queryParamRefs :: Maybe AST.ObjectType -> Array (Maybe AST.QualifiedName)
 queryParamRefs (Just (AST.ObjectType {fields})) = (typeDeclRef <<< _.innerType) <$> fields
 queryParamRefs Nothing = []
 
-typeDeclRef :: AST.TypeDecl -> Maybe String
+typeDeclRef :: AST.TypeDecl -> Maybe AST.QualifiedName
 typeDeclRef (AST.TypeRef s) = Just s
 typeDeclRef _ = Nothing
 

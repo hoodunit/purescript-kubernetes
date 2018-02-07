@@ -16,7 +16,7 @@ import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
-import Kubernetes.Api.MetaV1 as MetaV1
+import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)

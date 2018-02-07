@@ -19,7 +19,7 @@ import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.Events as Events
-import Kubernetes.Api.MetaV1 as MetaV1
+import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | create an Event
 createNamespaced :: forall e. Config -> Events.Event -> Aff (http :: HTTP | e) (Either MetaV1.Status Events.Event)

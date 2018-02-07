@@ -15,7 +15,7 @@ import Data.List.NonEmpty as NonEmptyList
 import Data.NonEmpty ((:|))
 import Data.String as String
 import Data.Traversable (sequence)
-import Kubernetes.Generation.AST (ApiModule, ApiModuleName)
+import Kubernetes.Generation.AST (ApiModule, ModuleName)
 import Kubernetes.Generation.Generation as Gen
 import Kubernetes.Generation.Emitter as Emit
 import Kubernetes.Generation.Swagger (Swagger)
@@ -32,7 +32,7 @@ generationConfig =
   , swaggerFile: "./definitions/swagger_v1.10.0.json" }
 
 type Config =
-  { moduleNs :: ApiModuleName
+  { moduleNs :: ModuleName
   , outputDir :: String
   , swaggerFile :: String }
 

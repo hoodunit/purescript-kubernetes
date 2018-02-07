@@ -18,7 +18,7 @@ import Data.Maybe (Maybe(Just, Nothing))
 import Data.Newtype (class Newtype)
 import Data.Newtype as Newtype
 import Data.String as String
-import Kubernetes.Api.MetaV1 as MetaV1
+import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Config (Config(Config))
 import Kubernetes.QueryString (class ToQueryString, toQueryString)
 import Kubernetes.Request as Req

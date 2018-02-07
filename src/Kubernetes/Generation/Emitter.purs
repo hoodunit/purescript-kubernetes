@@ -4,42 +4,50 @@ import Kubernetes.Generation.AST
 import Prelude
 
 import Data.Array as Array
-import Data.Foldable (any, fold)
+import Data.Foldable (all, any, fold)
 import Data.List.NonEmpty as NonEmpty
+import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(..), isJust, maybe)
 import Data.Newtype (unwrap)
 import Data.String as String
+import Data.Tuple (Tuple(..))
 import Debug.Trace as Debug
-import Kubernetes.Generation.Names (lowercaseFirstChar, startsWith, startsWithUpperCase, typeUnqualifiedName)
+import Kubernetes.Generation.Names (lowercaseFirstChar, modNameAsStr, startsWith, startsWithUpperCase)
 import Partial.Unsafe (unsafeCrashWith)
 
-emitTypeDecl :: TypeDecl -> String
-emitTypeDecl TypeString = "String"
-emitTypeDecl TypeNumber = "Number"
-emitTypeDecl TypeInt = "Int"
-emitTypeDecl TypeBoolean = "Boolean"
-emitTypeDecl (TypeArray t) = "(Array " <> emitTypeDecl t <> ")"
-emitTypeDecl (TypeNullable t) = "(Nullable " <> emitTypeDecl t <> ")"
-emitTypeDecl (TypeObject t) = "(StrMap " <> emitTypeDecl t <> ")"
-emitTypeDecl (TypeRef t) = t
-
-emitOptionalField :: OptionalField -> String
-emitOptionalField {name, innerType} =
-  sanitizedName <> " :: " <> "(Maybe " <> emitTypeDecl innerType <> ")"
+emitApiModule :: Partial => ApiModule -> String
+emitApiModule {name, imports, declarations} =
+  "module " <> moduleName name <> " where\n\n" <>
+  emittedImports <> "\n\n" <>
+  emittedDecls
   where
-    sanitizedName = if startsWithUpperCase name then "\"" <> name <> "\"" else name
+    emittedImports = String.joinWith "\n" $ emitImport <$> imports
+    emittedDecls = String.joinWith "\n\n" $ emitDeclaration name <$> (Array.sort declarations)
+    moduleName = String.joinWith "." <<< NonEmpty.toUnfoldable
 
-emitDeclaration :: Partial => Declaration -> String
-emitDeclaration (NewtypeDecl (ObjectType {description, fields, groupVersionKind, qualifiedName})) =
+emitTypeDecl :: ModuleName -> TypeDecl -> String
+emitTypeDecl _ TypeString = "String"
+emitTypeDecl _ TypeNumber = "Number"
+emitTypeDecl _ TypeInt = "Int"
+emitTypeDecl _ TypeBoolean = "Boolean"
+emitTypeDecl m (TypeArray t) = "(Array " <> emitTypeDecl m t <> ")"
+emitTypeDecl m (TypeNullable t) = "(Nullable " <> emitTypeDecl m t <> ")"
+emitTypeDecl m (TypeObject t) = "(StrMap " <> emitTypeDecl m t <> ")"
+emitTypeDecl modName (TypeRef {moduleName, k8sTypeName}) | modulesMatch modName moduleName =
+  k8sTypeName
+emitTypeDecl modName (TypeRef {moduleName, k8sTypeName}) =
+  modNameAsStr moduleName <> "." <> k8sTypeName
+
+emitDeclaration :: Partial => ModuleName -> Declaration -> String
+emitDeclaration modName (NewtypeDecl (ObjectType {description, fields, groupVersionKind, name})) =
   objectDocs description usedFields <>
     "newtype " <> name <> " = " <> name <> "\n" <>
     "  { " <> emitFields usedFields <>
     " }" <>
     "\n\n" <> deriveNewtype name <>
-    "\n" <> typeClassBoilerplate qualifiedName (_.name <$> allFields) kind version <>
+    "\n" <> typeClassBoilerplate name (_.name <$> allFields) kind version <>
     "\n\n" <> defaultInstance name (_.name <$> usedFields)
   where
-    name = typeUnqualifiedName qualifiedName
     kind = (unwrap >>> _.kind) <$> (Array.head groupVersionKind)
     version = (unwrap >>> parseVersion) <$> (Array.head groupVersionKind)
     parseVersion {group, version} | String.null group = version
@@ -50,8 +58,8 @@ emitDeclaration (NewtypeDecl (ObjectType {description, fields, groupVersionKind,
     dropUnused = Array.filter (not isUnused <<< _.name)
     isUnused = ((const $ isJust kind) && eq "kind")
                || ((const $ isJust version) && eq "apiVersion")
-    emitFields = String.joinWith "\n  , " <<< map emitOptionalField
-emitDeclaration (RecordDecl (ObjectType {qualifiedName, description, fields})) =
+    emitFields = String.joinWith "\n  , " <<< map (emitOptionalField modName)
+emitDeclaration modName (RecordDecl (ObjectType {name, description, fields})) =
   docs <>
     "type " <> name <> " =\n" <>
     "  { " <> fieldDecls <>
@@ -60,32 +68,29 @@ emitDeclaration (RecordDecl (ObjectType {qualifiedName, description, fields})) =
   where
     docs = objectDocs description fields
     sortedFields = Array.sortWith (_.name) fields
-    fieldDecls = String.joinWith "\n  , " (emitOptionalField <$> sortedFields)
+    fieldDecls = String.joinWith "\n  , " (emitOptionalField modName <$> sortedFields)
     fieldNames = _.name <$> sortedFields
-    name = typeUnqualifiedName qualifiedName
-emitDeclaration (AdtType {qualifiedName, description, constructors}) =
+emitDeclaration modName (AdtType {name, description, constructors}) =
   docs <>
     "data " <> name <> " = \n  " <> constructorDecls <>
     "\n\n" <> adtTypeClassBoilerplate name
   where
     docs = formatDescription description
     constructorDecls = String.joinWith "\n  | " (mkConstructor <$> constructors)
-    mkConstructor t = name <> adtCtrSuffix t <> " " <> emitTypeDecl t
-    name = typeUnqualifiedName qualifiedName
-emitDeclaration (AliasType {qualifiedName, description, innerType}) =
+    mkConstructor t = name <> adtCtrSuffix modName t <> " " <> emitTypeDecl modName t
+emitDeclaration modName (AliasType {name, description, innerType}) =
   docs <>
-    "newtype " <> name <> " = " <> name <> " " <> emitTypeDecl innerType <>
+    "newtype " <> name <> " = " <> name <> " " <> emitTypeDecl modName innerType <>
     "\n\n" <> deriveNewtype name <>
     "\n" <> genericTypeClassBoilerplate name
   where
     docs = formatDescription description
-    name = typeUnqualifiedName qualifiedName
-emitDeclaration (LensHelper {name}) =
+emitDeclaration _ (LensHelper {name}) =
   underscoreName <> " :: forall s a r. Newtype s { " <> name <> " :: a | r } => Lens' s a\n" <>
   underscoreName <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> name <> "\")"
   where
     underscoreName = if startsWith "_" name then name else "_" <> name
-emitDeclaration (Endpoint
+emitDeclaration modName (Endpoint
   { description
   , method
   , name
@@ -101,17 +106,17 @@ emitDeclaration (Endpoint
   "    url = " <> buildUrlStr <>
   buildBodyStr body
   where
-    optionsDecl (Just params) = emitDeclaration (NewtypeDecl params) <> "\n\n"
+    optionsDecl (Just params) = emitDeclaration modName (NewtypeDecl params) <> "\n\n"
     optionsDecl Nothing = ""
     
     fnParamTypes = (String.joinWith " -> " allFnParamTypes) <>
                    (if Array.null allFnParamTypes then "" else " -> ")
     allFnParamTypes = ["Config"] <> urlTypes <> bodyTypes <> optionsTypes
     urlTypes = const "String" <$> paramNames
-    bodyTypes = maybe [] (\b -> [emitTypeDecl b]) body
-    optionsTypes = maybe [] (\o -> [typeUnqualifiedName ((unwrap o).qualifiedName)]) queryParams
+    bodyTypes = maybe [] (\b -> [emitTypeDecl modName b]) body
+    optionsTypes = maybe [] (\o -> [(unwrap o).name]) queryParams
     
-    returnType' = "(Either MetaV1.Status " <> emitTypeDecl returnType <> ")"
+    returnType' = "(Either MetaV1.Status " <> emitTypeDecl modName returnType <> ")"
     
     paramNamesStr = (String.joinWith " " (["cfg"] <> paramNames <> bodyNames <> optionsName)) <> " "
     paramNames = urlParamNames urlWithParams
@@ -123,6 +128,12 @@ emitDeclaration (Endpoint
     buildUrlStr = urlBuilderStr urlWithParams <> formatQueryStr queryParams
     formatQueryStr = maybe "" (const " <> Client.formatQueryString options") 
     buildBodyStr = maybe "" (const "\n    encodedBody = encodeJSON body")
+
+emitOptionalField :: ModuleName -> OptionalField -> String
+emitOptionalField modName {name, innerType} =
+  sanitizedName <> " :: " <> "(Maybe " <> emitTypeDecl modName innerType <> ")"
+  where
+    sanitizedName = if startsWithUpperCase name then "\"" <> name <> "\"" else name
 
 methodName :: HttpMethod -> String
 methodName GET = "Client.get"
@@ -141,15 +152,25 @@ urlBuilderStr :: UrlWithParams -> String
 urlBuilderStr (EndUrl s) = "\"" <> s <> "\""
 urlBuilderStr (UrlChunk chunk paramName rest) = "\"" <> chunk <> "\" <> " <> paramName <> " <> " <> urlBuilderStr rest
 
-adtCtrSuffix :: TypeDecl -> String
-adtCtrSuffix TypeString = "String"
-adtCtrSuffix TypeNumber = "Number"
-adtCtrSuffix TypeInt = "Int"
-adtCtrSuffix TypeBoolean = "Boolean"
-adtCtrSuffix (TypeArray _) = "Array"
-adtCtrSuffix (TypeObject _) = "Object"
-adtCtrSuffix (TypeNullable _) = "Nullable"
-adtCtrSuffix (TypeRef t) = t
+adtCtrSuffix :: ModuleName -> TypeDecl -> String
+adtCtrSuffix _ TypeString = "String"
+adtCtrSuffix _ TypeNumber = "Number"
+adtCtrSuffix _ TypeInt = "Int"
+adtCtrSuffix _ TypeBoolean = "Boolean"
+adtCtrSuffix _ (TypeArray _) = "Array"
+adtCtrSuffix _ (TypeObject _) = "Object"
+adtCtrSuffix _ (TypeNullable _) = "Nullable"
+adtCtrSuffix modName (TypeRef {moduleName, k8sTypeName}) | modulesMatch modName moduleName =
+  k8sTypeName
+adtCtrSuffix _ (TypeRef {moduleName, k8sTypeName}) =
+  modNameAsStr moduleName <> "." <> k8sTypeName
+
+-- Modules match if they are equal, minus extra head
+-- namespaces in one
+modulesMatch :: ModuleName -> ModuleName -> Boolean
+modulesMatch fileModule refModule =
+  NonEmptyList.zip (NonEmptyList.reverse refModule) (NonEmptyList.reverse fileModule)
+  # all (\(Tuple a b) -> a == b)
 
 objectDocs :: Maybe String -> Array OptionalField -> String
 objectDocs desc fields =
@@ -179,21 +200,18 @@ deriveNewtype :: String -> String
 deriveNewtype name = "derive instance newtype" <> name <> " :: Newtype " <> name <> " _"
 
 typeClassBoilerplate :: String -> Array String -> Maybe String -> Maybe String -> String
-typeClassBoilerplate qualifiedName fieldNames kind version = 
+typeClassBoilerplate name fieldNames kind version = 
   "derive instance generic" <> name <> " :: Generic " <> name <> " _" <> "\n" <>
   "instance show" <> name <> " :: Show " <> name <> " where show a = genericShow a" <> "\n" <>
-  decodeInstance qualifiedName fieldNames kind version <>
-  encodeInstance qualifiedName fieldNames kind version
-  where
-    name = typeUnqualifiedName qualifiedName
+  decodeInstance name fieldNames kind version <>
+  encodeInstance name fieldNames kind version
   
 decodeInstance :: String -> Array String -> Maybe String -> Maybe String -> String
-decodeInstance qualifiedName fieldNames kind version = 
+decodeInstance name fieldNames kind version = 
   "instance decode" <> name <> " :: Decode " <> name <> " where\n" <>
   "  decode a = do" <> decodeFields <> "\n" <>
   "               pure $ " <> name <> " { " <> fields <> " }\n"
   where
-    name = typeUnqualifiedName qualifiedName
     fieldPrefix = "\n               "
     decodeFields = fieldPrefix <> (String.joinWith fieldPrefix $ decodeField <$> fieldNames)
     fields = (String.joinWith ", " <<< Array.filter (not isUnused)) fieldNames
@@ -209,12 +227,11 @@ decodeInstance qualifiedName fieldNames kind version =
     decodeNormalField f = f <> " <- decodeMaybe \"" <> f <> "\" a"
   
 encodeInstance :: String -> Array String -> Maybe String -> Maybe String -> String
-encodeInstance qualifiedName fieldNames kind version = 
+encodeInstance name fieldNames kind version = 
   "instance encode" <> name <> " :: Encode " <> name <> " where\n" <>
   "  encode (" <> name <> " a) = encode $ StrMap.fromFoldable $\n" <>
   "               [ " <> encodeFields fieldNames <> " ]\n"
   where
-    name = typeUnqualifiedName qualifiedName
     fieldSep = "\n               , "
     encodeFields = String.joinWith fieldSep <<< map encodeField
     fields = String.joinWith ", " fieldNames
@@ -272,13 +289,3 @@ defaultFieldValue name = name <> ": Nothing"
 
 emitImport :: String -> String
 emitImport i = "import " <> i
-
-emitApiModule :: Partial => ApiModule -> String
-emitApiModule {name, imports, declarations} =
-  "module " <> moduleName name <> " where\n\n" <>
-  emittedImports <> "\n\n" <>
-  emittedDecls
-  where
-    emittedImports = String.joinWith "\n" $ emitImport <$> imports
-    emittedDecls = String.joinWith "\n\n" $ emitDeclaration <$> (Array.sort declarations)
-    moduleName = String.joinWith "." <<< NonEmpty.toUnfoldable
