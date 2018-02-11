@@ -16,13 +16,13 @@ import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
-import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
+import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | APIService represents a server for a particular GroupVersion. Name must be "version.group".
 -- |

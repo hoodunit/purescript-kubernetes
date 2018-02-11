@@ -16,14 +16,14 @@ import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
-import Kubernetes.Api.Meta.V1 as MetaV1
-import Kubernetes.Api.Util as Util
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
+import Kubernetes.Api.Meta.V1 as MetaV1
+import Kubernetes.Api.Util as Util
 
 -- | IPBlock describes a particular CIDR (Ex. "192.168.1.1/24") that is allowed to the pods matched by a NetworkPolicySpec's podSelector. The except entry describes CIDRs that should not be included within this rule.
 -- |

@@ -4,15 +4,15 @@ import Prelude
 
 import Data.Array as Array
 import Data.List.NonEmpty as NonEmptyList
-import Kubernetes.Generation.AST (AST, Declaration(..), Module, ModuleName, ObjectType(..))
+import Kubernetes.Generation.AST (AST, Declaration(..), Module, ObjectType(..), Import(K8SImport, RawImport))
 
-generateLenses :: ModuleName -> AST -> AST
-generateLenses moduleNs ast@{ modules } = ast { modules = modules <> [lensModule] } 
+generateLenses :: AST -> AST
+generateLenses ast@{ modules } = ast { modules = modules <> [lensModule] } 
   where
     lensModule =
       collectLensFields ast
       # map mkLensDecl
-      # generateLensModule moduleNs
+      # generateLensModule
 
 collectLensFields :: AST -> Array String
 collectLensFields {modules} =
@@ -34,16 +34,16 @@ collectLensFields {modules} =
 mkLensDecl :: String -> Declaration
 mkLensDecl name = LensHelper {name}
 
-generateLensModule :: ModuleName -> Array Declaration -> Module
-generateLensModule moduleNs declarations =
-  { name: NonEmptyList.snoc moduleNs "Lens"
+generateLensModule :: Array Declaration -> Module
+generateLensModule declarations =
+  { name: pure "Lens"
   , imports:
-    [ "Prelude"
-    , "Data.Lens (Lens')"
-    , "Data.Lens.Iso.Newtype (_Newtype)"
-    , "Data.Lens.Record (prop)"
-    , "Data.Maybe (Maybe(Just,Nothing))"
-    , "Data.Newtype (class Newtype)"
-    , "Data.Symbol (SProxy(SProxy))"
-    , "Kubernetes.Default (class Default)" ]
+    [ RawImport "Prelude"
+    , RawImport "Data.Lens (Lens')"
+    , RawImport "Data.Lens.Iso.Newtype (_Newtype)"
+    , RawImport "Data.Lens.Record (prop)"
+    , RawImport "Data.Maybe (Maybe(Just,Nothing))"
+    , RawImport "Data.Newtype (class Newtype)"
+    , RawImport "Data.Symbol (SProxy(SProxy))"
+    , RawImport "Kmubernetes.Default (class Default)" ]
     , declarations }

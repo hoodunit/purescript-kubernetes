@@ -36,25 +36,25 @@ type ApiResponse =
   , "type" :: Maybe String
   , typeRef :: Maybe String }
 
-generateEndpointModules :: Partial => AST.ModuleName -> StrMap PathItem -> Array AST.Module
-generateEndpointModules moduleNs paths = groupEndpointsByModule moduleNs (parseEndpoints paths)
+generateEndpointModules :: Partial => StrMap PathItem -> Array AST.Module
+generateEndpointModules paths = groupEndpointsByModule (parseEndpoints paths)
   where
     parseEndpoints :: StrMap PathItem -> Array DeclWithModule
     parseEndpoints = StrMap.toUnfoldable
-      >>> map (uncurry $ parsePathMethods moduleNs)
+      >>> map (uncurry parsePathMethods)
       >>> Array.concat
 
-parsePathMethods :: Partial => AST.ModuleName -> String -> PathItem -> Array DeclWithModule
-parsePathMethods moduleNs path item =
+parsePathMethods :: Partial => String -> PathItem -> Array DeclWithModule
+parsePathMethods path item =
   item
   # pathOperations
-  # map (parsePathMethod moduleNs path)
+  # map (parsePathMethod path)
   # Array.catMaybes
 
-parsePathMethod :: Partial => AST.ModuleName -> String -> Tuple String Operation -> Maybe DeclWithModule
+parsePathMethod :: Partial => String -> Tuple String Operation -> Maybe DeclWithModule
 -- Not generating patch functions for now as it requires special handling
-parsePathMethod _ _ (Tuple "patch" _) = Nothing
-parsePathMethod moduleNs path (Tuple _method
+parsePathMethod _ (Tuple "patch" _) = Nothing
+parsePathMethod path (Tuple _method
                                 op@{ operationId: NullOrUndefined (Just id)
                                     , responses: NullOrUndefined (Just responses)
                                     , description: NullOrUndefined description
@@ -86,7 +86,7 @@ parsePathMethod moduleNs path (Tuple _method
       { responseCode
       , typeRef: L.view (_schema <<< L._Just <<< _ref) r
       , "type": L.view (_schema <<< L._Just <<< _type) r }
-parsePathMethod _ _ (Tuple name op) =
+parsePathMethod _ (Tuple name op) =
   unsafeCrashWith $ "Could not parse operation: " <> show (writeJSON op)
 
 parseModuleName :: Partial => Operation -> AST.ModuleName
@@ -189,12 +189,12 @@ pathOperations s = Array.catMaybes
   where
     pair name m = (Tuple name) <$> m
 
-groupEndpointsByModule :: Partial => AST.ModuleName -> Array DeclWithModule -> Array AST.Module
-groupEndpointsByModule moduleNs endpoints =
+groupEndpointsByModule :: Partial => Array DeclWithModule -> Array AST.Module
+groupEndpointsByModule endpoints =
   case NonEmptyList.fromFoldable endpoints of
     Just endpointDecls ->
       groupByModule endpointDecls
-      # map (\d -> mkModule moduleNs (modName d) (decls d))
+      # map (\d -> mkModule (modName d) (decls d))
       # NonEmptyList.toUnfoldable
     Nothing -> []
   where
@@ -214,28 +214,29 @@ groupEndpointsByModule moduleNs endpoints =
     orderByModName :: DeclWithModule -> DeclWithModule -> Boolean
     orderByModName {moduleName: m1} {moduleName: m2} = m1 == m2
 
-mkModule :: AST.ModuleName -> AST.ModuleName -> Array AST.Declaration -> AST.Module
-mkModule moduleNs moduleName decls =
-  { name: moduleNs <> moduleName
+mkModule :: AST.ModuleName -> Array AST.Declaration -> AST.Module
+mkModule moduleName decls =
+  { name: moduleName
   , imports:
-    [ "Prelude"
-    , "Control.Monad.Aff (Aff)"
-    , "Data.Either (Either(Left,Right))"
-    , "Data.Foreign.Class (class Decode, class Encode, encode, decode)"
-    , "Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
-    , "Data.Foreign.Index (readProp)"
-    , "Data.Generic.Rep (class Generic)"
-    , "Data.Generic.Rep.Show (genericShow)"
-    , "Data.Maybe (Maybe(Just,Nothing))"
-    , "Data.Newtype (class Newtype)"
-    , "Data.StrMap (StrMap)"
-    , "Data.StrMap as StrMap"
-    , "Data.Tuple (Tuple(Tuple))"
-    , "Node.HTTP (HTTP)"
-    , "Kubernetes.Client as Client"
-    , "Kubernetes.Config (Config)"
-    , "Kubernetes.Default (class Default)"
-    , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
+    [ AST.RawImport "Prelude"
+    , AST.RawImport "Control.Monad.Aff (Aff)"
+    , AST.RawImport "Data.Either (Either(Left,Right))"
+    , AST.RawImport "Data.Foreign.Class (class Decode, class Encode, encode, decode)"
+    , AST.RawImport "Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
+    , AST.RawImport "Data.Foreign.Index (readProp)"
+    , AST.RawImport "Data.Generic.Rep (class Generic)"
+    , AST.RawImport "Data.Generic.Rep.Show (genericShow)"
+    , AST.RawImport "Data.Maybe (Maybe(Just,Nothing))"
+    , AST.RawImport "Data.Newtype (class Newtype)"
+    , AST.RawImport "Data.StrMap (StrMap)"
+    , AST.RawImport "Data.StrMap as StrMap"
+    , AST.RawImport "Data.Tuple (Tuple(Tuple))"
+    , AST.RawImport "Node.HTTP (HTTP)"
+    , AST.RawImport "Kubernetes.Client as Client"
+    , AST.RawImport "Kubernetes.Config (Config)"
+    , AST.RawImport "Kubernetes.Default (class Default)"
+    , AST.RawImport "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <>
+    depImports
   , declarations: decls }
   where
     depImports = decls >>= declRefs
@@ -244,11 +245,7 @@ mkModule moduleNs moduleName decls =
       # Array.insert (NonEmptyList $ "Meta" :| pure "V1")
       # Array.nub
       # Array.filter ((/=) moduleName)
-      # map mkImport
-
-    mkImport :: AST.ModuleName -> String
-    mkImport dep = modNameAsQualifiedStr (moduleNs <> dep) <>
-                   " as " <> modNameAsStr dep
+      # map (\i -> AST.K8SImport {parentModule: Nothing, k8sModule: i})
 
 declRefs :: AST.Declaration -> Array AST.QualifiedName
 declRefs (AST.Endpoint {body, queryParams, returnType}) =

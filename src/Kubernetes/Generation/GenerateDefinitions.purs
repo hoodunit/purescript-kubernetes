@@ -28,20 +28,20 @@ type KubernetesSchema =
   { name :: String
   , schema :: Schema }
 
-generateDefinitionModules :: Partial => AST.ModuleName -> Array KubernetesSchema -> Array AST.Module
-generateDefinitionModules moduleNs schemas = k8sTypeModules
+generateDefinitionModules :: Partial => Array KubernetesSchema -> Array AST.Module
+generateDefinitionModules schemas = k8sTypeModules
   where
-    k8sTypeModules = (uncurry $ generateModule moduleNs moduleNames) <$> modules
+    k8sTypeModules = (uncurry $ generateModule moduleNames) <$> modules
     modules = groupSchemasByModule schemas
     moduleNames = fst <$> modules
     
     dumpModule :: Tuple String (Array KubernetesSchema) -> String
     dumpModule (Tuple mod arr) = mod <> "\n" <> (String.joinWith "\n" (_.name <$> arr))
 
-generateModule :: Partial => AST.ModuleName -> Array AST.ModuleName -> AST.ModuleName -> Array KubernetesSchema -> AST.Module
-generateModule moduleNs allModules moduleName schemas =
-  { name: moduleNs <> moduleName
-  , imports: sharedImports moduleNs moduleDeps
+generateModule :: Partial => Array AST.ModuleName -> AST.ModuleName -> Array KubernetesSchema -> AST.Module
+generateModule allModules moduleName schemas =
+  { name: moduleName
+  , imports: sharedImports moduleDeps
   , declarations }
   where
     declarations = schemas
@@ -57,30 +57,29 @@ generateModule moduleNs allModules moduleName schemas =
       # Array.nub
       # Array.filter ((/=) moduleName)
 
-sharedImports :: AST.ModuleName -> Array AST.ModuleName -> Array String
-sharedImports moduleNs deps =
-  [ "Prelude"
-  , "Control.Alt ((<|>))"
-  , "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
-  , "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
-  , "Data.Foreign.Generic.Types (Options)"
-  , "Data.Foreign.Index (readProp)"
-  , "Data.Generic.Rep (class Generic)"
-  , "Data.Generic.Rep.Show (genericShow)"
-  , "Data.Maybe (Maybe(Just,Nothing))"
-  , "Data.Newtype (class Newtype)"
-  , "Data.StrMap (StrMap)"
-  , "Data.StrMap as StrMap"
-  , "Data.Tuple (Tuple(Tuple))"
-  , "Kubernetes.Default (class Default)"
-  , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <> depImports
+sharedImports :: Array AST.ModuleName -> Array AST.Import
+sharedImports deps =
+  [ AST.RawImport "Prelude"
+  , AST.RawImport "Control.Alt ((<|>))"
+  , AST.RawImport "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
+  , AST.RawImport "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
+  , AST.RawImport "Data.Foreign.Generic.Types (Options)"
+  , AST.RawImport "Data.Foreign.Index (readProp)"
+  , AST.RawImport "Data.Generic.Rep (class Generic)"
+  , AST.RawImport "Data.Generic.Rep.Show (genericShow)"
+  , AST.RawImport "Data.Maybe (Maybe(Just,Nothing))"
+  , AST.RawImport "Data.Newtype (class Newtype)"
+  , AST.RawImport "Data.StrMap (StrMap)"
+  , AST.RawImport "Data.StrMap as StrMap"
+  , AST.RawImport "Data.Tuple (Tuple(Tuple))"
+  , AST.RawImport "Kubernetes.Default (class Default)"
+  , AST.RawImport "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <>
+  depImports
   where
     depImports = deps
       # Array.sort
       # Array.nub
-      # map mkImport
-    mkImport modName = modNameAsQualifiedStr (moduleNs <> modName) <>
-                       " as " <> modNameAsStr modName
+      # map (\i -> AST.K8SImport {parentModule: Nothing, k8sModule: i})
 
 schemaRefs :: Schema -> Array SchemaRef
 schemaRefs (Schema {additionalProperties, items, oneOf: _oneOf, properties, ref}) =

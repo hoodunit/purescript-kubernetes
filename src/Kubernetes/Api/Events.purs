@@ -16,14 +16,14 @@ import Data.Newtype (class Newtype)
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
-import Kubernetes.Api.Core.V1 as CoreV1
-import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
 import Prelude
+import Kubernetes.Api.Core.V1 as CoreV1
+import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | Event is a report of an event somewhere in the cluster. It generally denotes some state change in the system.
 -- |

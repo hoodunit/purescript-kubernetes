@@ -13,21 +13,25 @@ import Kubernetes.Generation.GenerateApi (generateEndpointModules)
 import Kubernetes.Generation.GenerateDefinitions (KubernetesSchema, generateDefinitionModules)
 import Kubernetes.Generation.JsonSchema (Schema)
 import Kubernetes.Generation.Passes.GenerateLenses (generateLenses)
+import Kubernetes.Generation.Passes.PrefixNamespace (prefixNamespace)
+import Kubernetes.Generation.Passes.ResolveLocalRefs (resolveLocalRefs)
 import Kubernetes.Generation.Swagger (Swagger)
 import Partial.Unsafe (unsafePartial)
 
 generateApi :: Partial => AST.ModuleName -> Swagger -> AST.AST
 generateApi moduleNs swagger =
   mergeModules endpointModules definitionModules
-  # generateLenses moduleNs
+  # generateLenses
+  # resolveLocalRefs
+  # prefixNamespace moduleNs
   where
-    endpointModules = generateEndpointModules moduleNs swagger.paths
+    endpointModules = generateEndpointModules swagger.paths
     definitionModules = mkDefinitionsAst swagger.definitions
     
     mkDefinitionsAst :: StrMap Schema -> Array AST.Module
     mkDefinitionsAst schemas = schemas
       # parseSchemas
-      # \s -> unsafePartial (generateDefinitionModules moduleNs s)
+      # \s -> unsafePartial (generateDefinitionModules s)
 
     parseSchemas :: StrMap Schema -> Array KubernetesSchema
     parseSchemas = StrMap.toUnfoldable

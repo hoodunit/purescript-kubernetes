@@ -22,24 +22,22 @@ emitModule {name, imports, declarations} =
   emittedDecls
   where
     emittedImports = String.joinWith "\n" $ emitImport <$> imports
-    emittedDecls = String.joinWith "\n\n" $ emitDeclaration name <$> (Array.sort declarations)
+    emittedDecls = String.joinWith "\n\n" $ emitDeclaration <$> (Array.sort declarations)
     moduleName = String.joinWith "." <<< NonEmpty.toUnfoldable
 
-emitTypeDecl :: ModuleName -> TypeDecl -> String
-emitTypeDecl _ TypeString = "String"
-emitTypeDecl _ TypeNumber = "Number"
-emitTypeDecl _ TypeInt = "Int"
-emitTypeDecl _ TypeBoolean = "Boolean"
-emitTypeDecl m (TypeArray t) = "(Array " <> emitTypeDecl m t <> ")"
-emitTypeDecl m (TypeNullable t) = "(Nullable " <> emitTypeDecl m t <> ")"
-emitTypeDecl m (TypeObject t) = "(StrMap " <> emitTypeDecl m t <> ")"
-emitTypeDecl modName (TypeRef {moduleName, k8sTypeName}) | modulesMatch modName moduleName =
-  k8sTypeName
-emitTypeDecl modName (TypeRef {moduleName, k8sTypeName}) =
-  modNameAsStr moduleName <> "." <> k8sTypeName
+emitTypeDecl :: TypeDecl -> String
+emitTypeDecl TypeString = "String"
+emitTypeDecl TypeNumber = "Number"
+emitTypeDecl TypeInt = "Int"
+emitTypeDecl TypeBoolean = "Boolean"
+emitTypeDecl (TypeArray t) = "(Array " <> emitTypeDecl t <> ")"
+emitTypeDecl (TypeNullable t) = "(Nullable " <> emitTypeDecl t <> ")"
+emitTypeDecl (TypeObject t) = "(StrMap " <> emitTypeDecl t <> ")"
+emitTypeDecl (TypeRef {moduleName, k8sTypeName}) = modNameAsStr moduleName <> "." <> k8sTypeName
+emitTypeDecl (TypeLocalRef name) = name
 
-emitDeclaration :: Partial => ModuleName -> Declaration -> String
-emitDeclaration modName (NewtypeDecl (ObjectType {description, fields, groupVersionKind, name})) =
+emitDeclaration :: Partial => Declaration -> String
+emitDeclaration (NewtypeDecl (ObjectType {description, fields, groupVersionKind, name})) =
   objectDocs description usedFields <>
     "newtype " <> name <> " = " <> name <> "\n" <>
     "  { " <> emitFields usedFields <>
@@ -58,8 +56,8 @@ emitDeclaration modName (NewtypeDecl (ObjectType {description, fields, groupVers
     dropUnused = Array.filter (not isUnused <<< _.name)
     isUnused = ((const $ isJust kind) && eq "kind")
                || ((const $ isJust version) && eq "apiVersion")
-    emitFields = String.joinWith "\n  , " <<< map (emitOptionalField modName)
-emitDeclaration modName (RecordDecl (ObjectType {name, description, fields})) =
+    emitFields = String.joinWith "\n  , " <<< map emitOptionalField
+emitDeclaration (RecordDecl (ObjectType {name, description, fields})) =
   docs <>
     "type " <> name <> " =\n" <>
     "  { " <> fieldDecls <>
@@ -68,29 +66,29 @@ emitDeclaration modName (RecordDecl (ObjectType {name, description, fields})) =
   where
     docs = objectDocs description fields
     sortedFields = Array.sortWith (_.name) fields
-    fieldDecls = String.joinWith "\n  , " (emitOptionalField modName <$> sortedFields)
+    fieldDecls = String.joinWith "\n  , " (emitOptionalField <$> sortedFields)
     fieldNames = _.name <$> sortedFields
-emitDeclaration modName (AdtType {name, description, constructors}) =
+emitDeclaration (AdtType {name, description, constructors}) =
   docs <>
     "data " <> name <> " = \n  " <> constructorDecls <>
     "\n\n" <> adtTypeClassBoilerplate name
   where
     docs = formatDescription description
     constructorDecls = String.joinWith "\n  | " (mkConstructor <$> constructors)
-    mkConstructor t = name <> adtCtrSuffix modName t <> " " <> emitTypeDecl modName t
-emitDeclaration modName (AliasType {name, description, innerType}) =
+    mkConstructor t = name <> adtCtrSuffix t <> " " <> emitTypeDecl t
+emitDeclaration (AliasType {name, description, innerType}) =
   docs <>
-    "newtype " <> name <> " = " <> name <> " " <> emitTypeDecl modName innerType <>
+    "newtype " <> name <> " = " <> name <> " " <> emitTypeDecl innerType <>
     "\n\n" <> deriveNewtype name <>
     "\n" <> genericTypeClassBoilerplate name
   where
     docs = formatDescription description
-emitDeclaration _ (LensHelper {name}) =
+emitDeclaration (LensHelper {name}) =
   underscoreName <> " :: forall s a r. Newtype s { " <> name <> " :: a | r } => Lens' s a\n" <>
   underscoreName <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> name <> "\")"
   where
     underscoreName = if startsWith "_" name then name else "_" <> name
-emitDeclaration modName (Endpoint
+emitDeclaration (Endpoint
   { description
   , method
   , name
@@ -106,17 +104,17 @@ emitDeclaration modName (Endpoint
   "    url = " <> buildUrlStr <>
   buildBodyStr body
   where
-    optionsDecl (Just params) = emitDeclaration modName (NewtypeDecl params) <> "\n\n"
+    optionsDecl (Just params) = emitDeclaration (NewtypeDecl params) <> "\n\n"
     optionsDecl Nothing = ""
     
     fnParamTypes = (String.joinWith " -> " allFnParamTypes) <>
                    (if Array.null allFnParamTypes then "" else " -> ")
     allFnParamTypes = ["Config"] <> urlTypes <> bodyTypes <> optionsTypes
     urlTypes = const "String" <$> paramNames
-    bodyTypes = maybe [] (\b -> [emitTypeDecl modName b]) body
+    bodyTypes = maybe [] (\b -> [emitTypeDecl b]) body
     optionsTypes = maybe [] (\o -> [(unwrap o).name]) queryParams
     
-    returnType' = "(Either MetaV1.Status " <> emitTypeDecl modName returnType <> ")"
+    returnType' = "(Either MetaV1.Status " <> emitTypeDecl returnType <> ")"
     
     paramNamesStr = (String.joinWith " " (["cfg"] <> paramNames <> bodyNames <> optionsName)) <> " "
     paramNames = urlParamNames urlWithParams
@@ -129,9 +127,9 @@ emitDeclaration modName (Endpoint
     formatQueryStr = maybe "" (const " <> Client.formatQueryString options") 
     buildBodyStr = maybe "" (const "\n    encodedBody = encodeJSON body")
 
-emitOptionalField :: ModuleName -> OptionalField -> String
-emitOptionalField modName {name, innerType} =
-  sanitizedName <> " :: " <> "(Maybe " <> emitTypeDecl modName innerType <> ")"
+emitOptionalField :: OptionalField -> String
+emitOptionalField {name, innerType} =
+  sanitizedName <> " :: " <> "(Maybe " <> emitTypeDecl innerType <> ")"
   where
     sanitizedName = if startsWithUpperCase name then "\"" <> name <> "\"" else name
 
@@ -152,25 +150,16 @@ urlBuilderStr :: UrlWithParams -> String
 urlBuilderStr (EndUrl s) = "\"" <> s <> "\""
 urlBuilderStr (UrlChunk chunk paramName rest) = "\"" <> chunk <> "\" <> " <> paramName <> " <> " <> urlBuilderStr rest
 
-adtCtrSuffix :: ModuleName -> TypeDecl -> String
-adtCtrSuffix _ TypeString = "String"
-adtCtrSuffix _ TypeNumber = "Number"
-adtCtrSuffix _ TypeInt = "Int"
-adtCtrSuffix _ TypeBoolean = "Boolean"
-adtCtrSuffix _ (TypeArray _) = "Array"
-adtCtrSuffix _ (TypeObject _) = "Object"
-adtCtrSuffix _ (TypeNullable _) = "Nullable"
-adtCtrSuffix modName (TypeRef {moduleName, k8sTypeName}) | modulesMatch modName moduleName =
-  k8sTypeName
-adtCtrSuffix _ (TypeRef {moduleName, k8sTypeName}) =
-  modNameAsStr moduleName <> "." <> k8sTypeName
-
--- Modules match if they are equal, minus extra head
--- namespaces in one
-modulesMatch :: ModuleName -> ModuleName -> Boolean
-modulesMatch fileModule refModule =
-  NonEmptyList.zip (NonEmptyList.reverse refModule) (NonEmptyList.reverse fileModule)
-  # all (\(Tuple a b) -> a == b)
+adtCtrSuffix :: TypeDecl -> String
+adtCtrSuffix TypeString = "String"
+adtCtrSuffix TypeNumber = "Number"
+adtCtrSuffix TypeInt = "Int"
+adtCtrSuffix TypeBoolean = "Boolean"
+adtCtrSuffix (TypeArray _) = "Array"
+adtCtrSuffix (TypeObject _) = "Object"
+adtCtrSuffix (TypeNullable _) = "Nullable"
+adtCtrSuffix (TypeRef {moduleName, k8sTypeName}) = modNameAsStr moduleName <> "." <> k8sTypeName
+adtCtrSuffix (TypeLocalRef k8sTypeName) = k8sTypeName
 
 objectDocs :: Maybe String -> Array OptionalField -> String
 objectDocs desc fields =
@@ -287,5 +276,12 @@ defaultRecordValue indents fieldNames = indentStr <> "{ " <> fieldVals  <> " }"
 defaultFieldValue :: String -> String
 defaultFieldValue name = name <> ": Nothing"
 
-emitImport :: String -> String
-emitImport i = "import " <> i
+emitImport :: Import -> String
+emitImport (RawImport i) = "import " <> i
+emitImport (K8SImport {parentModule, k8sModule}) =
+  "import " <> modAsImportStr importedMod <> " as " <> modAsNameStr k8sModule where
+    importedMod = maybe k8sModule (_ <> k8sModule) parentModule
+    modAsImportStr :: ModuleName -> String
+    modAsImportStr = NonEmptyList.toUnfoldable >>> String.joinWith "."
+    modAsNameStr :: ModuleName -> String
+    modAsNameStr = NonEmptyList.toUnfoldable >>> String.joinWith ""
