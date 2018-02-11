@@ -21,7 +21,7 @@ generateApi moduleNs swagger = mergeModules endpointModules definitionModules
     endpointModules = generateEndpointModules moduleNs swagger.paths
     definitionModules = mkDefinitionsAst swagger.definitions
     
-    mkDefinitionsAst :: StrMap Schema -> Array AST.ApiModule
+    mkDefinitionsAst :: StrMap Schema -> Array AST.Module
     mkDefinitionsAst schemas = schemas
       # parseSchemas
       # \s -> unsafePartial (generateDefinitionModules moduleNs s)
@@ -30,13 +30,13 @@ generateApi moduleNs swagger = mergeModules endpointModules definitionModules
     parseSchemas = StrMap.toUnfoldable
       >>> map (\(Tuple name schema) -> {name, schema})
 
-mergeModules :: Array AST.ApiModule -> Array AST.ApiModule -> AST.AST
+mergeModules :: Array AST.Module -> Array AST.Module -> AST.AST
 mergeModules endpointsModules defsModules =
   { modules: Array.fromFoldable $
       mergeAsts' (List.fromFoldable endpointsModules) (List.fromFoldable defsModules) Nil }
 
   where
-    mergeAsts' :: List AST.ApiModule -> List AST.ApiModule -> List AST.ApiModule -> List AST.ApiModule
+    mergeAsts' :: List AST.Module -> List AST.Module -> List AST.Module -> List AST.Module
     mergeAsts' Nil Nil merged = merged
     mergeAsts' Nil defs merged = merged <> defs
     mergeAsts' endpoints Nil merged = merged <> endpoints
@@ -46,7 +46,7 @@ mergeModules endpointsModules defsModules =
           mergeAsts' restEndpoints otherDefs (Cons (mergeTwoModules endpointMod matchingDef) merged)
         {yes: _, no: otherDefs} -> mergeAsts' restEndpoints otherDefs (Cons endpointMod merged)
 
-mergeTwoModules :: AST.ApiModule -> AST.ApiModule -> AST.ApiModule
+mergeTwoModules :: AST.Module -> AST.Module -> AST.Module
 mergeTwoModules {name, imports: endpointsImports, declarations: endpointsDecls}
              {imports: defsImports, declarations: defsDecls} =
   {name, imports, declarations}

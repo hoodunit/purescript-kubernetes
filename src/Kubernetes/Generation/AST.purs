@@ -8,9 +8,9 @@ import Data.Newtype (class Newtype)
 import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
 
 type AST =
-  { modules :: Array ApiModule }
+  { modules :: Array Module }
 
-type ApiModule =
+type Module =
   { name :: ModuleName
   , imports :: Array String
   , declarations :: Array Declaration }

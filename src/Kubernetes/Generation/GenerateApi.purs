@@ -36,7 +36,7 @@ type ApiResponse =
   , "type" :: Maybe String
   , typeRef :: Maybe String }
 
-generateEndpointModules :: Partial => AST.ModuleName -> StrMap PathItem -> Array AST.ApiModule
+generateEndpointModules :: Partial => AST.ModuleName -> StrMap PathItem -> Array AST.Module
 generateEndpointModules moduleNs paths = groupEndpointsByModule moduleNs (parseEndpoints paths)
   where
     parseEndpoints :: StrMap PathItem -> Array DeclWithModule
@@ -189,7 +189,7 @@ pathOperations s = Array.catMaybes
   where
     pair name m = (Tuple name) <$> m
 
-groupEndpointsByModule :: Partial => AST.ModuleName -> Array DeclWithModule -> Array AST.ApiModule
+groupEndpointsByModule :: Partial => AST.ModuleName -> Array DeclWithModule -> Array AST.Module
 groupEndpointsByModule moduleNs endpoints =
   case NonEmptyList.fromFoldable endpoints of
     Just endpointDecls ->
@@ -214,7 +214,7 @@ groupEndpointsByModule moduleNs endpoints =
     orderByModName :: DeclWithModule -> DeclWithModule -> Boolean
     orderByModName {moduleName: m1} {moduleName: m2} = m1 == m2
 
-mkModule :: AST.ModuleName -> AST.ModuleName -> Array AST.Declaration -> AST.ApiModule
+mkModule :: AST.ModuleName -> AST.ModuleName -> Array AST.Declaration -> AST.Module
 mkModule moduleNs moduleName decls =
   { name: moduleNs <> moduleName
   , imports:

@@ -29,9 +29,9 @@ type KubernetesSchema =
   , schema :: Schema }
 
 type GeneratedModule =
-  { output :: AST.ApiModule, lenses :: Array String }
+  { output :: AST.Module, lenses :: Array String }
 
-generateDefinitionModules :: Partial => AST.ModuleName -> Array KubernetesSchema -> Array AST.ApiModule
+generateDefinitionModules :: Partial => AST.ModuleName -> Array KubernetesSchema -> Array AST.Module
 generateDefinitionModules moduleNs schemas = k8sTypeModules <> [lensModule]
   where
     modules = groupSchemasByModule schemas
@@ -44,7 +44,7 @@ generateDefinitionModules moduleNs schemas = k8sTypeModules <> [lensModule]
     dumpModule :: Tuple String (Array KubernetesSchema) -> String
     dumpModule (Tuple mod arr) = mod <> "\n" <> (String.joinWith "\n" (_.name <$> arr))
 
-generateLensModule :: AST.ModuleName -> Array String -> AST.ApiModule
+generateLensModule :: AST.ModuleName -> Array String -> AST.Module
 generateLensModule moduleNs lensNames =
   { name: NonEmptyList.snoc moduleNs "Lens"
   , imports:

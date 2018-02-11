@@ -15,8 +15,8 @@ import Debug.Trace as Debug
 import Kubernetes.Generation.Names (lowercaseFirstChar, modNameAsStr, startsWith, startsWithUpperCase)
 import Partial.Unsafe (unsafeCrashWith)
 
-emitApiModule :: Partial => ApiModule -> String
-emitApiModule {name, imports, declarations} =
+emitModule :: Partial => Module -> String
+emitModule {name, imports, declarations} =
   "module " <> moduleName name <> " where\n\n" <>
   emittedImports <> "\n\n" <>
   emittedDecls

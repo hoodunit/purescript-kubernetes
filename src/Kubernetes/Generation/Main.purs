@@ -15,7 +15,7 @@ import Data.List.NonEmpty as NonEmptyList
 import Data.NonEmpty ((:|))
 import Data.String as String
 import Data.Traversable (sequence)
-import Kubernetes.Generation.AST (ApiModule, ModuleName)
+import Kubernetes.Generation.AST (Module, ModuleName)
 import Kubernetes.Generation.Generation as Gen
 import Kubernetes.Generation.Emitter as Emit
 import Kubernetes.Generation.Swagger (Swagger)
@@ -69,14 +69,14 @@ ensureDirExists outputDir = do
     Left error -> pure unit
     Right ok -> log $ "Created output directory '" <> outputDir <> "'"
 
-writeModuleFile :: forall e. Partial => String -> ApiModule -> Aff (console :: CONSOLE, fs :: FS | e) Unit
+writeModuleFile :: forall e. Partial => String -> Module -> Aff (console :: CONSOLE, fs :: FS | e) Unit
 writeModuleFile dir mod@{name} = do
   let dropLast = NonEmptyList.init >>> NonEmptyList.fromList
   _ <- sequence $ ensureDirsOnPathExist <$> (dropLast (NonEmptyList.cons dir name))
   writeTextFile UTF8 fileName contents
   where
     fileName = dir <> "/" <> mkPath name <> ".purs"
-    contents = Emit.emitApiModule mod
+    contents = Emit.emitModule mod
     mkPath = String.joinWith "/" <<< NonEmptyList.toUnfoldable
   
 main :: forall e. Eff (console :: CONSOLE, fs :: FS | e) Unit
