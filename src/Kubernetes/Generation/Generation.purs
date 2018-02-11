@@ -15,7 +15,7 @@ import Kubernetes.Generation.JsonSchema (Schema)
 import Kubernetes.Generation.Swagger (Swagger)
 import Partial.Unsafe (unsafePartial)
 
-generateApi :: Partial => AST.ModuleName -> Swagger -> AST.ApiAst
+generateApi :: Partial => AST.ModuleName -> Swagger -> AST.AST
 generateApi moduleNs swagger = mergeModules endpointModules definitionModules
   where
     endpointModules = generateEndpointModules moduleNs swagger.paths
@@ -30,7 +30,7 @@ generateApi moduleNs swagger = mergeModules endpointModules definitionModules
     parseSchemas = StrMap.toUnfoldable
       >>> map (\(Tuple name schema) -> {name, schema})
 
-mergeModules :: Array AST.ApiModule -> Array AST.ApiModule -> AST.ApiAst
+mergeModules :: Array AST.ApiModule -> Array AST.ApiModule -> AST.AST
 mergeModules endpointsModules defsModules =
   { modules: Array.fromFoldable $
       mergeAsts' (List.fromFoldable endpointsModules) (List.fromFoldable defsModules) Nil }

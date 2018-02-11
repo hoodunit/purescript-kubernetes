@@ -7,7 +7,7 @@ import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
 import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
 
-type ApiAst =
+type AST =
   { modules :: Array ApiModule }
 
 type ApiModule =
