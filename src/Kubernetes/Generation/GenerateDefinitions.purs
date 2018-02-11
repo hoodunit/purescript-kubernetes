@@ -28,55 +28,25 @@ type KubernetesSchema =
   { name :: String
   , schema :: Schema }
 
-type GeneratedModule =
-  { output :: AST.Module, lenses :: Array String }
-
 generateDefinitionModules :: Partial => AST.ModuleName -> Array KubernetesSchema -> Array AST.Module
-generateDefinitionModules moduleNs schemas = k8sTypeModules <> [lensModule]
+generateDefinitionModules moduleNs schemas = k8sTypeModules
   where
+    k8sTypeModules = (uncurry $ generateModule moduleNs moduleNames) <$> modules
     modules = groupSchemasByModule schemas
     moduleNames = fst <$> modules
-    generated = (uncurry $ generateModule moduleNs moduleNames) <$> modules
-    k8sTypeModules = _.output <$> generated
-    lensNames = Array.nub $ Array.concat $ _.lenses <$> generated
-    lensModule = generateLensModule moduleNs lensNames
     
     dumpModule :: Tuple String (Array KubernetesSchema) -> String
     dumpModule (Tuple mod arr) = mod <> "\n" <> (String.joinWith "\n" (_.name <$> arr))
 
-generateLensModule :: AST.ModuleName -> Array String -> AST.Module
-generateLensModule moduleNs lensNames =
-  { name: NonEmptyList.snoc moduleNs "Lens"
-  , imports:
-    [ "Prelude"
-    , "Data.Lens (Lens')"
-    , "Data.Lens.Iso.Newtype (_Newtype)"
-    , "Data.Lens.Record (prop)"
-    , "Data.Maybe (Maybe(Just,Nothing))"
-    , "Data.Newtype (class Newtype)"
-    , "Data.Symbol (SProxy(SProxy))"
-    , "Kubernetes.Default (class Default)" ]
-    , declarations }
+generateModule :: Partial => AST.ModuleName -> Array AST.ModuleName -> AST.ModuleName -> Array KubernetesSchema -> AST.Module
+generateModule moduleNs allModules moduleName schemas =
+  { name: moduleNs <> moduleName
+  , imports: sharedImports moduleNs moduleDeps
+  , declarations }
   where
-    declarations = (\name -> AST.LensHelper {name}) <$> sortedLenses
-    sortedLenses = Array.sort lensNames
-
-generateModule :: Partial => AST.ModuleName -> Array AST.ModuleName -> AST.ModuleName -> Array KubernetesSchema -> GeneratedModule
-generateModule moduleNs allModules moduleName schemas = { output: mod, lenses }
-  where
-    mod =
-      { name: moduleNs <> moduleName
-      , imports: sharedImports moduleNs moduleDeps
-      , declarations: typeDeclarations }
-    typeDeclarations = _.output <$> typeOutputs
-    typeOutputs =
-      schemas
+    declarations = schemas
       # map (\({name, schema}) -> generateTypeForSchema moduleName (AST.K8SQualifiedName name) schema)
       # Array.catMaybes
-    lenses = typeOutputs
-      # map _.lenses
-      # Array.concat
-      # Array.nub
     moduleDeps =
       schemas
       # map _.schema

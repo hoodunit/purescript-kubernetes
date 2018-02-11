@@ -12,11 +12,14 @@ import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.GenerateApi (generateEndpointModules)
 import Kubernetes.Generation.GenerateDefinitions (KubernetesSchema, generateDefinitionModules)
 import Kubernetes.Generation.JsonSchema (Schema)
+import Kubernetes.Generation.Passes.GenerateLenses (generateLenses)
 import Kubernetes.Generation.Swagger (Swagger)
 import Partial.Unsafe (unsafePartial)
 
 generateApi :: Partial => AST.ModuleName -> Swagger -> AST.AST
-generateApi moduleNs swagger = mergeModules endpointModules definitionModules
+generateApi moduleNs swagger =
+  mergeModules endpointModules definitionModules
+  # generateLenses moduleNs
   where
     endpointModules = generateEndpointModules moduleNs swagger.paths
     definitionModules = mkDefinitionsAst swagger.definitions

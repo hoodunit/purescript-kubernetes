@@ -18,47 +18,35 @@ import Kubernetes.Generation.Names (jsonFieldToPsField, schemaRefToQualifiedName
 import Partial.Unsafe (unsafeCrashWith)
 import Unsafe.Coerce (unsafeCoerce)
 
-type GeneratedSchema =
-  { output :: AST.Declaration, lenses :: Array String }
-
-generateTypeForSchema :: Partial => AST.ModuleName -> AST.K8SQualifiedName -> Schema -> Maybe GeneratedSchema
+generateTypeForSchema :: Partial => AST.ModuleName -> AST.K8SQualifiedName -> Schema -> Maybe AST.Declaration
 generateTypeForSchema mod qualifiedName (Schema {description, properties: (NullOrUndefined (Just properties)), "x-kubernetes-group-version-kind": (NullOrUndefined groupVersionKind)}) =
-  Just {output, lenses: Tuple.fst <$> sortedFields}
+  Just $ AST.NewtypeDecl $ AST.ObjectType $
+    { description: unwrap description
+    , groupVersionKind: fromMaybe [] groupVersionKind
+    , name: typeUnqualifiedName qualifiedName
+    , fields: generateField mod <$> sortedFields }
   where
-    output = AST.NewtypeDecl $ AST.ObjectType
-      { description: unwrap description
-      , groupVersionKind: fromMaybe [] groupVersionKind
-      , name: typeUnqualifiedName qualifiedName
-      , fields: generateField mod <$> sortedFields }
     sortedFields = sortFields properties
     sortFields = StrMap.toUnfoldable
       >>> Array.sortWith Tuple.fst
       >>> map (lmap jsonFieldToPsField)
 generateTypeForSchema mod qualifiedName (Schema {description, oneOf: NullOrUndefined (Just schemas)}) =
-  Just {output, lenses: []}
-  where
-    output = AST.AdtType
-      { description: unwrap description
-      , name: typeUnqualifiedName qualifiedName
-      , constructors: constructors }
-    constructors = generateType mod <$> schemas
+  Just $ AST.AdtType
+    { description: unwrap description
+    , name: typeUnqualifiedName qualifiedName
+    , constructors: generateType mod <$> schemas }
 generateTypeForSchema mod qualifiedName s@(Schema { description
                                                   , _type: NullOrUndefined (Just _)
                                                   , format: NullOrUndefined (Just "int-or-string")}) =
-  Just {output, lenses: []}
-  where
-    output = AST.AdtType
-      { description: unwrap description
-      , name: typeUnqualifiedName qualifiedName
-      , constructors: [AST.TypeString, AST.TypeInt] }
+  Just $ AST.AdtType
+    { description: unwrap description
+    , name: typeUnqualifiedName qualifiedName
+    , constructors: [AST.TypeString, AST.TypeInt] }
 generateTypeForSchema mod qualifiedName s@(Schema {description, _type: NullOrUndefined (Just _)}) =
-  Just {output, lenses: []}
-  where
-    output = AST.AliasType
-      { description: unwrap description
-      , name: typeUnqualifiedName qualifiedName
-      , innerType }
-    innerType = generateType mod s
+  Just $ AST.AliasType
+    { description: unwrap description
+    , name: typeUnqualifiedName qualifiedName
+    , innerType: generateType mod s }
 generateTypeForSchema _ _ (Schema { description: NullOrUndefined (Just _)
                                   , _type: NullOrUndefined Nothing
                                   , additionalProperties: NullOrUndefined Nothing
