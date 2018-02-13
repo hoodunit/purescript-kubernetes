@@ -30,6 +30,7 @@ instance eqImport :: Eq Import where
      (K8SImport {parentModule: p2, k8sModule: k2}) = p1 == p2 && k1 == k2
   eq _ _ = false
 instance ordImport :: Ord Import where
+  compare (RawImport "Prelude") _ = LT
   compare (RawImport a) (RawImport b) = a `compare` b
   compare (K8SImport {k8sModule: a}) (K8SImport {k8sModule: b}) = a `compare` b
   compare (RawImport a) (K8SImport b) = LT

@@ -3,11 +3,10 @@ module Kubernetes.Generation.GenerateApi where
 import Prelude
 
 import Data.Array as Array
-import Data.Foldable (find, findMap, fold)
+import Data.Foldable (find, findMap)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.Lens ((^.))
 import Data.Lens as L
-import Data.List as List
 import Data.List.NonEmpty (NonEmptyList(..))
 import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(Just, Nothing))
@@ -15,13 +14,11 @@ import Data.NonEmpty ((:|))
 import Data.Record as Record
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
-import Data.String as String
 import Data.Symbol (SProxy(..))
 import Data.Tuple (Tuple(..), uncurry)
-import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.JsonSchema (SchemaRef(SchemaRef))
-import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, modNameAsQualifiedStr, modNameAsStr, schemaRefToQualifiedName, stripModuleFromId, stripTagFromId, typeQualifiedName, uppercaseFirstChar)
+import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, schemaRefToQualifiedName, stripModuleFromId, stripTagFromId, uppercaseFirstChar)
 import Kubernetes.Generation.PathParsing as PathParsing
 import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Response, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
 import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
@@ -217,68 +214,24 @@ groupEndpointsByModule endpoints =
 mkModule :: AST.ModuleName -> Array AST.Declaration -> AST.Module
 mkModule moduleName decls =
   { name: moduleName
-  , imports:
-    [ AST.RawImport "Prelude"
-    , AST.RawImport "Control.Monad.Aff (Aff)"
-    , AST.RawImport "Data.Either (Either(Left,Right))"
-    , AST.RawImport "Data.Foreign.Class (class Decode, class Encode, encode, decode)"
-    , AST.RawImport "Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
-    , AST.RawImport "Data.Foreign.Index (readProp)"
-    , AST.RawImport "Data.Generic.Rep (class Generic)"
-    , AST.RawImport "Data.Generic.Rep.Show (genericShow)"
-    , AST.RawImport "Data.Maybe (Maybe(Just,Nothing))"
-    , AST.RawImport "Data.Newtype (class Newtype)"
-    , AST.RawImport "Data.StrMap (StrMap)"
-    , AST.RawImport "Data.StrMap as StrMap"
-    , AST.RawImport "Data.Tuple (Tuple(Tuple))"
-    , AST.RawImport "Node.HTTP (HTTP)"
-    , AST.RawImport "Kubernetes.Client as Client"
-    , AST.RawImport "Kubernetes.Config (Config)"
-    , AST.RawImport "Kubernetes.Default (class Default)"
-    , AST.RawImport "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <>
-    depImports
+  , imports: (AST.RawImport <$>
+    [ "Prelude"
+    , "Control.Monad.Aff (Aff)"
+    , "Data.Either (Either(Left,Right))"
+    , "Data.Foreign.Class (class Decode, class Encode, encode, decode)"
+    , "Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
+    , "Data.Foreign.Index (readProp)"
+    , "Data.Generic.Rep (class Generic)"
+    , "Data.Generic.Rep.Show (genericShow)"
+    , "Data.Maybe (Maybe(Just,Nothing))"
+    , "Data.Newtype (class Newtype)"
+    , "Data.StrMap (StrMap)"
+    , "Data.StrMap as StrMap"
+    , "Data.Tuple (Tuple(Tuple))"
+    , "Node.HTTP (HTTP)"
+    , "Kubernetes.Client as Client"
+    , "Kubernetes.Config (Config)"
+    , "Kubernetes.Default (class Default)"
+    , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ]) <>
+    [ AST.K8SImport {parentModule: Nothing, k8sModule: NonEmptyList $ "Meta" :| pure "V1"} ]
   , declarations: decls }
-  where
-    depImports = decls >>= declRefs
-      # map _.moduleName
-      # Array.sort
-      # Array.insert (NonEmptyList $ "Meta" :| pure "V1")
-      # Array.nub
-      # Array.filter ((/=) moduleName)
-      # map (\i -> AST.K8SImport {parentModule: Nothing, k8sModule: i})
-
-declRefs :: AST.Declaration -> Array AST.QualifiedName
-declRefs (AST.Endpoint {body, queryParams, returnType}) =
-  Array.catMaybes $ [bodyRef] <> queryRefs <> [returnRef]
-  where
-    bodyRef = body >>= typeDeclRef
-    queryRefs = queryParamRefs queryParams
-    returnRef = typeDeclRef returnType
-declRefs _ = []
-
-queryParamRefs :: Maybe AST.ObjectType -> Array (Maybe AST.QualifiedName)
-queryParamRefs (Just (AST.ObjectType {fields})) = (typeDeclRef <<< _.innerType) <$> fields
-queryParamRefs Nothing = []
-
-typeDeclRef :: AST.TypeDecl -> Maybe AST.QualifiedName
-typeDeclRef (AST.TypeRef s) = Just s
-typeDeclRef _ = Nothing
-
-mapDeclRefs :: (AST.TypeDecl -> AST.TypeDecl) -> AST.Declaration -> AST.Declaration
-mapDeclRefs f (AST.Endpoint e@{body, queryParams, returnType}) =
-  AST.Endpoint $ e { body = (mapTypeDeclRef f) <$> body
-                   , queryParams = mapQueryParamRefs f queryParams
-                   , returnType = mapTypeDeclRef f returnType }
-mapDeclRefs f d = d
-
-mapQueryParamRefs :: (AST.TypeDecl -> AST.TypeDecl) -> Maybe AST.ObjectType -> Maybe AST.ObjectType
-mapQueryParamRefs f (Just (AST.ObjectType o@{fields})) =
-  Just (AST.ObjectType $ o {fields = (mapFieldRef f) <$> fields})
-mapQueryParamRefs _ o = o
-
-mapFieldRef :: (AST.TypeDecl -> AST.TypeDecl) -> AST.OptionalField -> AST.OptionalField
-mapFieldRef f field@{innerType} = field { innerType = mapTypeDeclRef f innerType }
-
-mapTypeDeclRef :: (AST.TypeDecl -> AST.TypeDecl) -> AST.TypeDecl -> AST.TypeDecl
-mapTypeDeclRef f t@(AST.TypeRef _) = f t
-mapTypeDeclRef _ t = t

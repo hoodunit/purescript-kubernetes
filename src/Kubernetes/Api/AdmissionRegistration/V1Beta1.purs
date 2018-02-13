@@ -1,5 +1,6 @@
 module Kubernetes.Api.AdmissionRegistration.V1Beta1 where
 
+import Prelude
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
@@ -21,7 +22,6 @@ import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
-import Prelude
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.

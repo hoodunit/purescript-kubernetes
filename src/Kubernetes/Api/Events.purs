@@ -1,5 +1,6 @@
 module Kubernetes.Api.Events where
 
+import Prelude
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
@@ -21,7 +22,6 @@ import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
-import Prelude
 import Kubernetes.Api.Core.V1 as CoreV1
 import Kubernetes.Api.Meta.V1 as MetaV1
 

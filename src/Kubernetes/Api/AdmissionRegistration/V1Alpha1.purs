@@ -1,5 +1,6 @@
 module Kubernetes.Api.AdmissionRegistration.V1Alpha1 where
 
+import Prelude
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
@@ -21,7 +22,6 @@ import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
-import Prelude
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | Initializer describes the name and the failure policy of an initializer, and what resources it applies to.

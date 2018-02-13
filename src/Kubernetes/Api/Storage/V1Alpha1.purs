@@ -1,5 +1,6 @@
 module Kubernetes.Api.Storage.V1Alpha1 where
 
+import Prelude
 import Control.Alt ((<|>))
 import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
@@ -21,7 +22,6 @@ import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Node.HTTP (HTTP)
-import Prelude
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | VolumeAttachment captures the intent to attach or detach the specified volume to/from the specified node.

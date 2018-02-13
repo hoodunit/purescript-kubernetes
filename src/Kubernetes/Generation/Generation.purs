@@ -12,6 +12,7 @@ import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.GenerateApi (generateEndpointModules)
 import Kubernetes.Generation.GenerateDefinitions (KubernetesSchema, generateDefinitionModules)
 import Kubernetes.Generation.JsonSchema (Schema)
+import Kubernetes.Generation.Passes.AddDependencyImports (addDependencyImports)
 import Kubernetes.Generation.Passes.GenerateLenses (generateLenses)
 import Kubernetes.Generation.Passes.PrefixNamespace (prefixNamespace)
 import Kubernetes.Generation.Passes.ResolveLocalRefs (resolveLocalRefs)
@@ -21,6 +22,7 @@ import Partial.Unsafe (unsafePartial)
 generateApi :: Partial => AST.ModuleName -> Swagger -> AST.AST
 generateApi moduleNs swagger =
   mergeModules endpointModules definitionModules
+  # addDependencyImports
   # generateLenses
   # resolveLocalRefs
   # prefixNamespace moduleNs

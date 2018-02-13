@@ -3,26 +3,20 @@ module Kubernetes.Generation.GenerateDefinitions where
 import Prelude
 
 import Data.Array as Array
-import Data.Bifunctor (lmap)
-import Data.Foldable (any, elem, find, foldl)
+import Data.Foldable (find, foldl)
 import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
-import Data.FunctorWithIndex (mapWithIndex)
-import Data.List.NonEmpty as NonEmptyList
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Newtype (unwrap)
-import Data.NonEmpty (NonEmpty(..))
+import Data.Maybe (Maybe(..))
+import Data.NonEmpty (NonEmpty)
 import Data.NonEmpty as NonEmpty
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.String as String
 import Data.Tuple (Tuple(..), fst, uncurry)
-import Debug.Trace as Debug
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.GenerateSchemaType (generateTypeForSchema)
-import Kubernetes.Generation.JsonSchema (Schema(..), SchemaRef(..), SchemaType(..), TypeValidator(..))
-import Kubernetes.Generation.Names (apiModule, modNameAsQualifiedStr, modNameAsStr, modulePrefix, schemaRefToQualifiedName)
+import Kubernetes.Generation.JsonSchema (Schema(..), SchemaRef(..))
+import Kubernetes.Generation.Names (apiModule, modulePrefix)
 import Partial.Unsafe (unsafeCrashWith)
-import Unsafe.Coerce (unsafeCoerce)
 
 type KubernetesSchema =
   { name :: String
@@ -41,45 +35,30 @@ generateDefinitionModules schemas = k8sTypeModules
 generateModule :: Partial => Array AST.ModuleName -> AST.ModuleName -> Array KubernetesSchema -> AST.Module
 generateModule allModules moduleName schemas =
   { name: moduleName
-  , imports: sharedImports moduleDeps
+  , imports: sharedImports
   , declarations }
   where
     declarations = schemas
       # map (\({name, schema}) -> generateTypeForSchema moduleName (AST.K8SQualifiedName name) schema)
       # Array.catMaybes
-    moduleDeps =
-      schemas
-      # map _.schema
-      >>= schemaRefs
-      # map schemaRefToQualifiedName
-      # Array.catMaybes
-      # map _.moduleName
-      # Array.nub
-      # Array.filter ((/=) moduleName)
 
-sharedImports :: Array AST.ModuleName -> Array AST.Import
-sharedImports deps =
-  [ AST.RawImport "Prelude"
-  , AST.RawImport "Control.Alt ((<|>))"
-  , AST.RawImport "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
-  , AST.RawImport "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
-  , AST.RawImport "Data.Foreign.Generic.Types (Options)"
-  , AST.RawImport "Data.Foreign.Index (readProp)"
-  , AST.RawImport "Data.Generic.Rep (class Generic)"
-  , AST.RawImport "Data.Generic.Rep.Show (genericShow)"
-  , AST.RawImport "Data.Maybe (Maybe(Just,Nothing))"
-  , AST.RawImport "Data.Newtype (class Newtype)"
-  , AST.RawImport "Data.StrMap (StrMap)"
-  , AST.RawImport "Data.StrMap as StrMap"
-  , AST.RawImport "Data.Tuple (Tuple(Tuple))"
-  , AST.RawImport "Kubernetes.Default (class Default)"
-  , AST.RawImport "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ] <>
-  depImports
-  where
-    depImports = deps
-      # Array.sort
-      # Array.nub
-      # map (\i -> AST.K8SImport {parentModule: Nothing, k8sModule: i})
+sharedImports :: Array AST.Import
+sharedImports = AST.RawImport <$>
+  [ "Prelude"
+  , "Control.Alt ((<|>))"
+  , "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
+  , "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
+  , "Data.Foreign.Generic.Types (Options)"
+  , "Data.Foreign.Index (readProp)"
+  , "Data.Generic.Rep (class Generic)"
+  , "Data.Generic.Rep.Show (genericShow)"
+  , "Data.Maybe (Maybe(Just,Nothing))"
+  , "Data.Newtype (class Newtype)"
+  , "Data.StrMap (StrMap)"
+  , "Data.StrMap as StrMap"
+  , "Data.Tuple (Tuple(Tuple))"
+  , "Kubernetes.Default (class Default)"
+  , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ]
 
 schemaRefs :: Schema -> Array SchemaRef
 schemaRefs (Schema {additionalProperties, items, oneOf: _oneOf, properties, ref}) =
