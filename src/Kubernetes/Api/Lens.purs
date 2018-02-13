@@ -7,7 +7,7 @@ import Data.Lens.Record (prop)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(SProxy))
-import Kmubernetes.Default (class Default)
+import Kubernetes.Default (class Default)
 
 _Allows :: forall s a r. Newtype s { _Allows :: a | r } => Lens' s a
 _Allows = _Newtype <<< prop (SProxy :: SProxy "_Allows")
