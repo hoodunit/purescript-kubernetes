@@ -1,18 +1,13 @@
 module Kubernetes.Generation.Passes.PrefixNamespace where
 
 import Prelude
-
-import Data.Maybe (Maybe(..))
-import Kubernetes.Generation.AST (AST, Import(..), Module, ModuleName)
+import Data.Lens ((%~), (?~))
+import Data.Lens as L
+import Kubernetes.Generation.AST
 
 prefixNamespace :: ModuleName -> AST -> AST
-prefixNamespace ns ast = ast { modules = prefixModuleNamespace ns <$> ast.modules }
-    
-prefixModuleNamespace :: ModuleName -> Module -> Module
-prefixModuleNamespace name mod = mod
-  { name = name <> mod.name
-  , imports = prefixNs name <$> mod.imports }
+prefixNamespace ns = (_modules <<< L.traversed) %~ fixModule
   where
-    prefixNs :: ModuleName -> Import -> Import
-    prefixNs n (K8SImport k) = K8SImport $ k {parentModule = Just n}
-    prefixNs _ i = i
+    fixModule = prefixNamespaceMod >>> setImportParentMod
+    prefixNamespaceMod = _name %~ (ns <> _)
+    setImportParentMod = (_imports <<< L.traversed <<< _K8SImport <<< _parentModule) ?~ ns
