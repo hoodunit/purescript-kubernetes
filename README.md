@@ -38,7 +38,7 @@ Assuming [Nix](https://nixos.org/nix/) is installed:
 ```
 nix-shell
 npm install
-./bower update --force-latest
+npm run bower -- update --force-latest
 
 # Generate type definitions
 npm run build:generation

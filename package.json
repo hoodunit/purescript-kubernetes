@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rm -rf output .pulp-cache",
     "clean:all": "npm run clean && rm -rf node_modules bower_components",
+    "bower": "bower",
     "build": "npm run clean && pulp build --main Kubernetes.Client --build-path output --to output/app.js",
     "build:watch": "npm run clean && pulp --watch build --main Kubernetes.Client --build-path output --to output/app.js",
     "build:generation": "npm run clean && pulp build --src-path src/Kubernetes/Generation --main Kubernetes.Generation.Main --build-path output --to output/generate.js",
