@@ -2,10 +2,6 @@ PureScript client for the Kubernetes API.
 
 Supports Kubernetes API versions up to `1.10.0`.
 
-## Status
-
-Pre-release. You should probably not rely on this for production software unless you are planning on making upstream changes.
-
 Supports:
 
 * Basic API calls: reading/creating/deleting deployments/namespaces/pods/whatever
