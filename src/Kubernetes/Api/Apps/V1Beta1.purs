@@ -1,27 +1,29 @@
 module Kubernetes.Api.Apps.V1Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
-import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Prelude
+import Data.Newtype (class Newtype)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Core.V1 as CoreV1
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Runtime as Runtime
@@ -50,7 +52,7 @@ instance decodeControllerRevision :: Decode ControllerRevision where
                revision <- decodeMaybe "revision" a
                pure $ ControllerRevision { _data, metadata, revision }
 instance encodeControllerRevision :: Encode ControllerRevision where
-  encode (ControllerRevision a) = encode $ StrMap.fromFoldable $
+  encode (ControllerRevision a) = encode $ Object.fromFoldable $
                [ Tuple "_data" (encodeMaybe a._data)
                , Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "kind" (encode "ControllerRevision")
@@ -84,7 +86,7 @@ instance decodeControllerRevisionList :: Decode ControllerRevisionList where
                metadata <- decodeMaybe "metadata" a
                pure $ ControllerRevisionList { items, metadata }
 instance encodeControllerRevisionList :: Encode ControllerRevisionList where
-  encode (ControllerRevisionList a) = encode $ StrMap.fromFoldable $
+  encode (ControllerRevisionList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ControllerRevisionList")
@@ -119,7 +121,7 @@ instance decodeDeployment :: Decode Deployment where
                status <- decodeMaybe "status" a
                pure $ Deployment { metadata, spec, status }
 instance encodeDeployment :: Encode Deployment where
-  encode (Deployment a) = encode $ StrMap.fromFoldable $
+  encode (Deployment a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "kind" (encode "Deployment")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -163,7 +165,7 @@ instance decodeDeploymentCondition :: Decode DeploymentCondition where
                status <- decodeMaybe "status" a
                pure $ DeploymentCondition { _type, lastTransitionTime, lastUpdateTime, message, reason, status }
 instance encodeDeploymentCondition :: Encode DeploymentCondition where
-  encode (DeploymentCondition a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "lastUpdateTime" (encodeMaybe a.lastUpdateTime)
@@ -201,7 +203,7 @@ instance decodeDeploymentList :: Decode DeploymentList where
                metadata <- decodeMaybe "metadata" a
                pure $ DeploymentList { items, metadata }
 instance encodeDeploymentList :: Encode DeploymentList where
-  encode (DeploymentList a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "DeploymentList")
@@ -222,7 +224,7 @@ instance defaultDeploymentList :: Default DeploymentList where
 newtype DeploymentRollback = DeploymentRollback
   { name :: (Maybe String)
   , rollbackTo :: (Maybe RollbackConfig)
-  , updatedAnnotations :: (Maybe (StrMap String)) }
+  , updatedAnnotations :: (Maybe (Object String)) }
 
 derive instance newtypeDeploymentRollback :: Newtype DeploymentRollback _
 derive instance genericDeploymentRollback :: Generic DeploymentRollback _
@@ -236,7 +238,7 @@ instance decodeDeploymentRollback :: Decode DeploymentRollback where
                updatedAnnotations <- decodeMaybe "updatedAnnotations" a
                pure $ DeploymentRollback { name, rollbackTo, updatedAnnotations }
 instance encodeDeploymentRollback :: Encode DeploymentRollback where
-  encode (DeploymentRollback a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentRollback a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "kind" (encode "DeploymentRollback")
                , Tuple "name" (encodeMaybe a.name)
@@ -289,7 +291,7 @@ instance decodeDeploymentSpec :: Decode DeploymentSpec where
                template <- decodeMaybe "template" a
                pure $ DeploymentSpec { minReadySeconds, paused, progressDeadlineSeconds, replicas, revisionHistoryLimit, rollbackTo, selector, strategy, template }
 instance encodeDeploymentSpec :: Encode DeploymentSpec where
-  encode (DeploymentSpec a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentSpec a) = encode $ Object.fromFoldable $
                [ Tuple "minReadySeconds" (encodeMaybe a.minReadySeconds)
                , Tuple "paused" (encodeMaybe a.paused)
                , Tuple "progressDeadlineSeconds" (encodeMaybe a.progressDeadlineSeconds)
@@ -349,7 +351,7 @@ instance decodeDeploymentStatus :: Decode DeploymentStatus where
                updatedReplicas <- decodeMaybe "updatedReplicas" a
                pure $ DeploymentStatus { availableReplicas, collisionCount, conditions, observedGeneration, readyReplicas, replicas, unavailableReplicas, updatedReplicas }
 instance encodeDeploymentStatus :: Encode DeploymentStatus where
-  encode (DeploymentStatus a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentStatus a) = encode $ Object.fromFoldable $
                [ Tuple "availableReplicas" (encodeMaybe a.availableReplicas)
                , Tuple "collisionCount" (encodeMaybe a.collisionCount)
                , Tuple "conditions" (encodeMaybe a.conditions)
@@ -389,7 +391,7 @@ instance decodeDeploymentStrategy :: Decode DeploymentStrategy where
                rollingUpdate <- decodeMaybe "rollingUpdate" a
                pure $ DeploymentStrategy { _type, rollingUpdate }
 instance encodeDeploymentStrategy :: Encode DeploymentStrategy where
-  encode (DeploymentStrategy a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentStrategy a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "rollingUpdate" (encodeMaybe a.rollingUpdate) ]
 
@@ -414,7 +416,7 @@ instance decodeRollbackConfig :: Decode RollbackConfig where
                revision <- decodeMaybe "revision" a
                pure $ RollbackConfig { revision }
 instance encodeRollbackConfig :: Encode RollbackConfig where
-  encode (RollbackConfig a) = encode $ StrMap.fromFoldable $
+  encode (RollbackConfig a) = encode $ Object.fromFoldable $
                [ Tuple "revision" (encodeMaybe a.revision) ]
 
 
@@ -440,7 +442,7 @@ instance decodeRollingUpdateDeployment :: Decode RollingUpdateDeployment where
                maxUnavailable <- decodeMaybe "maxUnavailable" a
                pure $ RollingUpdateDeployment { maxSurge, maxUnavailable }
 instance encodeRollingUpdateDeployment :: Encode RollingUpdateDeployment where
-  encode (RollingUpdateDeployment a) = encode $ StrMap.fromFoldable $
+  encode (RollingUpdateDeployment a) = encode $ Object.fromFoldable $
                [ Tuple "maxSurge" (encodeMaybe a.maxSurge)
                , Tuple "maxUnavailable" (encodeMaybe a.maxUnavailable) ]
 
@@ -465,7 +467,7 @@ instance decodeRollingUpdateStatefulSetStrategy :: Decode RollingUpdateStatefulS
                partition <- decodeMaybe "partition" a
                pure $ RollingUpdateStatefulSetStrategy { partition }
 instance encodeRollingUpdateStatefulSetStrategy :: Encode RollingUpdateStatefulSetStrategy where
-  encode (RollingUpdateStatefulSetStrategy a) = encode $ StrMap.fromFoldable $
+  encode (RollingUpdateStatefulSetStrategy a) = encode $ Object.fromFoldable $
                [ Tuple "partition" (encodeMaybe a.partition) ]
 
 
@@ -496,7 +498,7 @@ instance decodeScale :: Decode Scale where
                status <- decodeMaybe "status" a
                pure $ Scale { metadata, spec, status }
 instance encodeScale :: Encode Scale where
-  encode (Scale a) = encode $ StrMap.fromFoldable $
+  encode (Scale a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "kind" (encode "Scale")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -525,7 +527,7 @@ instance decodeScaleSpec :: Decode ScaleSpec where
                replicas <- decodeMaybe "replicas" a
                pure $ ScaleSpec { replicas }
 instance encodeScaleSpec :: Encode ScaleSpec where
-  encode (ScaleSpec a) = encode $ StrMap.fromFoldable $
+  encode (ScaleSpec a) = encode $ Object.fromFoldable $
                [ Tuple "replicas" (encodeMaybe a.replicas) ]
 
 
@@ -541,7 +543,7 @@ instance defaultScaleSpec :: Default ScaleSpec where
 -- | - `targetSelector`: label selector for pods that should match the replicas count. This is a serializated version of both map-based and more expressive set-based selectors. This is done to avoid introspection in the clients. The string will be in the same format as the query-param syntax. If the target type only supports map-based selectors, both this field and map-based selector field are populated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 newtype ScaleStatus = ScaleStatus
   { replicas :: (Maybe Int)
-  , selector :: (Maybe (StrMap String))
+  , selector :: (Maybe (Object String))
   , targetSelector :: (Maybe String) }
 
 derive instance newtypeScaleStatus :: Newtype ScaleStatus _
@@ -554,7 +556,7 @@ instance decodeScaleStatus :: Decode ScaleStatus where
                targetSelector <- decodeMaybe "targetSelector" a
                pure $ ScaleStatus { replicas, selector, targetSelector }
 instance encodeScaleStatus :: Encode ScaleStatus where
-  encode (ScaleStatus a) = encode $ StrMap.fromFoldable $
+  encode (ScaleStatus a) = encode $ Object.fromFoldable $
                [ Tuple "replicas" (encodeMaybe a.replicas)
                , Tuple "selector" (encodeMaybe a.selector)
                , Tuple "targetSelector" (encodeMaybe a.targetSelector) ]
@@ -592,7 +594,7 @@ instance decodeStatefulSet :: Decode StatefulSet where
                status <- decodeMaybe "status" a
                pure $ StatefulSet { metadata, spec, status }
 instance encodeStatefulSet :: Encode StatefulSet where
-  encode (StatefulSet a) = encode $ StrMap.fromFoldable $
+  encode (StatefulSet a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "kind" (encode "StatefulSet")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -633,7 +635,7 @@ instance decodeStatefulSetCondition :: Decode StatefulSetCondition where
                status <- decodeMaybe "status" a
                pure $ StatefulSetCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeStatefulSetCondition :: Encode StatefulSetCondition where
-  encode (StatefulSetCondition a) = encode $ StrMap.fromFoldable $
+  encode (StatefulSetCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -669,7 +671,7 @@ instance decodeStatefulSetList :: Decode StatefulSetList where
                metadata <- decodeMaybe "metadata" a
                pure $ StatefulSetList { items, metadata }
 instance encodeStatefulSetList :: Encode StatefulSetList where
-  encode (StatefulSetList a) = encode $ StrMap.fromFoldable $
+  encode (StatefulSetList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "apps/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "StatefulSetList")
@@ -717,7 +719,7 @@ instance decodeStatefulSetSpec :: Decode StatefulSetSpec where
                volumeClaimTemplates <- decodeMaybe "volumeClaimTemplates" a
                pure $ StatefulSetSpec { podManagementPolicy, replicas, revisionHistoryLimit, selector, serviceName, template, updateStrategy, volumeClaimTemplates }
 instance encodeStatefulSetSpec :: Encode StatefulSetSpec where
-  encode (StatefulSetSpec a) = encode $ StrMap.fromFoldable $
+  encode (StatefulSetSpec a) = encode $ Object.fromFoldable $
                [ Tuple "podManagementPolicy" (encodeMaybe a.podManagementPolicy)
                , Tuple "replicas" (encodeMaybe a.replicas)
                , Tuple "revisionHistoryLimit" (encodeMaybe a.revisionHistoryLimit)
@@ -778,7 +780,7 @@ instance decodeStatefulSetStatus :: Decode StatefulSetStatus where
                updatedReplicas <- decodeMaybe "updatedReplicas" a
                pure $ StatefulSetStatus { collisionCount, conditions, currentReplicas, currentRevision, observedGeneration, readyReplicas, replicas, updateRevision, updatedReplicas }
 instance encodeStatefulSetStatus :: Encode StatefulSetStatus where
-  encode (StatefulSetStatus a) = encode $ StrMap.fromFoldable $
+  encode (StatefulSetStatus a) = encode $ Object.fromFoldable $
                [ Tuple "collisionCount" (encodeMaybe a.collisionCount)
                , Tuple "conditions" (encodeMaybe a.conditions)
                , Tuple "currentReplicas" (encodeMaybe a.currentReplicas)
@@ -820,7 +822,7 @@ instance decodeStatefulSetUpdateStrategy :: Decode StatefulSetUpdateStrategy whe
                rollingUpdate <- decodeMaybe "rollingUpdate" a
                pure $ StatefulSetUpdateStrategy { _type, rollingUpdate }
 instance encodeStatefulSetUpdateStrategy :: Encode StatefulSetUpdateStrategy where
-  encode (StatefulSetUpdateStrategy a) = encode $ StrMap.fromFoldable $
+  encode (StatefulSetUpdateStrategy a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "rollingUpdate" (encodeMaybe a.rollingUpdate) ]
 
@@ -831,7 +833,7 @@ instance defaultStatefulSetUpdateStrategy :: Default StatefulSetUpdateStrategy w
     , rollingUpdate: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta1/"

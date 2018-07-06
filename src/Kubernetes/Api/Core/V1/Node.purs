@@ -1,100 +1,100 @@
 module Kubernetes.Api.Core.V1.Node where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Prelude
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Core.V1 as CoreV1
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | connect DELETE requests to proxy of Node
-connectDeleteProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteProxy :: Config -> String -> Aff (Either MetaV1.Status String)
 connectDeleteProxy cfg name = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy"
 
 -- | connect DELETE requests to proxy of Node
-connectDeleteProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectDeleteProxyWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 connectDeleteProxyWithPath cfg name path = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect GET requests to proxy of Node
-connectGetProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetProxy :: Config -> String -> Aff (Either MetaV1.Status String)
 connectGetProxy cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy"
 
 -- | connect GET requests to proxy of Node
-connectGetProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectGetProxyWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 connectGetProxyWithPath cfg name path = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect HEAD requests to proxy of Node
-connectHeadProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadProxy :: Config -> String -> Aff (Either MetaV1.Status String)
 connectHeadProxy cfg name = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy"
 
 -- | connect HEAD requests to proxy of Node
-connectHeadProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectHeadProxyWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 connectHeadProxyWithPath cfg name path = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect OPTIONS requests to proxy of Node
-connectOptionsProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsProxy :: Config -> String -> Aff (Either MetaV1.Status String)
 connectOptionsProxy cfg name = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy"
 
 -- | connect OPTIONS requests to proxy of Node
-connectOptionsProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectOptionsProxyWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 connectOptionsProxyWithPath cfg name path = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect POST requests to proxy of Node
-connectPostProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostProxy :: Config -> String -> Aff (Either MetaV1.Status String)
 connectPostProxy cfg name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy"
 
 -- | connect POST requests to proxy of Node
-connectPostProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPostProxyWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 connectPostProxyWithPath cfg name path = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
 
 -- | connect PUT requests to proxy of Node
-connectPutProxy :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutProxy :: Config -> String -> Aff (Either MetaV1.Status String)
 connectPutProxy cfg name = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy"
 
 -- | connect PUT requests to proxy of Node
-connectPutProxyWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+connectPutProxyWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 connectPutProxyWithPath cfg name path = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/proxy/" <> path <> ""
 
 -- | create a Node
-create :: forall e. Config -> CoreV1.Node -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Node)
+create :: Config -> CoreV1.Node -> Aff (Either MetaV1.Status CoreV1.Node)
 create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/api/v1/nodes"
@@ -119,7 +119,7 @@ instance decodeDeleteOptions :: Decode DeleteOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
-  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteOptions a) = encode $ Object.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -132,7 +132,7 @@ instance defaultDeleteOptions :: Default DeleteOptions where
     , propagationPolicy: Nothing }
 
 -- | delete a Node
-delete :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+delete :: Config -> String -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 delete cfg name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
     url = "/api/v1/nodes/" <> name <> "" <> Client.formatQueryString options
@@ -174,7 +174,7 @@ instance decodeDeleteCollectionOptions :: Decode DeleteCollectionOptions where
                watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionOptions :: Encode DeleteCollectionOptions where
-  encode (DeleteCollectionOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteCollectionOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -197,7 +197,7 @@ instance defaultDeleteCollectionOptions :: Default DeleteCollectionOptions where
     , watch: Nothing }
 
 -- | delete collection of Node
-deleteCollection :: forall e. Config -> DeleteCollectionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollection :: Config -> DeleteCollectionOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteCollection cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/nodes" <> Client.formatQueryString options
@@ -238,7 +238,7 @@ instance decodeListOptions :: Decode ListOptions where
                watch <- decodeMaybe "watch" a
                pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListOptions :: Encode ListOptions where
-  encode (ListOptions a) = encode $ StrMap.fromFoldable $
+  encode (ListOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -261,79 +261,79 @@ instance defaultListOptions :: Default ListOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind Node
-list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.NodeList)
+list :: Config -> ListOptions -> Aff (Either MetaV1.Status CoreV1.NodeList)
 list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/nodes" <> Client.formatQueryString options
 
 -- | proxy DELETE requests to Node
-proxyDELETE :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyDELETE :: Config -> String -> Aff (Either MetaV1.Status String)
 proxyDELETE cfg name = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> ""
 
 -- | proxy DELETE requests to Node
-proxyDELETEWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyDELETEWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 proxyDELETEWithPath cfg name path = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> "/" <> path <> ""
 
 -- | proxy GET requests to Node
-proxyGET :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyGET :: Config -> String -> Aff (Either MetaV1.Status String)
 proxyGET cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> ""
 
 -- | proxy GET requests to Node
-proxyGETWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyGETWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 proxyGETWithPath cfg name path = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> "/" <> path <> ""
 
 -- | proxy HEAD requests to Node
-proxyHEAD :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyHEAD :: Config -> String -> Aff (Either MetaV1.Status String)
 proxyHEAD cfg name = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> ""
 
 -- | proxy HEAD requests to Node
-proxyHEADWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyHEADWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 proxyHEADWithPath cfg name path = Client.makeRequest (Client.head cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> "/" <> path <> ""
 
 -- | proxy OPTIONS requests to Node
-proxyOPTIONS :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyOPTIONS :: Config -> String -> Aff (Either MetaV1.Status String)
 proxyOPTIONS cfg name = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> ""
 
 -- | proxy OPTIONS requests to Node
-proxyOPTIONSWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyOPTIONSWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 proxyOPTIONSWithPath cfg name path = Client.makeRequest (Client.options cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> "/" <> path <> ""
 
 -- | proxy POST requests to Node
-proxyPOST :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPOST :: Config -> String -> Aff (Either MetaV1.Status String)
 proxyPOST cfg name = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> ""
 
 -- | proxy POST requests to Node
-proxyPOSTWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPOSTWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 proxyPOSTWithPath cfg name path = Client.makeRequest (Client.post cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> "/" <> path <> ""
 
 -- | proxy PUT requests to Node
-proxyPUT :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPUT :: Config -> String -> Aff (Either MetaV1.Status String)
 proxyPUT cfg name = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> ""
 
 -- | proxy PUT requests to Node
-proxyPUTWithPath :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status String)
+proxyPUTWithPath :: Config -> String -> String -> Aff (Either MetaV1.Status String)
 proxyPUTWithPath cfg name path = Client.makeRequest (Client.put cfg url Nothing)
   where
     url = "/api/v1/proxy/nodes/" <> name <> "/" <> path <> ""
@@ -354,7 +354,7 @@ instance decodeReadOptions :: Decode ReadOptions where
                export <- decodeMaybe "export" a
                pure $ ReadOptions { exact, export }
 instance encodeReadOptions :: Encode ReadOptions where
-  encode (ReadOptions a) = encode $ StrMap.fromFoldable $
+  encode (ReadOptions a) = encode $ Object.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
@@ -365,39 +365,39 @@ instance defaultReadOptions :: Default ReadOptions where
     , export: Nothing }
 
 -- | read the specified Node
-read :: forall e. Config -> String -> ReadOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Node)
+read :: Config -> String -> ReadOptions -> Aff (Either MetaV1.Status CoreV1.Node)
 read cfg name options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "" <> Client.formatQueryString options
 
 -- | read status of the specified Node
-readStatus :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Node)
+readStatus :: Config -> String -> Aff (Either MetaV1.Status CoreV1.Node)
 readStatus cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/nodes/" <> name <> "/status"
 
 -- | replace the specified Node
-replace :: forall e. Config -> String -> CoreV1.Node -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Node)
+replace :: Config -> String -> CoreV1.Node -> Aff (Either MetaV1.Status CoreV1.Node)
 replace cfg name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/nodes/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | replace status of the specified Node
-replaceStatus :: forall e. Config -> String -> CoreV1.Node -> Aff (http :: HTTP | e) (Either MetaV1.Status CoreV1.Node)
+replaceStatus :: Config -> String -> CoreV1.Node -> Aff (Either MetaV1.Status CoreV1.Node)
 replaceStatus cfg name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/api/v1/nodes/" <> name <> "/status"
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind Node
-watch :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch :: Config -> String -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watch cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/nodes/" <> name <> ""
 
 -- | watch individual changes to a list of Node
-watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/watch/nodes"

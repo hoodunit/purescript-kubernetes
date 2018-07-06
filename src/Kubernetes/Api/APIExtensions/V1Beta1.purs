@@ -1,27 +1,29 @@
 module Kubernetes.Api.APIExtensions.V1Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Core.V1 as CoreV1
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Util as Util
@@ -41,7 +43,7 @@ instance decodeAllowedFlexVolume :: Decode AllowedFlexVolume where
                driver <- decodeMaybe "driver" a
                pure $ AllowedFlexVolume { driver }
 instance encodeAllowedFlexVolume :: Encode AllowedFlexVolume where
-  encode (AllowedFlexVolume a) = encode $ StrMap.fromFoldable $
+  encode (AllowedFlexVolume a) = encode $ Object.fromFoldable $
                [ Tuple "driver" (encodeMaybe a.driver) ]
 
 
@@ -66,7 +68,7 @@ instance decodeAllowedHostPath :: Decode AllowedHostPath where
                pathPrefix <- decodeMaybe "pathPrefix" a
                pure $ AllowedHostPath { pathPrefix }
 instance encodeAllowedHostPath :: Encode AllowedHostPath where
-  encode (AllowedHostPath a) = encode $ StrMap.fromFoldable $
+  encode (AllowedHostPath a) = encode $ Object.fromFoldable $
                [ Tuple "pathPrefix" (encodeMaybe a.pathPrefix) ]
 
 
@@ -101,7 +103,7 @@ instance decodeCustomResourceDefinition :: Decode CustomResourceDefinition where
                status <- decodeMaybe "status" a
                pure $ CustomResourceDefinition { apiVersion, kind, metadata, spec, status }
 instance encodeCustomResourceDefinition :: Encode CustomResourceDefinition where
-  encode (CustomResourceDefinition a) = encode $ StrMap.fromFoldable $
+  encode (CustomResourceDefinition a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "kind" (encodeMaybe a.kind)
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -144,7 +146,7 @@ instance decodeCustomResourceDefinitionCondition :: Decode CustomResourceDefinit
                status <- decodeMaybe "status" a
                pure $ CustomResourceDefinitionCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeCustomResourceDefinitionCondition :: Encode CustomResourceDefinitionCondition where
-  encode (CustomResourceDefinitionCondition a) = encode $ StrMap.fromFoldable $
+  encode (CustomResourceDefinitionCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -184,7 +186,7 @@ instance decodeCustomResourceDefinitionList :: Decode CustomResourceDefinitionLi
                metadata <- decodeMaybe "metadata" a
                pure $ CustomResourceDefinitionList { apiVersion, items, kind, metadata }
 instance encodeCustomResourceDefinitionList :: Encode CustomResourceDefinitionList where
-  encode (CustomResourceDefinitionList a) = encode $ StrMap.fromFoldable $
+  encode (CustomResourceDefinitionList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encodeMaybe a.kind)
@@ -225,7 +227,7 @@ instance decodeCustomResourceDefinitionNames :: Decode CustomResourceDefinitionN
                singular <- decodeMaybe "singular" a
                pure $ CustomResourceDefinitionNames { kind, listKind, plural, shortNames, singular }
 instance encodeCustomResourceDefinitionNames :: Encode CustomResourceDefinitionNames where
-  encode (CustomResourceDefinitionNames a) = encode $ StrMap.fromFoldable $
+  encode (CustomResourceDefinitionNames a) = encode $ Object.fromFoldable $
                [ Tuple "kind" (encodeMaybe a.kind)
                , Tuple "listKind" (encodeMaybe a.listKind)
                , Tuple "plural" (encodeMaybe a.plural)
@@ -268,7 +270,7 @@ instance decodeCustomResourceDefinitionSpec :: Decode CustomResourceDefinitionSp
                version <- decodeMaybe "version" a
                pure $ CustomResourceDefinitionSpec { group, names, scope, validation, version }
 instance encodeCustomResourceDefinitionSpec :: Encode CustomResourceDefinitionSpec where
-  encode (CustomResourceDefinitionSpec a) = encode $ StrMap.fromFoldable $
+  encode (CustomResourceDefinitionSpec a) = encode $ Object.fromFoldable $
                [ Tuple "group" (encodeMaybe a.group)
                , Tuple "names" (encodeMaybe a.names)
                , Tuple "scope" (encodeMaybe a.scope)
@@ -302,7 +304,7 @@ instance decodeCustomResourceDefinitionStatus :: Decode CustomResourceDefinition
                conditions <- decodeMaybe "conditions" a
                pure $ CustomResourceDefinitionStatus { acceptedNames, conditions }
 instance encodeCustomResourceDefinitionStatus :: Encode CustomResourceDefinitionStatus where
-  encode (CustomResourceDefinitionStatus a) = encode $ StrMap.fromFoldable $
+  encode (CustomResourceDefinitionStatus a) = encode $ Object.fromFoldable $
                [ Tuple "acceptedNames" (encodeMaybe a.acceptedNames)
                , Tuple "conditions" (encodeMaybe a.conditions) ]
 
@@ -327,7 +329,7 @@ instance decodeCustomResourceValidation :: Decode CustomResourceValidation where
                openAPIV3Schema <- decodeMaybe "openAPIV3Schema" a
                pure $ CustomResourceValidation { openAPIV3Schema }
 instance encodeCustomResourceValidation :: Encode CustomResourceValidation where
-  encode (CustomResourceValidation a) = encode $ StrMap.fromFoldable $
+  encode (CustomResourceValidation a) = encode $ Object.fromFoldable $
                [ Tuple "openAPIV3Schema" (encodeMaybe a.openAPIV3Schema) ]
 
 
@@ -358,7 +360,7 @@ instance decodeDaemonSet :: Decode DaemonSet where
                status <- decodeMaybe "status" a
                pure $ DaemonSet { metadata, spec, status }
 instance encodeDaemonSet :: Encode DaemonSet where
-  encode (DaemonSet a) = encode $ StrMap.fromFoldable $
+  encode (DaemonSet a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "DaemonSet")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -399,7 +401,7 @@ instance decodeDaemonSetCondition :: Decode DaemonSetCondition where
                status <- decodeMaybe "status" a
                pure $ DaemonSetCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeDaemonSetCondition :: Encode DaemonSetCondition where
-  encode (DaemonSetCondition a) = encode $ StrMap.fromFoldable $
+  encode (DaemonSetCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -435,7 +437,7 @@ instance decodeDaemonSetList :: Decode DaemonSetList where
                metadata <- decodeMaybe "metadata" a
                pure $ DaemonSetList { items, metadata }
 instance encodeDaemonSetList :: Encode DaemonSetList where
-  encode (DaemonSetList a) = encode $ StrMap.fromFoldable $
+  encode (DaemonSetList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "DaemonSetList")
@@ -477,7 +479,7 @@ instance decodeDaemonSetSpec :: Decode DaemonSetSpec where
                updateStrategy <- decodeMaybe "updateStrategy" a
                pure $ DaemonSetSpec { minReadySeconds, revisionHistoryLimit, selector, template, templateGeneration, updateStrategy }
 instance encodeDaemonSetSpec :: Encode DaemonSetSpec where
-  encode (DaemonSetSpec a) = encode $ StrMap.fromFoldable $
+  encode (DaemonSetSpec a) = encode $ Object.fromFoldable $
                [ Tuple "minReadySeconds" (encodeMaybe a.minReadySeconds)
                , Tuple "revisionHistoryLimit" (encodeMaybe a.revisionHistoryLimit)
                , Tuple "selector" (encodeMaybe a.selector)
@@ -537,7 +539,7 @@ instance decodeDaemonSetStatus :: Decode DaemonSetStatus where
                updatedNumberScheduled <- decodeMaybe "updatedNumberScheduled" a
                pure $ DaemonSetStatus { collisionCount, conditions, currentNumberScheduled, desiredNumberScheduled, numberAvailable, numberMisscheduled, numberReady, numberUnavailable, observedGeneration, updatedNumberScheduled }
 instance encodeDaemonSetStatus :: Encode DaemonSetStatus where
-  encode (DaemonSetStatus a) = encode $ StrMap.fromFoldable $
+  encode (DaemonSetStatus a) = encode $ Object.fromFoldable $
                [ Tuple "collisionCount" (encodeMaybe a.collisionCount)
                , Tuple "conditions" (encodeMaybe a.conditions)
                , Tuple "currentNumberScheduled" (encodeMaybe a.currentNumberScheduled)
@@ -579,7 +581,7 @@ instance decodeDaemonSetUpdateStrategy :: Decode DaemonSetUpdateStrategy where
                rollingUpdate <- decodeMaybe "rollingUpdate" a
                pure $ DaemonSetUpdateStrategy { _type, rollingUpdate }
 instance encodeDaemonSetUpdateStrategy :: Encode DaemonSetUpdateStrategy where
-  encode (DaemonSetUpdateStrategy a) = encode $ StrMap.fromFoldable $
+  encode (DaemonSetUpdateStrategy a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "rollingUpdate" (encodeMaybe a.rollingUpdate) ]
 
@@ -612,7 +614,7 @@ instance decodeDeployment :: Decode Deployment where
                status <- decodeMaybe "status" a
                pure $ Deployment { metadata, spec, status }
 instance encodeDeployment :: Encode Deployment where
-  encode (Deployment a) = encode $ StrMap.fromFoldable $
+  encode (Deployment a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "Deployment")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -656,7 +658,7 @@ instance decodeDeploymentCondition :: Decode DeploymentCondition where
                status <- decodeMaybe "status" a
                pure $ DeploymentCondition { _type, lastTransitionTime, lastUpdateTime, message, reason, status }
 instance encodeDeploymentCondition :: Encode DeploymentCondition where
-  encode (DeploymentCondition a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "lastUpdateTime" (encodeMaybe a.lastUpdateTime)
@@ -694,7 +696,7 @@ instance decodeDeploymentList :: Decode DeploymentList where
                metadata <- decodeMaybe "metadata" a
                pure $ DeploymentList { items, metadata }
 instance encodeDeploymentList :: Encode DeploymentList where
-  encode (DeploymentList a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "DeploymentList")
@@ -715,7 +717,7 @@ instance defaultDeploymentList :: Default DeploymentList where
 newtype DeploymentRollback = DeploymentRollback
   { name :: (Maybe String)
   , rollbackTo :: (Maybe RollbackConfig)
-  , updatedAnnotations :: (Maybe (StrMap String)) }
+  , updatedAnnotations :: (Maybe (Object String)) }
 
 derive instance newtypeDeploymentRollback :: Newtype DeploymentRollback _
 derive instance genericDeploymentRollback :: Generic DeploymentRollback _
@@ -729,7 +731,7 @@ instance decodeDeploymentRollback :: Decode DeploymentRollback where
                updatedAnnotations <- decodeMaybe "updatedAnnotations" a
                pure $ DeploymentRollback { name, rollbackTo, updatedAnnotations }
 instance encodeDeploymentRollback :: Encode DeploymentRollback where
-  encode (DeploymentRollback a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentRollback a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "DeploymentRollback")
                , Tuple "name" (encodeMaybe a.name)
@@ -782,7 +784,7 @@ instance decodeDeploymentSpec :: Decode DeploymentSpec where
                template <- decodeMaybe "template" a
                pure $ DeploymentSpec { minReadySeconds, paused, progressDeadlineSeconds, replicas, revisionHistoryLimit, rollbackTo, selector, strategy, template }
 instance encodeDeploymentSpec :: Encode DeploymentSpec where
-  encode (DeploymentSpec a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentSpec a) = encode $ Object.fromFoldable $
                [ Tuple "minReadySeconds" (encodeMaybe a.minReadySeconds)
                , Tuple "paused" (encodeMaybe a.paused)
                , Tuple "progressDeadlineSeconds" (encodeMaybe a.progressDeadlineSeconds)
@@ -842,7 +844,7 @@ instance decodeDeploymentStatus :: Decode DeploymentStatus where
                updatedReplicas <- decodeMaybe "updatedReplicas" a
                pure $ DeploymentStatus { availableReplicas, collisionCount, conditions, observedGeneration, readyReplicas, replicas, unavailableReplicas, updatedReplicas }
 instance encodeDeploymentStatus :: Encode DeploymentStatus where
-  encode (DeploymentStatus a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentStatus a) = encode $ Object.fromFoldable $
                [ Tuple "availableReplicas" (encodeMaybe a.availableReplicas)
                , Tuple "collisionCount" (encodeMaybe a.collisionCount)
                , Tuple "conditions" (encodeMaybe a.conditions)
@@ -882,7 +884,7 @@ instance decodeDeploymentStrategy :: Decode DeploymentStrategy where
                rollingUpdate <- decodeMaybe "rollingUpdate" a
                pure $ DeploymentStrategy { _type, rollingUpdate }
 instance encodeDeploymentStrategy :: Encode DeploymentStrategy where
-  encode (DeploymentStrategy a) = encode $ StrMap.fromFoldable $
+  encode (DeploymentStrategy a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "rollingUpdate" (encodeMaybe a.rollingUpdate) ]
 
@@ -910,7 +912,7 @@ instance decodeExternalDocumentation :: Decode ExternalDocumentation where
                url <- decodeMaybe "url" a
                pure $ ExternalDocumentation { description, url }
 instance encodeExternalDocumentation :: Encode ExternalDocumentation where
-  encode (ExternalDocumentation a) = encode $ StrMap.fromFoldable $
+  encode (ExternalDocumentation a) = encode $ Object.fromFoldable $
                [ Tuple "description" (encodeMaybe a.description)
                , Tuple "url" (encodeMaybe a.url) ]
 
@@ -938,7 +940,7 @@ instance decodeFSGroupStrategyOptions :: Decode FSGroupStrategyOptions where
                rule <- decodeMaybe "rule" a
                pure $ FSGroupStrategyOptions { ranges, rule }
 instance encodeFSGroupStrategyOptions :: Encode FSGroupStrategyOptions where
-  encode (FSGroupStrategyOptions a) = encode $ StrMap.fromFoldable $
+  encode (FSGroupStrategyOptions a) = encode $ Object.fromFoldable $
                [ Tuple "ranges" (encodeMaybe a.ranges)
                , Tuple "rule" (encodeMaybe a.rule) ]
 
@@ -966,7 +968,7 @@ instance decodeHTTPIngressPath :: Decode HTTPIngressPath where
                path <- decodeMaybe "path" a
                pure $ HTTPIngressPath { backend, path }
 instance encodeHTTPIngressPath :: Encode HTTPIngressPath where
-  encode (HTTPIngressPath a) = encode $ StrMap.fromFoldable $
+  encode (HTTPIngressPath a) = encode $ Object.fromFoldable $
                [ Tuple "backend" (encodeMaybe a.backend)
                , Tuple "path" (encodeMaybe a.path) ]
 
@@ -991,7 +993,7 @@ instance decodeHTTPIngressRuleValue :: Decode HTTPIngressRuleValue where
                paths <- decodeMaybe "paths" a
                pure $ HTTPIngressRuleValue { paths }
 instance encodeHTTPIngressRuleValue :: Encode HTTPIngressRuleValue where
-  encode (HTTPIngressRuleValue a) = encode $ StrMap.fromFoldable $
+  encode (HTTPIngressRuleValue a) = encode $ Object.fromFoldable $
                [ Tuple "paths" (encodeMaybe a.paths) ]
 
 
@@ -1017,7 +1019,7 @@ instance decodeHostPortRange :: Decode HostPortRange where
                min <- decodeMaybe "min" a
                pure $ HostPortRange { max, min }
 instance encodeHostPortRange :: Encode HostPortRange where
-  encode (HostPortRange a) = encode $ StrMap.fromFoldable $
+  encode (HostPortRange a) = encode $ Object.fromFoldable $
                [ Tuple "max" (encodeMaybe a.max)
                , Tuple "min" (encodeMaybe a.min) ]
 
@@ -1045,7 +1047,7 @@ instance decodeIDRange :: Decode IDRange where
                min <- decodeMaybe "min" a
                pure $ IDRange { max, min }
 instance encodeIDRange :: Encode IDRange where
-  encode (IDRange a) = encode $ StrMap.fromFoldable $
+  encode (IDRange a) = encode $ Object.fromFoldable $
                [ Tuple "max" (encodeMaybe a.max)
                , Tuple "min" (encodeMaybe a.min) ]
 
@@ -1073,7 +1075,7 @@ instance decodeIPBlock :: Decode IPBlock where
                except <- decodeMaybe "except" a
                pure $ IPBlock { cidr, except }
 instance encodeIPBlock :: Encode IPBlock where
-  encode (IPBlock a) = encode $ StrMap.fromFoldable $
+  encode (IPBlock a) = encode $ Object.fromFoldable $
                [ Tuple "cidr" (encodeMaybe a.cidr)
                , Tuple "except" (encodeMaybe a.except) ]
 
@@ -1106,7 +1108,7 @@ instance decodeIngress :: Decode Ingress where
                status <- decodeMaybe "status" a
                pure $ Ingress { metadata, spec, status }
 instance encodeIngress :: Encode Ingress where
-  encode (Ingress a) = encode $ StrMap.fromFoldable $
+  encode (Ingress a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "Ingress")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -1138,7 +1140,7 @@ instance decodeIngressBackend :: Decode IngressBackend where
                servicePort <- decodeMaybe "servicePort" a
                pure $ IngressBackend { serviceName, servicePort }
 instance encodeIngressBackend :: Encode IngressBackend where
-  encode (IngressBackend a) = encode $ StrMap.fromFoldable $
+  encode (IngressBackend a) = encode $ Object.fromFoldable $
                [ Tuple "serviceName" (encodeMaybe a.serviceName)
                , Tuple "servicePort" (encodeMaybe a.servicePort) ]
 
@@ -1168,7 +1170,7 @@ instance decodeIngressList :: Decode IngressList where
                metadata <- decodeMaybe "metadata" a
                pure $ IngressList { items, metadata }
 instance encodeIngressList :: Encode IngressList where
-  encode (IngressList a) = encode $ StrMap.fromFoldable $
+  encode (IngressList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "IngressList")
@@ -1203,7 +1205,7 @@ instance decodeIngressRule :: Decode IngressRule where
                http <- decodeMaybe "http" a
                pure $ IngressRule { host, http }
 instance encodeIngressRule :: Encode IngressRule where
-  encode (IngressRule a) = encode $ StrMap.fromFoldable $
+  encode (IngressRule a) = encode $ Object.fromFoldable $
                [ Tuple "host" (encodeMaybe a.host)
                , Tuple "http" (encodeMaybe a.http) ]
 
@@ -1234,7 +1236,7 @@ instance decodeIngressSpec :: Decode IngressSpec where
                tls <- decodeMaybe "tls" a
                pure $ IngressSpec { backend, rules, tls }
 instance encodeIngressSpec :: Encode IngressSpec where
-  encode (IngressSpec a) = encode $ StrMap.fromFoldable $
+  encode (IngressSpec a) = encode $ Object.fromFoldable $
                [ Tuple "backend" (encodeMaybe a.backend)
                , Tuple "rules" (encodeMaybe a.rules)
                , Tuple "tls" (encodeMaybe a.tls) ]
@@ -1261,7 +1263,7 @@ instance decodeIngressStatus :: Decode IngressStatus where
                loadBalancer <- decodeMaybe "loadBalancer" a
                pure $ IngressStatus { loadBalancer }
 instance encodeIngressStatus :: Encode IngressStatus where
-  encode (IngressStatus a) = encode $ StrMap.fromFoldable $
+  encode (IngressStatus a) = encode $ Object.fromFoldable $
                [ Tuple "loadBalancer" (encodeMaybe a.loadBalancer) ]
 
 
@@ -1287,7 +1289,7 @@ instance decodeIngressTLS :: Decode IngressTLS where
                secretName <- decodeMaybe "secretName" a
                pure $ IngressTLS { hosts, secretName }
 instance encodeIngressTLS :: Encode IngressTLS where
-  encode (IngressTLS a) = encode $ StrMap.fromFoldable $
+  encode (IngressTLS a) = encode $ Object.fromFoldable $
                [ Tuple "hosts" (encodeMaybe a.hosts)
                , Tuple "secretName" (encodeMaybe a.secretName) ]
 
@@ -1312,7 +1314,7 @@ instance decodeJSON :: Decode JSON where
                _Raw <- decodeMaybe "_Raw" a
                pure $ JSON { _Raw }
 instance encodeJSON :: Encode JSON where
-  encode (JSON a) = encode $ StrMap.fromFoldable $
+  encode (JSON a) = encode $ Object.fromFoldable $
                [ Tuple "_Raw" (encodeMaybe a._Raw) ]
 
 
@@ -1368,8 +1370,8 @@ newtype JSONSchemaProps = JSONSchemaProps
   , additionalProperties :: (Maybe JSONSchemaPropsOrBool)
   , allOf :: (Maybe (Array JSONSchemaProps))
   , anyOf :: (Maybe (Array JSONSchemaProps))
-  , definitions :: (Maybe (StrMap JSONSchemaProps))
-  , dependencies :: (Maybe (StrMap JSONSchemaPropsOrStringArray))
+  , definitions :: (Maybe (Object JSONSchemaProps))
+  , dependencies :: (Maybe (Object JSONSchemaPropsOrStringArray))
   , description :: (Maybe String)
   , enum :: (Maybe (Array JSON))
   , example :: (Maybe JSON)
@@ -1391,8 +1393,8 @@ newtype JSONSchemaProps = JSONSchemaProps
   , not :: (Maybe JSONSchemaProps)
   , oneOf :: (Maybe (Array JSONSchemaProps))
   , pattern :: (Maybe String)
-  , patternProperties :: (Maybe (StrMap JSONSchemaProps))
-  , properties :: (Maybe (StrMap JSONSchemaProps))
+  , patternProperties :: (Maybe (Object JSONSchemaProps))
+  , properties :: (Maybe (Object JSONSchemaProps))
   , required :: (Maybe (Array String))
   , title :: (Maybe String)
   , uniqueItems :: (Maybe Boolean) }
@@ -1440,7 +1442,7 @@ instance decodeJSONSchemaProps :: Decode JSONSchemaProps where
                uniqueItems <- decodeMaybe "uniqueItems" a
                pure $ JSONSchemaProps { _default, _ref, _schema, _type, additionalItems, additionalProperties, allOf, anyOf, definitions, dependencies, description, enum, example, exclusiveMaximum, exclusiveMinimum, externalDocs, format, id, items, maxItems, maxLength, maxProperties, maximum, minItems, minLength, minProperties, minimum, multipleOf, not, oneOf, pattern, patternProperties, properties, required, title, uniqueItems }
 instance encodeJSONSchemaProps :: Encode JSONSchemaProps where
-  encode (JSONSchemaProps a) = encode $ StrMap.fromFoldable $
+  encode (JSONSchemaProps a) = encode $ Object.fromFoldable $
                [ Tuple "_default" (encodeMaybe a._default)
                , Tuple "_ref" (encodeMaybe a._ref)
                , Tuple "_schema" (encodeMaybe a._schema)
@@ -1536,7 +1538,7 @@ instance decodeJSONSchemaPropsOrArray :: Decode JSONSchemaPropsOrArray where
                _Schema <- decodeMaybe "_Schema" a
                pure $ JSONSchemaPropsOrArray { _JSONSchemas, _Schema }
 instance encodeJSONSchemaPropsOrArray :: Encode JSONSchemaPropsOrArray where
-  encode (JSONSchemaPropsOrArray a) = encode $ StrMap.fromFoldable $
+  encode (JSONSchemaPropsOrArray a) = encode $ Object.fromFoldable $
                [ Tuple "_JSONSchemas" (encodeMaybe a._JSONSchemas)
                , Tuple "_Schema" (encodeMaybe a._Schema) ]
 
@@ -1564,7 +1566,7 @@ instance decodeJSONSchemaPropsOrBool :: Decode JSONSchemaPropsOrBool where
                _Schema <- decodeMaybe "_Schema" a
                pure $ JSONSchemaPropsOrBool { _Allows, _Schema }
 instance encodeJSONSchemaPropsOrBool :: Encode JSONSchemaPropsOrBool where
-  encode (JSONSchemaPropsOrBool a) = encode $ StrMap.fromFoldable $
+  encode (JSONSchemaPropsOrBool a) = encode $ Object.fromFoldable $
                [ Tuple "_Allows" (encodeMaybe a._Allows)
                , Tuple "_Schema" (encodeMaybe a._Schema) ]
 
@@ -1592,7 +1594,7 @@ instance decodeJSONSchemaPropsOrStringArray :: Decode JSONSchemaPropsOrStringArr
                _Schema <- decodeMaybe "_Schema" a
                pure $ JSONSchemaPropsOrStringArray { _Property, _Schema }
 instance encodeJSONSchemaPropsOrStringArray :: Encode JSONSchemaPropsOrStringArray where
-  encode (JSONSchemaPropsOrStringArray a) = encode $ StrMap.fromFoldable $
+  encode (JSONSchemaPropsOrStringArray a) = encode $ Object.fromFoldable $
                [ Tuple "_Property" (encodeMaybe a._Property)
                , Tuple "_Schema" (encodeMaybe a._Schema) ]
 
@@ -1622,7 +1624,7 @@ instance decodeNetworkPolicy :: Decode NetworkPolicy where
                spec <- decodeMaybe "spec" a
                pure $ NetworkPolicy { metadata, spec }
 instance encodeNetworkPolicy :: Encode NetworkPolicy where
-  encode (NetworkPolicy a) = encode $ StrMap.fromFoldable $
+  encode (NetworkPolicy a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "NetworkPolicy")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -1652,7 +1654,7 @@ instance decodeNetworkPolicyEgressRule :: Decode NetworkPolicyEgressRule where
                to <- decodeMaybe "to" a
                pure $ NetworkPolicyEgressRule { ports, to }
 instance encodeNetworkPolicyEgressRule :: Encode NetworkPolicyEgressRule where
-  encode (NetworkPolicyEgressRule a) = encode $ StrMap.fromFoldable $
+  encode (NetworkPolicyEgressRule a) = encode $ Object.fromFoldable $
                [ Tuple "ports" (encodeMaybe a.ports)
                , Tuple "to" (encodeMaybe a.to) ]
 
@@ -1680,7 +1682,7 @@ instance decodeNetworkPolicyIngressRule :: Decode NetworkPolicyIngressRule where
                ports <- decodeMaybe "ports" a
                pure $ NetworkPolicyIngressRule { from, ports }
 instance encodeNetworkPolicyIngressRule :: Encode NetworkPolicyIngressRule where
-  encode (NetworkPolicyIngressRule a) = encode $ StrMap.fromFoldable $
+  encode (NetworkPolicyIngressRule a) = encode $ Object.fromFoldable $
                [ Tuple "from" (encodeMaybe a.from)
                , Tuple "ports" (encodeMaybe a.ports) ]
 
@@ -1710,7 +1712,7 @@ instance decodeNetworkPolicyList :: Decode NetworkPolicyList where
                metadata <- decodeMaybe "metadata" a
                pure $ NetworkPolicyList { items, metadata }
 instance encodeNetworkPolicyList :: Encode NetworkPolicyList where
-  encode (NetworkPolicyList a) = encode $ StrMap.fromFoldable $
+  encode (NetworkPolicyList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "NetworkPolicyList")
@@ -1743,7 +1745,7 @@ instance decodeNetworkPolicyPeer :: Decode NetworkPolicyPeer where
                podSelector <- decodeMaybe "podSelector" a
                pure $ NetworkPolicyPeer { ipBlock, namespaceSelector, podSelector }
 instance encodeNetworkPolicyPeer :: Encode NetworkPolicyPeer where
-  encode (NetworkPolicyPeer a) = encode $ StrMap.fromFoldable $
+  encode (NetworkPolicyPeer a) = encode $ Object.fromFoldable $
                [ Tuple "ipBlock" (encodeMaybe a.ipBlock)
                , Tuple "namespaceSelector" (encodeMaybe a.namespaceSelector)
                , Tuple "podSelector" (encodeMaybe a.podSelector) ]
@@ -1773,7 +1775,7 @@ instance decodeNetworkPolicyPort :: Decode NetworkPolicyPort where
                protocol <- decodeMaybe "protocol" a
                pure $ NetworkPolicyPort { port, protocol }
 instance encodeNetworkPolicyPort :: Encode NetworkPolicyPort where
-  encode (NetworkPolicyPort a) = encode $ StrMap.fromFoldable $
+  encode (NetworkPolicyPort a) = encode $ Object.fromFoldable $
                [ Tuple "port" (encodeMaybe a.port)
                , Tuple "protocol" (encodeMaybe a.protocol) ]
 
@@ -1807,7 +1809,7 @@ instance decodeNetworkPolicySpec :: Decode NetworkPolicySpec where
                policyTypes <- decodeMaybe "policyTypes" a
                pure $ NetworkPolicySpec { egress, ingress, podSelector, policyTypes }
 instance encodeNetworkPolicySpec :: Encode NetworkPolicySpec where
-  encode (NetworkPolicySpec a) = encode $ StrMap.fromFoldable $
+  encode (NetworkPolicySpec a) = encode $ Object.fromFoldable $
                [ Tuple "egress" (encodeMaybe a.egress)
                , Tuple "ingress" (encodeMaybe a.ingress)
                , Tuple "podSelector" (encodeMaybe a.podSelector)
@@ -1841,7 +1843,7 @@ instance decodePodSecurityPolicy :: Decode PodSecurityPolicy where
                spec <- decodeMaybe "spec" a
                pure $ PodSecurityPolicy { metadata, spec }
 instance encodePodSecurityPolicy :: Encode PodSecurityPolicy where
-  encode (PodSecurityPolicy a) = encode $ StrMap.fromFoldable $
+  encode (PodSecurityPolicy a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "PodSecurityPolicy")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -1873,7 +1875,7 @@ instance decodePodSecurityPolicyList :: Decode PodSecurityPolicyList where
                metadata <- decodeMaybe "metadata" a
                pure $ PodSecurityPolicyList { items, metadata }
 instance encodePodSecurityPolicyList :: Encode PodSecurityPolicyList where
-  encode (PodSecurityPolicyList a) = encode $ StrMap.fromFoldable $
+  encode (PodSecurityPolicyList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "PodSecurityPolicyList")
@@ -1951,7 +1953,7 @@ instance decodePodSecurityPolicySpec :: Decode PodSecurityPolicySpec where
                volumes <- decodeMaybe "volumes" a
                pure $ PodSecurityPolicySpec { allowPrivilegeEscalation, allowedCapabilities, allowedFlexVolumes, allowedHostPaths, defaultAddCapabilities, defaultAllowPrivilegeEscalation, fsGroup, hostIPC, hostNetwork, hostPID, hostPorts, privileged, readOnlyRootFilesystem, requiredDropCapabilities, runAsUser, seLinux, supplementalGroups, volumes }
 instance encodePodSecurityPolicySpec :: Encode PodSecurityPolicySpec where
-  encode (PodSecurityPolicySpec a) = encode $ StrMap.fromFoldable $
+  encode (PodSecurityPolicySpec a) = encode $ Object.fromFoldable $
                [ Tuple "allowPrivilegeEscalation" (encodeMaybe a.allowPrivilegeEscalation)
                , Tuple "allowedCapabilities" (encodeMaybe a.allowedCapabilities)
                , Tuple "allowedFlexVolumes" (encodeMaybe a.allowedFlexVolumes)
@@ -2016,7 +2018,7 @@ instance decodeReplicaSet :: Decode ReplicaSet where
                status <- decodeMaybe "status" a
                pure $ ReplicaSet { metadata, spec, status }
 instance encodeReplicaSet :: Encode ReplicaSet where
-  encode (ReplicaSet a) = encode $ StrMap.fromFoldable $
+  encode (ReplicaSet a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "ReplicaSet")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -2057,7 +2059,7 @@ instance decodeReplicaSetCondition :: Decode ReplicaSetCondition where
                status <- decodeMaybe "status" a
                pure $ ReplicaSetCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeReplicaSetCondition :: Encode ReplicaSetCondition where
-  encode (ReplicaSetCondition a) = encode $ StrMap.fromFoldable $
+  encode (ReplicaSetCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -2093,7 +2095,7 @@ instance decodeReplicaSetList :: Decode ReplicaSetList where
                metadata <- decodeMaybe "metadata" a
                pure $ ReplicaSetList { items, metadata }
 instance encodeReplicaSetList :: Encode ReplicaSetList where
-  encode (ReplicaSetList a) = encode $ StrMap.fromFoldable $
+  encode (ReplicaSetList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ReplicaSetList")
@@ -2129,7 +2131,7 @@ instance decodeReplicaSetSpec :: Decode ReplicaSetSpec where
                template <- decodeMaybe "template" a
                pure $ ReplicaSetSpec { minReadySeconds, replicas, selector, template }
 instance encodeReplicaSetSpec :: Encode ReplicaSetSpec where
-  encode (ReplicaSetSpec a) = encode $ StrMap.fromFoldable $
+  encode (ReplicaSetSpec a) = encode $ Object.fromFoldable $
                [ Tuple "minReadySeconds" (encodeMaybe a.minReadySeconds)
                , Tuple "replicas" (encodeMaybe a.replicas)
                , Tuple "selector" (encodeMaybe a.selector)
@@ -2173,7 +2175,7 @@ instance decodeReplicaSetStatus :: Decode ReplicaSetStatus where
                replicas <- decodeMaybe "replicas" a
                pure $ ReplicaSetStatus { availableReplicas, conditions, fullyLabeledReplicas, observedGeneration, readyReplicas, replicas }
 instance encodeReplicaSetStatus :: Encode ReplicaSetStatus where
-  encode (ReplicaSetStatus a) = encode $ StrMap.fromFoldable $
+  encode (ReplicaSetStatus a) = encode $ Object.fromFoldable $
                [ Tuple "availableReplicas" (encodeMaybe a.availableReplicas)
                , Tuple "conditions" (encodeMaybe a.conditions)
                , Tuple "fullyLabeledReplicas" (encodeMaybe a.fullyLabeledReplicas)
@@ -2206,7 +2208,7 @@ instance decodeRollbackConfig :: Decode RollbackConfig where
                revision <- decodeMaybe "revision" a
                pure $ RollbackConfig { revision }
 instance encodeRollbackConfig :: Encode RollbackConfig where
-  encode (RollbackConfig a) = encode $ StrMap.fromFoldable $
+  encode (RollbackConfig a) = encode $ Object.fromFoldable $
                [ Tuple "revision" (encodeMaybe a.revision) ]
 
 
@@ -2229,7 +2231,7 @@ instance decodeRollingUpdateDaemonSet :: Decode RollingUpdateDaemonSet where
                maxUnavailable <- decodeMaybe "maxUnavailable" a
                pure $ RollingUpdateDaemonSet { maxUnavailable }
 instance encodeRollingUpdateDaemonSet :: Encode RollingUpdateDaemonSet where
-  encode (RollingUpdateDaemonSet a) = encode $ StrMap.fromFoldable $
+  encode (RollingUpdateDaemonSet a) = encode $ Object.fromFoldable $
                [ Tuple "maxUnavailable" (encodeMaybe a.maxUnavailable) ]
 
 
@@ -2255,7 +2257,7 @@ instance decodeRollingUpdateDeployment :: Decode RollingUpdateDeployment where
                maxUnavailable <- decodeMaybe "maxUnavailable" a
                pure $ RollingUpdateDeployment { maxSurge, maxUnavailable }
 instance encodeRollingUpdateDeployment :: Encode RollingUpdateDeployment where
-  encode (RollingUpdateDeployment a) = encode $ StrMap.fromFoldable $
+  encode (RollingUpdateDeployment a) = encode $ Object.fromFoldable $
                [ Tuple "maxSurge" (encodeMaybe a.maxSurge)
                , Tuple "maxUnavailable" (encodeMaybe a.maxUnavailable) ]
 
@@ -2283,7 +2285,7 @@ instance decodeRunAsUserStrategyOptions :: Decode RunAsUserStrategyOptions where
                rule <- decodeMaybe "rule" a
                pure $ RunAsUserStrategyOptions { ranges, rule }
 instance encodeRunAsUserStrategyOptions :: Encode RunAsUserStrategyOptions where
-  encode (RunAsUserStrategyOptions a) = encode $ StrMap.fromFoldable $
+  encode (RunAsUserStrategyOptions a) = encode $ Object.fromFoldable $
                [ Tuple "ranges" (encodeMaybe a.ranges)
                , Tuple "rule" (encodeMaybe a.rule) ]
 
@@ -2311,7 +2313,7 @@ instance decodeSELinuxStrategyOptions :: Decode SELinuxStrategyOptions where
                seLinuxOptions <- decodeMaybe "seLinuxOptions" a
                pure $ SELinuxStrategyOptions { rule, seLinuxOptions }
 instance encodeSELinuxStrategyOptions :: Encode SELinuxStrategyOptions where
-  encode (SELinuxStrategyOptions a) = encode $ StrMap.fromFoldable $
+  encode (SELinuxStrategyOptions a) = encode $ Object.fromFoldable $
                [ Tuple "rule" (encodeMaybe a.rule)
                , Tuple "seLinuxOptions" (encodeMaybe a.seLinuxOptions) ]
 
@@ -2344,7 +2346,7 @@ instance decodeScale :: Decode Scale where
                status <- decodeMaybe "status" a
                pure $ Scale { metadata, spec, status }
 instance encodeScale :: Encode Scale where
-  encode (Scale a) = encode $ StrMap.fromFoldable $
+  encode (Scale a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "extensions/v1beta1")
                , Tuple "kind" (encode "Scale")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -2373,7 +2375,7 @@ instance decodeScaleSpec :: Decode ScaleSpec where
                replicas <- decodeMaybe "replicas" a
                pure $ ScaleSpec { replicas }
 instance encodeScaleSpec :: Encode ScaleSpec where
-  encode (ScaleSpec a) = encode $ StrMap.fromFoldable $
+  encode (ScaleSpec a) = encode $ Object.fromFoldable $
                [ Tuple "replicas" (encodeMaybe a.replicas) ]
 
 
@@ -2389,7 +2391,7 @@ instance defaultScaleSpec :: Default ScaleSpec where
 -- | - `targetSelector`: label selector for pods that should match the replicas count. This is a serializated version of both map-based and more expressive set-based selectors. This is done to avoid introspection in the clients. The string will be in the same format as the query-param syntax. If the target type only supports map-based selectors, both this field and map-based selector field are populated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#label-selectors
 newtype ScaleStatus = ScaleStatus
   { replicas :: (Maybe Int)
-  , selector :: (Maybe (StrMap String))
+  , selector :: (Maybe (Object String))
   , targetSelector :: (Maybe String) }
 
 derive instance newtypeScaleStatus :: Newtype ScaleStatus _
@@ -2402,7 +2404,7 @@ instance decodeScaleStatus :: Decode ScaleStatus where
                targetSelector <- decodeMaybe "targetSelector" a
                pure $ ScaleStatus { replicas, selector, targetSelector }
 instance encodeScaleStatus :: Encode ScaleStatus where
-  encode (ScaleStatus a) = encode $ StrMap.fromFoldable $
+  encode (ScaleStatus a) = encode $ Object.fromFoldable $
                [ Tuple "replicas" (encodeMaybe a.replicas)
                , Tuple "selector" (encodeMaybe a.selector)
                , Tuple "targetSelector" (encodeMaybe a.targetSelector) ]
@@ -2432,7 +2434,7 @@ instance decodeSupplementalGroupsStrategyOptions :: Decode SupplementalGroupsStr
                rule <- decodeMaybe "rule" a
                pure $ SupplementalGroupsStrategyOptions { ranges, rule }
 instance encodeSupplementalGroupsStrategyOptions :: Encode SupplementalGroupsStrategyOptions where
-  encode (SupplementalGroupsStrategyOptions a) = encode $ StrMap.fromFoldable $
+  encode (SupplementalGroupsStrategyOptions a) = encode $ Object.fromFoldable $
                [ Tuple "ranges" (encodeMaybe a.ranges)
                , Tuple "rule" (encodeMaybe a.rule) ]
 
@@ -2443,7 +2445,7 @@ instance defaultSupplementalGroupsStrategyOptions :: Default SupplementalGroupsS
     , rule: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apiextensions.k8s.io/v1beta1/"

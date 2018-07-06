@@ -2,22 +2,21 @@ module Kubernetes.Request where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Aff as Aff
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Exception (Error)
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Effect.Aff as Aff
+import Effect.Exception (Error)
 import Data.Either (Either(..))
-import Data.Foreign (Foreign)
+import Foreign (Foreign)
 import Data.Generic.Rep (class Generic)
 import Data.HTTP.Method (Method)
 import Data.Maybe (Maybe, fromJust, isJust, maybe)
 import Data.Monoid (mempty)
 import Data.Options (options, (:=))
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(..))
+import Foreign.Object as Object
 import Kubernetes.RequestOptions as ReqOptions
 import Node.Encoding as Encoding
-import Node.HTTP (HTTP)
 import Partial.Unsafe (unsafePartial)
   
 type Request =
@@ -54,12 +53,12 @@ type RequestImplConfig e =
   , fromJust :: Maybe String -> String
   , options :: Foreign
   , body :: Maybe String
-  , callback :: Either Error Response -> Eff (http :: HTTP | e) Unit
+  , callback :: Either Error Response -> Effect Unit
   , mkResponse :: Int -> String -> Response }
 
-foreign import requestImpl :: forall e. RequestImplConfig e -> Eff (http :: HTTP | e) Unit
+foreign import requestImpl :: forall e. RequestImplConfig e -> Effect Unit
 
-request :: forall e. Request -> Aff (http :: HTTP | e) Response
+request :: forall e. Request -> Aff Response
 request req = Aff.makeAff $ \callback -> do
   let cfg =
         { left: Left
@@ -80,7 +79,7 @@ makeOptions {basicAuth, bearerToken, body, caCert, clientCert, clientKey, host, 
     maybe mempty (ReqOptions.ca := _) caCert <>
     maybe mempty (ReqOptions.cert := _) clientCert <>
     maybe mempty (ReqOptions.key := _) clientKey <>
-    ReqOptions.headers := (ReqOptions.RequestHeaders $ StrMap.fromFoldable $
+    ReqOptions.headers := (ReqOptions.RequestHeaders $ Object.fromFoldable $
       [ Tuple "Content-Type" "application/json"
       , Tuple "Content-Length" (show contentLength)
       , Tuple "Accept" "application/json"] <>

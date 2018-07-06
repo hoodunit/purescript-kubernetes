@@ -1,27 +1,29 @@
 module Kubernetes.Api.Core.V1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Resource as Resource
 import Kubernetes.Api.Util as Util
@@ -52,7 +54,7 @@ instance decodeAWSElasticBlockStoreVolumeSource :: Decode AWSElasticBlockStoreVo
                volumeID <- decodeMaybe "volumeID" a
                pure $ AWSElasticBlockStoreVolumeSource { fsType, partition, readOnly, volumeID }
 instance encodeAWSElasticBlockStoreVolumeSource :: Encode AWSElasticBlockStoreVolumeSource where
-  encode (AWSElasticBlockStoreVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (AWSElasticBlockStoreVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "partition" (encodeMaybe a.partition)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
@@ -87,7 +89,7 @@ instance decodeAffinity :: Decode Affinity where
                podAntiAffinity <- decodeMaybe "podAntiAffinity" a
                pure $ Affinity { nodeAffinity, podAffinity, podAntiAffinity }
 instance encodeAffinity :: Encode Affinity where
-  encode (Affinity a) = encode $ StrMap.fromFoldable $
+  encode (Affinity a) = encode $ Object.fromFoldable $
                [ Tuple "nodeAffinity" (encodeMaybe a.nodeAffinity)
                , Tuple "podAffinity" (encodeMaybe a.podAffinity)
                , Tuple "podAntiAffinity" (encodeMaybe a.podAntiAffinity) ]
@@ -117,7 +119,7 @@ instance decodeAttachedVolume :: Decode AttachedVolume where
                name <- decodeMaybe "name" a
                pure $ AttachedVolume { devicePath, name }
 instance encodeAttachedVolume :: Encode AttachedVolume where
-  encode (AttachedVolume a) = encode $ StrMap.fromFoldable $
+  encode (AttachedVolume a) = encode $ Object.fromFoldable $
                [ Tuple "devicePath" (encodeMaybe a.devicePath)
                , Tuple "name" (encodeMaybe a.name) ]
 
@@ -157,7 +159,7 @@ instance decodeAzureDiskVolumeSource :: Decode AzureDiskVolumeSource where
                readOnly <- decodeMaybe "readOnly" a
                pure $ AzureDiskVolumeSource { cachingMode, diskName, diskURI, fsType, kind, readOnly }
 instance encodeAzureDiskVolumeSource :: Encode AzureDiskVolumeSource where
-  encode (AzureDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (AzureDiskVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "cachingMode" (encodeMaybe a.cachingMode)
                , Tuple "diskName" (encodeMaybe a.diskName)
                , Tuple "diskURI" (encodeMaybe a.diskURI)
@@ -199,7 +201,7 @@ instance decodeAzureFilePersistentVolumeSource :: Decode AzureFilePersistentVolu
                shareName <- decodeMaybe "shareName" a
                pure $ AzureFilePersistentVolumeSource { readOnly, secretName, secretNamespace, shareName }
 instance encodeAzureFilePersistentVolumeSource :: Encode AzureFilePersistentVolumeSource where
-  encode (AzureFilePersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (AzureFilePersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "secretName" (encodeMaybe a.secretName)
                , Tuple "secretNamespace" (encodeMaybe a.secretNamespace)
@@ -234,7 +236,7 @@ instance decodeAzureFileVolumeSource :: Decode AzureFileVolumeSource where
                shareName <- decodeMaybe "shareName" a
                pure $ AzureFileVolumeSource { readOnly, secretName, shareName }
 instance encodeAzureFileVolumeSource :: Encode AzureFileVolumeSource where
-  encode (AzureFileVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (AzureFileVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "secretName" (encodeMaybe a.secretName)
                , Tuple "shareName" (encodeMaybe a.shareName) ]
@@ -266,7 +268,7 @@ instance decodeBinding :: Decode Binding where
                target <- decodeMaybe "target" a
                pure $ Binding { metadata, target }
 instance encodeBinding :: Encode Binding where
-  encode (Binding a) = encode $ StrMap.fromFoldable $
+  encode (Binding a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "Binding")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -299,7 +301,7 @@ instance decodeCSIPersistentVolumeSource :: Decode CSIPersistentVolumeSource whe
                volumeHandle <- decodeMaybe "volumeHandle" a
                pure $ CSIPersistentVolumeSource { driver, readOnly, volumeHandle }
 instance encodeCSIPersistentVolumeSource :: Encode CSIPersistentVolumeSource where
-  encode (CSIPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (CSIPersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "driver" (encodeMaybe a.driver)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "volumeHandle" (encodeMaybe a.volumeHandle) ]
@@ -329,7 +331,7 @@ instance decodeCapabilities :: Decode Capabilities where
                drop <- decodeMaybe "drop" a
                pure $ Capabilities { add, drop }
 instance encodeCapabilities :: Encode Capabilities where
-  encode (Capabilities a) = encode $ StrMap.fromFoldable $
+  encode (Capabilities a) = encode $ Object.fromFoldable $
                [ Tuple "add" (encodeMaybe a.add)
                , Tuple "drop" (encodeMaybe a.drop) ]
 
@@ -369,7 +371,7 @@ instance decodeCephFSPersistentVolumeSource :: Decode CephFSPersistentVolumeSour
                user <- decodeMaybe "user" a
                pure $ CephFSPersistentVolumeSource { monitors, path, readOnly, secretFile, secretRef, user }
 instance encodeCephFSPersistentVolumeSource :: Encode CephFSPersistentVolumeSource where
-  encode (CephFSPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (CephFSPersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "monitors" (encodeMaybe a.monitors)
                , Tuple "path" (encodeMaybe a.path)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
@@ -417,7 +419,7 @@ instance decodeCephFSVolumeSource :: Decode CephFSVolumeSource where
                user <- decodeMaybe "user" a
                pure $ CephFSVolumeSource { monitors, path, readOnly, secretFile, secretRef, user }
 instance encodeCephFSVolumeSource :: Encode CephFSVolumeSource where
-  encode (CephFSVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (CephFSVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "monitors" (encodeMaybe a.monitors)
                , Tuple "path" (encodeMaybe a.path)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
@@ -456,7 +458,7 @@ instance decodeCinderVolumeSource :: Decode CinderVolumeSource where
                volumeID <- decodeMaybe "volumeID" a
                pure $ CinderVolumeSource { fsType, readOnly, volumeID }
 instance encodeCinderVolumeSource :: Encode CinderVolumeSource where
-  encode (CinderVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (CinderVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "volumeID" (encodeMaybe a.volumeID) ]
@@ -483,7 +485,7 @@ instance decodeClientIPConfig :: Decode ClientIPConfig where
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                pure $ ClientIPConfig { timeoutSeconds }
 instance encodeClientIPConfig :: Encode ClientIPConfig where
-  encode (ClientIPConfig a) = encode $ StrMap.fromFoldable $
+  encode (ClientIPConfig a) = encode $ Object.fromFoldable $
                [ Tuple "timeoutSeconds" (encodeMaybe a.timeoutSeconds) ]
 
 
@@ -515,7 +517,7 @@ instance decodeComponentCondition :: Decode ComponentCondition where
                status <- decodeMaybe "status" a
                pure $ ComponentCondition { _type, error, message, status }
 instance encodeComponentCondition :: Encode ComponentCondition where
-  encode (ComponentCondition a) = encode $ StrMap.fromFoldable $
+  encode (ComponentCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "error" (encodeMaybe a.error)
                , Tuple "message" (encodeMaybe a.message)
@@ -549,7 +551,7 @@ instance decodeComponentStatus :: Decode ComponentStatus where
                metadata <- decodeMaybe "metadata" a
                pure $ ComponentStatus { conditions, metadata }
 instance encodeComponentStatus :: Encode ComponentStatus where
-  encode (ComponentStatus a) = encode $ StrMap.fromFoldable $
+  encode (ComponentStatus a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "conditions" (encodeMaybe a.conditions)
                , Tuple "kind" (encode "ComponentStatus")
@@ -581,7 +583,7 @@ instance decodeComponentStatusList :: Decode ComponentStatusList where
                metadata <- decodeMaybe "metadata" a
                pure $ ComponentStatusList { items, metadata }
 instance encodeComponentStatusList :: Encode ComponentStatusList where
-  encode (ComponentStatusList a) = encode $ StrMap.fromFoldable $
+  encode (ComponentStatusList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ComponentStatusList")
@@ -599,7 +601,7 @@ instance defaultComponentStatusList :: Default ComponentStatusList where
 -- | - `_data`: Data contains the configuration data. Each key must consist of alphanumeric characters, '-', '_' or '.'.
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 newtype ConfigMap = ConfigMap
-  { _data :: (Maybe (StrMap String))
+  { _data :: (Maybe (Object String))
   , metadata :: (Maybe MetaV1.ObjectMeta) }
 
 derive instance newtypeConfigMap :: Newtype ConfigMap _
@@ -613,7 +615,7 @@ instance decodeConfigMap :: Decode ConfigMap where
                metadata <- decodeMaybe "metadata" a
                pure $ ConfigMap { _data, metadata }
 instance encodeConfigMap :: Encode ConfigMap where
-  encode (ConfigMap a) = encode $ StrMap.fromFoldable $
+  encode (ConfigMap a) = encode $ Object.fromFoldable $
                [ Tuple "_data" (encodeMaybe a._data)
                , Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "ConfigMap")
@@ -645,7 +647,7 @@ instance decodeConfigMapEnvSource :: Decode ConfigMapEnvSource where
                optional <- decodeMaybe "optional" a
                pure $ ConfigMapEnvSource { name, optional }
 instance encodeConfigMapEnvSource :: Encode ConfigMapEnvSource where
-  encode (ConfigMapEnvSource a) = encode $ StrMap.fromFoldable $
+  encode (ConfigMapEnvSource a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "optional" (encodeMaybe a.optional) ]
 
@@ -676,7 +678,7 @@ instance decodeConfigMapKeySelector :: Decode ConfigMapKeySelector where
                optional <- decodeMaybe "optional" a
                pure $ ConfigMapKeySelector { key, name, optional }
 instance encodeConfigMapKeySelector :: Encode ConfigMapKeySelector where
-  encode (ConfigMapKeySelector a) = encode $ StrMap.fromFoldable $
+  encode (ConfigMapKeySelector a) = encode $ Object.fromFoldable $
                [ Tuple "key" (encodeMaybe a.key)
                , Tuple "name" (encodeMaybe a.name)
                , Tuple "optional" (encodeMaybe a.optional) ]
@@ -708,7 +710,7 @@ instance decodeConfigMapList :: Decode ConfigMapList where
                metadata <- decodeMaybe "metadata" a
                pure $ ConfigMapList { items, metadata }
 instance encodeConfigMapList :: Encode ConfigMapList where
-  encode (ConfigMapList a) = encode $ StrMap.fromFoldable $
+  encode (ConfigMapList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ConfigMapList")
@@ -743,7 +745,7 @@ instance decodeConfigMapProjection :: Decode ConfigMapProjection where
                optional <- decodeMaybe "optional" a
                pure $ ConfigMapProjection { items, name, optional }
 instance encodeConfigMapProjection :: Encode ConfigMapProjection where
-  encode (ConfigMapProjection a) = encode $ StrMap.fromFoldable $
+  encode (ConfigMapProjection a) = encode $ Object.fromFoldable $
                [ Tuple "items" (encodeMaybe a.items)
                , Tuple "name" (encodeMaybe a.name)
                , Tuple "optional" (encodeMaybe a.optional) ]
@@ -781,7 +783,7 @@ instance decodeConfigMapVolumeSource :: Decode ConfigMapVolumeSource where
                optional <- decodeMaybe "optional" a
                pure $ ConfigMapVolumeSource { defaultMode, items, name, optional }
 instance encodeConfigMapVolumeSource :: Encode ConfigMapVolumeSource where
-  encode (ConfigMapVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (ConfigMapVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "name" (encodeMaybe a.name)
@@ -870,7 +872,7 @@ instance decodeContainer :: Decode Container where
                workingDir <- decodeMaybe "workingDir" a
                pure $ Container { args, command, env, envFrom, image, imagePullPolicy, lifecycle, livenessProbe, name, ports, readinessProbe, resources, securityContext, stdin, stdinOnce, terminationMessagePath, terminationMessagePolicy, tty, volumeDevices, volumeMounts, workingDir }
 instance encodeContainer :: Encode Container where
-  encode (Container a) = encode $ StrMap.fromFoldable $
+  encode (Container a) = encode $ Object.fromFoldable $
                [ Tuple "args" (encodeMaybe a.args)
                , Tuple "command" (encodeMaybe a.command)
                , Tuple "env" (encodeMaybe a.env)
@@ -936,7 +938,7 @@ instance decodeContainerImage :: Decode ContainerImage where
                sizeBytes <- decodeMaybe "sizeBytes" a
                pure $ ContainerImage { names, sizeBytes }
 instance encodeContainerImage :: Encode ContainerImage where
-  encode (ContainerImage a) = encode $ StrMap.fromFoldable $
+  encode (ContainerImage a) = encode $ Object.fromFoldable $
                [ Tuple "names" (encodeMaybe a.names)
                , Tuple "sizeBytes" (encodeMaybe a.sizeBytes) ]
 
@@ -973,7 +975,7 @@ instance decodeContainerPort :: Decode ContainerPort where
                protocol <- decodeMaybe "protocol" a
                pure $ ContainerPort { containerPort, hostIP, hostPort, name, protocol }
 instance encodeContainerPort :: Encode ContainerPort where
-  encode (ContainerPort a) = encode $ StrMap.fromFoldable $
+  encode (ContainerPort a) = encode $ Object.fromFoldable $
                [ Tuple "containerPort" (encodeMaybe a.containerPort)
                , Tuple "hostIP" (encodeMaybe a.hostIP)
                , Tuple "hostPort" (encodeMaybe a.hostPort)
@@ -1010,7 +1012,7 @@ instance decodeContainerState :: Decode ContainerState where
                waiting <- decodeMaybe "waiting" a
                pure $ ContainerState { running, terminated, waiting }
 instance encodeContainerState :: Encode ContainerState where
-  encode (ContainerState a) = encode $ StrMap.fromFoldable $
+  encode (ContainerState a) = encode $ Object.fromFoldable $
                [ Tuple "running" (encodeMaybe a.running)
                , Tuple "terminated" (encodeMaybe a.terminated)
                , Tuple "waiting" (encodeMaybe a.waiting) ]
@@ -1037,7 +1039,7 @@ instance decodeContainerStateRunning :: Decode ContainerStateRunning where
                startedAt <- decodeMaybe "startedAt" a
                pure $ ContainerStateRunning { startedAt }
 instance encodeContainerStateRunning :: Encode ContainerStateRunning where
-  encode (ContainerStateRunning a) = encode $ StrMap.fromFoldable $
+  encode (ContainerStateRunning a) = encode $ Object.fromFoldable $
                [ Tuple "startedAt" (encodeMaybe a.startedAt) ]
 
 
@@ -1078,7 +1080,7 @@ instance decodeContainerStateTerminated :: Decode ContainerStateTerminated where
                startedAt <- decodeMaybe "startedAt" a
                pure $ ContainerStateTerminated { containerID, exitCode, finishedAt, message, reason, signal, startedAt }
 instance encodeContainerStateTerminated :: Encode ContainerStateTerminated where
-  encode (ContainerStateTerminated a) = encode $ StrMap.fromFoldable $
+  encode (ContainerStateTerminated a) = encode $ Object.fromFoldable $
                [ Tuple "containerID" (encodeMaybe a.containerID)
                , Tuple "exitCode" (encodeMaybe a.exitCode)
                , Tuple "finishedAt" (encodeMaybe a.finishedAt)
@@ -1116,7 +1118,7 @@ instance decodeContainerStateWaiting :: Decode ContainerStateWaiting where
                reason <- decodeMaybe "reason" a
                pure $ ContainerStateWaiting { message, reason }
 instance encodeContainerStateWaiting :: Encode ContainerStateWaiting where
-  encode (ContainerStateWaiting a) = encode $ StrMap.fromFoldable $
+  encode (ContainerStateWaiting a) = encode $ Object.fromFoldable $
                [ Tuple "message" (encodeMaybe a.message)
                , Tuple "reason" (encodeMaybe a.reason) ]
 
@@ -1162,7 +1164,7 @@ instance decodeContainerStatus :: Decode ContainerStatus where
                state <- decodeMaybe "state" a
                pure $ ContainerStatus { containerID, image, imageID, lastState, name, ready, restartCount, state }
 instance encodeContainerStatus :: Encode ContainerStatus where
-  encode (ContainerStatus a) = encode $ StrMap.fromFoldable $
+  encode (ContainerStatus a) = encode $ Object.fromFoldable $
                [ Tuple "containerID" (encodeMaybe a.containerID)
                , Tuple "image" (encodeMaybe a.image)
                , Tuple "imageID" (encodeMaybe a.imageID)
@@ -1199,7 +1201,7 @@ instance decodeDaemonEndpoint :: Decode DaemonEndpoint where
                _Port <- decodeMaybe "_Port" a
                pure $ DaemonEndpoint { _Port }
 instance encodeDaemonEndpoint :: Encode DaemonEndpoint where
-  encode (DaemonEndpoint a) = encode $ StrMap.fromFoldable $
+  encode (DaemonEndpoint a) = encode $ Object.fromFoldable $
                [ Tuple "_Port" (encodeMaybe a._Port) ]
 
 
@@ -1222,7 +1224,7 @@ instance decodeDownwardAPIProjection :: Decode DownwardAPIProjection where
                items <- decodeMaybe "items" a
                pure $ DownwardAPIProjection { items }
 instance encodeDownwardAPIProjection :: Encode DownwardAPIProjection where
-  encode (DownwardAPIProjection a) = encode $ StrMap.fromFoldable $
+  encode (DownwardAPIProjection a) = encode $ Object.fromFoldable $
                [ Tuple "items" (encodeMaybe a.items) ]
 
 
@@ -1254,7 +1256,7 @@ instance decodeDownwardAPIVolumeFile :: Decode DownwardAPIVolumeFile where
                resourceFieldRef <- decodeMaybe "resourceFieldRef" a
                pure $ DownwardAPIVolumeFile { fieldRef, mode, path, resourceFieldRef }
 instance encodeDownwardAPIVolumeFile :: Encode DownwardAPIVolumeFile where
-  encode (DownwardAPIVolumeFile a) = encode $ StrMap.fromFoldable $
+  encode (DownwardAPIVolumeFile a) = encode $ Object.fromFoldable $
                [ Tuple "fieldRef" (encodeMaybe a.fieldRef)
                , Tuple "mode" (encodeMaybe a.mode)
                , Tuple "path" (encodeMaybe a.path)
@@ -1286,7 +1288,7 @@ instance decodeDownwardAPIVolumeSource :: Decode DownwardAPIVolumeSource where
                items <- decodeMaybe "items" a
                pure $ DownwardAPIVolumeSource { defaultMode, items }
 instance encodeDownwardAPIVolumeSource :: Encode DownwardAPIVolumeSource where
-  encode (DownwardAPIVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (DownwardAPIVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
                , Tuple "items" (encodeMaybe a.items) ]
 
@@ -1314,7 +1316,7 @@ instance decodeEmptyDirVolumeSource :: Decode EmptyDirVolumeSource where
                sizeLimit <- decodeMaybe "sizeLimit" a
                pure $ EmptyDirVolumeSource { medium, sizeLimit }
 instance encodeEmptyDirVolumeSource :: Encode EmptyDirVolumeSource where
-  encode (EmptyDirVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (EmptyDirVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "medium" (encodeMaybe a.medium)
                , Tuple "sizeLimit" (encodeMaybe a.sizeLimit) ]
 
@@ -1348,7 +1350,7 @@ instance decodeEndpointAddress :: Decode EndpointAddress where
                targetRef <- decodeMaybe "targetRef" a
                pure $ EndpointAddress { hostname, ip, nodeName, targetRef }
 instance encodeEndpointAddress :: Encode EndpointAddress where
-  encode (EndpointAddress a) = encode $ StrMap.fromFoldable $
+  encode (EndpointAddress a) = encode $ Object.fromFoldable $
                [ Tuple "hostname" (encodeMaybe a.hostname)
                , Tuple "ip" (encodeMaybe a.ip)
                , Tuple "nodeName" (encodeMaybe a.nodeName)
@@ -1383,7 +1385,7 @@ instance decodeEndpointPort :: Decode EndpointPort where
                protocol <- decodeMaybe "protocol" a
                pure $ EndpointPort { name, port, protocol }
 instance encodeEndpointPort :: Encode EndpointPort where
-  encode (EndpointPort a) = encode $ StrMap.fromFoldable $
+  encode (EndpointPort a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "port" (encodeMaybe a.port)
                , Tuple "protocol" (encodeMaybe a.protocol) ]
@@ -1423,7 +1425,7 @@ instance decodeEndpointSubset :: Decode EndpointSubset where
                ports <- decodeMaybe "ports" a
                pure $ EndpointSubset { addresses, notReadyAddresses, ports }
 instance encodeEndpointSubset :: Encode EndpointSubset where
-  encode (EndpointSubset a) = encode $ StrMap.fromFoldable $
+  encode (EndpointSubset a) = encode $ Object.fromFoldable $
                [ Tuple "addresses" (encodeMaybe a.addresses)
                , Tuple "notReadyAddresses" (encodeMaybe a.notReadyAddresses)
                , Tuple "ports" (encodeMaybe a.ports) ]
@@ -1466,7 +1468,7 @@ instance decodeEndpoints :: Decode Endpoints where
                subsets <- decodeMaybe "subsets" a
                pure $ Endpoints { metadata, subsets }
 instance encodeEndpoints :: Encode Endpoints where
-  encode (Endpoints a) = encode $ StrMap.fromFoldable $
+  encode (Endpoints a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "Endpoints")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -1498,7 +1500,7 @@ instance decodeEndpointsList :: Decode EndpointsList where
                metadata <- decodeMaybe "metadata" a
                pure $ EndpointsList { items, metadata }
 instance encodeEndpointsList :: Encode EndpointsList where
-  encode (EndpointsList a) = encode $ StrMap.fromFoldable $
+  encode (EndpointsList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "EndpointsList")
@@ -1531,7 +1533,7 @@ instance decodeEnvFromSource :: Decode EnvFromSource where
                secretRef <- decodeMaybe "secretRef" a
                pure $ EnvFromSource { configMapRef, prefix, secretRef }
 instance encodeEnvFromSource :: Encode EnvFromSource where
-  encode (EnvFromSource a) = encode $ StrMap.fromFoldable $
+  encode (EnvFromSource a) = encode $ Object.fromFoldable $
                [ Tuple "configMapRef" (encodeMaybe a.configMapRef)
                , Tuple "prefix" (encodeMaybe a.prefix)
                , Tuple "secretRef" (encodeMaybe a.secretRef) ]
@@ -1564,7 +1566,7 @@ instance decodeEnvVar :: Decode EnvVar where
                valueFrom <- decodeMaybe "valueFrom" a
                pure $ EnvVar { name, value, valueFrom }
 instance encodeEnvVar :: Encode EnvVar where
-  encode (EnvVar a) = encode $ StrMap.fromFoldable $
+  encode (EnvVar a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "value" (encodeMaybe a.value)
                , Tuple "valueFrom" (encodeMaybe a.valueFrom) ]
@@ -1600,7 +1602,7 @@ instance decodeEnvVarSource :: Decode EnvVarSource where
                secretKeyRef <- decodeMaybe "secretKeyRef" a
                pure $ EnvVarSource { configMapKeyRef, fieldRef, resourceFieldRef, secretKeyRef }
 instance encodeEnvVarSource :: Encode EnvVarSource where
-  encode (EnvVarSource a) = encode $ StrMap.fromFoldable $
+  encode (EnvVarSource a) = encode $ Object.fromFoldable $
                [ Tuple "configMapKeyRef" (encodeMaybe a.configMapKeyRef)
                , Tuple "fieldRef" (encodeMaybe a.fieldRef)
                , Tuple "resourceFieldRef" (encodeMaybe a.resourceFieldRef)
@@ -1673,7 +1675,7 @@ instance decodeEvent :: Decode Event where
                source <- decodeMaybe "source" a
                pure $ Event { _type, action, count, eventTime, firstTimestamp, involvedObject, lastTimestamp, message, metadata, reason, related, reportingComponent, reportingInstance, series, source }
 instance encodeEvent :: Encode Event where
-  encode (Event a) = encode $ StrMap.fromFoldable $
+  encode (Event a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "action" (encodeMaybe a.action)
                , Tuple "apiVersion" (encode "v1")
@@ -1731,7 +1733,7 @@ instance decodeEventList :: Decode EventList where
                metadata <- decodeMaybe "metadata" a
                pure $ EventList { items, metadata }
 instance encodeEventList :: Encode EventList where
-  encode (EventList a) = encode $ StrMap.fromFoldable $
+  encode (EventList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "EventList")
@@ -1764,7 +1766,7 @@ instance decodeEventSeries :: Decode EventSeries where
                state <- decodeMaybe "state" a
                pure $ EventSeries { count, lastObservedTime, state }
 instance encodeEventSeries :: Encode EventSeries where
-  encode (EventSeries a) = encode $ StrMap.fromFoldable $
+  encode (EventSeries a) = encode $ Object.fromFoldable $
                [ Tuple "count" (encodeMaybe a.count)
                , Tuple "lastObservedTime" (encodeMaybe a.lastObservedTime)
                , Tuple "state" (encodeMaybe a.state) ]
@@ -1794,7 +1796,7 @@ instance decodeEventSource :: Decode EventSource where
                host <- decodeMaybe "host" a
                pure $ EventSource { component, host }
 instance encodeEventSource :: Encode EventSource where
-  encode (EventSource a) = encode $ StrMap.fromFoldable $
+  encode (EventSource a) = encode $ Object.fromFoldable $
                [ Tuple "component" (encodeMaybe a.component)
                , Tuple "host" (encodeMaybe a.host) ]
 
@@ -1819,7 +1821,7 @@ instance decodeExecAction :: Decode ExecAction where
                command <- decodeMaybe "command" a
                pure $ ExecAction { command }
 instance encodeExecAction :: Encode ExecAction where
-  encode (ExecAction a) = encode $ StrMap.fromFoldable $
+  encode (ExecAction a) = encode $ Object.fromFoldable $
                [ Tuple "command" (encodeMaybe a.command) ]
 
 
@@ -1854,7 +1856,7 @@ instance decodeFCVolumeSource :: Decode FCVolumeSource where
                wwids <- decodeMaybe "wwids" a
                pure $ FCVolumeSource { fsType, lun, readOnly, targetWWNs, wwids }
 instance encodeFCVolumeSource :: Encode FCVolumeSource where
-  encode (FCVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (FCVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "lun" (encodeMaybe a.lun)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
@@ -1881,7 +1883,7 @@ instance defaultFCVolumeSource :: Default FCVolumeSource where
 newtype FlexPersistentVolumeSource = FlexPersistentVolumeSource
   { driver :: (Maybe String)
   , fsType :: (Maybe String)
-  , options :: (Maybe (StrMap String))
+  , options :: (Maybe (Object String))
   , readOnly :: (Maybe Boolean)
   , secretRef :: (Maybe SecretReference) }
 
@@ -1897,7 +1899,7 @@ instance decodeFlexPersistentVolumeSource :: Decode FlexPersistentVolumeSource w
                secretRef <- decodeMaybe "secretRef" a
                pure $ FlexPersistentVolumeSource { driver, fsType, options, readOnly, secretRef }
 instance encodeFlexPersistentVolumeSource :: Encode FlexPersistentVolumeSource where
-  encode (FlexPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (FlexPersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "driver" (encodeMaybe a.driver)
                , Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "options" (encodeMaybe a.options)
@@ -1924,7 +1926,7 @@ instance defaultFlexPersistentVolumeSource :: Default FlexPersistentVolumeSource
 newtype FlexVolumeSource = FlexVolumeSource
   { driver :: (Maybe String)
   , fsType :: (Maybe String)
-  , options :: (Maybe (StrMap String))
+  , options :: (Maybe (Object String))
   , readOnly :: (Maybe Boolean)
   , secretRef :: (Maybe LocalObjectReference) }
 
@@ -1940,7 +1942,7 @@ instance decodeFlexVolumeSource :: Decode FlexVolumeSource where
                secretRef <- decodeMaybe "secretRef" a
                pure $ FlexVolumeSource { driver, fsType, options, readOnly, secretRef }
 instance encodeFlexVolumeSource :: Encode FlexVolumeSource where
-  encode (FlexVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (FlexVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "driver" (encodeMaybe a.driver)
                , Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "options" (encodeMaybe a.options)
@@ -1974,7 +1976,7 @@ instance decodeFlockerVolumeSource :: Decode FlockerVolumeSource where
                datasetUUID <- decodeMaybe "datasetUUID" a
                pure $ FlockerVolumeSource { datasetName, datasetUUID }
 instance encodeFlockerVolumeSource :: Encode FlockerVolumeSource where
-  encode (FlockerVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (FlockerVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "datasetName" (encodeMaybe a.datasetName)
                , Tuple "datasetUUID" (encodeMaybe a.datasetUUID) ]
 
@@ -2010,7 +2012,7 @@ instance decodeGCEPersistentDiskVolumeSource :: Decode GCEPersistentDiskVolumeSo
                readOnly <- decodeMaybe "readOnly" a
                pure $ GCEPersistentDiskVolumeSource { fsType, partition, pdName, readOnly }
 instance encodeGCEPersistentDiskVolumeSource :: Encode GCEPersistentDiskVolumeSource where
-  encode (GCEPersistentDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (GCEPersistentDiskVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "partition" (encodeMaybe a.partition)
                , Tuple "pdName" (encodeMaybe a.pdName)
@@ -2045,7 +2047,7 @@ instance decodeGitRepoVolumeSource :: Decode GitRepoVolumeSource where
                revision <- decodeMaybe "revision" a
                pure $ GitRepoVolumeSource { directory, repository, revision }
 instance encodeGitRepoVolumeSource :: Encode GitRepoVolumeSource where
-  encode (GitRepoVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (GitRepoVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "directory" (encodeMaybe a.directory)
                , Tuple "repository" (encodeMaybe a.repository)
                , Tuple "revision" (encodeMaybe a.revision) ]
@@ -2078,7 +2080,7 @@ instance decodeGlusterfsVolumeSource :: Decode GlusterfsVolumeSource where
                readOnly <- decodeMaybe "readOnly" a
                pure $ GlusterfsVolumeSource { endpoints, path, readOnly }
 instance encodeGlusterfsVolumeSource :: Encode GlusterfsVolumeSource where
-  encode (GlusterfsVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (GlusterfsVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "endpoints" (encodeMaybe a.endpoints)
                , Tuple "path" (encodeMaybe a.path)
                , Tuple "readOnly" (encodeMaybe a.readOnly) ]
@@ -2117,7 +2119,7 @@ instance decodeHTTPGetAction :: Decode HTTPGetAction where
                scheme <- decodeMaybe "scheme" a
                pure $ HTTPGetAction { host, httpHeaders, path, port, scheme }
 instance encodeHTTPGetAction :: Encode HTTPGetAction where
-  encode (HTTPGetAction a) = encode $ StrMap.fromFoldable $
+  encode (HTTPGetAction a) = encode $ Object.fromFoldable $
                [ Tuple "host" (encodeMaybe a.host)
                , Tuple "httpHeaders" (encodeMaybe a.httpHeaders)
                , Tuple "path" (encodeMaybe a.path)
@@ -2151,7 +2153,7 @@ instance decodeHTTPHeader :: Decode HTTPHeader where
                value <- decodeMaybe "value" a
                pure $ HTTPHeader { name, value }
 instance encodeHTTPHeader :: Encode HTTPHeader where
-  encode (HTTPHeader a) = encode $ StrMap.fromFoldable $
+  encode (HTTPHeader a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "value" (encodeMaybe a.value) ]
 
@@ -2182,7 +2184,7 @@ instance decodeHandler :: Decode Handler where
                tcpSocket <- decodeMaybe "tcpSocket" a
                pure $ Handler { exec, httpGet, tcpSocket }
 instance encodeHandler :: Encode Handler where
-  encode (Handler a) = encode $ StrMap.fromFoldable $
+  encode (Handler a) = encode $ Object.fromFoldable $
                [ Tuple "exec" (encodeMaybe a.exec)
                , Tuple "httpGet" (encodeMaybe a.httpGet)
                , Tuple "tcpSocket" (encodeMaybe a.tcpSocket) ]
@@ -2212,7 +2214,7 @@ instance decodeHostAlias :: Decode HostAlias where
                ip <- decodeMaybe "ip" a
                pure $ HostAlias { hostnames, ip }
 instance encodeHostAlias :: Encode HostAlias where
-  encode (HostAlias a) = encode $ StrMap.fromFoldable $
+  encode (HostAlias a) = encode $ Object.fromFoldable $
                [ Tuple "hostnames" (encodeMaybe a.hostnames)
                , Tuple "ip" (encodeMaybe a.ip) ]
 
@@ -2240,7 +2242,7 @@ instance decodeHostPathVolumeSource :: Decode HostPathVolumeSource where
                path <- decodeMaybe "path" a
                pure $ HostPathVolumeSource { _type, path }
 instance encodeHostPathVolumeSource :: Encode HostPathVolumeSource where
-  encode (HostPathVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (HostPathVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "path" (encodeMaybe a.path) ]
 
@@ -2295,7 +2297,7 @@ instance decodeISCSIPersistentVolumeSource :: Decode ISCSIPersistentVolumeSource
                targetPortal <- decodeMaybe "targetPortal" a
                pure $ ISCSIPersistentVolumeSource { chapAuthDiscovery, chapAuthSession, fsType, initiatorName, iqn, iscsiInterface, lun, portals, readOnly, secretRef, targetPortal }
 instance encodeISCSIPersistentVolumeSource :: Encode ISCSIPersistentVolumeSource where
-  encode (ISCSIPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (ISCSIPersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "chapAuthDiscovery" (encodeMaybe a.chapAuthDiscovery)
                , Tuple "chapAuthSession" (encodeMaybe a.chapAuthSession)
                , Tuple "fsType" (encodeMaybe a.fsType)
@@ -2368,7 +2370,7 @@ instance decodeISCSIVolumeSource :: Decode ISCSIVolumeSource where
                targetPortal <- decodeMaybe "targetPortal" a
                pure $ ISCSIVolumeSource { chapAuthDiscovery, chapAuthSession, fsType, initiatorName, iqn, iscsiInterface, lun, portals, readOnly, secretRef, targetPortal }
 instance encodeISCSIVolumeSource :: Encode ISCSIVolumeSource where
-  encode (ISCSIVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (ISCSIVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "chapAuthDiscovery" (encodeMaybe a.chapAuthDiscovery)
                , Tuple "chapAuthSession" (encodeMaybe a.chapAuthSession)
                , Tuple "fsType" (encodeMaybe a.fsType)
@@ -2417,7 +2419,7 @@ instance decodeKeyToPath :: Decode KeyToPath where
                path <- decodeMaybe "path" a
                pure $ KeyToPath { key, mode, path }
 instance encodeKeyToPath :: Encode KeyToPath where
-  encode (KeyToPath a) = encode $ StrMap.fromFoldable $
+  encode (KeyToPath a) = encode $ Object.fromFoldable $
                [ Tuple "key" (encodeMaybe a.key)
                , Tuple "mode" (encodeMaybe a.mode)
                , Tuple "path" (encodeMaybe a.path) ]
@@ -2447,7 +2449,7 @@ instance decodeLifecycle :: Decode Lifecycle where
                preStop <- decodeMaybe "preStop" a
                pure $ Lifecycle { postStart, preStop }
 instance encodeLifecycle :: Encode Lifecycle where
-  encode (Lifecycle a) = encode $ StrMap.fromFoldable $
+  encode (Lifecycle a) = encode $ Object.fromFoldable $
                [ Tuple "postStart" (encodeMaybe a.postStart)
                , Tuple "preStop" (encodeMaybe a.preStop) ]
 
@@ -2477,7 +2479,7 @@ instance decodeLimitRange :: Decode LimitRange where
                spec <- decodeMaybe "spec" a
                pure $ LimitRange { metadata, spec }
 instance encodeLimitRange :: Encode LimitRange where
-  encode (LimitRange a) = encode $ StrMap.fromFoldable $
+  encode (LimitRange a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "LimitRange")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -2499,12 +2501,12 @@ instance defaultLimitRange :: Default LimitRange where
 -- | - `maxLimitRequestRatio`: MaxLimitRequestRatio if specified, the named resource must have a request and limit that are both non-zero where limit divided by request is less than or equal to the enumerated value; this represents the max burst for the named resource.
 -- | - `min`: Min usage constraints on this kind by resource name.
 newtype LimitRangeItem = LimitRangeItem
-  { _default :: (Maybe (StrMap Resource.Quantity))
+  { _default :: (Maybe (Object Resource.Quantity))
   , _type :: (Maybe String)
-  , defaultRequest :: (Maybe (StrMap Resource.Quantity))
-  , max :: (Maybe (StrMap Resource.Quantity))
-  , maxLimitRequestRatio :: (Maybe (StrMap Resource.Quantity))
-  , min :: (Maybe (StrMap Resource.Quantity)) }
+  , defaultRequest :: (Maybe (Object Resource.Quantity))
+  , max :: (Maybe (Object Resource.Quantity))
+  , maxLimitRequestRatio :: (Maybe (Object Resource.Quantity))
+  , min :: (Maybe (Object Resource.Quantity)) }
 
 derive instance newtypeLimitRangeItem :: Newtype LimitRangeItem _
 derive instance genericLimitRangeItem :: Generic LimitRangeItem _
@@ -2519,7 +2521,7 @@ instance decodeLimitRangeItem :: Decode LimitRangeItem where
                min <- decodeMaybe "min" a
                pure $ LimitRangeItem { _default, _type, defaultRequest, max, maxLimitRequestRatio, min }
 instance encodeLimitRangeItem :: Encode LimitRangeItem where
-  encode (LimitRangeItem a) = encode $ StrMap.fromFoldable $
+  encode (LimitRangeItem a) = encode $ Object.fromFoldable $
                [ Tuple "_default" (encodeMaybe a._default)
                , Tuple "_type" (encodeMaybe a._type)
                , Tuple "defaultRequest" (encodeMaybe a.defaultRequest)
@@ -2557,7 +2559,7 @@ instance decodeLimitRangeList :: Decode LimitRangeList where
                metadata <- decodeMaybe "metadata" a
                pure $ LimitRangeList { items, metadata }
 instance encodeLimitRangeList :: Encode LimitRangeList where
-  encode (LimitRangeList a) = encode $ StrMap.fromFoldable $
+  encode (LimitRangeList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "LimitRangeList")
@@ -2584,7 +2586,7 @@ instance decodeLimitRangeSpec :: Decode LimitRangeSpec where
                limits <- decodeMaybe "limits" a
                pure $ LimitRangeSpec { limits }
 instance encodeLimitRangeSpec :: Encode LimitRangeSpec where
-  encode (LimitRangeSpec a) = encode $ StrMap.fromFoldable $
+  encode (LimitRangeSpec a) = encode $ Object.fromFoldable $
                [ Tuple "limits" (encodeMaybe a.limits) ]
 
 
@@ -2610,7 +2612,7 @@ instance decodeLoadBalancerIngress :: Decode LoadBalancerIngress where
                ip <- decodeMaybe "ip" a
                pure $ LoadBalancerIngress { hostname, ip }
 instance encodeLoadBalancerIngress :: Encode LoadBalancerIngress where
-  encode (LoadBalancerIngress a) = encode $ StrMap.fromFoldable $
+  encode (LoadBalancerIngress a) = encode $ Object.fromFoldable $
                [ Tuple "hostname" (encodeMaybe a.hostname)
                , Tuple "ip" (encodeMaybe a.ip) ]
 
@@ -2635,7 +2637,7 @@ instance decodeLoadBalancerStatus :: Decode LoadBalancerStatus where
                ingress <- decodeMaybe "ingress" a
                pure $ LoadBalancerStatus { ingress }
 instance encodeLoadBalancerStatus :: Encode LoadBalancerStatus where
-  encode (LoadBalancerStatus a) = encode $ StrMap.fromFoldable $
+  encode (LoadBalancerStatus a) = encode $ Object.fromFoldable $
                [ Tuple "ingress" (encodeMaybe a.ingress) ]
 
 
@@ -2658,7 +2660,7 @@ instance decodeLocalObjectReference :: Decode LocalObjectReference where
                name <- decodeMaybe "name" a
                pure $ LocalObjectReference { name }
 instance encodeLocalObjectReference :: Encode LocalObjectReference where
-  encode (LocalObjectReference a) = encode $ StrMap.fromFoldable $
+  encode (LocalObjectReference a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name) ]
 
 
@@ -2681,7 +2683,7 @@ instance decodeLocalVolumeSource :: Decode LocalVolumeSource where
                path <- decodeMaybe "path" a
                pure $ LocalVolumeSource { path }
 instance encodeLocalVolumeSource :: Encode LocalVolumeSource where
-  encode (LocalVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (LocalVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "path" (encodeMaybe a.path) ]
 
 
@@ -2710,7 +2712,7 @@ instance decodeNFSVolumeSource :: Decode NFSVolumeSource where
                server <- decodeMaybe "server" a
                pure $ NFSVolumeSource { path, readOnly, server }
 instance encodeNFSVolumeSource :: Encode NFSVolumeSource where
-  encode (NFSVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (NFSVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "path" (encodeMaybe a.path)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "server" (encodeMaybe a.server) ]
@@ -2745,7 +2747,7 @@ instance decodeNamespace :: Decode Namespace where
                status <- decodeMaybe "status" a
                pure $ Namespace { metadata, spec, status }
 instance encodeNamespace :: Encode Namespace where
-  encode (Namespace a) = encode $ StrMap.fromFoldable $
+  encode (Namespace a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "Namespace")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -2779,7 +2781,7 @@ instance decodeNamespaceList :: Decode NamespaceList where
                metadata <- decodeMaybe "metadata" a
                pure $ NamespaceList { items, metadata }
 instance encodeNamespaceList :: Encode NamespaceList where
-  encode (NamespaceList a) = encode $ StrMap.fromFoldable $
+  encode (NamespaceList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "NamespaceList")
@@ -2806,7 +2808,7 @@ instance decodeNamespaceSpec :: Decode NamespaceSpec where
                finalizers <- decodeMaybe "finalizers" a
                pure $ NamespaceSpec { finalizers }
 instance encodeNamespaceSpec :: Encode NamespaceSpec where
-  encode (NamespaceSpec a) = encode $ StrMap.fromFoldable $
+  encode (NamespaceSpec a) = encode $ Object.fromFoldable $
                [ Tuple "finalizers" (encodeMaybe a.finalizers) ]
 
 
@@ -2829,7 +2831,7 @@ instance decodeNamespaceStatus :: Decode NamespaceStatus where
                phase <- decodeMaybe "phase" a
                pure $ NamespaceStatus { phase }
 instance encodeNamespaceStatus :: Encode NamespaceStatus where
-  encode (NamespaceStatus a) = encode $ StrMap.fromFoldable $
+  encode (NamespaceStatus a) = encode $ Object.fromFoldable $
                [ Tuple "phase" (encodeMaybe a.phase) ]
 
 
@@ -2860,7 +2862,7 @@ instance decodeNode :: Decode Node where
                status <- decodeMaybe "status" a
                pure $ Node { metadata, spec, status }
 instance encodeNode :: Encode Node where
-  encode (Node a) = encode $ StrMap.fromFoldable $
+  encode (Node a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "Node")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -2892,7 +2894,7 @@ instance decodeNodeAddress :: Decode NodeAddress where
                address <- decodeMaybe "address" a
                pure $ NodeAddress { _type, address }
 instance encodeNodeAddress :: Encode NodeAddress where
-  encode (NodeAddress a) = encode $ StrMap.fromFoldable $
+  encode (NodeAddress a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "address" (encodeMaybe a.address) ]
 
@@ -2920,7 +2922,7 @@ instance decodeNodeAffinity :: Decode NodeAffinity where
                requiredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "requiredDuringSchedulingIgnoredDuringExecution" a
                pure $ NodeAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodeNodeAffinity :: Encode NodeAffinity where
-  encode (NodeAffinity a) = encode $ StrMap.fromFoldable $
+  encode (NodeAffinity a) = encode $ Object.fromFoldable $
                [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.preferredDuringSchedulingIgnoredDuringExecution)
                , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.requiredDuringSchedulingIgnoredDuringExecution) ]
 
@@ -2960,7 +2962,7 @@ instance decodeNodeCondition :: Decode NodeCondition where
                status <- decodeMaybe "status" a
                pure $ NodeCondition { _type, lastHeartbeatTime, lastTransitionTime, message, reason, status }
 instance encodeNodeCondition :: Encode NodeCondition where
-  encode (NodeCondition a) = encode $ StrMap.fromFoldable $
+  encode (NodeCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastHeartbeatTime" (encodeMaybe a.lastHeartbeatTime)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
@@ -2995,7 +2997,7 @@ instance decodeNodeConfigSource :: Decode NodeConfigSource where
                assertPropEq "kind" "NodeConfigSource" a
                pure $ NodeConfigSource { configMapRef }
 instance encodeNodeConfigSource :: Encode NodeConfigSource where
-  encode (NodeConfigSource a) = encode $ StrMap.fromFoldable $
+  encode (NodeConfigSource a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "configMapRef" (encodeMaybe a.configMapRef)
                , Tuple "kind" (encode "NodeConfigSource") ]
@@ -3020,7 +3022,7 @@ instance decodeNodeDaemonEndpoints :: Decode NodeDaemonEndpoints where
                kubeletEndpoint <- decodeMaybe "kubeletEndpoint" a
                pure $ NodeDaemonEndpoints { kubeletEndpoint }
 instance encodeNodeDaemonEndpoints :: Encode NodeDaemonEndpoints where
-  encode (NodeDaemonEndpoints a) = encode $ StrMap.fromFoldable $
+  encode (NodeDaemonEndpoints a) = encode $ Object.fromFoldable $
                [ Tuple "kubeletEndpoint" (encodeMaybe a.kubeletEndpoint) ]
 
 
@@ -3048,7 +3050,7 @@ instance decodeNodeList :: Decode NodeList where
                metadata <- decodeMaybe "metadata" a
                pure $ NodeList { items, metadata }
 instance encodeNodeList :: Encode NodeList where
-  encode (NodeList a) = encode $ StrMap.fromFoldable $
+  encode (NodeList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "NodeList")
@@ -3075,7 +3077,7 @@ instance decodeNodeSelector :: Decode NodeSelector where
                nodeSelectorTerms <- decodeMaybe "nodeSelectorTerms" a
                pure $ NodeSelector { nodeSelectorTerms }
 instance encodeNodeSelector :: Encode NodeSelector where
-  encode (NodeSelector a) = encode $ StrMap.fromFoldable $
+  encode (NodeSelector a) = encode $ Object.fromFoldable $
                [ Tuple "nodeSelectorTerms" (encodeMaybe a.nodeSelectorTerms) ]
 
 
@@ -3104,7 +3106,7 @@ instance decodeNodeSelectorRequirement :: Decode NodeSelectorRequirement where
                values <- decodeMaybe "values" a
                pure $ NodeSelectorRequirement { key, operator, values }
 instance encodeNodeSelectorRequirement :: Encode NodeSelectorRequirement where
-  encode (NodeSelectorRequirement a) = encode $ StrMap.fromFoldable $
+  encode (NodeSelectorRequirement a) = encode $ Object.fromFoldable $
                [ Tuple "key" (encodeMaybe a.key)
                , Tuple "operator" (encodeMaybe a.operator)
                , Tuple "values" (encodeMaybe a.values) ]
@@ -3131,7 +3133,7 @@ instance decodeNodeSelectorTerm :: Decode NodeSelectorTerm where
                matchExpressions <- decodeMaybe "matchExpressions" a
                pure $ NodeSelectorTerm { matchExpressions }
 instance encodeNodeSelectorTerm :: Encode NodeSelectorTerm where
-  encode (NodeSelectorTerm a) = encode $ StrMap.fromFoldable $
+  encode (NodeSelectorTerm a) = encode $ Object.fromFoldable $
                [ Tuple "matchExpressions" (encodeMaybe a.matchExpressions) ]
 
 
@@ -3169,7 +3171,7 @@ instance decodeNodeSpec :: Decode NodeSpec where
                unschedulable <- decodeMaybe "unschedulable" a
                pure $ NodeSpec { configSource, externalID, podCIDR, providerID, taints, unschedulable }
 instance encodeNodeSpec :: Encode NodeSpec where
-  encode (NodeSpec a) = encode $ StrMap.fromFoldable $
+  encode (NodeSpec a) = encode $ Object.fromFoldable $
                [ Tuple "configSource" (encodeMaybe a.configSource)
                , Tuple "externalID" (encodeMaybe a.externalID)
                , Tuple "podCIDR" (encodeMaybe a.podCIDR)
@@ -3202,8 +3204,8 @@ instance defaultNodeSpec :: Default NodeSpec where
 -- | - `volumesInUse`: List of attachable volumes in use (mounted) by the node.
 newtype NodeStatus = NodeStatus
   { addresses :: (Maybe (Array NodeAddress))
-  , allocatable :: (Maybe (StrMap Resource.Quantity))
-  , capacity :: (Maybe (StrMap Resource.Quantity))
+  , allocatable :: (Maybe (Object Resource.Quantity))
+  , capacity :: (Maybe (Object Resource.Quantity))
   , conditions :: (Maybe (Array NodeCondition))
   , daemonEndpoints :: (Maybe NodeDaemonEndpoints)
   , images :: (Maybe (Array ContainerImage))
@@ -3229,7 +3231,7 @@ instance decodeNodeStatus :: Decode NodeStatus where
                volumesInUse <- decodeMaybe "volumesInUse" a
                pure $ NodeStatus { addresses, allocatable, capacity, conditions, daemonEndpoints, images, nodeInfo, phase, volumesAttached, volumesInUse }
 instance encodeNodeStatus :: Encode NodeStatus where
-  encode (NodeStatus a) = encode $ StrMap.fromFoldable $
+  encode (NodeStatus a) = encode $ Object.fromFoldable $
                [ Tuple "addresses" (encodeMaybe a.addresses)
                , Tuple "allocatable" (encodeMaybe a.allocatable)
                , Tuple "capacity" (encodeMaybe a.capacity)
@@ -3297,7 +3299,7 @@ instance decodeNodeSystemInfo :: Decode NodeSystemInfo where
                systemUUID <- decodeMaybe "systemUUID" a
                pure $ NodeSystemInfo { architecture, bootID, containerRuntimeVersion, kernelVersion, kubeProxyVersion, kubeletVersion, machineID, operatingSystem, osImage, systemUUID }
 instance encodeNodeSystemInfo :: Encode NodeSystemInfo where
-  encode (NodeSystemInfo a) = encode $ StrMap.fromFoldable $
+  encode (NodeSystemInfo a) = encode $ Object.fromFoldable $
                [ Tuple "architecture" (encodeMaybe a.architecture)
                , Tuple "bootID" (encodeMaybe a.bootID)
                , Tuple "containerRuntimeVersion" (encodeMaybe a.containerRuntimeVersion)
@@ -3341,7 +3343,7 @@ instance decodeObjectFieldSelector :: Decode ObjectFieldSelector where
                fieldPath <- decodeMaybe "fieldPath" a
                pure $ ObjectFieldSelector { apiVersion, fieldPath }
 instance encodeObjectFieldSelector :: Encode ObjectFieldSelector where
-  encode (ObjectFieldSelector a) = encode $ StrMap.fromFoldable $
+  encode (ObjectFieldSelector a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "fieldPath" (encodeMaybe a.fieldPath) ]
 
@@ -3384,7 +3386,7 @@ instance decodeObjectReference :: Decode ObjectReference where
                uid <- decodeMaybe "uid" a
                pure $ ObjectReference { apiVersion, fieldPath, kind, name, namespace, resourceVersion, uid }
 instance encodeObjectReference :: Encode ObjectReference where
-  encode (ObjectReference a) = encode $ StrMap.fromFoldable $
+  encode (ObjectReference a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "fieldPath" (encodeMaybe a.fieldPath)
                , Tuple "kind" (encodeMaybe a.kind)
@@ -3427,7 +3429,7 @@ instance decodePersistentVolume :: Decode PersistentVolume where
                status <- decodeMaybe "status" a
                pure $ PersistentVolume { metadata, spec, status }
 instance encodePersistentVolume :: Encode PersistentVolume where
-  encode (PersistentVolume a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolume a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "PersistentVolume")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -3464,7 +3466,7 @@ instance decodePersistentVolumeClaim :: Decode PersistentVolumeClaim where
                status <- decodeMaybe "status" a
                pure $ PersistentVolumeClaim { metadata, spec, status }
 instance encodePersistentVolumeClaim :: Encode PersistentVolumeClaim where
-  encode (PersistentVolumeClaim a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeClaim a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "PersistentVolumeClaim")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -3508,7 +3510,7 @@ instance decodePersistentVolumeClaimCondition :: Decode PersistentVolumeClaimCon
                status <- decodeMaybe "status" a
                pure $ PersistentVolumeClaimCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodePersistentVolumeClaimCondition :: Encode PersistentVolumeClaimCondition where
-  encode (PersistentVolumeClaimCondition a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeClaimCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastProbeTime" (encodeMaybe a.lastProbeTime)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
@@ -3546,7 +3548,7 @@ instance decodePersistentVolumeClaimList :: Decode PersistentVolumeClaimList whe
                metadata <- decodeMaybe "metadata" a
                pure $ PersistentVolumeClaimList { items, metadata }
 instance encodePersistentVolumeClaimList :: Encode PersistentVolumeClaimList where
-  encode (PersistentVolumeClaimList a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeClaimList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "PersistentVolumeClaimList")
@@ -3588,7 +3590,7 @@ instance decodePersistentVolumeClaimSpec :: Decode PersistentVolumeClaimSpec whe
                volumeName <- decodeMaybe "volumeName" a
                pure $ PersistentVolumeClaimSpec { accessModes, resources, selector, storageClassName, volumeMode, volumeName }
 instance encodePersistentVolumeClaimSpec :: Encode PersistentVolumeClaimSpec where
-  encode (PersistentVolumeClaimSpec a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeClaimSpec a) = encode $ Object.fromFoldable $
                [ Tuple "accessModes" (encodeMaybe a.accessModes)
                , Tuple "resources" (encodeMaybe a.resources)
                , Tuple "selector" (encodeMaybe a.selector)
@@ -3615,7 +3617,7 @@ instance defaultPersistentVolumeClaimSpec :: Default PersistentVolumeClaimSpec w
 -- | - `phase`: Phase represents the current phase of PersistentVolumeClaim.
 newtype PersistentVolumeClaimStatus = PersistentVolumeClaimStatus
   { accessModes :: (Maybe (Array String))
-  , capacity :: (Maybe (StrMap Resource.Quantity))
+  , capacity :: (Maybe (Object Resource.Quantity))
   , conditions :: (Maybe (Array PersistentVolumeClaimCondition))
   , phase :: (Maybe String) }
 
@@ -3630,7 +3632,7 @@ instance decodePersistentVolumeClaimStatus :: Decode PersistentVolumeClaimStatus
                phase <- decodeMaybe "phase" a
                pure $ PersistentVolumeClaimStatus { accessModes, capacity, conditions, phase }
 instance encodePersistentVolumeClaimStatus :: Encode PersistentVolumeClaimStatus where
-  encode (PersistentVolumeClaimStatus a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeClaimStatus a) = encode $ Object.fromFoldable $
                [ Tuple "accessModes" (encodeMaybe a.accessModes)
                , Tuple "capacity" (encodeMaybe a.capacity)
                , Tuple "conditions" (encodeMaybe a.conditions)
@@ -3662,7 +3664,7 @@ instance decodePersistentVolumeClaimVolumeSource :: Decode PersistentVolumeClaim
                readOnly <- decodeMaybe "readOnly" a
                pure $ PersistentVolumeClaimVolumeSource { claimName, readOnly }
 instance encodePersistentVolumeClaimVolumeSource :: Encode PersistentVolumeClaimVolumeSource where
-  encode (PersistentVolumeClaimVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeClaimVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "claimName" (encodeMaybe a.claimName)
                , Tuple "readOnly" (encodeMaybe a.readOnly) ]
 
@@ -3692,7 +3694,7 @@ instance decodePersistentVolumeList :: Decode PersistentVolumeList where
                metadata <- decodeMaybe "metadata" a
                pure $ PersistentVolumeList { items, metadata }
 instance encodePersistentVolumeList :: Encode PersistentVolumeList where
-  encode (PersistentVolumeList a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "PersistentVolumeList")
@@ -3741,7 +3743,7 @@ newtype PersistentVolumeSpec = PersistentVolumeSpec
   , awsElasticBlockStore :: (Maybe AWSElasticBlockStoreVolumeSource)
   , azureDisk :: (Maybe AzureDiskVolumeSource)
   , azureFile :: (Maybe AzureFilePersistentVolumeSource)
-  , capacity :: (Maybe (StrMap Resource.Quantity))
+  , capacity :: (Maybe (Object Resource.Quantity))
   , cephfs :: (Maybe CephFSPersistentVolumeSource)
   , cinder :: (Maybe CinderVolumeSource)
   , claimRef :: (Maybe ObjectReference)
@@ -3803,7 +3805,7 @@ instance decodePersistentVolumeSpec :: Decode PersistentVolumeSpec where
                vsphereVolume <- decodeMaybe "vsphereVolume" a
                pure $ PersistentVolumeSpec { accessModes, awsElasticBlockStore, azureDisk, azureFile, capacity, cephfs, cinder, claimRef, csi, fc, flexVolume, flocker, gcePersistentDisk, glusterfs, hostPath, iscsi, local, mountOptions, nfs, persistentVolumeReclaimPolicy, photonPersistentDisk, portworxVolume, quobyte, rbd, scaleIO, storageClassName, storageos, volumeMode, vsphereVolume }
 instance encodePersistentVolumeSpec :: Encode PersistentVolumeSpec where
-  encode (PersistentVolumeSpec a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeSpec a) = encode $ Object.fromFoldable $
                [ Tuple "accessModes" (encodeMaybe a.accessModes)
                , Tuple "awsElasticBlockStore" (encodeMaybe a.awsElasticBlockStore)
                , Tuple "azureDisk" (encodeMaybe a.azureDisk)
@@ -3888,7 +3890,7 @@ instance decodePersistentVolumeStatus :: Decode PersistentVolumeStatus where
                reason <- decodeMaybe "reason" a
                pure $ PersistentVolumeStatus { message, phase, reason }
 instance encodePersistentVolumeStatus :: Encode PersistentVolumeStatus where
-  encode (PersistentVolumeStatus a) = encode $ StrMap.fromFoldable $
+  encode (PersistentVolumeStatus a) = encode $ Object.fromFoldable $
                [ Tuple "message" (encodeMaybe a.message)
                , Tuple "phase" (encodeMaybe a.phase)
                , Tuple "reason" (encodeMaybe a.reason) ]
@@ -3918,7 +3920,7 @@ instance decodePhotonPersistentDiskVolumeSource :: Decode PhotonPersistentDiskVo
                pdID <- decodeMaybe "pdID" a
                pure $ PhotonPersistentDiskVolumeSource { fsType, pdID }
 instance encodePhotonPersistentDiskVolumeSource :: Encode PhotonPersistentDiskVolumeSource where
-  encode (PhotonPersistentDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (PhotonPersistentDiskVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "pdID" (encodeMaybe a.pdID) ]
 
@@ -3951,7 +3953,7 @@ instance decodePod :: Decode Pod where
                status <- decodeMaybe "status" a
                pure $ Pod { metadata, spec, status }
 instance encodePod :: Encode Pod where
-  encode (Pod a) = encode $ StrMap.fromFoldable $
+  encode (Pod a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "Pod")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -3983,7 +3985,7 @@ instance decodePodAffinity :: Decode PodAffinity where
                requiredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "requiredDuringSchedulingIgnoredDuringExecution" a
                pure $ PodAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodePodAffinity :: Encode PodAffinity where
-  encode (PodAffinity a) = encode $ StrMap.fromFoldable $
+  encode (PodAffinity a) = encode $ Object.fromFoldable $
                [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.preferredDuringSchedulingIgnoredDuringExecution)
                , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.requiredDuringSchedulingIgnoredDuringExecution) ]
 
@@ -4014,7 +4016,7 @@ instance decodePodAffinityTerm :: Decode PodAffinityTerm where
                topologyKey <- decodeMaybe "topologyKey" a
                pure $ PodAffinityTerm { labelSelector, namespaces, topologyKey }
 instance encodePodAffinityTerm :: Encode PodAffinityTerm where
-  encode (PodAffinityTerm a) = encode $ StrMap.fromFoldable $
+  encode (PodAffinityTerm a) = encode $ Object.fromFoldable $
                [ Tuple "labelSelector" (encodeMaybe a.labelSelector)
                , Tuple "namespaces" (encodeMaybe a.namespaces)
                , Tuple "topologyKey" (encodeMaybe a.topologyKey) ]
@@ -4044,7 +4046,7 @@ instance decodePodAntiAffinity :: Decode PodAntiAffinity where
                requiredDuringSchedulingIgnoredDuringExecution <- decodeMaybe "requiredDuringSchedulingIgnoredDuringExecution" a
                pure $ PodAntiAffinity { preferredDuringSchedulingIgnoredDuringExecution, requiredDuringSchedulingIgnoredDuringExecution }
 instance encodePodAntiAffinity :: Encode PodAntiAffinity where
-  encode (PodAntiAffinity a) = encode $ StrMap.fromFoldable $
+  encode (PodAntiAffinity a) = encode $ Object.fromFoldable $
                [ Tuple "preferredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.preferredDuringSchedulingIgnoredDuringExecution)
                , Tuple "requiredDuringSchedulingIgnoredDuringExecution" (encodeMaybe a.requiredDuringSchedulingIgnoredDuringExecution) ]
 
@@ -4084,7 +4086,7 @@ instance decodePodCondition :: Decode PodCondition where
                status <- decodeMaybe "status" a
                pure $ PodCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodePodCondition :: Encode PodCondition where
-  encode (PodCondition a) = encode $ StrMap.fromFoldable $
+  encode (PodCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastProbeTime" (encodeMaybe a.lastProbeTime)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
@@ -4123,7 +4125,7 @@ instance decodePodDNSConfig :: Decode PodDNSConfig where
                searches <- decodeMaybe "searches" a
                pure $ PodDNSConfig { nameservers, options, searches }
 instance encodePodDNSConfig :: Encode PodDNSConfig where
-  encode (PodDNSConfig a) = encode $ StrMap.fromFoldable $
+  encode (PodDNSConfig a) = encode $ Object.fromFoldable $
                [ Tuple "nameservers" (encodeMaybe a.nameservers)
                , Tuple "options" (encodeMaybe a.options)
                , Tuple "searches" (encodeMaybe a.searches) ]
@@ -4153,7 +4155,7 @@ instance decodePodDNSConfigOption :: Decode PodDNSConfigOption where
                value <- decodeMaybe "value" a
                pure $ PodDNSConfigOption { name, value }
 instance encodePodDNSConfigOption :: Encode PodDNSConfigOption where
-  encode (PodDNSConfigOption a) = encode $ StrMap.fromFoldable $
+  encode (PodDNSConfigOption a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "value" (encodeMaybe a.value) ]
 
@@ -4183,7 +4185,7 @@ instance decodePodList :: Decode PodList where
                metadata <- decodeMaybe "metadata" a
                pure $ PodList { items, metadata }
 instance encodePodList :: Encode PodList where
-  encode (PodList a) = encode $ StrMap.fromFoldable $
+  encode (PodList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "PodList")
@@ -4226,7 +4228,7 @@ instance decodePodSecurityContext :: Decode PodSecurityContext where
                supplementalGroups <- decodeMaybe "supplementalGroups" a
                pure $ PodSecurityContext { fsGroup, runAsNonRoot, runAsUser, seLinuxOptions, supplementalGroups }
 instance encodePodSecurityContext :: Encode PodSecurityContext where
-  encode (PodSecurityContext a) = encode $ StrMap.fromFoldable $
+  encode (PodSecurityContext a) = encode $ Object.fromFoldable $
                [ Tuple "fsGroup" (encodeMaybe a.fsGroup)
                , Tuple "runAsNonRoot" (encodeMaybe a.runAsNonRoot)
                , Tuple "runAsUser" (encodeMaybe a.runAsUser)
@@ -4286,7 +4288,7 @@ newtype PodSpec = PodSpec
   , imagePullSecrets :: (Maybe (Array LocalObjectReference))
   , initContainers :: (Maybe (Array Container))
   , nodeName :: (Maybe String)
-  , nodeSelector :: (Maybe (StrMap String))
+  , nodeSelector :: (Maybe (Object String))
   , priority :: (Maybe Int)
   , priorityClassName :: (Maybe String)
   , restartPolicy :: (Maybe String)
@@ -4332,7 +4334,7 @@ instance decodePodSpec :: Decode PodSpec where
                volumes <- decodeMaybe "volumes" a
                pure $ PodSpec { activeDeadlineSeconds, affinity, automountServiceAccountToken, containers, dnsConfig, dnsPolicy, hostAliases, hostIPC, hostNetwork, hostPID, hostname, imagePullSecrets, initContainers, nodeName, nodeSelector, priority, priorityClassName, restartPolicy, schedulerName, securityContext, serviceAccount, serviceAccountName, subdomain, terminationGracePeriodSeconds, tolerations, volumes }
 instance encodePodSpec :: Encode PodSpec where
-  encode (PodSpec a) = encode $ StrMap.fromFoldable $
+  encode (PodSpec a) = encode $ Object.fromFoldable $
                [ Tuple "activeDeadlineSeconds" (encodeMaybe a.activeDeadlineSeconds)
                , Tuple "affinity" (encodeMaybe a.affinity)
                , Tuple "automountServiceAccountToken" (encodeMaybe a.automountServiceAccountToken)
@@ -4432,7 +4434,7 @@ instance decodePodStatus :: Decode PodStatus where
                startTime <- decodeMaybe "startTime" a
                pure $ PodStatus { conditions, containerStatuses, hostIP, initContainerStatuses, message, phase, podIP, qosClass, reason, startTime }
 instance encodePodStatus :: Encode PodStatus where
-  encode (PodStatus a) = encode $ StrMap.fromFoldable $
+  encode (PodStatus a) = encode $ Object.fromFoldable $
                [ Tuple "conditions" (encodeMaybe a.conditions)
                , Tuple "containerStatuses" (encodeMaybe a.containerStatuses)
                , Tuple "hostIP" (encodeMaybe a.hostIP)
@@ -4478,7 +4480,7 @@ instance decodePodTemplate :: Decode PodTemplate where
                template <- decodeMaybe "template" a
                pure $ PodTemplate { metadata, template }
 instance encodePodTemplate :: Encode PodTemplate where
-  encode (PodTemplate a) = encode $ StrMap.fromFoldable $
+  encode (PodTemplate a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "PodTemplate")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -4510,7 +4512,7 @@ instance decodePodTemplateList :: Decode PodTemplateList where
                metadata <- decodeMaybe "metadata" a
                pure $ PodTemplateList { items, metadata }
 instance encodePodTemplateList :: Encode PodTemplateList where
-  encode (PodTemplateList a) = encode $ StrMap.fromFoldable $
+  encode (PodTemplateList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "PodTemplateList")
@@ -4540,7 +4542,7 @@ instance decodePodTemplateSpec :: Decode PodTemplateSpec where
                spec <- decodeMaybe "spec" a
                pure $ PodTemplateSpec { metadata, spec }
 instance encodePodTemplateSpec :: Encode PodTemplateSpec where
-  encode (PodTemplateSpec a) = encode $ StrMap.fromFoldable $
+  encode (PodTemplateSpec a) = encode $ Object.fromFoldable $
                [ Tuple "metadata" (encodeMaybe a.metadata)
                , Tuple "spec" (encodeMaybe a.spec) ]
 
@@ -4571,7 +4573,7 @@ instance decodePortworxVolumeSource :: Decode PortworxVolumeSource where
                volumeID <- decodeMaybe "volumeID" a
                pure $ PortworxVolumeSource { fsType, readOnly, volumeID }
 instance encodePortworxVolumeSource :: Encode PortworxVolumeSource where
-  encode (PortworxVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (PortworxVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "volumeID" (encodeMaybe a.volumeID) ]
@@ -4601,7 +4603,7 @@ instance decodePreferredSchedulingTerm :: Decode PreferredSchedulingTerm where
                weight <- decodeMaybe "weight" a
                pure $ PreferredSchedulingTerm { preference, weight }
 instance encodePreferredSchedulingTerm :: Encode PreferredSchedulingTerm where
-  encode (PreferredSchedulingTerm a) = encode $ StrMap.fromFoldable $
+  encode (PreferredSchedulingTerm a) = encode $ Object.fromFoldable $
                [ Tuple "preference" (encodeMaybe a.preference)
                , Tuple "weight" (encodeMaybe a.weight) ]
 
@@ -4647,7 +4649,7 @@ instance decodeProbe :: Decode Probe where
                timeoutSeconds <- decodeMaybe "timeoutSeconds" a
                pure $ Probe { exec, failureThreshold, httpGet, initialDelaySeconds, periodSeconds, successThreshold, tcpSocket, timeoutSeconds }
 instance encodeProbe :: Encode Probe where
-  encode (Probe a) = encode $ StrMap.fromFoldable $
+  encode (Probe a) = encode $ Object.fromFoldable $
                [ Tuple "exec" (encodeMaybe a.exec)
                , Tuple "failureThreshold" (encodeMaybe a.failureThreshold)
                , Tuple "httpGet" (encodeMaybe a.httpGet)
@@ -4687,7 +4689,7 @@ instance decodeProjectedVolumeSource :: Decode ProjectedVolumeSource where
                sources <- decodeMaybe "sources" a
                pure $ ProjectedVolumeSource { defaultMode, sources }
 instance encodeProjectedVolumeSource :: Encode ProjectedVolumeSource where
-  encode (ProjectedVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (ProjectedVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
                , Tuple "sources" (encodeMaybe a.sources) ]
 
@@ -4724,7 +4726,7 @@ instance decodeQuobyteVolumeSource :: Decode QuobyteVolumeSource where
                volume <- decodeMaybe "volume" a
                pure $ QuobyteVolumeSource { group, readOnly, registry, user, volume }
 instance encodeQuobyteVolumeSource :: Encode QuobyteVolumeSource where
-  encode (QuobyteVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (QuobyteVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "group" (encodeMaybe a.group)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "registry" (encodeMaybe a.registry)
@@ -4776,7 +4778,7 @@ instance decodeRBDPersistentVolumeSource :: Decode RBDPersistentVolumeSource whe
                user <- decodeMaybe "user" a
                pure $ RBDPersistentVolumeSource { fsType, image, keyring, monitors, pool, readOnly, secretRef, user }
 instance encodeRBDPersistentVolumeSource :: Encode RBDPersistentVolumeSource where
-  encode (RBDPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (RBDPersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "image" (encodeMaybe a.image)
                , Tuple "keyring" (encodeMaybe a.keyring)
@@ -4834,7 +4836,7 @@ instance decodeRBDVolumeSource :: Decode RBDVolumeSource where
                user <- decodeMaybe "user" a
                pure $ RBDVolumeSource { fsType, image, keyring, monitors, pool, readOnly, secretRef, user }
 instance encodeRBDVolumeSource :: Encode RBDVolumeSource where
-  encode (RBDVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (RBDVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "image" (encodeMaybe a.image)
                , Tuple "keyring" (encodeMaybe a.keyring)
@@ -4879,7 +4881,7 @@ instance decodeReplicationController :: Decode ReplicationController where
                status <- decodeMaybe "status" a
                pure $ ReplicationController { metadata, spec, status }
 instance encodeReplicationController :: Encode ReplicationController where
-  encode (ReplicationController a) = encode $ StrMap.fromFoldable $
+  encode (ReplicationController a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "ReplicationController")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -4920,7 +4922,7 @@ instance decodeReplicationControllerCondition :: Decode ReplicationControllerCon
                status <- decodeMaybe "status" a
                pure $ ReplicationControllerCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeReplicationControllerCondition :: Encode ReplicationControllerCondition where
-  encode (ReplicationControllerCondition a) = encode $ StrMap.fromFoldable $
+  encode (ReplicationControllerCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -4956,7 +4958,7 @@ instance decodeReplicationControllerList :: Decode ReplicationControllerList whe
                metadata <- decodeMaybe "metadata" a
                pure $ ReplicationControllerList { items, metadata }
 instance encodeReplicationControllerList :: Encode ReplicationControllerList where
-  encode (ReplicationControllerList a) = encode $ StrMap.fromFoldable $
+  encode (ReplicationControllerList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ReplicationControllerList")
@@ -4978,7 +4980,7 @@ instance defaultReplicationControllerList :: Default ReplicationControllerList w
 newtype ReplicationControllerSpec = ReplicationControllerSpec
   { minReadySeconds :: (Maybe Int)
   , replicas :: (Maybe Int)
-  , selector :: (Maybe (StrMap String))
+  , selector :: (Maybe (Object String))
   , template :: (Maybe PodTemplateSpec) }
 
 derive instance newtypeReplicationControllerSpec :: Newtype ReplicationControllerSpec _
@@ -4992,7 +4994,7 @@ instance decodeReplicationControllerSpec :: Decode ReplicationControllerSpec whe
                template <- decodeMaybe "template" a
                pure $ ReplicationControllerSpec { minReadySeconds, replicas, selector, template }
 instance encodeReplicationControllerSpec :: Encode ReplicationControllerSpec where
-  encode (ReplicationControllerSpec a) = encode $ StrMap.fromFoldable $
+  encode (ReplicationControllerSpec a) = encode $ Object.fromFoldable $
                [ Tuple "minReadySeconds" (encodeMaybe a.minReadySeconds)
                , Tuple "replicas" (encodeMaybe a.replicas)
                , Tuple "selector" (encodeMaybe a.selector)
@@ -5036,7 +5038,7 @@ instance decodeReplicationControllerStatus :: Decode ReplicationControllerStatus
                replicas <- decodeMaybe "replicas" a
                pure $ ReplicationControllerStatus { availableReplicas, conditions, fullyLabeledReplicas, observedGeneration, readyReplicas, replicas }
 instance encodeReplicationControllerStatus :: Encode ReplicationControllerStatus where
-  encode (ReplicationControllerStatus a) = encode $ StrMap.fromFoldable $
+  encode (ReplicationControllerStatus a) = encode $ Object.fromFoldable $
                [ Tuple "availableReplicas" (encodeMaybe a.availableReplicas)
                , Tuple "conditions" (encodeMaybe a.conditions)
                , Tuple "fullyLabeledReplicas" (encodeMaybe a.fullyLabeledReplicas)
@@ -5075,7 +5077,7 @@ instance decodeResourceFieldSelector :: Decode ResourceFieldSelector where
                resource <- decodeMaybe "resource" a
                pure $ ResourceFieldSelector { containerName, divisor, resource }
 instance encodeResourceFieldSelector :: Encode ResourceFieldSelector where
-  encode (ResourceFieldSelector a) = encode $ StrMap.fromFoldable $
+  encode (ResourceFieldSelector a) = encode $ Object.fromFoldable $
                [ Tuple "containerName" (encodeMaybe a.containerName)
                , Tuple "divisor" (encodeMaybe a.divisor)
                , Tuple "resource" (encodeMaybe a.resource) ]
@@ -5110,7 +5112,7 @@ instance decodeResourceQuota :: Decode ResourceQuota where
                status <- decodeMaybe "status" a
                pure $ ResourceQuota { metadata, spec, status }
 instance encodeResourceQuota :: Encode ResourceQuota where
-  encode (ResourceQuota a) = encode $ StrMap.fromFoldable $
+  encode (ResourceQuota a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "ResourceQuota")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -5144,7 +5146,7 @@ instance decodeResourceQuotaList :: Decode ResourceQuotaList where
                metadata <- decodeMaybe "metadata" a
                pure $ ResourceQuotaList { items, metadata }
 instance encodeResourceQuotaList :: Encode ResourceQuotaList where
-  encode (ResourceQuotaList a) = encode $ StrMap.fromFoldable $
+  encode (ResourceQuotaList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ResourceQuotaList")
@@ -5162,7 +5164,7 @@ instance defaultResourceQuotaList :: Default ResourceQuotaList where
 -- | - `hard`: Hard is the set of desired hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 -- | - `scopes`: A collection of filters that must match each object tracked by a quota. If not specified, the quota matches all objects.
 newtype ResourceQuotaSpec = ResourceQuotaSpec
-  { hard :: (Maybe (StrMap Resource.Quantity))
+  { hard :: (Maybe (Object Resource.Quantity))
   , scopes :: (Maybe (Array String)) }
 
 derive instance newtypeResourceQuotaSpec :: Newtype ResourceQuotaSpec _
@@ -5174,7 +5176,7 @@ instance decodeResourceQuotaSpec :: Decode ResourceQuotaSpec where
                scopes <- decodeMaybe "scopes" a
                pure $ ResourceQuotaSpec { hard, scopes }
 instance encodeResourceQuotaSpec :: Encode ResourceQuotaSpec where
-  encode (ResourceQuotaSpec a) = encode $ StrMap.fromFoldable $
+  encode (ResourceQuotaSpec a) = encode $ Object.fromFoldable $
                [ Tuple "hard" (encodeMaybe a.hard)
                , Tuple "scopes" (encodeMaybe a.scopes) ]
 
@@ -5190,8 +5192,8 @@ instance defaultResourceQuotaSpec :: Default ResourceQuotaSpec where
 -- | - `hard`: Hard is the set of enforced hard limits for each named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/
 -- | - `used`: Used is the current observed total usage of the resource in the namespace.
 newtype ResourceQuotaStatus = ResourceQuotaStatus
-  { hard :: (Maybe (StrMap Resource.Quantity))
-  , used :: (Maybe (StrMap Resource.Quantity)) }
+  { hard :: (Maybe (Object Resource.Quantity))
+  , used :: (Maybe (Object Resource.Quantity)) }
 
 derive instance newtypeResourceQuotaStatus :: Newtype ResourceQuotaStatus _
 derive instance genericResourceQuotaStatus :: Generic ResourceQuotaStatus _
@@ -5202,7 +5204,7 @@ instance decodeResourceQuotaStatus :: Decode ResourceQuotaStatus where
                used <- decodeMaybe "used" a
                pure $ ResourceQuotaStatus { hard, used }
 instance encodeResourceQuotaStatus :: Encode ResourceQuotaStatus where
-  encode (ResourceQuotaStatus a) = encode $ StrMap.fromFoldable $
+  encode (ResourceQuotaStatus a) = encode $ Object.fromFoldable $
                [ Tuple "hard" (encodeMaybe a.hard)
                , Tuple "used" (encodeMaybe a.used) ]
 
@@ -5218,8 +5220,8 @@ instance defaultResourceQuotaStatus :: Default ResourceQuotaStatus where
 -- | - `limits`: Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 -- | - `requests`: Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 newtype ResourceRequirements = ResourceRequirements
-  { limits :: (Maybe (StrMap Resource.Quantity))
-  , requests :: (Maybe (StrMap Resource.Quantity)) }
+  { limits :: (Maybe (Object Resource.Quantity))
+  , requests :: (Maybe (Object Resource.Quantity)) }
 
 derive instance newtypeResourceRequirements :: Newtype ResourceRequirements _
 derive instance genericResourceRequirements :: Generic ResourceRequirements _
@@ -5230,7 +5232,7 @@ instance decodeResourceRequirements :: Decode ResourceRequirements where
                requests <- decodeMaybe "requests" a
                pure $ ResourceRequirements { limits, requests }
 instance encodeResourceRequirements :: Encode ResourceRequirements where
-  encode (ResourceRequirements a) = encode $ StrMap.fromFoldable $
+  encode (ResourceRequirements a) = encode $ Object.fromFoldable $
                [ Tuple "limits" (encodeMaybe a.limits)
                , Tuple "requests" (encodeMaybe a.requests) ]
 
@@ -5264,7 +5266,7 @@ instance decodeSELinuxOptions :: Decode SELinuxOptions where
                user <- decodeMaybe "user" a
                pure $ SELinuxOptions { _type, level, role, user }
 instance encodeSELinuxOptions :: Encode SELinuxOptions where
-  encode (SELinuxOptions a) = encode $ StrMap.fromFoldable $
+  encode (SELinuxOptions a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "level" (encodeMaybe a.level)
                , Tuple "role" (encodeMaybe a.role)
@@ -5320,7 +5322,7 @@ instance decodeScaleIOPersistentVolumeSource :: Decode ScaleIOPersistentVolumeSo
                volumeName <- decodeMaybe "volumeName" a
                pure $ ScaleIOPersistentVolumeSource { fsType, gateway, protectionDomain, readOnly, secretRef, sslEnabled, storageMode, storagePool, system, volumeName }
 instance encodeScaleIOPersistentVolumeSource :: Encode ScaleIOPersistentVolumeSource where
-  encode (ScaleIOPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (ScaleIOPersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "gateway" (encodeMaybe a.gateway)
                , Tuple "protectionDomain" (encodeMaybe a.protectionDomain)
@@ -5388,7 +5390,7 @@ instance decodeScaleIOVolumeSource :: Decode ScaleIOVolumeSource where
                volumeName <- decodeMaybe "volumeName" a
                pure $ ScaleIOVolumeSource { fsType, gateway, protectionDomain, readOnly, secretRef, sslEnabled, storageMode, storagePool, system, volumeName }
 instance encodeScaleIOVolumeSource :: Encode ScaleIOVolumeSource where
-  encode (ScaleIOVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (ScaleIOVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "gateway" (encodeMaybe a.gateway)
                , Tuple "protectionDomain" (encodeMaybe a.protectionDomain)
@@ -5422,10 +5424,10 @@ instance defaultScaleIOVolumeSource :: Default ScaleIOVolumeSource where
 -- | - `metadata`: Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
 -- | - `stringData`: stringData allows specifying non-binary secret data in string form. It is provided as a write-only convenience method. All keys and values are merged into the data field on write, overwriting any existing values. It is never output when reading from the API.
 newtype Secret = Secret
-  { _data :: (Maybe (StrMap String))
+  { _data :: (Maybe (Object String))
   , _type :: (Maybe String)
   , metadata :: (Maybe MetaV1.ObjectMeta)
-  , stringData :: (Maybe (StrMap String)) }
+  , stringData :: (Maybe (Object String)) }
 
 derive instance newtypeSecret :: Newtype Secret _
 derive instance genericSecret :: Generic Secret _
@@ -5440,7 +5442,7 @@ instance decodeSecret :: Decode Secret where
                stringData <- decodeMaybe "stringData" a
                pure $ Secret { _data, _type, metadata, stringData }
 instance encodeSecret :: Encode Secret where
-  encode (Secret a) = encode $ StrMap.fromFoldable $
+  encode (Secret a) = encode $ Object.fromFoldable $
                [ Tuple "_data" (encodeMaybe a._data)
                , Tuple "_type" (encodeMaybe a._type)
                , Tuple "apiVersion" (encode "v1")
@@ -5476,7 +5478,7 @@ instance decodeSecretEnvSource :: Decode SecretEnvSource where
                optional <- decodeMaybe "optional" a
                pure $ SecretEnvSource { name, optional }
 instance encodeSecretEnvSource :: Encode SecretEnvSource where
-  encode (SecretEnvSource a) = encode $ StrMap.fromFoldable $
+  encode (SecretEnvSource a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "optional" (encodeMaybe a.optional) ]
 
@@ -5507,7 +5509,7 @@ instance decodeSecretKeySelector :: Decode SecretKeySelector where
                optional <- decodeMaybe "optional" a
                pure $ SecretKeySelector { key, name, optional }
 instance encodeSecretKeySelector :: Encode SecretKeySelector where
-  encode (SecretKeySelector a) = encode $ StrMap.fromFoldable $
+  encode (SecretKeySelector a) = encode $ Object.fromFoldable $
                [ Tuple "key" (encodeMaybe a.key)
                , Tuple "name" (encodeMaybe a.name)
                , Tuple "optional" (encodeMaybe a.optional) ]
@@ -5539,7 +5541,7 @@ instance decodeSecretList :: Decode SecretList where
                metadata <- decodeMaybe "metadata" a
                pure $ SecretList { items, metadata }
 instance encodeSecretList :: Encode SecretList where
-  encode (SecretList a) = encode $ StrMap.fromFoldable $
+  encode (SecretList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "SecretList")
@@ -5574,7 +5576,7 @@ instance decodeSecretProjection :: Decode SecretProjection where
                optional <- decodeMaybe "optional" a
                pure $ SecretProjection { items, name, optional }
 instance encodeSecretProjection :: Encode SecretProjection where
-  encode (SecretProjection a) = encode $ StrMap.fromFoldable $
+  encode (SecretProjection a) = encode $ Object.fromFoldable $
                [ Tuple "items" (encodeMaybe a.items)
                , Tuple "name" (encodeMaybe a.name)
                , Tuple "optional" (encodeMaybe a.optional) ]
@@ -5604,7 +5606,7 @@ instance decodeSecretReference :: Decode SecretReference where
                namespace <- decodeMaybe "namespace" a
                pure $ SecretReference { name, namespace }
 instance encodeSecretReference :: Encode SecretReference where
-  encode (SecretReference a) = encode $ StrMap.fromFoldable $
+  encode (SecretReference a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "namespace" (encodeMaybe a.namespace) ]
 
@@ -5640,7 +5642,7 @@ instance decodeSecretVolumeSource :: Decode SecretVolumeSource where
                secretName <- decodeMaybe "secretName" a
                pure $ SecretVolumeSource { defaultMode, items, optional, secretName }
 instance encodeSecretVolumeSource :: Encode SecretVolumeSource where
-  encode (SecretVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (SecretVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "defaultMode" (encodeMaybe a.defaultMode)
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "optional" (encodeMaybe a.optional)
@@ -5687,7 +5689,7 @@ instance decodeSecurityContext :: Decode SecurityContext where
                seLinuxOptions <- decodeMaybe "seLinuxOptions" a
                pure $ SecurityContext { allowPrivilegeEscalation, capabilities, privileged, readOnlyRootFilesystem, runAsNonRoot, runAsUser, seLinuxOptions }
 instance encodeSecurityContext :: Encode SecurityContext where
-  encode (SecurityContext a) = encode $ StrMap.fromFoldable $
+  encode (SecurityContext a) = encode $ Object.fromFoldable $
                [ Tuple "allowPrivilegeEscalation" (encodeMaybe a.allowPrivilegeEscalation)
                , Tuple "capabilities" (encodeMaybe a.capabilities)
                , Tuple "privileged" (encodeMaybe a.privileged)
@@ -5730,7 +5732,7 @@ instance decodeService :: Decode Service where
                status <- decodeMaybe "status" a
                pure $ Service { metadata, spec, status }
 instance encodeService :: Encode Service where
-  encode (Service a) = encode $ StrMap.fromFoldable $
+  encode (Service a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "Service")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -5770,7 +5772,7 @@ instance decodeServiceAccount :: Decode ServiceAccount where
                secrets <- decodeMaybe "secrets" a
                pure $ ServiceAccount { automountServiceAccountToken, imagePullSecrets, metadata, secrets }
 instance encodeServiceAccount :: Encode ServiceAccount where
-  encode (ServiceAccount a) = encode $ StrMap.fromFoldable $
+  encode (ServiceAccount a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "automountServiceAccountToken" (encodeMaybe a.automountServiceAccountToken)
                , Tuple "imagePullSecrets" (encodeMaybe a.imagePullSecrets)
@@ -5806,7 +5808,7 @@ instance decodeServiceAccountList :: Decode ServiceAccountList where
                metadata <- decodeMaybe "metadata" a
                pure $ ServiceAccountList { items, metadata }
 instance encodeServiceAccountList :: Encode ServiceAccountList where
-  encode (ServiceAccountList a) = encode $ StrMap.fromFoldable $
+  encode (ServiceAccountList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ServiceAccountList")
@@ -5838,7 +5840,7 @@ instance decodeServiceList :: Decode ServiceList where
                metadata <- decodeMaybe "metadata" a
                pure $ ServiceList { items, metadata }
 instance encodeServiceList :: Encode ServiceList where
-  encode (ServiceList a) = encode $ StrMap.fromFoldable $
+  encode (ServiceList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ServiceList")
@@ -5877,7 +5879,7 @@ instance decodeServicePort :: Decode ServicePort where
                targetPort <- decodeMaybe "targetPort" a
                pure $ ServicePort { name, nodePort, port, protocol, targetPort }
 instance encodeServicePort :: Encode ServicePort where
-  encode (ServicePort a) = encode $ StrMap.fromFoldable $
+  encode (ServicePort a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "nodePort" (encodeMaybe a.nodePort)
                , Tuple "port" (encodeMaybe a.port)
@@ -5920,7 +5922,7 @@ newtype ServiceSpec = ServiceSpec
   , loadBalancerSourceRanges :: (Maybe (Array String))
   , ports :: (Maybe (Array ServicePort))
   , publishNotReadyAddresses :: (Maybe Boolean)
-  , selector :: (Maybe (StrMap String))
+  , selector :: (Maybe (Object String))
   , sessionAffinity :: (Maybe String)
   , sessionAffinityConfig :: (Maybe SessionAffinityConfig) }
 
@@ -5944,7 +5946,7 @@ instance decodeServiceSpec :: Decode ServiceSpec where
                sessionAffinityConfig <- decodeMaybe "sessionAffinityConfig" a
                pure $ ServiceSpec { _type, clusterIP, externalIPs, externalName, externalTrafficPolicy, healthCheckNodePort, loadBalancerIP, loadBalancerSourceRanges, ports, publishNotReadyAddresses, selector, sessionAffinity, sessionAffinityConfig }
 instance encodeServiceSpec :: Encode ServiceSpec where
-  encode (ServiceSpec a) = encode $ StrMap.fromFoldable $
+  encode (ServiceSpec a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "clusterIP" (encodeMaybe a.clusterIP)
                , Tuple "externalIPs" (encodeMaybe a.externalIPs)
@@ -5991,7 +5993,7 @@ instance decodeServiceStatus :: Decode ServiceStatus where
                loadBalancer <- decodeMaybe "loadBalancer" a
                pure $ ServiceStatus { loadBalancer }
 instance encodeServiceStatus :: Encode ServiceStatus where
-  encode (ServiceStatus a) = encode $ StrMap.fromFoldable $
+  encode (ServiceStatus a) = encode $ Object.fromFoldable $
                [ Tuple "loadBalancer" (encodeMaybe a.loadBalancer) ]
 
 
@@ -6014,7 +6016,7 @@ instance decodeSessionAffinityConfig :: Decode SessionAffinityConfig where
                clientIP <- decodeMaybe "clientIP" a
                pure $ SessionAffinityConfig { clientIP }
 instance encodeSessionAffinityConfig :: Encode SessionAffinityConfig where
-  encode (SessionAffinityConfig a) = encode $ StrMap.fromFoldable $
+  encode (SessionAffinityConfig a) = encode $ Object.fromFoldable $
                [ Tuple "clientIP" (encodeMaybe a.clientIP) ]
 
 
@@ -6049,7 +6051,7 @@ instance decodeStorageOSPersistentVolumeSource :: Decode StorageOSPersistentVolu
                volumeNamespace <- decodeMaybe "volumeNamespace" a
                pure $ StorageOSPersistentVolumeSource { fsType, readOnly, secretRef, volumeName, volumeNamespace }
 instance encodeStorageOSPersistentVolumeSource :: Encode StorageOSPersistentVolumeSource where
-  encode (StorageOSPersistentVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (StorageOSPersistentVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "secretRef" (encodeMaybe a.secretRef)
@@ -6092,7 +6094,7 @@ instance decodeStorageOSVolumeSource :: Decode StorageOSVolumeSource where
                volumeNamespace <- decodeMaybe "volumeNamespace" a
                pure $ StorageOSVolumeSource { fsType, readOnly, secretRef, volumeName, volumeNamespace }
 instance encodeStorageOSVolumeSource :: Encode StorageOSVolumeSource where
-  encode (StorageOSVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (StorageOSVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "readOnly" (encodeMaybe a.readOnly)
                , Tuple "secretRef" (encodeMaybe a.secretRef)
@@ -6126,7 +6128,7 @@ instance decodeTCPSocketAction :: Decode TCPSocketAction where
                port <- decodeMaybe "port" a
                pure $ TCPSocketAction { host, port }
 instance encodeTCPSocketAction :: Encode TCPSocketAction where
-  encode (TCPSocketAction a) = encode $ StrMap.fromFoldable $
+  encode (TCPSocketAction a) = encode $ Object.fromFoldable $
                [ Tuple "host" (encodeMaybe a.host)
                , Tuple "port" (encodeMaybe a.port) ]
 
@@ -6160,7 +6162,7 @@ instance decodeTaint :: Decode Taint where
                value <- decodeMaybe "value" a
                pure $ Taint { effect, key, timeAdded, value }
 instance encodeTaint :: Encode Taint where
-  encode (Taint a) = encode $ StrMap.fromFoldable $
+  encode (Taint a) = encode $ Object.fromFoldable $
                [ Tuple "effect" (encodeMaybe a.effect)
                , Tuple "key" (encodeMaybe a.key)
                , Tuple "timeAdded" (encodeMaybe a.timeAdded)
@@ -6201,7 +6203,7 @@ instance decodeToleration :: Decode Toleration where
                value <- decodeMaybe "value" a
                pure $ Toleration { effect, key, operator, tolerationSeconds, value }
 instance encodeToleration :: Encode Toleration where
-  encode (Toleration a) = encode $ StrMap.fromFoldable $
+  encode (Toleration a) = encode $ Object.fromFoldable $
                [ Tuple "effect" (encodeMaybe a.effect)
                , Tuple "key" (encodeMaybe a.key)
                , Tuple "operator" (encodeMaybe a.operator)
@@ -6313,7 +6315,7 @@ instance decodeVolume :: Decode Volume where
                vsphereVolume <- decodeMaybe "vsphereVolume" a
                pure $ Volume { awsElasticBlockStore, azureDisk, azureFile, cephfs, cinder, configMap, downwardAPI, emptyDir, fc, flexVolume, flocker, gcePersistentDisk, gitRepo, glusterfs, hostPath, iscsi, name, nfs, persistentVolumeClaim, photonPersistentDisk, portworxVolume, projected, quobyte, rbd, scaleIO, secret, storageos, vsphereVolume }
 instance encodeVolume :: Encode Volume where
-  encode (Volume a) = encode $ StrMap.fromFoldable $
+  encode (Volume a) = encode $ Object.fromFoldable $
                [ Tuple "awsElasticBlockStore" (encodeMaybe a.awsElasticBlockStore)
                , Tuple "azureDisk" (encodeMaybe a.azureDisk)
                , Tuple "azureFile" (encodeMaybe a.azureFile)
@@ -6393,7 +6395,7 @@ instance decodeVolumeDevice :: Decode VolumeDevice where
                name <- decodeMaybe "name" a
                pure $ VolumeDevice { devicePath, name }
 instance encodeVolumeDevice :: Encode VolumeDevice where
-  encode (VolumeDevice a) = encode $ StrMap.fromFoldable $
+  encode (VolumeDevice a) = encode $ Object.fromFoldable $
                [ Tuple "devicePath" (encodeMaybe a.devicePath)
                , Tuple "name" (encodeMaybe a.name) ]
 
@@ -6430,7 +6432,7 @@ instance decodeVolumeMount :: Decode VolumeMount where
                subPath <- decodeMaybe "subPath" a
                pure $ VolumeMount { mountPath, mountPropagation, name, readOnly, subPath }
 instance encodeVolumeMount :: Encode VolumeMount where
-  encode (VolumeMount a) = encode $ StrMap.fromFoldable $
+  encode (VolumeMount a) = encode $ Object.fromFoldable $
                [ Tuple "mountPath" (encodeMaybe a.mountPath)
                , Tuple "mountPropagation" (encodeMaybe a.mountPropagation)
                , Tuple "name" (encodeMaybe a.name)
@@ -6467,7 +6469,7 @@ instance decodeVolumeProjection :: Decode VolumeProjection where
                secret <- decodeMaybe "secret" a
                pure $ VolumeProjection { configMap, downwardAPI, secret }
 instance encodeVolumeProjection :: Encode VolumeProjection where
-  encode (VolumeProjection a) = encode $ StrMap.fromFoldable $
+  encode (VolumeProjection a) = encode $ Object.fromFoldable $
                [ Tuple "configMap" (encodeMaybe a.configMap)
                , Tuple "downwardAPI" (encodeMaybe a.downwardAPI)
                , Tuple "secret" (encodeMaybe a.secret) ]
@@ -6503,7 +6505,7 @@ instance decodeVsphereVirtualDiskVolumeSource :: Decode VsphereVirtualDiskVolume
                volumePath <- decodeMaybe "volumePath" a
                pure $ VsphereVirtualDiskVolumeSource { fsType, storagePolicyID, storagePolicyName, volumePath }
 instance encodeVsphereVirtualDiskVolumeSource :: Encode VsphereVirtualDiskVolumeSource where
-  encode (VsphereVirtualDiskVolumeSource a) = encode $ StrMap.fromFoldable $
+  encode (VsphereVirtualDiskVolumeSource a) = encode $ Object.fromFoldable $
                [ Tuple "fsType" (encodeMaybe a.fsType)
                , Tuple "storagePolicyID" (encodeMaybe a.storagePolicyID)
                , Tuple "storagePolicyName" (encodeMaybe a.storagePolicyName)
@@ -6535,7 +6537,7 @@ instance decodeWeightedPodAffinityTerm :: Decode WeightedPodAffinityTerm where
                weight <- decodeMaybe "weight" a
                pure $ WeightedPodAffinityTerm { podAffinityTerm, weight }
 instance encodeWeightedPodAffinityTerm :: Encode WeightedPodAffinityTerm where
-  encode (WeightedPodAffinityTerm a) = encode $ StrMap.fromFoldable $
+  encode (WeightedPodAffinityTerm a) = encode $ Object.fromFoldable $
                [ Tuple "podAffinityTerm" (encodeMaybe a.podAffinityTerm)
                , Tuple "weight" (encodeMaybe a.weight) ]
 
@@ -6546,7 +6548,7 @@ instance defaultWeightedPodAffinityTerm :: Default WeightedPodAffinityTerm where
     , weight: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/api/v1/"

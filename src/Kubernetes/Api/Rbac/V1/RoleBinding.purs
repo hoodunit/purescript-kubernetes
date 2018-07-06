@@ -1,28 +1,28 @@
 module Kubernetes.Api.Rbac.V1.RoleBinding where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Prelude
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Rbac.V1 as RbacV1
 
 -- | create a RoleBinding
-createNamespaced :: forall e. Config -> RbacV1.RoleBinding -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.RoleBinding)
+createNamespaced :: Config -> RbacV1.RoleBinding -> Aff (Either MetaV1.Status RbacV1.RoleBinding)
 createNamespaced cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings"
@@ -64,7 +64,7 @@ instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNames
                watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
-  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteCollectionNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -87,7 +87,7 @@ instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNam
     , watch: Nothing }
 
 -- | delete collection of RoleBinding
-deleteCollectionNamespaced :: forall e. Config -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced :: Config -> DeleteCollectionNamespacedOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteCollectionNamespaced cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings" <> Client.formatQueryString options
@@ -111,7 +111,7 @@ instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
-  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -124,14 +124,14 @@ instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
     , propagationPolicy: Nothing }
 
 -- | delete a RoleBinding
-deleteNamespaced :: forall e. Config -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced :: Config -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteNamespaced cfg body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings/{name}" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | list or watch objects of kind RoleBinding
-listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.RoleBindingList)
+listForAllNamespaces :: Config -> Aff (Either MetaV1.Status RbacV1.RoleBindingList)
 listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/rolebindings"
@@ -172,7 +172,7 @@ instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
                watch <- decodeMaybe "watch" a
                pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
-  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (ListNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -195,38 +195,38 @@ instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind RoleBinding
-listNamespaced :: forall e. Config -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.RoleBindingList)
+listNamespaced :: Config -> ListNamespacedOptions -> Aff (Either MetaV1.Status RbacV1.RoleBindingList)
 listNamespaced cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings" <> Client.formatQueryString options
 
 -- | read the specified RoleBinding
-readNamespaced :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.RoleBinding)
+readNamespaced :: Config -> Aff (Either MetaV1.Status RbacV1.RoleBinding)
 readNamespaced cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings/{name}"
 
 -- | replace the specified RoleBinding
-replaceNamespaced :: forall e. Config -> RbacV1.RoleBinding -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.RoleBinding)
+replaceNamespaced :: Config -> RbacV1.RoleBinding -> Aff (Either MetaV1.Status RbacV1.RoleBinding)
 replaceNamespaced cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings/{name}"
     encodedBody = encodeJSON body
 
 -- | watch individual changes to a list of RoleBinding
-watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/watch/rolebindings"
 
 -- | watch changes to an object of kind RoleBinding
-watchNamespaced :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchNamespaced cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/watch/namespaces/{namespace}/rolebindings/{name}"
 
 -- | watch individual changes to a list of RoleBinding
-watchNamespacedList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchNamespacedList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/watch/namespaces/{namespace}/rolebindings"

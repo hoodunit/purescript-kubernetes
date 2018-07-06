@@ -1,27 +1,29 @@
 module Kubernetes.Api.Certificates.V1Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | Describes a certificate signing request
@@ -47,7 +49,7 @@ instance decodeCertificateSigningRequest :: Decode CertificateSigningRequest whe
                status <- decodeMaybe "status" a
                pure $ CertificateSigningRequest { metadata, spec, status }
 instance encodeCertificateSigningRequest :: Encode CertificateSigningRequest where
-  encode (CertificateSigningRequest a) = encode $ StrMap.fromFoldable $
+  encode (CertificateSigningRequest a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "certificates.k8s.io/v1beta1")
                , Tuple "kind" (encode "CertificateSigningRequest")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -83,7 +85,7 @@ instance decodeCertificateSigningRequestCondition :: Decode CertificateSigningRe
                reason <- decodeMaybe "reason" a
                pure $ CertificateSigningRequestCondition { _type, lastUpdateTime, message, reason }
 instance encodeCertificateSigningRequestCondition :: Encode CertificateSigningRequestCondition where
-  encode (CertificateSigningRequestCondition a) = encode $ StrMap.fromFoldable $
+  encode (CertificateSigningRequestCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastUpdateTime" (encodeMaybe a.lastUpdateTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -115,7 +117,7 @@ instance decodeCertificateSigningRequestList :: Decode CertificateSigningRequest
                metadata <- decodeMaybe "metadata" a
                pure $ CertificateSigningRequestList { items, metadata }
 instance encodeCertificateSigningRequestList :: Encode CertificateSigningRequestList where
-  encode (CertificateSigningRequestList a) = encode $ StrMap.fromFoldable $
+  encode (CertificateSigningRequestList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "certificates.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "CertificateSigningRequestList")
@@ -138,7 +140,7 @@ instance defaultCertificateSigningRequestList :: Default CertificateSigningReque
 -- |         https://tools.ietf.org/html/rfc5280#section-4.2.1.12
 -- | - `username`: Information about the requesting user. See user.Info interface for details.
 newtype CertificateSigningRequestSpec = CertificateSigningRequestSpec
-  { extra :: (Maybe (StrMap (Array String)))
+  { extra :: (Maybe (Object (Array String)))
   , groups :: (Maybe (Array String))
   , request :: (Maybe String)
   , uid :: (Maybe String)
@@ -158,7 +160,7 @@ instance decodeCertificateSigningRequestSpec :: Decode CertificateSigningRequest
                username <- decodeMaybe "username" a
                pure $ CertificateSigningRequestSpec { extra, groups, request, uid, usages, username }
 instance encodeCertificateSigningRequestSpec :: Encode CertificateSigningRequestSpec where
-  encode (CertificateSigningRequestSpec a) = encode $ StrMap.fromFoldable $
+  encode (CertificateSigningRequestSpec a) = encode $ Object.fromFoldable $
                [ Tuple "extra" (encodeMaybe a.extra)
                , Tuple "groups" (encodeMaybe a.groups)
                , Tuple "request" (encodeMaybe a.request)
@@ -192,7 +194,7 @@ instance decodeCertificateSigningRequestStatus :: Decode CertificateSigningReque
                conditions <- decodeMaybe "conditions" a
                pure $ CertificateSigningRequestStatus { certificate, conditions }
 instance encodeCertificateSigningRequestStatus :: Encode CertificateSigningRequestStatus where
-  encode (CertificateSigningRequestStatus a) = encode $ StrMap.fromFoldable $
+  encode (CertificateSigningRequestStatus a) = encode $ Object.fromFoldable $
                [ Tuple "certificate" (encodeMaybe a.certificate)
                , Tuple "conditions" (encodeMaybe a.conditions) ]
 
@@ -203,7 +205,7 @@ instance defaultCertificateSigningRequestStatus :: Default CertificateSigningReq
     , conditions: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/certificates.k8s.io/v1beta1/"

@@ -1,27 +1,29 @@
 module Kubernetes.Api.Events where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Core.V1 as CoreV1
 import Kubernetes.Api.Meta.V1 as MetaV1
 
@@ -84,7 +86,7 @@ instance decodeEvent :: Decode Event where
                series <- decodeMaybe "series" a
                pure $ Event { _type, action, deprecatedCount, deprecatedFirstTimestamp, deprecatedLastTimestamp, deprecatedSource, eventTime, metadata, note, reason, regarding, related, reportingController, reportingInstance, series }
 instance encodeEvent :: Encode Event where
-  encode (Event a) = encode $ StrMap.fromFoldable $
+  encode (Event a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "action" (encodeMaybe a.action)
                , Tuple "apiVersion" (encode "events.k8s.io/v1beta1")
@@ -142,7 +144,7 @@ instance decodeEventList :: Decode EventList where
                metadata <- decodeMaybe "metadata" a
                pure $ EventList { items, metadata }
 instance encodeEventList :: Encode EventList where
-  encode (EventList a) = encode $ StrMap.fromFoldable $
+  encode (EventList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "events.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "EventList")
@@ -175,7 +177,7 @@ instance decodeEventSeries :: Decode EventSeries where
                state <- decodeMaybe "state" a
                pure $ EventSeries { count, lastObservedTime, state }
 instance encodeEventSeries :: Encode EventSeries where
-  encode (EventSeries a) = encode $ StrMap.fromFoldable $
+  encode (EventSeries a) = encode $ Object.fromFoldable $
                [ Tuple "count" (encodeMaybe a.count)
                , Tuple "lastObservedTime" (encodeMaybe a.lastObservedTime)
                , Tuple "state" (encodeMaybe a.state) ]
@@ -188,13 +190,13 @@ instance defaultEventSeries :: Default EventSeries where
     , state: Nothing }
 
 -- | get information of a group
-getAPIGroup :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIGroup)
+getAPIGroup :: Config -> Aff (Either MetaV1.Status MetaV1.APIGroup)
 getAPIGroup cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/events.k8s.io/"
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/events.k8s.io/v1beta1/"

@@ -1,27 +1,29 @@
 module Kubernetes.Api.AdmissionRegistration.V1Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.
@@ -44,7 +46,7 @@ instance decodeMutatingWebhookConfiguration :: Decode MutatingWebhookConfigurati
                webhooks <- decodeMaybe "webhooks" a
                pure $ MutatingWebhookConfiguration { metadata, webhooks }
 instance encodeMutatingWebhookConfiguration :: Encode MutatingWebhookConfiguration where
-  encode (MutatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
+  encode (MutatingWebhookConfiguration a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
                , Tuple "kind" (encode "MutatingWebhookConfiguration")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -76,7 +78,7 @@ instance decodeMutatingWebhookConfigurationList :: Decode MutatingWebhookConfigu
                metadata <- decodeMaybe "metadata" a
                pure $ MutatingWebhookConfigurationList { items, metadata }
 instance encodeMutatingWebhookConfigurationList :: Encode MutatingWebhookConfigurationList where
-  encode (MutatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
+  encode (MutatingWebhookConfigurationList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "MutatingWebhookConfigurationList")
@@ -118,7 +120,7 @@ instance decodeRuleWithOperations :: Decode RuleWithOperations where
                resources <- decodeMaybe "resources" a
                pure $ RuleWithOperations { apiGroups, apiVersions, operations, resources }
 instance encodeRuleWithOperations :: Encode RuleWithOperations where
-  encode (RuleWithOperations a) = encode $ StrMap.fromFoldable $
+  encode (RuleWithOperations a) = encode $ Object.fromFoldable $
                [ Tuple "apiGroups" (encodeMaybe a.apiGroups)
                , Tuple "apiVersions" (encodeMaybe a.apiVersions)
                , Tuple "operations" (encodeMaybe a.operations)
@@ -153,7 +155,7 @@ instance decodeServiceReference :: Decode ServiceReference where
                path <- decodeMaybe "path" a
                pure $ ServiceReference { name, namespace, path }
 instance encodeServiceReference :: Encode ServiceReference where
-  encode (ServiceReference a) = encode $ StrMap.fromFoldable $
+  encode (ServiceReference a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "namespace" (encodeMaybe a.namespace)
                , Tuple "path" (encodeMaybe a.path) ]
@@ -185,7 +187,7 @@ instance decodeValidatingWebhookConfiguration :: Decode ValidatingWebhookConfigu
                webhooks <- decodeMaybe "webhooks" a
                pure $ ValidatingWebhookConfiguration { metadata, webhooks }
 instance encodeValidatingWebhookConfiguration :: Encode ValidatingWebhookConfiguration where
-  encode (ValidatingWebhookConfiguration a) = encode $ StrMap.fromFoldable $
+  encode (ValidatingWebhookConfiguration a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
                , Tuple "kind" (encode "ValidatingWebhookConfiguration")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -217,7 +219,7 @@ instance decodeValidatingWebhookConfigurationList :: Decode ValidatingWebhookCon
                metadata <- decodeMaybe "metadata" a
                pure $ ValidatingWebhookConfigurationList { items, metadata }
 instance encodeValidatingWebhookConfigurationList :: Encode ValidatingWebhookConfigurationList where
-  encode (ValidatingWebhookConfigurationList a) = encode $ StrMap.fromFoldable $
+  encode (ValidatingWebhookConfigurationList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "admissionregistration.k8s.io/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ValidatingWebhookConfigurationList")
@@ -286,7 +288,7 @@ instance decodeWebhook :: Decode Webhook where
                rules <- decodeMaybe "rules" a
                pure $ Webhook { clientConfig, failurePolicy, name, namespaceSelector, rules }
 instance encodeWebhook :: Encode Webhook where
-  encode (Webhook a) = encode $ StrMap.fromFoldable $
+  encode (Webhook a) = encode $ Object.fromFoldable $
                [ Tuple "clientConfig" (encodeMaybe a.clientConfig)
                , Tuple "failurePolicy" (encodeMaybe a.failurePolicy)
                , Tuple "name" (encodeMaybe a.name)
@@ -337,7 +339,7 @@ instance decodeWebhookClientConfig :: Decode WebhookClientConfig where
                url <- decodeMaybe "url" a
                pure $ WebhookClientConfig { caBundle, service, url }
 instance encodeWebhookClientConfig :: Encode WebhookClientConfig where
-  encode (WebhookClientConfig a) = encode $ StrMap.fromFoldable $
+  encode (WebhookClientConfig a) = encode $ Object.fromFoldable $
                [ Tuple "caBundle" (encodeMaybe a.caBundle)
                , Tuple "service" (encodeMaybe a.service)
                , Tuple "url" (encodeMaybe a.url) ]
@@ -350,7 +352,7 @@ instance defaultWebhookClientConfig :: Default WebhookClientConfig where
     , url: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/"

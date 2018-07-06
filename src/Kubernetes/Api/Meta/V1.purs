@@ -1,18 +1,19 @@
 module Kubernetes.Api.Meta.V1 where
 
 import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
 import Kubernetes.Api.Runtime as Runtime
@@ -43,7 +44,7 @@ instance decodeAPIGroup :: Decode APIGroup where
                versions <- decodeMaybe "versions" a
                pure $ APIGroup { name, preferredVersion, serverAddressByClientCIDRs, versions }
 instance encodeAPIGroup :: Encode APIGroup where
-  encode (APIGroup a) = encode $ StrMap.fromFoldable $
+  encode (APIGroup a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "APIGroup")
                , Tuple "name" (encodeMaybe a.name)
@@ -76,7 +77,7 @@ instance decodeAPIGroupList :: Decode APIGroupList where
                assertPropEq "kind" "APIGroupList" a
                pure $ APIGroupList { groups }
 instance encodeAPIGroupList :: Encode APIGroupList where
-  encode (APIGroupList a) = encode $ StrMap.fromFoldable $
+  encode (APIGroupList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "groups" (encodeMaybe a.groups)
                , Tuple "kind" (encode "APIGroupList") ]
@@ -125,7 +126,7 @@ instance decodeAPIResource :: Decode APIResource where
                version <- decodeMaybe "version" a
                pure $ APIResource { categories, group, kind, name, namespaced, shortNames, singularName, verbs, version }
 instance encodeAPIResource :: Encode APIResource where
-  encode (APIResource a) = encode $ StrMap.fromFoldable $
+  encode (APIResource a) = encode $ Object.fromFoldable $
                [ Tuple "categories" (encodeMaybe a.categories)
                , Tuple "group" (encodeMaybe a.group)
                , Tuple "kind" (encodeMaybe a.kind)
@@ -169,7 +170,7 @@ instance decodeAPIResourceList :: Decode APIResourceList where
                resources <- decodeMaybe "resources" a
                pure $ APIResourceList { groupVersion, resources }
 instance encodeAPIResourceList :: Encode APIResourceList where
-  encode (APIResourceList a) = encode $ StrMap.fromFoldable $
+  encode (APIResourceList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "groupVersion" (encodeMaybe a.groupVersion)
                , Tuple "kind" (encode "APIResourceList")
@@ -201,7 +202,7 @@ instance decodeAPIVersions :: Decode APIVersions where
                versions <- decodeMaybe "versions" a
                pure $ APIVersions { serverAddressByClientCIDRs, versions }
 instance encodeAPIVersions :: Encode APIVersions where
-  encode (APIVersions a) = encode $ StrMap.fromFoldable $
+  encode (APIVersions a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "kind" (encode "APIVersions")
                , Tuple "serverAddressByClientCIDRs" (encodeMaybe a.serverAddressByClientCIDRs)
@@ -239,7 +240,7 @@ instance decodeDeleteOptions :: Decode DeleteOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, preconditions, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
-  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteOptions a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "kind" (encode "DeleteOptions")
@@ -273,7 +274,7 @@ instance decodeGroupVersionForDiscovery :: Decode GroupVersionForDiscovery where
                version <- decodeMaybe "version" a
                pure $ GroupVersionForDiscovery { groupVersion, version }
 instance encodeGroupVersionForDiscovery :: Encode GroupVersionForDiscovery where
-  encode (GroupVersionForDiscovery a) = encode $ StrMap.fromFoldable $
+  encode (GroupVersionForDiscovery a) = encode $ Object.fromFoldable $
                [ Tuple "groupVersion" (encodeMaybe a.groupVersion)
                , Tuple "version" (encodeMaybe a.version) ]
 
@@ -298,7 +299,7 @@ instance decodeInitializer :: Decode Initializer where
                name <- decodeMaybe "name" a
                pure $ Initializer { name }
 instance encodeInitializer :: Encode Initializer where
-  encode (Initializer a) = encode $ StrMap.fromFoldable $
+  encode (Initializer a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name) ]
 
 
@@ -324,7 +325,7 @@ instance decodeInitializers :: Decode Initializers where
                result <- decodeMaybe "result" a
                pure $ Initializers { pending, result }
 instance encodeInitializers :: Encode Initializers where
-  encode (Initializers a) = encode $ StrMap.fromFoldable $
+  encode (Initializers a) = encode $ Object.fromFoldable $
                [ Tuple "pending" (encodeMaybe a.pending)
                , Tuple "result" (encodeMaybe a.result) ]
 
@@ -341,7 +342,7 @@ instance defaultInitializers :: Default Initializers where
 -- | - `matchLabels`: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
 newtype LabelSelector = LabelSelector
   { matchExpressions :: (Maybe (Array LabelSelectorRequirement))
-  , matchLabels :: (Maybe (StrMap String)) }
+  , matchLabels :: (Maybe (Object String)) }
 
 derive instance newtypeLabelSelector :: Newtype LabelSelector _
 derive instance genericLabelSelector :: Generic LabelSelector _
@@ -352,7 +353,7 @@ instance decodeLabelSelector :: Decode LabelSelector where
                matchLabels <- decodeMaybe "matchLabels" a
                pure $ LabelSelector { matchExpressions, matchLabels }
 instance encodeLabelSelector :: Encode LabelSelector where
-  encode (LabelSelector a) = encode $ StrMap.fromFoldable $
+  encode (LabelSelector a) = encode $ Object.fromFoldable $
                [ Tuple "matchExpressions" (encodeMaybe a.matchExpressions)
                , Tuple "matchLabels" (encodeMaybe a.matchLabels) ]
 
@@ -383,7 +384,7 @@ instance decodeLabelSelectorRequirement :: Decode LabelSelectorRequirement where
                values <- decodeMaybe "values" a
                pure $ LabelSelectorRequirement { key, operator, values }
 instance encodeLabelSelectorRequirement :: Encode LabelSelectorRequirement where
-  encode (LabelSelectorRequirement a) = encode $ StrMap.fromFoldable $
+  encode (LabelSelectorRequirement a) = encode $ Object.fromFoldable $
                [ Tuple "key" (encodeMaybe a.key)
                , Tuple "operator" (encodeMaybe a.operator)
                , Tuple "values" (encodeMaybe a.values) ]
@@ -416,7 +417,7 @@ instance decodeListMeta :: Decode ListMeta where
                selfLink <- decodeMaybe "selfLink" a
                pure $ ListMeta { continue, resourceVersion, selfLink }
 instance encodeListMeta :: Encode ListMeta where
-  encode (ListMeta a) = encode $ StrMap.fromFoldable $
+  encode (ListMeta a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "resourceVersion" (encodeMaybe a.resourceVersion)
                , Tuple "selfLink" (encodeMaybe a.selfLink) ]
@@ -474,7 +475,7 @@ instance encodeMicroTime :: Encode MicroTime where
 -- |    
 -- |    Populated by the system. Read-only. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
 newtype ObjectMeta = ObjectMeta
-  { annotations :: (Maybe (StrMap String))
+  { annotations :: (Maybe (Object String))
   , clusterName :: (Maybe String)
   , creationTimestamp :: (Maybe Time)
   , deletionGracePeriodSeconds :: (Maybe Int)
@@ -483,7 +484,7 @@ newtype ObjectMeta = ObjectMeta
   , generateName :: (Maybe String)
   , generation :: (Maybe Int)
   , initializers :: (Maybe Initializers)
-  , labels :: (Maybe (StrMap String))
+  , labels :: (Maybe (Object String))
   , name :: (Maybe String)
   , namespace :: (Maybe String)
   , ownerReferences :: (Maybe (Array OwnerReference))
@@ -514,7 +515,7 @@ instance decodeObjectMeta :: Decode ObjectMeta where
                uid <- decodeMaybe "uid" a
                pure $ ObjectMeta { annotations, clusterName, creationTimestamp, deletionGracePeriodSeconds, deletionTimestamp, finalizers, generateName, generation, initializers, labels, name, namespace, ownerReferences, resourceVersion, selfLink, uid }
 instance encodeObjectMeta :: Encode ObjectMeta where
-  encode (ObjectMeta a) = encode $ StrMap.fromFoldable $
+  encode (ObjectMeta a) = encode $ Object.fromFoldable $
                [ Tuple "annotations" (encodeMaybe a.annotations)
                , Tuple "clusterName" (encodeMaybe a.clusterName)
                , Tuple "creationTimestamp" (encodeMaybe a.creationTimestamp)
@@ -582,7 +583,7 @@ instance decodeOwnerReference :: Decode OwnerReference where
                uid <- decodeMaybe "uid" a
                pure $ OwnerReference { apiVersion, blockOwnerDeletion, controller, kind, name, uid }
 instance encodeOwnerReference :: Encode OwnerReference where
-  encode (OwnerReference a) = encode $ StrMap.fromFoldable $
+  encode (OwnerReference a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "blockOwnerDeletion" (encodeMaybe a.blockOwnerDeletion)
                , Tuple "controller" (encodeMaybe a.controller)
@@ -615,7 +616,7 @@ instance decodePreconditions :: Decode Preconditions where
                uid <- decodeMaybe "uid" a
                pure $ Preconditions { uid }
 instance encodePreconditions :: Encode Preconditions where
-  encode (Preconditions a) = encode $ StrMap.fromFoldable $
+  encode (Preconditions a) = encode $ Object.fromFoldable $
                [ Tuple "uid" (encodeMaybe a.uid) ]
 
 
@@ -641,7 +642,7 @@ instance decodeServerAddressByClientCIDR :: Decode ServerAddressByClientCIDR whe
                serverAddress <- decodeMaybe "serverAddress" a
                pure $ ServerAddressByClientCIDR { clientCIDR, serverAddress }
 instance encodeServerAddressByClientCIDR :: Encode ServerAddressByClientCIDR where
-  encode (ServerAddressByClientCIDR a) = encode $ StrMap.fromFoldable $
+  encode (ServerAddressByClientCIDR a) = encode $ Object.fromFoldable $
                [ Tuple "clientCIDR" (encodeMaybe a.clientCIDR)
                , Tuple "serverAddress" (encodeMaybe a.serverAddress) ]
 
@@ -683,7 +684,7 @@ instance decodeStatus :: Decode Status where
                status <- decodeMaybe "status" a
                pure $ Status { code, details, message, metadata, reason, status }
 instance encodeStatus :: Encode Status where
-  encode (Status a) = encode $ StrMap.fromFoldable $
+  encode (Status a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "v1")
                , Tuple "code" (encodeMaybe a.code)
                , Tuple "details" (encodeMaybe a.details)
@@ -728,7 +729,7 @@ instance decodeStatusCause :: Decode StatusCause where
                reason <- decodeMaybe "reason" a
                pure $ StatusCause { field, message, reason }
 instance encodeStatusCause :: Encode StatusCause where
-  encode (StatusCause a) = encode $ StrMap.fromFoldable $
+  encode (StatusCause a) = encode $ Object.fromFoldable $
                [ Tuple "field" (encodeMaybe a.field)
                , Tuple "message" (encodeMaybe a.message)
                , Tuple "reason" (encodeMaybe a.reason) ]
@@ -770,7 +771,7 @@ instance decodeStatusDetails :: Decode StatusDetails where
                uid <- decodeMaybe "uid" a
                pure $ StatusDetails { causes, group, kind, name, retryAfterSeconds, uid }
 instance encodeStatusDetails :: Encode StatusDetails where
-  encode (StatusDetails a) = encode $ StrMap.fromFoldable $
+  encode (StatusDetails a) = encode $ Object.fromFoldable $
                [ Tuple "causes" (encodeMaybe a.causes)
                , Tuple "group" (encodeMaybe a.group)
                , Tuple "kind" (encodeMaybe a.kind)
@@ -820,7 +821,7 @@ instance decodeWatchEvent :: Decode WatchEvent where
                object <- decodeMaybe "object" a
                pure $ WatchEvent { _type, object }
 instance encodeWatchEvent :: Encode WatchEvent where
-  encode (WatchEvent a) = encode $ StrMap.fromFoldable $
+  encode (WatchEvent a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "object" (encodeMaybe a.object) ]
 

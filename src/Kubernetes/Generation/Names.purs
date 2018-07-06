@@ -352,13 +352,11 @@ psFieldToJsonField f =
     
 lowercaseFirstChar :: String -> String
 lowercaseFirstChar str = case Str.splitAt 1 str of
-  Just {before, after} -> Str.toLower before <> after
-  Nothing -> Str.toLower str
+  {before, after} -> Str.toLower before <> after
     
 uppercaseFirstChar :: String -> String
 uppercaseFirstChar str = case Str.splitAt 1 str of
-  Just {before, after} -> Str.toUpper before <> after
-  Nothing -> Str.toLower str
+  {before, after} -> Str.toUpper before <> after
 
 startsWithUpperCase :: String -> Boolean
 startsWithUpperCase s = case Regex.regex "^[A-Z]" RegexFlags.noFlags of

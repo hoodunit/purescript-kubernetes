@@ -1,27 +1,29 @@
 module Kubernetes.Api.ApiRegistration.V1Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | APIService represents a server for a particular GroupVersion. Name must be "version.group".
@@ -51,7 +53,7 @@ instance decodeAPIService :: Decode APIService where
                status <- decodeMaybe "status" a
                pure $ APIService { apiVersion, kind, metadata, spec, status }
 instance encodeAPIService :: Encode APIService where
-  encode (APIService a) = encode $ StrMap.fromFoldable $
+  encode (APIService a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "kind" (encodeMaybe a.kind)
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -92,7 +94,7 @@ instance decodeAPIServiceCondition :: Decode APIServiceCondition where
                status <- decodeMaybe "status" a
                pure $ APIServiceCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeAPIServiceCondition :: Encode APIServiceCondition where
-  encode (APIServiceCondition a) = encode $ StrMap.fromFoldable $
+  encode (APIServiceCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -132,7 +134,7 @@ instance decodeAPIServiceList :: Decode APIServiceList where
                metadata <- decodeMaybe "metadata" a
                pure $ APIServiceList { apiVersion, items, kind, metadata }
 instance encodeAPIServiceList :: Encode APIServiceList where
-  encode (APIServiceList a) = encode $ StrMap.fromFoldable $
+  encode (APIServiceList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encodeMaybe a.kind)
@@ -179,7 +181,7 @@ instance decodeAPIServiceSpec :: Decode APIServiceSpec where
                versionPriority <- decodeMaybe "versionPriority" a
                pure $ APIServiceSpec { caBundle, group, groupPriorityMinimum, insecureSkipTLSVerify, service, version, versionPriority }
 instance encodeAPIServiceSpec :: Encode APIServiceSpec where
-  encode (APIServiceSpec a) = encode $ StrMap.fromFoldable $
+  encode (APIServiceSpec a) = encode $ Object.fromFoldable $
                [ Tuple "caBundle" (encodeMaybe a.caBundle)
                , Tuple "group" (encodeMaybe a.group)
                , Tuple "groupPriorityMinimum" (encodeMaybe a.groupPriorityMinimum)
@@ -214,7 +216,7 @@ instance decodeAPIServiceStatus :: Decode APIServiceStatus where
                conditions <- decodeMaybe "conditions" a
                pure $ APIServiceStatus { conditions }
 instance encodeAPIServiceStatus :: Encode APIServiceStatus where
-  encode (APIServiceStatus a) = encode $ StrMap.fromFoldable $
+  encode (APIServiceStatus a) = encode $ Object.fromFoldable $
                [ Tuple "conditions" (encodeMaybe a.conditions) ]
 
 
@@ -240,7 +242,7 @@ instance decodeServiceReference :: Decode ServiceReference where
                namespace <- decodeMaybe "namespace" a
                pure $ ServiceReference { name, namespace }
 instance encodeServiceReference :: Encode ServiceReference where
-  encode (ServiceReference a) = encode $ StrMap.fromFoldable $
+  encode (ServiceReference a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "namespace" (encodeMaybe a.namespace) ]
 
@@ -251,7 +253,7 @@ instance defaultServiceReference :: Default ServiceReference where
     , namespace: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apiregistration.k8s.io/v1beta1/"

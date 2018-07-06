@@ -1,27 +1,29 @@
 module Kubernetes.Api.Authorization.V1Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | LocalSubjectAccessReview checks whether or not a user or group can perform an action in a given namespace. Having a namespace scoped resource makes it much easier to grant namespace scoped policy that includes permissions checking.
@@ -47,7 +49,7 @@ instance decodeLocalSubjectAccessReview :: Decode LocalSubjectAccessReview where
                status <- decodeMaybe "status" a
                pure $ LocalSubjectAccessReview { metadata, spec, status }
 instance encodeLocalSubjectAccessReview :: Encode LocalSubjectAccessReview where
-  encode (LocalSubjectAccessReview a) = encode $ StrMap.fromFoldable $
+  encode (LocalSubjectAccessReview a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "authorization.k8s.io/v1beta1")
                , Tuple "kind" (encode "LocalSubjectAccessReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -79,7 +81,7 @@ instance decodeNonResourceAttributes :: Decode NonResourceAttributes where
                verb <- decodeMaybe "verb" a
                pure $ NonResourceAttributes { path, verb }
 instance encodeNonResourceAttributes :: Encode NonResourceAttributes where
-  encode (NonResourceAttributes a) = encode $ StrMap.fromFoldable $
+  encode (NonResourceAttributes a) = encode $ Object.fromFoldable $
                [ Tuple "path" (encodeMaybe a.path)
                , Tuple "verb" (encodeMaybe a.verb) ]
 
@@ -107,7 +109,7 @@ instance decodeNonResourceRule :: Decode NonResourceRule where
                verbs <- decodeMaybe "verbs" a
                pure $ NonResourceRule { nonResourceURLs, verbs }
 instance encodeNonResourceRule :: Encode NonResourceRule where
-  encode (NonResourceRule a) = encode $ StrMap.fromFoldable $
+  encode (NonResourceRule a) = encode $ Object.fromFoldable $
                [ Tuple "nonResourceURLs" (encodeMaybe a.nonResourceURLs)
                , Tuple "verbs" (encodeMaybe a.verbs) ]
 
@@ -150,7 +152,7 @@ instance decodeResourceAttributes :: Decode ResourceAttributes where
                version <- decodeMaybe "version" a
                pure $ ResourceAttributes { group, name, namespace, resource, subresource, verb, version }
 instance encodeResourceAttributes :: Encode ResourceAttributes where
-  encode (ResourceAttributes a) = encode $ StrMap.fromFoldable $
+  encode (ResourceAttributes a) = encode $ Object.fromFoldable $
                [ Tuple "group" (encodeMaybe a.group)
                , Tuple "name" (encodeMaybe a.name)
                , Tuple "namespace" (encodeMaybe a.namespace)
@@ -195,7 +197,7 @@ instance decodeResourceRule :: Decode ResourceRule where
                verbs <- decodeMaybe "verbs" a
                pure $ ResourceRule { apiGroups, resourceNames, resources, verbs }
 instance encodeResourceRule :: Encode ResourceRule where
-  encode (ResourceRule a) = encode $ StrMap.fromFoldable $
+  encode (ResourceRule a) = encode $ Object.fromFoldable $
                [ Tuple "apiGroups" (encodeMaybe a.apiGroups)
                , Tuple "resourceNames" (encodeMaybe a.resourceNames)
                , Tuple "resources" (encodeMaybe a.resources)
@@ -232,7 +234,7 @@ instance decodeSelfSubjectAccessReview :: Decode SelfSubjectAccessReview where
                status <- decodeMaybe "status" a
                pure $ SelfSubjectAccessReview { metadata, spec, status }
 instance encodeSelfSubjectAccessReview :: Encode SelfSubjectAccessReview where
-  encode (SelfSubjectAccessReview a) = encode $ StrMap.fromFoldable $
+  encode (SelfSubjectAccessReview a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "authorization.k8s.io/v1beta1")
                , Tuple "kind" (encode "SelfSubjectAccessReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -264,7 +266,7 @@ instance decodeSelfSubjectAccessReviewSpec :: Decode SelfSubjectAccessReviewSpec
                resourceAttributes <- decodeMaybe "resourceAttributes" a
                pure $ SelfSubjectAccessReviewSpec { nonResourceAttributes, resourceAttributes }
 instance encodeSelfSubjectAccessReviewSpec :: Encode SelfSubjectAccessReviewSpec where
-  encode (SelfSubjectAccessReviewSpec a) = encode $ StrMap.fromFoldable $
+  encode (SelfSubjectAccessReviewSpec a) = encode $ Object.fromFoldable $
                [ Tuple "nonResourceAttributes" (encodeMaybe a.nonResourceAttributes)
                , Tuple "resourceAttributes" (encodeMaybe a.resourceAttributes) ]
 
@@ -297,7 +299,7 @@ instance decodeSelfSubjectRulesReview :: Decode SelfSubjectRulesReview where
                status <- decodeMaybe "status" a
                pure $ SelfSubjectRulesReview { metadata, spec, status }
 instance encodeSelfSubjectRulesReview :: Encode SelfSubjectRulesReview where
-  encode (SelfSubjectRulesReview a) = encode $ StrMap.fromFoldable $
+  encode (SelfSubjectRulesReview a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "authorization.k8s.io/v1beta1")
                , Tuple "kind" (encode "SelfSubjectRulesReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -324,7 +326,7 @@ instance decodeSelfSubjectRulesReviewSpec :: Decode SelfSubjectRulesReviewSpec w
                namespace <- decodeMaybe "namespace" a
                pure $ SelfSubjectRulesReviewSpec { namespace }
 instance encodeSelfSubjectRulesReviewSpec :: Encode SelfSubjectRulesReviewSpec where
-  encode (SelfSubjectRulesReviewSpec a) = encode $ StrMap.fromFoldable $
+  encode (SelfSubjectRulesReviewSpec a) = encode $ Object.fromFoldable $
                [ Tuple "namespace" (encodeMaybe a.namespace) ]
 
 
@@ -355,7 +357,7 @@ instance decodeSubjectAccessReview :: Decode SubjectAccessReview where
                status <- decodeMaybe "status" a
                pure $ SubjectAccessReview { metadata, spec, status }
 instance encodeSubjectAccessReview :: Encode SubjectAccessReview where
-  encode (SubjectAccessReview a) = encode $ StrMap.fromFoldable $
+  encode (SubjectAccessReview a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "authorization.k8s.io/v1beta1")
                , Tuple "kind" (encode "SubjectAccessReview")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -379,7 +381,7 @@ instance defaultSubjectAccessReview :: Default SubjectAccessReview where
 -- | - `uid`: UID information about the requesting user.
 -- | - `user`: User is the user you're testing for. If you specify "User" but not "Group", then is it interpreted as "What if User were not a member of any groups
 newtype SubjectAccessReviewSpec = SubjectAccessReviewSpec
-  { extra :: (Maybe (StrMap (Array String)))
+  { extra :: (Maybe (Object (Array String)))
   , group :: (Maybe (Array String))
   , nonResourceAttributes :: (Maybe NonResourceAttributes)
   , resourceAttributes :: (Maybe ResourceAttributes)
@@ -399,7 +401,7 @@ instance decodeSubjectAccessReviewSpec :: Decode SubjectAccessReviewSpec where
                user <- decodeMaybe "user" a
                pure $ SubjectAccessReviewSpec { extra, group, nonResourceAttributes, resourceAttributes, uid, user }
 instance encodeSubjectAccessReviewSpec :: Encode SubjectAccessReviewSpec where
-  encode (SubjectAccessReviewSpec a) = encode $ StrMap.fromFoldable $
+  encode (SubjectAccessReviewSpec a) = encode $ Object.fromFoldable $
                [ Tuple "extra" (encodeMaybe a.extra)
                , Tuple "group" (encodeMaybe a.group)
                , Tuple "nonResourceAttributes" (encodeMaybe a.nonResourceAttributes)
@@ -441,7 +443,7 @@ instance decodeSubjectAccessReviewStatus :: Decode SubjectAccessReviewStatus whe
                reason <- decodeMaybe "reason" a
                pure $ SubjectAccessReviewStatus { allowed, denied, evaluationError, reason }
 instance encodeSubjectAccessReviewStatus :: Encode SubjectAccessReviewStatus where
-  encode (SubjectAccessReviewStatus a) = encode $ StrMap.fromFoldable $
+  encode (SubjectAccessReviewStatus a) = encode $ Object.fromFoldable $
                [ Tuple "allowed" (encodeMaybe a.allowed)
                , Tuple "denied" (encodeMaybe a.denied)
                , Tuple "evaluationError" (encodeMaybe a.evaluationError)
@@ -479,7 +481,7 @@ instance decodeSubjectRulesReviewStatus :: Decode SubjectRulesReviewStatus where
                resourceRules <- decodeMaybe "resourceRules" a
                pure $ SubjectRulesReviewStatus { evaluationError, incomplete, nonResourceRules, resourceRules }
 instance encodeSubjectRulesReviewStatus :: Encode SubjectRulesReviewStatus where
-  encode (SubjectRulesReviewStatus a) = encode $ StrMap.fromFoldable $
+  encode (SubjectRulesReviewStatus a) = encode $ Object.fromFoldable $
                [ Tuple "evaluationError" (encodeMaybe a.evaluationError)
                , Tuple "incomplete" (encodeMaybe a.incomplete)
                , Tuple "nonResourceRules" (encodeMaybe a.nonResourceRules)
@@ -494,7 +496,7 @@ instance defaultSubjectRulesReviewStatus :: Default SubjectRulesReviewStatus whe
     , resourceRules: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/authorization.k8s.io/v1beta1/"

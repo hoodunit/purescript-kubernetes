@@ -1,28 +1,28 @@
 module Kubernetes.Api.Extensions.V1Beta1.PodSecurityPolicy where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Prelude
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.APIExtensions.V1Beta1 as APIExtensionsV1Beta1
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | create a PodSecurityPolicy
-create :: forall e. Config -> APIExtensionsV1Beta1.PodSecurityPolicy -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicy)
+create :: Config -> APIExtensionsV1Beta1.PodSecurityPolicy -> Aff (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicy)
 create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/extensions/v1beta1/podsecuritypolicies"
@@ -47,7 +47,7 @@ instance decodeDeleteOptions :: Decode DeleteOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
-  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteOptions a) = encode $ Object.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -60,7 +60,7 @@ instance defaultDeleteOptions :: Default DeleteOptions where
     , propagationPolicy: Nothing }
 
 -- | delete a PodSecurityPolicy
-delete :: forall e. Config -> String -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+delete :: Config -> String -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 delete cfg name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
     url = "/apis/extensions/v1beta1/podsecuritypolicies/" <> name <> "" <> Client.formatQueryString options
@@ -102,7 +102,7 @@ instance decodeDeleteCollectionOptions :: Decode DeleteCollectionOptions where
                watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionOptions :: Encode DeleteCollectionOptions where
-  encode (DeleteCollectionOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteCollectionOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -125,7 +125,7 @@ instance defaultDeleteCollectionOptions :: Default DeleteCollectionOptions where
     , watch: Nothing }
 
 -- | delete collection of PodSecurityPolicy
-deleteCollection :: forall e. Config -> DeleteCollectionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollection :: Config -> DeleteCollectionOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteCollection cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/podsecuritypolicies" <> Client.formatQueryString options
@@ -166,7 +166,7 @@ instance decodeListOptions :: Decode ListOptions where
                watch <- decodeMaybe "watch" a
                pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListOptions :: Encode ListOptions where
-  encode (ListOptions a) = encode $ StrMap.fromFoldable $
+  encode (ListOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -189,7 +189,7 @@ instance defaultListOptions :: Default ListOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind PodSecurityPolicy
-list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicyList)
+list :: Config -> ListOptions -> Aff (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicyList)
 list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/podsecuritypolicies" <> Client.formatQueryString options
@@ -210,7 +210,7 @@ instance decodeReadOptions :: Decode ReadOptions where
                export <- decodeMaybe "export" a
                pure $ ReadOptions { exact, export }
 instance encodeReadOptions :: Encode ReadOptions where
-  encode (ReadOptions a) = encode $ StrMap.fromFoldable $
+  encode (ReadOptions a) = encode $ Object.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
@@ -221,26 +221,26 @@ instance defaultReadOptions :: Default ReadOptions where
     , export: Nothing }
 
 -- | read the specified PodSecurityPolicy
-read :: forall e. Config -> String -> ReadOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicy)
+read :: Config -> String -> ReadOptions -> Aff (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicy)
 read cfg name options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/podsecuritypolicies/" <> name <> "" <> Client.formatQueryString options
 
 -- | replace the specified PodSecurityPolicy
-replace :: forall e. Config -> String -> APIExtensionsV1Beta1.PodSecurityPolicy -> Aff (http :: HTTP | e) (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicy)
+replace :: Config -> String -> APIExtensionsV1Beta1.PodSecurityPolicy -> Aff (Either MetaV1.Status APIExtensionsV1Beta1.PodSecurityPolicy)
 replace cfg name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/extensions/v1beta1/podsecuritypolicies/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind PodSecurityPolicy
-watch :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch :: Config -> String -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watch cfg name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/watch/podsecuritypolicies/" <> name <> ""
 
 -- | watch individual changes to a list of PodSecurityPolicy
-watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/extensions/v1beta1/watch/podsecuritypolicies"

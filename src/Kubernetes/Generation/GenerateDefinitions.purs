@@ -3,15 +3,16 @@ module Kubernetes.Generation.GenerateDefinitions where
 import Prelude
 
 import Data.Array as Array
+import Data.Array.NonEmpty (NonEmptyArray)
+import Data.Array.NonEmpty as NonEmptyArray
 import Data.Foldable (find, foldl)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.Maybe (Maybe(..))
 import Data.NonEmpty (NonEmpty)
 import Data.NonEmpty as NonEmpty
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.String as String
 import Data.Tuple (Tuple(..), fst, uncurry)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.GenerateSchemaType (generateTypeForSchema)
 import Kubernetes.Generation.JsonSchema (Schema(..), SchemaRef(..))
@@ -46,17 +47,17 @@ sharedImports :: Array AST.Import
 sharedImports = AST.RawImport <$>
   [ "Prelude"
   , "Control.Alt ((<|>))"
-  , "Data.Foreign.Class (class Decode, class Encode, decode, encode)"
-  , "Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
-  , "Data.Foreign.Generic.Types (Options)"
-  , "Data.Foreign.Index (readProp)"
+  , "Foreign.Class (class Decode, class Encode, decode, encode)"
+  , "Foreign.Generic (defaultOptions, genericDecode, genericEncode)"
+  , "Foreign.Generic.Types (Options)"
+  , "Foreign.Index (readProp)"
   , "Data.Generic.Rep (class Generic)"
   , "Data.Generic.Rep.Show (genericShow)"
   , "Data.Maybe (Maybe(Just,Nothing))"
   , "Data.Newtype (class Newtype)"
-  , "Data.StrMap (StrMap)"
-  , "Data.StrMap as StrMap"
   , "Data.Tuple (Tuple(Tuple))"
+  , "Foreign.Object (Object)"
+  , "Foreign.Object as Object"
   , "Kubernetes.Default (class Default)"
   , "Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)" ]
 
@@ -70,13 +71,13 @@ schemaRefs (Schema {additionalProperties, items, oneOf: _oneOf, properties, ref}
                    extract items <>
                    extractMap properties
 
-    extract :: forall a. NullOrUndefined a -> Array a
-    extract (NullOrUndefined (Just v)) = [v]
-    extract (NullOrUndefined Nothing) = []
+    extract :: forall a. Maybe a -> Array a
+    extract (Just v) = [v]
+    extract Nothing = []
 
-    extractMap :: forall a. NullOrUndefined (StrMap a) -> Array a
-    extractMap (NullOrUndefined (Just v)) = StrMap.values v
-    extractMap (NullOrUndefined Nothing) = []
+    extractMap :: forall a. Maybe (Object a) -> Array a
+    extractMap (Just v) = Object.values v
+    extractMap Nothing = []
 
 groupSchemasByModule :: forall f. Partial => Array {name :: String | f}
   -> (Array (Tuple AST.ModuleName (Array {name :: String | f})))
@@ -91,20 +92,20 @@ groupSchemasByModule schemas = case find (eq (pure "Unknown") <<< fst) groups of
     groups :: Array (Tuple AST.ModuleName (Array {name :: String | f}))
     groups = mkTupleGroup <$> arrayGroups
 
-    arrayGroups :: Array (NonEmpty Array {name :: String | f})
+    arrayGroups :: Array (NonEmptyArray {name :: String | f})
     arrayGroups = schemas
       # Array.sortWith (\{name} -> moduleName name)
       # Array.groupBy byNamePrefix
 
-    mkTupleGroup :: NonEmpty Array {name :: String | f}
+    mkTupleGroup :: NonEmptyArray {name :: String | f}
       -> (Tuple AST.ModuleName (Array {name :: String | f}))
     mkTupleGroup group = foldl
                          (\(Tuple n xs) x -> Tuple n (xs <> [x]))
                          (Tuple (groupName group) [])
                          group
 
-    groupName :: NonEmpty Array {name :: String | f} -> AST.ModuleName
-    groupName g = moduleName (NonEmpty.head g).name
+    groupName :: NonEmptyArray {name :: String | f} -> AST.ModuleName
+    groupName g = moduleName (NonEmptyArray.head g).name
 
     moduleName :: String -> AST.ModuleName
     moduleName n = case apiModule (AST.K8SQualifiedName n) of

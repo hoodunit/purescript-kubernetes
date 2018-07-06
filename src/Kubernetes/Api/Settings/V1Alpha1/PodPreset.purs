@@ -1,28 +1,28 @@
 module Kubernetes.Api.Settings.V1Alpha1.PodPreset where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Prelude
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Settings.V1Alpha1 as SettingsV1Alpha1
 
 -- | create a PodPreset
-createNamespaced :: forall e. Config -> SettingsV1Alpha1.PodPreset -> Aff (http :: HTTP | e) (Either MetaV1.Status SettingsV1Alpha1.PodPreset)
+createNamespaced :: Config -> SettingsV1Alpha1.PodPreset -> Aff (Either MetaV1.Status SettingsV1Alpha1.PodPreset)
 createNamespaced cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets"
@@ -64,7 +64,7 @@ instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNames
                watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
-  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteCollectionNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -87,7 +87,7 @@ instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNam
     , watch: Nothing }
 
 -- | delete collection of PodPreset
-deleteCollectionNamespaced :: forall e. Config -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced :: Config -> DeleteCollectionNamespacedOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteCollectionNamespaced cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets" <> Client.formatQueryString options
@@ -111,7 +111,7 @@ instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
-  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -124,14 +124,14 @@ instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
     , propagationPolicy: Nothing }
 
 -- | delete a PodPreset
-deleteNamespaced :: forall e. Config -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced :: Config -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteNamespaced cfg body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
     url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets/{name}" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | list or watch objects of kind PodPreset
-listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status SettingsV1Alpha1.PodPresetList)
+listForAllNamespaces :: Config -> Aff (Either MetaV1.Status SettingsV1Alpha1.PodPresetList)
 listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/podpresets"
@@ -172,7 +172,7 @@ instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
                watch <- decodeMaybe "watch" a
                pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
-  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (ListNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -195,7 +195,7 @@ instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind PodPreset
-listNamespaced :: forall e. Config -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status SettingsV1Alpha1.PodPresetList)
+listNamespaced :: Config -> ListNamespacedOptions -> Aff (Either MetaV1.Status SettingsV1Alpha1.PodPresetList)
 listNamespaced cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets" <> Client.formatQueryString options
@@ -216,7 +216,7 @@ instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
                export <- decodeMaybe "export" a
                pure $ ReadNamespacedOptions { exact, export }
 instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
-  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (ReadNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
@@ -227,32 +227,32 @@ instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
     , export: Nothing }
 
 -- | read the specified PodPreset
-readNamespaced :: forall e. Config -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status SettingsV1Alpha1.PodPreset)
+readNamespaced :: Config -> ReadNamespacedOptions -> Aff (Either MetaV1.Status SettingsV1Alpha1.PodPreset)
 readNamespaced cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets/{name}" <> Client.formatQueryString options
 
 -- | replace the specified PodPreset
-replaceNamespaced :: forall e. Config -> SettingsV1Alpha1.PodPreset -> Aff (http :: HTTP | e) (Either MetaV1.Status SettingsV1Alpha1.PodPreset)
+replaceNamespaced :: Config -> SettingsV1Alpha1.PodPreset -> Aff (Either MetaV1.Status SettingsV1Alpha1.PodPreset)
 replaceNamespaced cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets/{name}"
     encodedBody = encodeJSON body
 
 -- | watch individual changes to a list of PodPreset
-watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/watch/podpresets"
 
 -- | watch changes to an object of kind PodPreset
-watchNamespaced :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchNamespaced cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/watch/namespaces/{namespace}/podpresets/{name}"
 
 -- | watch individual changes to a list of PodPreset
-watchNamespacedList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchNamespacedList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/watch/namespaces/{namespace}/podpresets"

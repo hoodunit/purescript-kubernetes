@@ -2,28 +2,29 @@ module Kubernetes.QueryString where
 
 import Prelude
 
-import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.Maybe (Maybe(..))
-import Data.Record (get)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.String as String
+import Data.String.CodeUnits as CodeUnits
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..))
-import Type.Prelude (class RowLacks, class RowToList, RLProxy(..))
-import Type.Row (Cons, Nil, kind RowList)
+import Foreign.Object (Object)
+import Foreign.Object as Object
+import Prim.RowList (class RowToList)
+import Record (get)
+import Type.Row (Cons, Nil, kind RowList, RLProxy(RLProxy))
+import Type.Row as Row
 
 class ToQueryString a where
   toQueryString :: a -> String
 
 instance toQueryStringString :: ToQueryString String where
-  toQueryString = id
+  toQueryString = identity
 
 instance toQueryStringInt :: ToQueryString Int where
   toQueryString = show
 
 instance toQueryStringChar :: ToQueryString Char where
-  toQueryString = String.singleton
+  toQueryString = CodeUnits.singleton
 
 instance toQueryStringBoolean :: ToQueryString Boolean where
   toQueryString = show
@@ -35,13 +36,9 @@ instance toQueryStringMaybe :: ToQueryString a => ToQueryString (Maybe a) where
   toQueryString Nothing = ""
   toQueryString (Just a) = toQueryString a
 
-instance toQueryStringNullOrUndefined :: ToQueryString a => ToQueryString (NullOrUndefined a) where
-  toQueryString (NullOrUndefined Nothing) = ""
-  toQueryString (NullOrUndefined (Just a)) = toQueryString a
-
-instance toQueryStringStrMap :: ToQueryString a => ToQueryString (StrMap a) where
+instance toQueryStringObject :: ToQueryString a => ToQueryString (Object a) where
   toQueryString s = s
-    # StrMap.toUnfoldable
+    # Object.toUnfoldable
     # map (\(Tuple k v) -> k <> "=" <> toQueryString v)
     # String.joinWith "&"
 
@@ -59,9 +56,9 @@ instance toQueryStringFieldsCons ::
   ( IsSymbol name
   , ToQueryString ty
   , ToQueryStringFields tail row from from'
-  , RowCons name ty whatever row
-  , RowLacks name from'
-  , RowCons name String from' to
+  , Row.Cons name ty whatever row
+  , Row.Lacks name from'
+  , Row.Cons name String from' to
   ) => ToQueryStringFields (Cons name ty tail) row from to where
   toQueryStringFields _ record = result
     where

@@ -1,28 +1,28 @@
 module Kubernetes.Api.Apps.V1Beta2.ControllerRevision where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Prelude
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Apps.V1Beta2 as AppsV1Beta2
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | create a ControllerRevision
-createNamespaced :: forall e. Config -> String -> AppsV1Beta2.ControllerRevision -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta2.ControllerRevision)
+createNamespaced :: Config -> String -> AppsV1Beta2.ControllerRevision -> Aff (Either MetaV1.Status AppsV1Beta2.ControllerRevision)
 createNamespaced cfg namespace body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions"
@@ -64,7 +64,7 @@ instance decodeDeleteCollectionNamespacedOptions :: Decode DeleteCollectionNames
                watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionNamespacedOptions :: Encode DeleteCollectionNamespacedOptions where
-  encode (DeleteCollectionNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteCollectionNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -87,7 +87,7 @@ instance defaultDeleteCollectionNamespacedOptions :: Default DeleteCollectionNam
     , watch: Nothing }
 
 -- | delete collection of ControllerRevision
-deleteCollectionNamespaced :: forall e. Config -> String -> DeleteCollectionNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollectionNamespaced :: Config -> String -> DeleteCollectionNamespacedOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteCollectionNamespaced cfg namespace options = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions" <> Client.formatQueryString options
@@ -111,7 +111,7 @@ instance decodeDeleteNamespacedOptions :: Decode DeleteNamespacedOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteNamespacedOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteNamespacedOptions :: Encode DeleteNamespacedOptions where
-  encode (DeleteNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -124,14 +124,14 @@ instance defaultDeleteNamespacedOptions :: Default DeleteNamespacedOptions where
     , propagationPolicy: Nothing }
 
 -- | delete a ControllerRevision
-deleteNamespaced :: forall e. Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteNamespaced :: Config -> String -> String -> MetaV1.DeleteOptions -> DeleteNamespacedOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteNamespaced cfg namespace name body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> "" <> Client.formatQueryString options
     encodedBody = encodeJSON body
 
 -- | list or watch objects of kind ControllerRevision
-listForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta2.ControllerRevisionList)
+listForAllNamespaces :: Config -> Aff (Either MetaV1.Status AppsV1Beta2.ControllerRevisionList)
 listForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta2/controllerrevisions"
@@ -172,7 +172,7 @@ instance decodeListNamespacedOptions :: Decode ListNamespacedOptions where
                watch <- decodeMaybe "watch" a
                pure $ ListNamespacedOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListNamespacedOptions :: Encode ListNamespacedOptions where
-  encode (ListNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (ListNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -195,7 +195,7 @@ instance defaultListNamespacedOptions :: Default ListNamespacedOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind ControllerRevision
-listNamespaced :: forall e. Config -> String -> ListNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta2.ControllerRevisionList)
+listNamespaced :: Config -> String -> ListNamespacedOptions -> Aff (Either MetaV1.Status AppsV1Beta2.ControllerRevisionList)
 listNamespaced cfg namespace options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions" <> Client.formatQueryString options
@@ -216,7 +216,7 @@ instance decodeReadNamespacedOptions :: Decode ReadNamespacedOptions where
                export <- decodeMaybe "export" a
                pure $ ReadNamespacedOptions { exact, export }
 instance encodeReadNamespacedOptions :: Encode ReadNamespacedOptions where
-  encode (ReadNamespacedOptions a) = encode $ StrMap.fromFoldable $
+  encode (ReadNamespacedOptions a) = encode $ Object.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
@@ -227,32 +227,32 @@ instance defaultReadNamespacedOptions :: Default ReadNamespacedOptions where
     , export: Nothing }
 
 -- | read the specified ControllerRevision
-readNamespaced :: forall e. Config -> String -> String -> ReadNamespacedOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta2.ControllerRevision)
+readNamespaced :: Config -> String -> String -> ReadNamespacedOptions -> Aff (Either MetaV1.Status AppsV1Beta2.ControllerRevision)
 readNamespaced cfg namespace name options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> "" <> Client.formatQueryString options
 
 -- | replace the specified ControllerRevision
-replaceNamespaced :: forall e. Config -> String -> String -> AppsV1Beta2.ControllerRevision -> Aff (http :: HTTP | e) (Either MetaV1.Status AppsV1Beta2.ControllerRevision)
+replaceNamespaced :: Config -> String -> String -> AppsV1Beta2.ControllerRevision -> Aff (Either MetaV1.Status AppsV1Beta2.ControllerRevision)
 replaceNamespaced cfg namespace name body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/apps/v1beta2/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> ""
     encodedBody = encodeJSON body
 
 -- | watch individual changes to a list of ControllerRevision
-watchListForAllNamespaces :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchListForAllNamespaces :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchListForAllNamespaces cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta2/watch/controllerrevisions"
 
 -- | watch changes to an object of kind ControllerRevision
-watchNamespaced :: forall e. Config -> String -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespaced :: Config -> String -> String -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchNamespaced cfg namespace name = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta2/watch/namespaces/" <> namespace <> "/controllerrevisions/" <> name <> ""
 
 -- | watch individual changes to a list of ControllerRevision
-watchNamespacedList :: forall e. Config -> String -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchNamespacedList :: Config -> String -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchNamespacedList cfg namespace = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/apps/v1beta2/watch/namespaces/" <> namespace <> "/controllerrevisions"

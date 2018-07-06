@@ -1,27 +1,29 @@
 module Kubernetes.Api.Storage.V1Alpha1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | VolumeAttachment captures the intent to attach or detach the specified volume to/from the specified node.
@@ -49,7 +51,7 @@ instance decodeVolumeAttachment :: Decode VolumeAttachment where
                status <- decodeMaybe "status" a
                pure $ VolumeAttachment { metadata, spec, status }
 instance encodeVolumeAttachment :: Encode VolumeAttachment where
-  encode (VolumeAttachment a) = encode $ StrMap.fromFoldable $
+  encode (VolumeAttachment a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "storage.k8s.io/v1alpha1")
                , Tuple "kind" (encode "VolumeAttachment")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -83,7 +85,7 @@ instance decodeVolumeAttachmentList :: Decode VolumeAttachmentList where
                metadata <- decodeMaybe "metadata" a
                pure $ VolumeAttachmentList { items, metadata }
 instance encodeVolumeAttachmentList :: Encode VolumeAttachmentList where
-  encode (VolumeAttachmentList a) = encode $ StrMap.fromFoldable $
+  encode (VolumeAttachmentList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "storage.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "VolumeAttachmentList")
@@ -110,7 +112,7 @@ instance decodeVolumeAttachmentSource :: Decode VolumeAttachmentSource where
                persistentVolumeName <- decodeMaybe "persistentVolumeName" a
                pure $ VolumeAttachmentSource { persistentVolumeName }
 instance encodeVolumeAttachmentSource :: Encode VolumeAttachmentSource where
-  encode (VolumeAttachmentSource a) = encode $ StrMap.fromFoldable $
+  encode (VolumeAttachmentSource a) = encode $ Object.fromFoldable $
                [ Tuple "persistentVolumeName" (encodeMaybe a.persistentVolumeName) ]
 
 
@@ -139,7 +141,7 @@ instance decodeVolumeAttachmentSpec :: Decode VolumeAttachmentSpec where
                source <- decodeMaybe "source" a
                pure $ VolumeAttachmentSpec { attacher, nodeName, source }
 instance encodeVolumeAttachmentSpec :: Encode VolumeAttachmentSpec where
-  encode (VolumeAttachmentSpec a) = encode $ StrMap.fromFoldable $
+  encode (VolumeAttachmentSpec a) = encode $ Object.fromFoldable $
                [ Tuple "attacher" (encodeMaybe a.attacher)
                , Tuple "nodeName" (encodeMaybe a.nodeName)
                , Tuple "source" (encodeMaybe a.source) ]
@@ -161,7 +163,7 @@ instance defaultVolumeAttachmentSpec :: Default VolumeAttachmentSpec where
 newtype VolumeAttachmentStatus = VolumeAttachmentStatus
   { attachError :: (Maybe VolumeError)
   , attached :: (Maybe Boolean)
-  , attachmentMetadata :: (Maybe (StrMap String))
+  , attachmentMetadata :: (Maybe (Object String))
   , detachError :: (Maybe VolumeError) }
 
 derive instance newtypeVolumeAttachmentStatus :: Newtype VolumeAttachmentStatus _
@@ -175,7 +177,7 @@ instance decodeVolumeAttachmentStatus :: Decode VolumeAttachmentStatus where
                detachError <- decodeMaybe "detachError" a
                pure $ VolumeAttachmentStatus { attachError, attached, attachmentMetadata, detachError }
 instance encodeVolumeAttachmentStatus :: Encode VolumeAttachmentStatus where
-  encode (VolumeAttachmentStatus a) = encode $ StrMap.fromFoldable $
+  encode (VolumeAttachmentStatus a) = encode $ Object.fromFoldable $
                [ Tuple "attachError" (encodeMaybe a.attachError)
                , Tuple "attached" (encodeMaybe a.attached)
                , Tuple "attachmentMetadata" (encodeMaybe a.attachmentMetadata)
@@ -207,7 +209,7 @@ instance decodeVolumeError :: Decode VolumeError where
                time <- decodeMaybe "time" a
                pure $ VolumeError { message, time }
 instance encodeVolumeError :: Encode VolumeError where
-  encode (VolumeError a) = encode $ StrMap.fromFoldable $
+  encode (VolumeError a) = encode $ Object.fromFoldable $
                [ Tuple "message" (encodeMaybe a.message)
                , Tuple "time" (encodeMaybe a.time) ]
 
@@ -218,7 +220,7 @@ instance defaultVolumeError :: Default VolumeError where
     , time: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/storage.k8s.io/v1alpha1/"

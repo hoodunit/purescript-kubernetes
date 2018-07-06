@@ -32,7 +32,7 @@ emitTypeDecl TypeInt = "Int"
 emitTypeDecl TypeBoolean = "Boolean"
 emitTypeDecl (TypeArray t) = "(Array " <> emitTypeDecl t <> ")"
 emitTypeDecl (TypeNullable t) = "(Nullable " <> emitTypeDecl t <> ")"
-emitTypeDecl (TypeObject t) = "(StrMap " <> emitTypeDecl t <> ")"
+emitTypeDecl (TypeObject t) = "(Object " <> emitTypeDecl t <> ")"
 emitTypeDecl (TypeRef {moduleName, k8sTypeName}) = modNameAsStr moduleName <> "." <> k8sTypeName
 emitTypeDecl (TypeLocalRef name) = name
 
@@ -98,7 +98,7 @@ emitDeclaration (Endpoint
   , urlWithParams}) =
   optionsDecl queryParams <>
   formatDescription description <>
-  name <> " :: forall e. " <> fnParamTypes <> "Aff (http :: HTTP | e) " <> returnType' <> "\n" <>
+  name <> " :: " <> fnParamTypes <> "Aff " <> returnType' <> "\n" <>
   name <> " " <> paramNamesStr <> "= Client.makeRequest (" <> methodCall <> ")\n" <>
   "  where\n" <>
   "    url = " <> buildUrlStr <>
@@ -218,7 +218,7 @@ decodeInstance name fieldNames kind version =
 encodeInstance :: String -> Array String -> Maybe String -> Maybe String -> String
 encodeInstance name fieldNames kind version = 
   "instance encode" <> name <> " :: Encode " <> name <> " where\n" <>
-  "  encode (" <> name <> " a) = encode $ StrMap.fromFoldable $\n" <>
+  "  encode (" <> name <> " a) = encode $ Object.fromFoldable $\n" <>
   "               [ " <> encodeFields fieldNames <> " ]\n"
   where
     fieldSep = "\n               , "

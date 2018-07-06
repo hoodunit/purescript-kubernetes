@@ -2,12 +2,11 @@ module Kubernetes.Json where
 
 import Prelude
 
-import Data.Foreign (F, Foreign, ForeignError(ErrorAtProperty,TypeMismatch), fail)
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Generic (defaultOptions)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined), unNullOrUndefined)
+import Foreign (F, Foreign, ForeignError(ErrorAtProperty,TypeMismatch), fail)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Generic (defaultOptions)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
 import Data.Maybe (Maybe)
 import Kubernetes.Generation.Names (psFieldToJsonField)
 
@@ -19,11 +18,11 @@ jsonOptions = defaultOptions
 decodeMaybe :: forall a. Decode a => String -> Foreign -> F (Maybe a)
 decodeMaybe propName f = do
   propValForeign <- readProp propName f
-  propVal <- decode propValForeign :: F (NullOrUndefined a)
-  pure $ unNullOrUndefined propVal
+  propVal <- decode propValForeign :: F (Maybe a)
+  pure propVal
 
 encodeMaybe :: forall a. Encode a => Maybe a -> Foreign
-encodeMaybe val = encode (NullOrUndefined val)
+encodeMaybe val = encode val
 
 assertPropEq :: String -> String -> Foreign -> F Unit
 assertPropEq propName expectedProp f = do

@@ -1,28 +1,28 @@
 module Kubernetes.Api.Rbac.V1.ClusterRole where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Prelude
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Rbac.V1 as RbacV1
 
 -- | create a ClusterRole
-create :: forall e. Config -> RbacV1.ClusterRole -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.ClusterRole)
+create :: Config -> RbacV1.ClusterRole -> Aff (Either MetaV1.Status RbacV1.ClusterRole)
 create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1/clusterroles"
@@ -47,7 +47,7 @@ instance decodeDeleteOptions :: Decode DeleteOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
-  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteOptions a) = encode $ Object.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -60,7 +60,7 @@ instance defaultDeleteOptions :: Default DeleteOptions where
     , propagationPolicy: Nothing }
 
 -- | delete a ClusterRole
-delete :: forall e. Config -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+delete :: Config -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 delete cfg body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1/clusterroles/{name}" <> Client.formatQueryString options
@@ -102,7 +102,7 @@ instance decodeDeleteCollectionOptions :: Decode DeleteCollectionOptions where
                watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionOptions :: Encode DeleteCollectionOptions where
-  encode (DeleteCollectionOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteCollectionOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -125,7 +125,7 @@ instance defaultDeleteCollectionOptions :: Default DeleteCollectionOptions where
     , watch: Nothing }
 
 -- | delete collection of ClusterRole
-deleteCollection :: forall e. Config -> DeleteCollectionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollection :: Config -> DeleteCollectionOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteCollection cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/clusterroles" <> Client.formatQueryString options
@@ -166,7 +166,7 @@ instance decodeListOptions :: Decode ListOptions where
                watch <- decodeMaybe "watch" a
                pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListOptions :: Encode ListOptions where
-  encode (ListOptions a) = encode $ StrMap.fromFoldable $
+  encode (ListOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -189,32 +189,32 @@ instance defaultListOptions :: Default ListOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind ClusterRole
-list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.ClusterRoleList)
+list :: Config -> ListOptions -> Aff (Either MetaV1.Status RbacV1.ClusterRoleList)
 list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/clusterroles" <> Client.formatQueryString options
 
 -- | read the specified ClusterRole
-read :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.ClusterRole)
+read :: Config -> Aff (Either MetaV1.Status RbacV1.ClusterRole)
 read cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/clusterroles/{name}"
 
 -- | replace the specified ClusterRole
-replace :: forall e. Config -> RbacV1.ClusterRole -> Aff (http :: HTTP | e) (Either MetaV1.Status RbacV1.ClusterRole)
+replace :: Config -> RbacV1.ClusterRole -> Aff (Either MetaV1.Status RbacV1.ClusterRole)
 replace cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/rbac.authorization.k8s.io/v1/clusterroles/{name}"
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind ClusterRole
-watch :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watch cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/watch/clusterroles/{name}"
 
 -- | watch individual changes to a list of ClusterRole
-watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1/watch/clusterroles"

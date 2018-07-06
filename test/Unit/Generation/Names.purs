@@ -2,16 +2,12 @@ module Kubernetes.Test.Unit.Generation.Names where
 
 import Prelude
 
-import Control.Monad.Eff.AVar (AVAR)
-import Control.Monad.Eff.Console (CONSOLE)
-import Control.Monad.Eff.Random (RANDOM)
 import Kubernetes.Generation.Names (jsonFieldToPsField, psFieldToJsonField, snakeCaseToPascalCase, stripTagFromId)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
-import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.QuickCheck (quickCheck)
 
-tests :: forall e. TestSuite (avar :: AVAR, console :: CONSOLE, random :: RANDOM, testOutput :: TESTOUTPUT | e)
+tests :: TestSuite
 tests = do
   suite "stripTagFromId" do
     test "removes tag, in camel case, from operation ID" do

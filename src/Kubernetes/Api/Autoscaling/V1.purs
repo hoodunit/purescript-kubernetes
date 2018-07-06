@@ -1,27 +1,29 @@
 module Kubernetes.Api.Autoscaling.V1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | CrossVersionObjectReference contains enough information to let you identify the referred resource.
@@ -45,7 +47,7 @@ instance decodeCrossVersionObjectReference :: Decode CrossVersionObjectReference
                name <- decodeMaybe "name" a
                pure $ CrossVersionObjectReference { apiVersion, kind, name }
 instance encodeCrossVersionObjectReference :: Encode CrossVersionObjectReference where
-  encode (CrossVersionObjectReference a) = encode $ StrMap.fromFoldable $
+  encode (CrossVersionObjectReference a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "kind" (encodeMaybe a.kind)
                , Tuple "name" (encodeMaybe a.name) ]
@@ -80,7 +82,7 @@ instance decodeHorizontalPodAutoscaler :: Decode HorizontalPodAutoscaler where
                status <- decodeMaybe "status" a
                pure $ HorizontalPodAutoscaler { metadata, spec, status }
 instance encodeHorizontalPodAutoscaler :: Encode HorizontalPodAutoscaler where
-  encode (HorizontalPodAutoscaler a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscaler a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "autoscaling/v1")
                , Tuple "kind" (encode "HorizontalPodAutoscaler")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -114,7 +116,7 @@ instance decodeHorizontalPodAutoscalerList :: Decode HorizontalPodAutoscalerList
                metadata <- decodeMaybe "metadata" a
                pure $ HorizontalPodAutoscalerList { items, metadata }
 instance encodeHorizontalPodAutoscalerList :: Encode HorizontalPodAutoscalerList where
-  encode (HorizontalPodAutoscalerList a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscalerList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "autoscaling/v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "HorizontalPodAutoscalerList")
@@ -150,7 +152,7 @@ instance decodeHorizontalPodAutoscalerSpec :: Decode HorizontalPodAutoscalerSpec
                targetCPUUtilizationPercentage <- decodeMaybe "targetCPUUtilizationPercentage" a
                pure $ HorizontalPodAutoscalerSpec { maxReplicas, minReplicas, scaleTargetRef, targetCPUUtilizationPercentage }
 instance encodeHorizontalPodAutoscalerSpec :: Encode HorizontalPodAutoscalerSpec where
-  encode (HorizontalPodAutoscalerSpec a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscalerSpec a) = encode $ Object.fromFoldable $
                [ Tuple "maxReplicas" (encodeMaybe a.maxReplicas)
                , Tuple "minReplicas" (encodeMaybe a.minReplicas)
                , Tuple "scaleTargetRef" (encodeMaybe a.scaleTargetRef)
@@ -191,7 +193,7 @@ instance decodeHorizontalPodAutoscalerStatus :: Decode HorizontalPodAutoscalerSt
                observedGeneration <- decodeMaybe "observedGeneration" a
                pure $ HorizontalPodAutoscalerStatus { currentCPUUtilizationPercentage, currentReplicas, desiredReplicas, lastScaleTime, observedGeneration }
 instance encodeHorizontalPodAutoscalerStatus :: Encode HorizontalPodAutoscalerStatus where
-  encode (HorizontalPodAutoscalerStatus a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscalerStatus a) = encode $ Object.fromFoldable $
                [ Tuple "currentCPUUtilizationPercentage" (encodeMaybe a.currentCPUUtilizationPercentage)
                , Tuple "currentReplicas" (encodeMaybe a.currentReplicas)
                , Tuple "desiredReplicas" (encodeMaybe a.desiredReplicas)
@@ -230,7 +232,7 @@ instance decodeScale :: Decode Scale where
                status <- decodeMaybe "status" a
                pure $ Scale { metadata, spec, status }
 instance encodeScale :: Encode Scale where
-  encode (Scale a) = encode $ StrMap.fromFoldable $
+  encode (Scale a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "autoscaling/v1")
                , Tuple "kind" (encode "Scale")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -259,7 +261,7 @@ instance decodeScaleSpec :: Decode ScaleSpec where
                replicas <- decodeMaybe "replicas" a
                pure $ ScaleSpec { replicas }
 instance encodeScaleSpec :: Encode ScaleSpec where
-  encode (ScaleSpec a) = encode $ StrMap.fromFoldable $
+  encode (ScaleSpec a) = encode $ Object.fromFoldable $
                [ Tuple "replicas" (encodeMaybe a.replicas) ]
 
 
@@ -285,7 +287,7 @@ instance decodeScaleStatus :: Decode ScaleStatus where
                selector <- decodeMaybe "selector" a
                pure $ ScaleStatus { replicas, selector }
 instance encodeScaleStatus :: Encode ScaleStatus where
-  encode (ScaleStatus a) = encode $ StrMap.fromFoldable $
+  encode (ScaleStatus a) = encode $ Object.fromFoldable $
                [ Tuple "replicas" (encodeMaybe a.replicas)
                , Tuple "selector" (encodeMaybe a.selector) ]
 
@@ -296,7 +298,7 @@ instance defaultScaleStatus :: Default ScaleStatus where
     , selector: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/autoscaling/v1/"

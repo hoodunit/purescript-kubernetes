@@ -5,9 +5,9 @@ import Prelude
 import Data.Array as Array
 import Data.List (List(..))
 import Data.List as List
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(..))
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.GenerateApi (generateEndpointModules)
 import Kubernetes.Generation.GenerateDefinitions (KubernetesSchema, generateDefinitionModules)
@@ -30,13 +30,13 @@ generateApi moduleNs swagger =
     endpointModules = generateEndpointModules swagger.paths
     definitionModules = mkDefinitionsAst swagger.definitions
     
-    mkDefinitionsAst :: StrMap Schema -> Array AST.Module
+    mkDefinitionsAst :: Object Schema -> Array AST.Module
     mkDefinitionsAst schemas = schemas
       # parseSchemas
       # \s -> unsafePartial (generateDefinitionModules s)
 
-    parseSchemas :: StrMap Schema -> Array KubernetesSchema
-    parseSchemas = StrMap.toUnfoldable
+    parseSchemas :: Object Schema -> Array KubernetesSchema
+    parseSchemas = Object.toUnfoldable
       >>> map (\(Tuple name schema) -> {name, schema})
 
 mergeModules :: Array AST.Module -> Array AST.Module -> AST.AST

@@ -1,28 +1,28 @@
 module Kubernetes.Api.AdmissionRegistration.V1Beta1.ValidatingWebhookConfiguration where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Prelude
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.AdmissionRegistration.V1Beta1 as AdmissionRegistrationV1Beta1
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | create a ValidatingWebhookConfiguration
-create :: forall e. Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
+create :: Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
 create cfg body = Client.makeRequest (Client.post cfg url (Just encodedBody))
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations"
@@ -47,7 +47,7 @@ instance decodeDeleteOptions :: Decode DeleteOptions where
                propagationPolicy <- decodeMaybe "propagationPolicy" a
                pure $ DeleteOptions { gracePeriodSeconds, orphanDependents, propagationPolicy }
 instance encodeDeleteOptions :: Encode DeleteOptions where
-  encode (DeleteOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteOptions a) = encode $ Object.fromFoldable $
                [ Tuple "gracePeriodSeconds" (encodeMaybe a.gracePeriodSeconds)
                , Tuple "orphanDependents" (encodeMaybe a.orphanDependents)
                , Tuple "propagationPolicy" (encodeMaybe a.propagationPolicy) ]
@@ -60,7 +60,7 @@ instance defaultDeleteOptions :: Default DeleteOptions where
     , propagationPolicy: Nothing }
 
 -- | delete a ValidatingWebhookConfiguration
-delete :: forall e. Config -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+delete :: Config -> MetaV1.DeleteOptions -> DeleteOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 delete cfg body options = Client.makeRequest (Client.delete cfg url (Just encodedBody))
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> Client.formatQueryString options
@@ -102,7 +102,7 @@ instance decodeDeleteCollectionOptions :: Decode DeleteCollectionOptions where
                watch <- decodeMaybe "watch" a
                pure $ DeleteCollectionOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeDeleteCollectionOptions :: Encode DeleteCollectionOptions where
-  encode (DeleteCollectionOptions a) = encode $ StrMap.fromFoldable $
+  encode (DeleteCollectionOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -125,7 +125,7 @@ instance defaultDeleteCollectionOptions :: Default DeleteCollectionOptions where
     , watch: Nothing }
 
 -- | delete collection of ValidatingWebhookConfiguration
-deleteCollection :: forall e. Config -> DeleteCollectionOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.Status)
+deleteCollection :: Config -> DeleteCollectionOptions -> Aff (Either MetaV1.Status MetaV1.Status)
 deleteCollection cfg options = Client.makeRequest (Client.delete cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> Client.formatQueryString options
@@ -166,7 +166,7 @@ instance decodeListOptions :: Decode ListOptions where
                watch <- decodeMaybe "watch" a
                pure $ ListOptions { continue, fieldSelector, includeUninitialized, labelSelector, limit, resourceVersion, timeoutSeconds, watch }
 instance encodeListOptions :: Encode ListOptions where
-  encode (ListOptions a) = encode $ StrMap.fromFoldable $
+  encode (ListOptions a) = encode $ Object.fromFoldable $
                [ Tuple "continue" (encodeMaybe a.continue)
                , Tuple "fieldSelector" (encodeMaybe a.fieldSelector)
                , Tuple "includeUninitialized" (encodeMaybe a.includeUninitialized)
@@ -189,7 +189,7 @@ instance defaultListOptions :: Default ListOptions where
     , watch: Nothing }
 
 -- | list or watch objects of kind ValidatingWebhookConfiguration
-list :: forall e. Config -> ListOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfigurationList)
+list :: Config -> ListOptions -> Aff (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfigurationList)
 list cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations" <> Client.formatQueryString options
@@ -210,7 +210,7 @@ instance decodeReadOptions :: Decode ReadOptions where
                export <- decodeMaybe "export" a
                pure $ ReadOptions { exact, export }
 instance encodeReadOptions :: Encode ReadOptions where
-  encode (ReadOptions a) = encode $ StrMap.fromFoldable $
+  encode (ReadOptions a) = encode $ Object.fromFoldable $
                [ Tuple "exact" (encodeMaybe a.exact)
                , Tuple "export" (encodeMaybe a.export) ]
 
@@ -221,26 +221,26 @@ instance defaultReadOptions :: Default ReadOptions where
     , export: Nothing }
 
 -- | read the specified ValidatingWebhookConfiguration
-read :: forall e. Config -> ReadOptions -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
+read :: Config -> ReadOptions -> Aff (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
 read cfg options = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}" <> Client.formatQueryString options
 
 -- | replace the specified ValidatingWebhookConfiguration
-replace :: forall e. Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (http :: HTTP | e) (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
+replace :: Config -> AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration -> Aff (Either MetaV1.Status AdmissionRegistrationV1Beta1.ValidatingWebhookConfiguration)
 replace cfg body = Client.makeRequest (Client.put cfg url (Just encodedBody))
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}"
     encodedBody = encodeJSON body
 
 -- | watch changes to an object of kind ValidatingWebhookConfiguration
-watch :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watch :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watch cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/watch/validatingwebhookconfigurations/{name}"
 
 -- | watch individual changes to a list of ValidatingWebhookConfiguration
-watchList :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.WatchEvent)
+watchList :: Config -> Aff (Either MetaV1.Status MetaV1.WatchEvent)
 watchList cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/admissionregistration.k8s.io/v1beta1/watch/validatingwebhookconfigurations"

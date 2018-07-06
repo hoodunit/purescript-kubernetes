@@ -2,7 +2,6 @@ module Kubernetes.Config where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
 import Data.Lens (Lens')
 import Data.Lens.Record (prop)
 import Data.Lens.Iso.Newtype (_Newtype)
@@ -10,10 +9,10 @@ import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(SProxy))
+import Effect.Aff (Aff)
 import Kubernetes.Default (class Default)
 import Kubernetes.Request as Req
 import Node.Encoding as Encoding
-import Node.FS (FS)
 import Node.FS.Aff as FS
 
 newtype Config = Config
@@ -54,7 +53,7 @@ type TLSConfig =
   , clientKey :: Maybe String
   , verifyServerCert :: Boolean }
 
-loadFile :: forall e. String -> Aff (fs :: FS | e) String
+loadFile :: String -> Aff String
 loadFile = FS.readTextFile Encoding.UTF8
 
 _basicAuth :: forall s a r. Newtype s { basicAuth :: a | r } => Lens' s a

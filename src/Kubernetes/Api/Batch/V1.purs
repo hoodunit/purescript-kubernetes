@@ -1,27 +1,29 @@
 module Kubernetes.Api.Batch.V1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Core.V1 as CoreV1
 import Kubernetes.Api.Meta.V1 as MetaV1
 
@@ -48,7 +50,7 @@ instance decodeJob :: Decode Job where
                status <- decodeMaybe "status" a
                pure $ Job { metadata, spec, status }
 instance encodeJob :: Encode Job where
-  encode (Job a) = encode $ StrMap.fromFoldable $
+  encode (Job a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "batch/v1")
                , Tuple "kind" (encode "Job")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -92,7 +94,7 @@ instance decodeJobCondition :: Decode JobCondition where
                status <- decodeMaybe "status" a
                pure $ JobCondition { _type, lastProbeTime, lastTransitionTime, message, reason, status }
 instance encodeJobCondition :: Encode JobCondition where
-  encode (JobCondition a) = encode $ StrMap.fromFoldable $
+  encode (JobCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastProbeTime" (encodeMaybe a.lastProbeTime)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
@@ -130,7 +132,7 @@ instance decodeJobList :: Decode JobList where
                metadata <- decodeMaybe "metadata" a
                pure $ JobList { items, metadata }
 instance encodeJobList :: Encode JobList where
-  encode (JobList a) = encode $ StrMap.fromFoldable $
+  encode (JobList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "batch/v1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "JobList")
@@ -175,7 +177,7 @@ instance decodeJobSpec :: Decode JobSpec where
                template <- decodeMaybe "template" a
                pure $ JobSpec { activeDeadlineSeconds, backoffLimit, completions, manualSelector, parallelism, selector, template }
 instance encodeJobSpec :: Encode JobSpec where
-  encode (JobSpec a) = encode $ StrMap.fromFoldable $
+  encode (JobSpec a) = encode $ Object.fromFoldable $
                [ Tuple "activeDeadlineSeconds" (encodeMaybe a.activeDeadlineSeconds)
                , Tuple "backoffLimit" (encodeMaybe a.backoffLimit)
                , Tuple "completions" (encodeMaybe a.completions)
@@ -225,7 +227,7 @@ instance decodeJobStatus :: Decode JobStatus where
                succeeded <- decodeMaybe "succeeded" a
                pure $ JobStatus { active, completionTime, conditions, failed, startTime, succeeded }
 instance encodeJobStatus :: Encode JobStatus where
-  encode (JobStatus a) = encode $ StrMap.fromFoldable $
+  encode (JobStatus a) = encode $ Object.fromFoldable $
                [ Tuple "active" (encodeMaybe a.active)
                , Tuple "completionTime" (encodeMaybe a.completionTime)
                , Tuple "conditions" (encodeMaybe a.conditions)
@@ -244,7 +246,7 @@ instance defaultJobStatus :: Default JobStatus where
     , succeeded: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/batch/v1/"

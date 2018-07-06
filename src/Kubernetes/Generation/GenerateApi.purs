@@ -4,18 +4,16 @@ import Prelude
 
 import Data.Array as Array
 import Data.Foldable (find, findMap)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(..))
 import Data.Lens ((^.))
 import Data.Lens as L
 import Data.List.NonEmpty (NonEmptyList(..))
 import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.NonEmpty ((:|))
-import Data.Record as Record
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Symbol (SProxy(..))
 import Data.Tuple (Tuple(..), uncurry)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Generation.AST as AST
 import Kubernetes.Generation.JsonSchema (SchemaRef(SchemaRef))
 import Kubernetes.Generation.Names (apiModuleFromGroupVersion, apiModuleFromTag, schemaRefToQualifiedName, stripModuleFromId, stripTagFromId, uppercaseFirstChar)
@@ -23,6 +21,7 @@ import Kubernetes.Generation.PathParsing as PathParsing
 import Kubernetes.Generation.Swagger (Operation, Param, PathItem, Response, _delete, _get, _head, _options, _patch, _post, _put, _ref, _schema, _type)
 import Kubernetes.SchemaExtensions (GroupVersionKind(GroupVersionKind))
 import Partial.Unsafe (unsafeCrashWith)
+import Record as Record
 import Simple.JSON (writeJSON)
 
 type DeclWithModule =
@@ -33,11 +32,11 @@ type ApiResponse =
   , "type" :: Maybe String
   , typeRef :: Maybe String }
 
-generateEndpointModules :: Partial => StrMap PathItem -> Array AST.Module
+generateEndpointModules :: Partial => Object PathItem -> Array AST.Module
 generateEndpointModules paths = groupEndpointsByModule (parseEndpoints paths)
   where
-    parseEndpoints :: StrMap PathItem -> Array DeclWithModule
-    parseEndpoints = StrMap.toUnfoldable
+    parseEndpoints :: Object PathItem -> Array DeclWithModule
+    parseEndpoints = Object.toUnfoldable
       >>> map (uncurry parsePathMethods)
       >>> Array.concat
 
@@ -52,10 +51,10 @@ parsePathMethod :: Partial => String -> Tuple String Operation -> Maybe DeclWith
 -- Not generating patch functions for now as it requires special handling
 parsePathMethod _ (Tuple "patch" _) = Nothing
 parsePathMethod path (Tuple _method
-                                op@{ operationId: NullOrUndefined (Just id)
-                                    , responses: NullOrUndefined (Just responses)
-                                    , description: NullOrUndefined description
-                                    , tags: NullOrUndefined tags }) =
+                                op@{ operationId: Just id
+                                    , responses: Just responses
+                                    , description: description
+                                    , tags: tags }) =
   
   Just { moduleName
        , decl: AST.Endpoint
@@ -76,7 +75,7 @@ parsePathMethod path (Tuple _method
     urlWithParams = PathParsing.parse path
 
     parsedResponses :: Array ApiResponse
-    parsedResponses = parseResp <$> StrMap.toUnfoldable responses
+    parsedResponses = parseResp <$> Object.toUnfoldable responses
     
     parseResp :: Tuple String Response -> ApiResponse
     parseResp (Tuple responseCode r) =
@@ -88,12 +87,12 @@ parsePathMethod _ (Tuple name op) =
 
 parseModuleName :: Partial => Operation -> AST.ModuleName
 parseModuleName op@{"x-kubernetes-group-version-kind":
-                    NullOrUndefined (Just (GroupVersionKind v))} =
+                    Just (GroupVersionKind v)} =
   case apiModuleFromGroupVersion v of
     Just name -> name
     Nothing -> unsafeCrashWith $ "Could not parse module name from group version: " <>
       show (writeJSON op)
-parseModuleName op@{tags: NullOrUndefined (Just [tag])} =
+parseModuleName op@{tags: Just [tag]} =
   case apiModuleFromTag tag of
     Just name -> name
     Nothing -> unsafeCrashWith $ "Could not parse module name from tag: " <>
@@ -111,7 +110,7 @@ endpointReturnType modName responses =
     _ -> AST.TypeString
 
 operationName :: Operation -> AST.ModuleName -> String -> Maybe (Array String) -> String
-operationName {"x-kubernetes-action": NullOrUndefined (Just _)} modName opId (Just [tag]) =
+operationName {"x-kubernetes-action": Just _} modName opId (Just [tag]) =
   opId # stripTagFromId tag # stripModuleFromId modName
 operationName op modName opId (Just [tag]) = opId # stripTagFromId tag
 operationName _ modName opId (Just []) = opId
@@ -130,8 +129,8 @@ parseMethod "put" = AST.PUT
 parseMethod s = unsafeCrashWith $ "Unhandled operation HTTP method: " <> s
 
 parseOperationParams :: Partial => String -> Operation -> Maybe AST.ObjectType
-parseOperationParams _ {parameters: NullOrUndefined Nothing} = Nothing
-parseOperationParams name {parameters: NullOrUndefined (Just params)} =
+parseOperationParams _ {parameters: Nothing} = Nothing
+parseOperationParams name {parameters: Just params} =
   if Array.null fields
      then Nothing
      else Just $ AST.ObjectType $
@@ -142,9 +141,9 @@ parseOperationParams name {parameters: NullOrUndefined (Just params)} =
   where fields = Array.catMaybes (parseParam <$> params)
 
 parseParam :: Partial => Param -> Maybe AST.OptionalField
-parseParam { description: NullOrUndefined description
+parseParam { description: description
            , name
-           , "type": NullOrUndefined (Just paramType)} =
+           , "type": Just paramType} =
   Just { description
        , name
        , innerType: parseType paramType }
@@ -154,7 +153,7 @@ parseParam p = unsafeCrashWith $ "Could not parse param " <>
                show (writeJSON $ Record.delete (SProxy :: SProxy "schema") p)
 
 parseOperationBody :: Partial => Operation -> Maybe AST.TypeDecl
-parseOperationBody {parameters: NullOrUndefined (Just params)} =
+parseOperationBody {parameters: Just params} =
   findMap bodyParamAsDecl params
 parseOperationBody _ = Nothing
 
@@ -162,7 +161,7 @@ bodyParamAsDecl :: Partial => Param -> Maybe AST.TypeDecl
 bodyParamAsDecl
   { name: "body"
   , "in": "body"
-  , schema: NullOrUndefined (Just {"$ref": NullOrUndefined (Just ref)}) } =
+  , schema: Just {"$ref": Just ref} } =
     case schemaRefToQualifiedName (SchemaRef ref) of
       Just name -> Just $ AST.TypeRef name
       Nothing -> unsafeCrashWith $ "Could not parse body ref to qualified name: " <> ref
@@ -216,19 +215,18 @@ mkModule moduleName decls =
   { name: moduleName
   , imports: (AST.RawImport <$>
     [ "Prelude"
-    , "Control.Monad.Aff (Aff)"
     , "Data.Either (Either(Left,Right))"
-    , "Data.Foreign.Class (class Decode, class Encode, encode, decode)"
-    , "Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
-    , "Data.Foreign.Index (readProp)"
+    , "Effect.Aff (Aff)"
+    , "Foreign.Class (class Decode, class Encode, encode, decode)"
+    , "Foreign.Generic (encodeJSON, genericEncode, genericDecode)"
+    , "Foreign.Index (readProp)"
     , "Data.Generic.Rep (class Generic)"
     , "Data.Generic.Rep.Show (genericShow)"
     , "Data.Maybe (Maybe(Just,Nothing))"
     , "Data.Newtype (class Newtype)"
-    , "Data.StrMap (StrMap)"
-    , "Data.StrMap as StrMap"
     , "Data.Tuple (Tuple(Tuple))"
-    , "Node.HTTP (HTTP)"
+    , "Foreign.Object (Object)"
+    , "Foreign.Object as Object"
     , "Kubernetes.Client as Client"
     , "Kubernetes.Config (Config)"
     , "Kubernetes.Default (class Default)"

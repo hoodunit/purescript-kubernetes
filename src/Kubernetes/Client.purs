@@ -2,31 +2,30 @@ module Kubernetes.Client where
 
 import Prelude
 
-import Control.Monad.Aff (Aff, throwError)
-import Control.Monad.Eff.Exception (Error)
-import Control.Monad.Eff.Exception as Ex
 import Control.Monad.Except (runExcept)
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (elem)
-import Data.Foreign (MultipleErrors)
-import Data.Foreign.Class (class Decode)
-import Data.Foreign.Generic (decodeJSON)
 import Data.HTTP.Method (Method)
 import Data.HTTP.Method as Method
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Newtype (class Newtype)
 import Data.Newtype as Newtype
 import Data.String as String
+import Effect.Aff (Aff, throwError)
+import Effect.Exception (Error)
+import Effect.Exception as Ex
+import Foreign (MultipleErrors)
+import Foreign.Class (class Decode)
+import Foreign.Generic (decodeJSON)
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Config (Config(Config))
 import Kubernetes.QueryString (class ToQueryString, toQueryString)
 import Kubernetes.Request as Req
-import Node.HTTP (HTTP)
 
 makeRequest :: forall e a.
   Decode a =>
-  Req.Request -> Aff (http :: HTTP | e) (Either MetaV1.Status a)
+  Req.Request -> Aff (Either MetaV1.Status a)
 makeRequest req = do
   res <- Req.request req
   if elem res.status successCodes
@@ -75,7 +74,7 @@ apiRequest (Config { basicAuth
   , protocol
   , rejectUnauthorized: verifyServerCert }
 
-parseResponse :: forall a e. Decode a => String -> Req.Request -> Req.Response -> Aff (http :: HTTP | e) a
+parseResponse :: forall a. Decode a => String -> Req.Request -> Req.Response -> Aff a
 parseResponse typeName req res = do
   case runExcept (decodeJSON res.body) of
     Right val -> pure val

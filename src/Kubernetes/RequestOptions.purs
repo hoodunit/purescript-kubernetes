@@ -3,11 +3,11 @@ module Kubernetes.RequestOptions where
 import Prelude
 
 import Data.Options (Option, opt)
-import Data.StrMap (StrMap)
+import Foreign.Object (Object)
 
 data RequestOptions
   
-newtype RequestHeaders = RequestHeaders (StrMap String)
+newtype RequestHeaders = RequestHeaders (Object String)
 
 -- | The protocol to use
 protocol :: Option RequestOptions String

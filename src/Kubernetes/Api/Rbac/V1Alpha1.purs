@@ -1,27 +1,29 @@
 module Kubernetes.Api.Rbac.V1Alpha1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 
 -- | AggregationRule describes how to locate ClusterRoles to aggregate into the ClusterRole
@@ -39,7 +41,7 @@ instance decodeAggregationRule :: Decode AggregationRule where
                clusterRoleSelectors <- decodeMaybe "clusterRoleSelectors" a
                pure $ AggregationRule { clusterRoleSelectors }
 instance encodeAggregationRule :: Encode AggregationRule where
-  encode (AggregationRule a) = encode $ StrMap.fromFoldable $
+  encode (AggregationRule a) = encode $ Object.fromFoldable $
                [ Tuple "clusterRoleSelectors" (encodeMaybe a.clusterRoleSelectors) ]
 
 
@@ -70,7 +72,7 @@ instance decodeClusterRole :: Decode ClusterRole where
                rules <- decodeMaybe "rules" a
                pure $ ClusterRole { aggregationRule, metadata, rules }
 instance encodeClusterRole :: Encode ClusterRole where
-  encode (ClusterRole a) = encode $ StrMap.fromFoldable $
+  encode (ClusterRole a) = encode $ Object.fromFoldable $
                [ Tuple "aggregationRule" (encodeMaybe a.aggregationRule)
                , Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "kind" (encode "ClusterRole")
@@ -107,7 +109,7 @@ instance decodeClusterRoleBinding :: Decode ClusterRoleBinding where
                subjects <- decodeMaybe "subjects" a
                pure $ ClusterRoleBinding { metadata, roleRef, subjects }
 instance encodeClusterRoleBinding :: Encode ClusterRoleBinding where
-  encode (ClusterRoleBinding a) = encode $ StrMap.fromFoldable $
+  encode (ClusterRoleBinding a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "kind" (encode "ClusterRoleBinding")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -141,7 +143,7 @@ instance decodeClusterRoleBindingList :: Decode ClusterRoleBindingList where
                metadata <- decodeMaybe "metadata" a
                pure $ ClusterRoleBindingList { items, metadata }
 instance encodeClusterRoleBindingList :: Encode ClusterRoleBindingList where
-  encode (ClusterRoleBindingList a) = encode $ StrMap.fromFoldable $
+  encode (ClusterRoleBindingList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ClusterRoleBindingList")
@@ -173,7 +175,7 @@ instance decodeClusterRoleList :: Decode ClusterRoleList where
                metadata <- decodeMaybe "metadata" a
                pure $ ClusterRoleList { items, metadata }
 instance encodeClusterRoleList :: Encode ClusterRoleList where
-  encode (ClusterRoleList a) = encode $ StrMap.fromFoldable $
+  encode (ClusterRoleList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "ClusterRoleList")
@@ -212,7 +214,7 @@ instance decodePolicyRule :: Decode PolicyRule where
                verbs <- decodeMaybe "verbs" a
                pure $ PolicyRule { apiGroups, nonResourceURLs, resourceNames, resources, verbs }
 instance encodePolicyRule :: Encode PolicyRule where
-  encode (PolicyRule a) = encode $ StrMap.fromFoldable $
+  encode (PolicyRule a) = encode $ Object.fromFoldable $
                [ Tuple "apiGroups" (encodeMaybe a.apiGroups)
                , Tuple "nonResourceURLs" (encodeMaybe a.nonResourceURLs)
                , Tuple "resourceNames" (encodeMaybe a.resourceNames)
@@ -248,7 +250,7 @@ instance decodeRole :: Decode Role where
                rules <- decodeMaybe "rules" a
                pure $ Role { metadata, rules }
 instance encodeRole :: Encode Role where
-  encode (Role a) = encode $ StrMap.fromFoldable $
+  encode (Role a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "kind" (encode "Role")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -283,7 +285,7 @@ instance decodeRoleBinding :: Decode RoleBinding where
                subjects <- decodeMaybe "subjects" a
                pure $ RoleBinding { metadata, roleRef, subjects }
 instance encodeRoleBinding :: Encode RoleBinding where
-  encode (RoleBinding a) = encode $ StrMap.fromFoldable $
+  encode (RoleBinding a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "kind" (encode "RoleBinding")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -317,7 +319,7 @@ instance decodeRoleBindingList :: Decode RoleBindingList where
                metadata <- decodeMaybe "metadata" a
                pure $ RoleBindingList { items, metadata }
 instance encodeRoleBindingList :: Encode RoleBindingList where
-  encode (RoleBindingList a) = encode $ StrMap.fromFoldable $
+  encode (RoleBindingList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "RoleBindingList")
@@ -349,7 +351,7 @@ instance decodeRoleList :: Decode RoleList where
                metadata <- decodeMaybe "metadata" a
                pure $ RoleList { items, metadata }
 instance encodeRoleList :: Encode RoleList where
-  encode (RoleList a) = encode $ StrMap.fromFoldable $
+  encode (RoleList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "rbac.authorization.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "RoleList")
@@ -382,7 +384,7 @@ instance decodeRoleRef :: Decode RoleRef where
                name <- decodeMaybe "name" a
                pure $ RoleRef { apiGroup, kind, name }
 instance encodeRoleRef :: Encode RoleRef where
-  encode (RoleRef a) = encode $ StrMap.fromFoldable $
+  encode (RoleRef a) = encode $ Object.fromFoldable $
                [ Tuple "apiGroup" (encodeMaybe a.apiGroup)
                , Tuple "kind" (encodeMaybe a.kind)
                , Tuple "name" (encodeMaybe a.name) ]
@@ -418,7 +420,7 @@ instance decodeSubject :: Decode Subject where
                namespace <- decodeMaybe "namespace" a
                pure $ Subject { apiVersion, kind, name, namespace }
 instance encodeSubject :: Encode Subject where
-  encode (Subject a) = encode $ StrMap.fromFoldable $
+  encode (Subject a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "kind" (encodeMaybe a.kind)
                , Tuple "name" (encodeMaybe a.name)
@@ -433,7 +435,7 @@ instance defaultSubject :: Default Subject where
     , namespace: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/rbac.authorization.k8s.io/v1alpha1/"

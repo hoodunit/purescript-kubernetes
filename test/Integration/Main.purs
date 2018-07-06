@@ -6,28 +6,26 @@ import Kubernetes.Api.Lens
 import Prelude
 
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff, launchAff_, throwError)
-import Control.Monad.Aff as Aff
-import Control.Monad.Aff.Console (log, logShow)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Eff.Console (CONSOLE)
-import Control.Monad.Eff.Exception as Exception
 import Control.Monad.Except (runExcept)
-import Control.Monad.Loops (iterateUntil)
 import Data.Either (Either(..), either, hush)
-import Data.Foreign (MultipleErrors)
-import Data.Foreign as Foreign
+import Foreign (MultipleErrors)
+import Foreign as Foreign
 import Data.Function.Uncurried (Fn3, runFn3)
 import Data.HTTP.Method as Method
 import Data.Lens
 import Data.Lens as L
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (mempty)
-import Data.StrMap as StrMap
 import Data.Time.Duration (Milliseconds(..))
 import Data.Tuple (Tuple(..))
 import Debug.Trace as Debug
+import Effect.Aff (Aff, launchAff_, throwError)
+import Effect.Aff as Aff
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Effect.Class.Console (log, logShow)
+import Effect.Exception as Exception
+import Foreign.Object as Object
 import Kubernetes.Api.Core.V1.Namespace as NS
 import Kubernetes.Api.Core.V1.Service as Service
 import Kubernetes.Api.Extensions.V1Beta1.Deployment as Deploy
@@ -40,17 +38,14 @@ import Kubernetes.Config as Cfg
 import Kubernetes.Default (default)
 import Kubernetes.Request as Request
 import Node.Encoding (Encoding(..))
-import Node.FS (FS)
 import Node.FS.Aff (readTextFile)
-import Node.HTTP (HTTP)
-import Node.Process (PROCESS)
 import Node.Process as Process
     
 echoDeployment :: Deployment
 echoDeployment =
   (default :: Deployment)
     # _metadata ?~ (default
-      # _labels ?~ (StrMap.fromFoldable
+      # _labels ?~ (Object.fromFoldable
         [ Tuple "service" "echoserver" ])
       # _name ?~ "echoserver")
     # _spec ?~ (default
@@ -60,7 +55,7 @@ echoDeployment =
       # _template ?~ (default
         # _metadata ?~ (default
           # _name ?~ "echoserver"
-          # _labels ?~ StrMap.fromFoldable
+          # _labels ?~ Object.fromFoldable
             [ Tuple "service" "echoserver" ])
         # _spec ?~ ((default :: PodSpec)
           # _containers ?~
@@ -78,7 +73,7 @@ echoService :: Service
 echoService =
   default
     # _metadata ?~ (default
-      # _labels ?~ (StrMap.fromFoldable
+      # _labels ?~ (Object.fromFoldable
         [ Tuple "service" "echoserver" ])
       # _name ?~ "echoserver")
     # _spec ?~ (default
@@ -88,7 +83,7 @@ echoService =
                      # _protocol ?~ "TCP"
                      # _port ?~ 9200
                      # _targetPort ?~ (IntOrStringInt 8080) ]
-      # _selector ?~ (StrMap.fromFoldable [ Tuple "service" "echoserver" ]))
+      # _selector ?~ (Object.fromFoldable [ Tuple "service" "echoserver" ]))
 
 testNamespace :: Namespace
 testNamespace = default
@@ -101,7 +96,7 @@ testNamespace2 = default # (\(Namespace n) -> Namespace $ n
         default # (\(MetaV1.ObjectMeta m) -> MetaV1.ObjectMeta $ m
           { name = Just "test" }) })
 
-loadConfig :: Aff _ Config
+loadConfig :: Aff Config
 loadConfig = do
   host <- envVar "K8S_HOST"
   portStr <- envVar "K8S_PORT"
@@ -124,13 +119,13 @@ loadConfig = do
     , cluster
     , tls: {caCert, clientCert, clientKey, verifyServerCert: true} }
   where
-    envVar v = liftEff (Process.lookupEnv v)
+    envVar v = liftEffect (Process.lookupEnv v)
     loadFile = maybe (pure mempty) (map Just <<< Cfg.loadFile)
     parseProtocol p = if p == "https"
                     then Request.ProtocolHTTPS
                     else Request.ProtocolHTTP
   
-podHelloWorld :: Config -> Aff _ Unit
+podHelloWorld :: Config -> Aff Unit
 podHelloWorld cfg = Aff.finally cleanup do
   _ <- deleteNs testNs
   log "Creating test namespace"
@@ -157,19 +152,26 @@ podHelloWorld cfg = Aff.finally cleanup do
       log $ "Deleted test namespace with result: " <> show deleteRes
     shortDelay = Aff.delay (Milliseconds 500.0)
 
+iterateUntil :: forall a m. Monad m => (a -> Boolean) -> m a -> m a
+iterateUntil p x = x >>= iterateUntilM p (const x)
+
+iterateUntilM :: forall m a. Monad m => (a -> Boolean) -> (a -> m a) -> a -> m a
+iterateUntilM p f v = if p v then pure v else f v >>= iterateUntilM p f
+    
+
 foreign import parseIntImpl :: Fn3 (Int -> Maybe Int) (Maybe Int) String (Maybe Int)
 
 parseInt :: String -> Maybe Int
 parseInt = runFn3 parseIntImpl Just Nothing
     
-readNs :: Config -> String -> Aff _ (Either MetaV1.Status Namespace)
+readNs :: Config -> String -> Aff (Either MetaV1.Status Namespace)
 readNs cfg name = NS.read cfg name default
       
 notFound :: (Either MetaV1.Status Namespace) -> Boolean
 notFound = L.preview (L._Left <<< _code <<< L._Just)
            >>> maybe false (eq 404)
  
-readDeploy :: Config -> String -> String -> Aff _ (Either MetaV1.Status Deployment)
+readDeploy :: Config -> String -> String -> Aff (Either MetaV1.Status Deployment)
 readDeploy cfg ns name = Deploy.readNamespaced cfg ns name default
 
 isReadyDeploy :: (Either MetaV1.Status Deployment) -> Boolean
@@ -183,7 +185,7 @@ hasReadyReplica = L.preview readyReplicas
 readyReplicas :: L.Traversal' Deployment Int
 readyReplicas = _status <<< L._Just <<< _readyReplicas <<< L._Just
 
-pingEndpoint :: String -> Int -> Aff _ Unit
+pingEndpoint :: String -> Int -> Aff Unit
 pingEndpoint ip port = do
   log $ "Ping " <> ip <> ":" <> show port
   let req =
@@ -208,11 +210,11 @@ pingEndpoint ip port = do
       Aff.delay (Milliseconds 1000.0)
       pingEndpoint ip port
 
-unwrapEither :: forall a b. Show a => Either a b -> Aff _ b
+unwrapEither :: forall a b. Show a => Either a b -> Aff b
 unwrapEither (Left error) = throwError (Exception.error $ show error)
 unwrapEither (Right val) = pure val
 
-main :: Eff _ Unit
+main :: Effect Unit
 main = launchAff_ do
   cfg <- loadConfig
   podHelloWorld cfg

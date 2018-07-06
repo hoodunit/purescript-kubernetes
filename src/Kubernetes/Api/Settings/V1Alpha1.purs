@@ -1,27 +1,29 @@
 module Kubernetes.Api.Settings.V1Alpha1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Core.V1 as CoreV1
 import Kubernetes.Api.Meta.V1 as MetaV1
 
@@ -45,7 +47,7 @@ instance decodePodPreset :: Decode PodPreset where
                spec <- decodeMaybe "spec" a
                pure $ PodPreset { metadata, spec }
 instance encodePodPreset :: Encode PodPreset where
-  encode (PodPreset a) = encode $ StrMap.fromFoldable $
+  encode (PodPreset a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "settings.k8s.io/v1alpha1")
                , Tuple "kind" (encode "PodPreset")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -77,7 +79,7 @@ instance decodePodPresetList :: Decode PodPresetList where
                metadata <- decodeMaybe "metadata" a
                pure $ PodPresetList { items, metadata }
 instance encodePodPresetList :: Encode PodPresetList where
-  encode (PodPresetList a) = encode $ StrMap.fromFoldable $
+  encode (PodPresetList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "settings.k8s.io/v1alpha1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "PodPresetList")
@@ -116,7 +118,7 @@ instance decodePodPresetSpec :: Decode PodPresetSpec where
                volumes <- decodeMaybe "volumes" a
                pure $ PodPresetSpec { env, envFrom, selector, volumeMounts, volumes }
 instance encodePodPresetSpec :: Encode PodPresetSpec where
-  encode (PodPresetSpec a) = encode $ StrMap.fromFoldable $
+  encode (PodPresetSpec a) = encode $ Object.fromFoldable $
                [ Tuple "env" (encodeMaybe a.env)
                , Tuple "envFrom" (encodeMaybe a.envFrom)
                , Tuple "selector" (encodeMaybe a.selector)
@@ -133,7 +135,7 @@ instance defaultPodPresetSpec :: Default PodPresetSpec where
     , volumes: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/settings.k8s.io/v1alpha1/"

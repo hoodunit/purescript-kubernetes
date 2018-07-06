@@ -3,27 +3,26 @@ module Kubernetes.Generation.JsonSchema where
 import Prelude
 
 import Control.Alt ((<|>))
-import Data.Foreign (F, ForeignError(..), fail, readString)
-import Data.Foreign.Class (class Decode, decode)
-import Data.Foreign.Index (readProp)
-import Data.Foreign.NullOrUndefined (NullOrUndefined(NullOrUndefined))
 import Data.Maybe (Maybe(..))
-import Data.StrMap (StrMap)
 import Debug.Trace as Debug
+import Foreign (F, ForeignError(ForeignError), fail, readString)
+import Foreign.Class (class Decode, decode)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
 import Kubernetes.SchemaExtensions (GroupVersionKind)
 import Simple.JSON (class ReadForeign)
 
 newtype Schema = Schema
-  { _type :: NullOrUndefined TypeValidator
-  , additionalProperties :: NullOrUndefined Schema
-  , description :: NullOrUndefined String
-  , format :: NullOrUndefined String
-  , items :: NullOrUndefined Schema
-  , oneOf :: NullOrUndefined (Array Schema)
-  , properties :: NullOrUndefined (StrMap Schema)
-  , ref :: NullOrUndefined SchemaRef
-  , required :: NullOrUndefined (Array String)
-  , "x-kubernetes-group-version-kind" :: NullOrUndefined (Array GroupVersionKind) }
+  { _type :: Maybe TypeValidator
+  , additionalProperties :: Maybe Schema
+  , description :: Maybe String
+  , format :: Maybe String
+  , items :: Maybe Schema
+  , oneOf :: Maybe (Array Schema)
+  , properties :: Maybe (Object Schema)
+  , ref :: Maybe SchemaRef
+  , required :: Maybe (Array String)
+  , "x-kubernetes-group-version-kind" :: Maybe (Array GroupVersionKind) }
 instance readForeignSchema :: ReadForeign Schema where
   readImpl = decode
 instance decodeSchema :: Decode Schema where
@@ -50,7 +49,7 @@ instance showSchema :: Show Schema where
     ",\n  properties: " <> show properties <>
     ",\n  ref: " <> show ref <>
     ",\n  required: " <> show required <>
-    ",\n  x-kubernetes-group-version-kind: " <> (Debug.traceAny groupVersion \_ -> "") <> "}"
+    ",\n  x-kubernetes-group-version-kind: " <> show groupVersion <> "}"
 
 newtype SchemaRef = SchemaRef String
 instance decodeSchemaRef :: Decode SchemaRef where
@@ -87,7 +86,7 @@ instance decodeSchemaType :: Decode SchemaType where
       "integer" -> pure SchemaInteger
       "boolean" -> pure SchemaBoolean
       "null" -> pure SchemaNull
-      _ -> fail (JSONError $ "Could not decode value '" <> "' as type SchemaType")
+      _ -> fail (ForeignError $ "Could not decode value '" <> "' as type SchemaType")
 instance showSchemaType :: Show SchemaType where
   show SchemaObject = "\"object\""
   show SchemaArray = "\"array\""

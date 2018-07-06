@@ -1,27 +1,29 @@
 module Kubernetes.Api.Autoscaling.V2Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Resource as Resource
 
@@ -46,7 +48,7 @@ instance decodeCrossVersionObjectReference :: Decode CrossVersionObjectReference
                name <- decodeMaybe "name" a
                pure $ CrossVersionObjectReference { apiVersion, kind, name }
 instance encodeCrossVersionObjectReference :: Encode CrossVersionObjectReference where
-  encode (CrossVersionObjectReference a) = encode $ StrMap.fromFoldable $
+  encode (CrossVersionObjectReference a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encodeMaybe a.apiVersion)
                , Tuple "kind" (encodeMaybe a.kind)
                , Tuple "name" (encodeMaybe a.name) ]
@@ -81,7 +83,7 @@ instance decodeHorizontalPodAutoscaler :: Decode HorizontalPodAutoscaler where
                status <- decodeMaybe "status" a
                pure $ HorizontalPodAutoscaler { metadata, spec, status }
 instance encodeHorizontalPodAutoscaler :: Encode HorizontalPodAutoscaler where
-  encode (HorizontalPodAutoscaler a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscaler a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "autoscaling/v2beta1")
                , Tuple "kind" (encode "HorizontalPodAutoscaler")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -122,7 +124,7 @@ instance decodeHorizontalPodAutoscalerCondition :: Decode HorizontalPodAutoscale
                status <- decodeMaybe "status" a
                pure $ HorizontalPodAutoscalerCondition { _type, lastTransitionTime, message, reason, status }
 instance encodeHorizontalPodAutoscalerCondition :: Encode HorizontalPodAutoscalerCondition where
-  encode (HorizontalPodAutoscalerCondition a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscalerCondition a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "lastTransitionTime" (encodeMaybe a.lastTransitionTime)
                , Tuple "message" (encodeMaybe a.message)
@@ -158,7 +160,7 @@ instance decodeHorizontalPodAutoscalerList :: Decode HorizontalPodAutoscalerList
                metadata <- decodeMaybe "metadata" a
                pure $ HorizontalPodAutoscalerList { items, metadata }
 instance encodeHorizontalPodAutoscalerList :: Encode HorizontalPodAutoscalerList where
-  encode (HorizontalPodAutoscalerList a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscalerList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "autoscaling/v2beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "HorizontalPodAutoscalerList")
@@ -194,7 +196,7 @@ instance decodeHorizontalPodAutoscalerSpec :: Decode HorizontalPodAutoscalerSpec
                scaleTargetRef <- decodeMaybe "scaleTargetRef" a
                pure $ HorizontalPodAutoscalerSpec { maxReplicas, metrics, minReplicas, scaleTargetRef }
 instance encodeHorizontalPodAutoscalerSpec :: Encode HorizontalPodAutoscalerSpec where
-  encode (HorizontalPodAutoscalerSpec a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscalerSpec a) = encode $ Object.fromFoldable $
                [ Tuple "maxReplicas" (encodeMaybe a.maxReplicas)
                , Tuple "metrics" (encodeMaybe a.metrics)
                , Tuple "minReplicas" (encodeMaybe a.minReplicas)
@@ -238,7 +240,7 @@ instance decodeHorizontalPodAutoscalerStatus :: Decode HorizontalPodAutoscalerSt
                observedGeneration <- decodeMaybe "observedGeneration" a
                pure $ HorizontalPodAutoscalerStatus { conditions, currentMetrics, currentReplicas, desiredReplicas, lastScaleTime, observedGeneration }
 instance encodeHorizontalPodAutoscalerStatus :: Encode HorizontalPodAutoscalerStatus where
-  encode (HorizontalPodAutoscalerStatus a) = encode $ StrMap.fromFoldable $
+  encode (HorizontalPodAutoscalerStatus a) = encode $ Object.fromFoldable $
                [ Tuple "conditions" (encodeMaybe a.conditions)
                , Tuple "currentMetrics" (encodeMaybe a.currentMetrics)
                , Tuple "currentReplicas" (encodeMaybe a.currentReplicas)
@@ -280,7 +282,7 @@ instance decodeMetricSpec :: Decode MetricSpec where
                resource <- decodeMaybe "resource" a
                pure $ MetricSpec { _type, object, pods, resource }
 instance encodeMetricSpec :: Encode MetricSpec where
-  encode (MetricSpec a) = encode $ StrMap.fromFoldable $
+  encode (MetricSpec a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "object" (encodeMaybe a.object)
                , Tuple "pods" (encodeMaybe a.pods)
@@ -318,7 +320,7 @@ instance decodeMetricStatus :: Decode MetricStatus where
                resource <- decodeMaybe "resource" a
                pure $ MetricStatus { _type, object, pods, resource }
 instance encodeMetricStatus :: Encode MetricStatus where
-  encode (MetricStatus a) = encode $ StrMap.fromFoldable $
+  encode (MetricStatus a) = encode $ Object.fromFoldable $
                [ Tuple "_type" (encodeMaybe a._type)
                , Tuple "object" (encodeMaybe a.object)
                , Tuple "pods" (encodeMaybe a.pods)
@@ -353,7 +355,7 @@ instance decodeObjectMetricSource :: Decode ObjectMetricSource where
                targetValue <- decodeMaybe "targetValue" a
                pure $ ObjectMetricSource { metricName, target, targetValue }
 instance encodeObjectMetricSource :: Encode ObjectMetricSource where
-  encode (ObjectMetricSource a) = encode $ StrMap.fromFoldable $
+  encode (ObjectMetricSource a) = encode $ Object.fromFoldable $
                [ Tuple "metricName" (encodeMaybe a.metricName)
                , Tuple "target" (encodeMaybe a.target)
                , Tuple "targetValue" (encodeMaybe a.targetValue) ]
@@ -386,7 +388,7 @@ instance decodeObjectMetricStatus :: Decode ObjectMetricStatus where
                target <- decodeMaybe "target" a
                pure $ ObjectMetricStatus { currentValue, metricName, target }
 instance encodeObjectMetricStatus :: Encode ObjectMetricStatus where
-  encode (ObjectMetricStatus a) = encode $ StrMap.fromFoldable $
+  encode (ObjectMetricStatus a) = encode $ Object.fromFoldable $
                [ Tuple "currentValue" (encodeMaybe a.currentValue)
                , Tuple "metricName" (encodeMaybe a.metricName)
                , Tuple "target" (encodeMaybe a.target) ]
@@ -416,7 +418,7 @@ instance decodePodsMetricSource :: Decode PodsMetricSource where
                targetAverageValue <- decodeMaybe "targetAverageValue" a
                pure $ PodsMetricSource { metricName, targetAverageValue }
 instance encodePodsMetricSource :: Encode PodsMetricSource where
-  encode (PodsMetricSource a) = encode $ StrMap.fromFoldable $
+  encode (PodsMetricSource a) = encode $ Object.fromFoldable $
                [ Tuple "metricName" (encodeMaybe a.metricName)
                , Tuple "targetAverageValue" (encodeMaybe a.targetAverageValue) ]
 
@@ -444,7 +446,7 @@ instance decodePodsMetricStatus :: Decode PodsMetricStatus where
                metricName <- decodeMaybe "metricName" a
                pure $ PodsMetricStatus { currentAverageValue, metricName }
 instance encodePodsMetricStatus :: Encode PodsMetricStatus where
-  encode (PodsMetricStatus a) = encode $ StrMap.fromFoldable $
+  encode (PodsMetricStatus a) = encode $ Object.fromFoldable $
                [ Tuple "currentAverageValue" (encodeMaybe a.currentAverageValue)
                , Tuple "metricName" (encodeMaybe a.metricName) ]
 
@@ -475,7 +477,7 @@ instance decodeResourceMetricSource :: Decode ResourceMetricSource where
                targetAverageValue <- decodeMaybe "targetAverageValue" a
                pure $ ResourceMetricSource { name, targetAverageUtilization, targetAverageValue }
 instance encodeResourceMetricSource :: Encode ResourceMetricSource where
-  encode (ResourceMetricSource a) = encode $ StrMap.fromFoldable $
+  encode (ResourceMetricSource a) = encode $ Object.fromFoldable $
                [ Tuple "name" (encodeMaybe a.name)
                , Tuple "targetAverageUtilization" (encodeMaybe a.targetAverageUtilization)
                , Tuple "targetAverageValue" (encodeMaybe a.targetAverageValue) ]
@@ -508,7 +510,7 @@ instance decodeResourceMetricStatus :: Decode ResourceMetricStatus where
                name <- decodeMaybe "name" a
                pure $ ResourceMetricStatus { currentAverageUtilization, currentAverageValue, name }
 instance encodeResourceMetricStatus :: Encode ResourceMetricStatus where
-  encode (ResourceMetricStatus a) = encode $ StrMap.fromFoldable $
+  encode (ResourceMetricStatus a) = encode $ Object.fromFoldable $
                [ Tuple "currentAverageUtilization" (encodeMaybe a.currentAverageUtilization)
                , Tuple "currentAverageValue" (encodeMaybe a.currentAverageValue)
                , Tuple "name" (encodeMaybe a.name) ]
@@ -521,7 +523,7 @@ instance defaultResourceMetricStatus :: Default ResourceMetricStatus where
     , name: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/autoscaling/v2beta1/"

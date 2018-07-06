@@ -1,27 +1,29 @@
 module Kubernetes.Api.Policy.V1Beta1 where
 
 import Prelude
+import Prelude
+import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Either (Either(Left,Right))
-import Data.Foreign.Class (class Decode, class Encode, decode, encode)
-import Data.Foreign.Class (class Decode, class Encode, encode, decode)
-import Data.Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Data.Foreign.Generic (encodeJSON, genericEncode, genericDecode)
-import Data.Foreign.Generic.Types (Options)
-import Data.Foreign.Index (readProp)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe(Just,Nothing))
 import Data.Newtype (class Newtype)
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
 import Data.Tuple (Tuple(Tuple))
+import Effect.Aff (Aff)
+import Foreign.Class (class Decode, class Encode, decode, encode)
+import Foreign.Class (class Decode, class Encode, encode, decode)
+import Prelude
+import Data.Maybe (Maybe(Just,Nothing))
+import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
+import Foreign.Generic (encodeJSON, genericEncode, genericDecode)
+import Foreign.Generic.Types (Options)
+import Foreign.Index (readProp)
+import Foreign.Object (Object)
+import Foreign.Object as Object
 import Kubernetes.Client as Client
 import Kubernetes.Config (Config)
 import Kubernetes.Default (class Default)
 import Kubernetes.Json (assertPropEq, decodeMaybe, encodeMaybe, jsonOptions)
-import Node.HTTP (HTTP)
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Util as Util
 
@@ -45,7 +47,7 @@ instance decodeEviction :: Decode Eviction where
                metadata <- decodeMaybe "metadata" a
                pure $ Eviction { deleteOptions, metadata }
 instance encodeEviction :: Encode Eviction where
-  encode (Eviction a) = encode $ StrMap.fromFoldable $
+  encode (Eviction a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "policy/v1beta1")
                , Tuple "deleteOptions" (encodeMaybe a.deleteOptions)
                , Tuple "kind" (encode "Eviction")
@@ -80,7 +82,7 @@ instance decodePodDisruptionBudget :: Decode PodDisruptionBudget where
                status <- decodeMaybe "status" a
                pure $ PodDisruptionBudget { metadata, spec, status }
 instance encodePodDisruptionBudget :: Encode PodDisruptionBudget where
-  encode (PodDisruptionBudget a) = encode $ StrMap.fromFoldable $
+  encode (PodDisruptionBudget a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "policy/v1beta1")
                , Tuple "kind" (encode "PodDisruptionBudget")
                , Tuple "metadata" (encodeMaybe a.metadata)
@@ -114,7 +116,7 @@ instance decodePodDisruptionBudgetList :: Decode PodDisruptionBudgetList where
                metadata <- decodeMaybe "metadata" a
                pure $ PodDisruptionBudgetList { items, metadata }
 instance encodePodDisruptionBudgetList :: Encode PodDisruptionBudgetList where
-  encode (PodDisruptionBudgetList a) = encode $ StrMap.fromFoldable $
+  encode (PodDisruptionBudgetList a) = encode $ Object.fromFoldable $
                [ Tuple "apiVersion" (encode "policy/v1beta1")
                , Tuple "items" (encodeMaybe a.items)
                , Tuple "kind" (encode "PodDisruptionBudgetList")
@@ -147,7 +149,7 @@ instance decodePodDisruptionBudgetSpec :: Decode PodDisruptionBudgetSpec where
                selector <- decodeMaybe "selector" a
                pure $ PodDisruptionBudgetSpec { maxUnavailable, minAvailable, selector }
 instance encodePodDisruptionBudgetSpec :: Encode PodDisruptionBudgetSpec where
-  encode (PodDisruptionBudgetSpec a) = encode $ StrMap.fromFoldable $
+  encode (PodDisruptionBudgetSpec a) = encode $ Object.fromFoldable $
                [ Tuple "maxUnavailable" (encodeMaybe a.maxUnavailable)
                , Tuple "minAvailable" (encodeMaybe a.minAvailable)
                , Tuple "selector" (encodeMaybe a.selector) ]
@@ -171,7 +173,7 @@ instance defaultPodDisruptionBudgetSpec :: Default PodDisruptionBudgetSpec where
 newtype PodDisruptionBudgetStatus = PodDisruptionBudgetStatus
   { currentHealthy :: (Maybe Int)
   , desiredHealthy :: (Maybe Int)
-  , disruptedPods :: (Maybe (StrMap MetaV1.Time))
+  , disruptedPods :: (Maybe (Object MetaV1.Time))
   , disruptionsAllowed :: (Maybe Int)
   , expectedPods :: (Maybe Int)
   , observedGeneration :: (Maybe Int) }
@@ -189,7 +191,7 @@ instance decodePodDisruptionBudgetStatus :: Decode PodDisruptionBudgetStatus whe
                observedGeneration <- decodeMaybe "observedGeneration" a
                pure $ PodDisruptionBudgetStatus { currentHealthy, desiredHealthy, disruptedPods, disruptionsAllowed, expectedPods, observedGeneration }
 instance encodePodDisruptionBudgetStatus :: Encode PodDisruptionBudgetStatus where
-  encode (PodDisruptionBudgetStatus a) = encode $ StrMap.fromFoldable $
+  encode (PodDisruptionBudgetStatus a) = encode $ Object.fromFoldable $
                [ Tuple "currentHealthy" (encodeMaybe a.currentHealthy)
                , Tuple "desiredHealthy" (encodeMaybe a.desiredHealthy)
                , Tuple "disruptedPods" (encodeMaybe a.disruptedPods)
@@ -208,7 +210,7 @@ instance defaultPodDisruptionBudgetStatus :: Default PodDisruptionBudgetStatus w
     , observedGeneration: Nothing }
 
 -- | get available resources
-getAPIResources :: forall e. Config -> Aff (http :: HTTP | e) (Either MetaV1.Status MetaV1.APIResourceList)
+getAPIResources :: Config -> Aff (Either MetaV1.Status MetaV1.APIResourceList)
 getAPIResources cfg = Client.makeRequest (Client.get cfg url Nothing)
   where
     url = "/apis/policy/v1beta1/"

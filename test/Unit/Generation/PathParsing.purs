@@ -2,17 +2,13 @@ module Kubernetes.Test.Unit.Generation.PathParsing where
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.AVar (AVAR)
-import Control.Monad.Eff.Console (CONSOLE)
 import Kubernetes.Generation.AST (UrlWithParams(..))
 import Kubernetes.Generation.PathParsing (parse)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
-import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
 
-tests :: forall e. TestSuite (avar :: AVAR, console :: CONSOLE, testOutput :: TESTOUTPUT | e)
+tests :: TestSuite
 tests = suite "Parsing API paths" do
   test "No params" do
     Assert.equal

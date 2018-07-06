@@ -3,8 +3,8 @@ module Kubernetes.SchemaExtensions where
 import Prelude
 
 import Control.Alt ((<|>))
-import Data.Foreign.Class (class Decode, decode)
-import Data.Foreign.Index (readProp)
+import Foreign.Class (class Decode, decode)
+import Foreign.Index (readProp)
 import Data.Newtype (class Newtype)
 import Simple.JSON (class ReadForeign, class WriteForeign)
 import Simple.JSON as SimpleJSON
