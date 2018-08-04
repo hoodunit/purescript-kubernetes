@@ -24,6 +24,7 @@
     "test:unit:watch": "pulp --watch test --main Kubernetes.Test.Unit.Main"
   },
   "dependencies": {
+    "js-yaml": "3.11.0",
     "mute-stream": "0.0.7",
     "read": "1.0.7"
   }

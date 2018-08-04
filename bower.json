@@ -31,6 +31,7 @@
     "purescript-newtype": "^3.0.0",
     "purescript-node-fs-aff": "^6.0.0",
     "purescript-node-http": "^5.0.0",
+    "purescript-node-os": "git@github.com:Dstoq/purescript-node-os.git#f64a286b55172f81bdeec8ac2b5d8d3d5e05b65d",
     "purescript-node-process": "^6.0.0",
     "purescript-node-url": "^4.0.0",
     "purescript-prelude": "^4.0.1",

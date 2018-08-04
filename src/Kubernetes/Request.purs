@@ -34,6 +34,13 @@ type Request =
   , rejectUnauthorized :: Boolean }
 
 data Protocol = ProtocolHTTP | ProtocolHTTPS
+instance showProtocol :: Show Protocol where
+  show ProtocolHTTP = "HTTP"
+  show ProtocolHTTPS = "HTTPS"
+instance eqProtocol :: Eq Protocol where
+  eq ProtocolHTTP ProtocolHTTP = true
+  eq ProtocolHTTPS ProtocolHTTPS = true
+  eq _ _ = false
 
 type Response =
   { body :: String

@@ -1,5 +1,6 @@
 module Kubernetes.Test.Integration.Main where
 
+import Data.Lens
 import Kubernetes.Api.Batch.V1
 import Kubernetes.Api.Core.V1
 import Kubernetes.Api.Lens
@@ -8,37 +9,45 @@ import Prelude
 import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
 import Data.Either (Either(..), either, hush)
-import Foreign (MultipleErrors)
-import Foreign as Foreign
 import Data.Function.Uncurried (Fn3, runFn3)
 import Data.HTTP.Method as Method
-import Data.Lens
 import Data.Lens as L
+import Data.List.NonEmpty (NonEmptyList(..))
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (mempty)
 import Data.Time.Duration (Milliseconds(..))
 import Data.Tuple (Tuple(..))
 import Debug.Trace as Debug
+import Effect (Effect)
 import Effect.Aff (Aff, launchAff_, throwError)
 import Effect.Aff as Aff
-import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log, logShow)
 import Effect.Exception as Exception
+import Foreign (MultipleErrors)
+import Foreign as Foreign
 import Foreign.Object as Object
+import Kubernetes.Api.APIExtensions.V1Beta1 (Deployment(Deployment))
 import Kubernetes.Api.Core.V1.Namespace as NS
 import Kubernetes.Api.Core.V1.Service as Service
 import Kubernetes.Api.Extensions.V1Beta1.Deployment as Deploy
-import Kubernetes.Api.APIExtensions.V1Beta1 (Deployment(Deployment))
 import Kubernetes.Api.Meta.V1 as MetaV1
 import Kubernetes.Api.Util (IntOrString(..))
 import Kubernetes.Client as Client
-import Kubernetes.Config (Config(Config))
+import Kubernetes.Config (Config(Config), ConfigError)
 import Kubernetes.Config as Cfg
+import Kubernetes.Config as Config
 import Kubernetes.Default (default)
+import Kubernetes.KubeConfig (KubeConfig, KubeConfigError)
+import Kubernetes.ParseInt (parseInt)
 import Kubernetes.Request as Request
+import Kubernetes.Yaml (YamlError)
+import Kubernetes.Yaml as Yaml
 import Node.Encoding (Encoding(..))
+import Node.Encoding as Encoding
 import Node.FS.Aff (readTextFile)
+import Node.FS.Aff as FS
+import Node.OS as OS
 import Node.Process as Process
     
 echoDeployment :: Deployment
@@ -96,8 +105,8 @@ testNamespace2 = default # (\(Namespace n) -> Namespace $ n
         default # (\(MetaV1.ObjectMeta m) -> MetaV1.ObjectMeta $ m
           { name = Just "test" }) })
 
-loadConfig :: Aff Config
-loadConfig = do
+loadConfigFromEnv :: Aff Config
+loadConfigFromEnv = do
   host <- envVar "K8S_HOST"
   portStr <- envVar "K8S_PORT"
   let port = fromMaybe 80 (portStr >>= parseInt)
@@ -125,8 +134,8 @@ loadConfig = do
                     then Request.ProtocolHTTPS
                     else Request.ProtocolHTTP
   
-podHelloWorld :: Config -> Aff Unit
-podHelloWorld cfg = Aff.finally cleanup do
+helloServiceTest :: Config -> Aff Unit
+helloServiceTest cfg = Aff.finally cleanup do
   _ <- deleteNs testNs
   log "Creating test namespace"
   ns <- NS.create cfg testNamespace >>= unwrapEither
@@ -157,12 +166,6 @@ iterateUntil p x = x >>= iterateUntilM p (const x)
 
 iterateUntilM :: forall m a. Monad m => (a -> Boolean) -> (a -> m a) -> a -> m a
 iterateUntilM p f v = if p v then pure v else f v >>= iterateUntilM p f
-    
-
-foreign import parseIntImpl :: Fn3 (Int -> Maybe Int) (Maybe Int) String (Maybe Int)
-
-parseInt :: String -> Maybe Int
-parseInt = runFn3 parseIntImpl Just Nothing
     
 readNs :: Config -> String -> Aff (Either MetaV1.Status Namespace)
 readNs cfg name = NS.read cfg name default
@@ -214,7 +217,14 @@ unwrapEither :: forall a b. Show a => Either a b -> Aff b
 unwrapEither (Left error) = throwError (Exception.error $ show error)
 unwrapEither (Right val) = pure val
 
+loadKubeConfig :: Aff (Either ConfigError Config)
+loadKubeConfig = do
+  homeDir <- liftEffect OS.homedir
+  let path = homeDir <> "/.kube/config"
+  Config.loadKubeConfig path
+
 main :: Effect Unit
 main = launchAff_ do
-  cfg <- loadConfig
-  podHelloWorld cfg
+  -- loadConfigFromEnv >>= helloServiceTest
+  config <- loadKubeConfig
+  liftEffect $ log (show config)
