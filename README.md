@@ -10,6 +10,7 @@ Supports:
 
 Missing:
 
+* Loading local kubeconfig
 * Watch calls
 * Untested: exec, attach, port-forward calls
 * Encodings other than JSON
