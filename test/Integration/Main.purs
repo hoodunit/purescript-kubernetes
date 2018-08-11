@@ -1,31 +1,23 @@
 module Kubernetes.Test.Integration.Main where
 
 import Data.Lens
-import Kubernetes.Api.Batch.V1
 import Kubernetes.Api.Core.V1
 import Kubernetes.Api.Lens
 import Prelude
 
 import Control.Alt ((<|>))
-import Control.Monad.Except (runExcept)
-import Data.Either (Either(..), either, hush)
-import Data.Function.Uncurried (Fn3, runFn3)
+import Data.Either (Either(..))
 import Data.HTTP.Method as Method
 import Data.Lens as L
-import Data.List.NonEmpty (NonEmptyList(..))
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
-import Data.Monoid (mempty)
 import Data.Time.Duration (Milliseconds(..))
 import Data.Tuple (Tuple(..))
-import Debug.Trace as Debug
 import Effect (Effect)
 import Effect.Aff (Aff, launchAff_, throwError)
 import Effect.Aff as Aff
 import Effect.Class (liftEffect)
-import Effect.Class.Console (log, logShow)
+import Effect.Class.Console (log)
 import Effect.Exception as Exception
-import Foreign (MultipleErrors)
-import Foreign as Foreign
 import Foreign.Object as Object
 import Kubernetes.Api.APIExtensions.V1Beta1 (Deployment(Deployment))
 import Kubernetes.Api.Core.V1.Namespace as NS
@@ -225,6 +217,6 @@ loadKubeConfig = do
 
 main :: Effect Unit
 main = launchAff_ do
-  -- loadConfigFromEnv >>= helloServiceTest
-  config <- loadKubeConfig
-  liftEffect $ log (show config)
+  loadConfigFromEnv >>= helloServiceTest
+  -- config <- loadKubeConfig
+  -- liftEffect $ log (show config)
