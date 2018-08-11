@@ -161,7 +161,7 @@ parseClusterServer Nothing =
   Left $ ClusterUrlError { url: "", msg: "No cluster URL was given in config"}
 parseClusterServer (Just url) = do
   let parsed = Url.parse url
-  host <- toMaybe parsed.host
+  host <- toMaybe parsed.hostname
     # asUrlError "Could not parse cluster host from URL"
   protocol <- toMaybe parsed.protocol
     # asUrlError "Could not parse protocol from URL"

@@ -74,9 +74,9 @@ tests = do
             client-certificate-data: fake-cert-data
             client-key-data: fake-key-data
         """
-      let _resultPort = L._Right <<< _cluster <<< _port
+      let _cfgCluster = L._Right <<< _cluster
       config <- runExceptT $ Config.parseAndLoadKubeConfig configStr
-      Assert.equal (Just 5000) (L.preview _resultPort config)
+      Assert.equal (Just {host: "1.2.3.4", port: 5000, protocol: Request.ProtocolHTTPS}) (L.preview _cfgCluster config)
         
     test "chooses cluster and user based on current-context #1" do
       let configStr = """
